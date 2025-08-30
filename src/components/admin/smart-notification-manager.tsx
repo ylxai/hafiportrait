@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { EnhancedToastContainer, type EnhancedToastProps } from '@/components/ui/enhanced-toast';
-import { EnhancedNotificationCenter } from './enhanced-notification-center';
+// import { EnhancedNotificationCenter } from './enhanced-notification-center'; // Removed - component deleted
 import { useStatusNotifications } from '@/hooks/use-status-notifications';
 import type { Event } from '@/lib/database';
 

@@ -46,8 +46,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import dynamic from 'next/dynamic';
 
-// Import the reorder helper component
-const PackageReorderHelper = dynamic(() => import("./package-reorder-helper"), { ssr: false });
+// Import the reorder helper component - REMOVED (component deleted)
+// const PackageReorderHelper = dynamic(() => import("./package-reorder-helper"), { ssr: false });
 
 interface PricingPackage {
   id: string;
@@ -445,13 +445,13 @@ export default function PricingPackagesManager() {
         </div>
       </div>
 
-      {/* Bulk Reorder Helper */}
+      {/* Bulk Reorder Helper - DISABLED (component removed) */}
       {showReorderHelper && packages.length > 1 && (
-        <PackageReorderHelper
-          packages={packages}
-          onReorder={(reorderedPackages) => reorderMutation.mutate(reorderedPackages)}
-          isReordering={reorderMutation.isPending}
-        />
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <p className="text-yellow-800">Bulk reorder helper temporarily disabled. Use individual ↑ ↓ buttons for now.</p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Reorder Instructions */}

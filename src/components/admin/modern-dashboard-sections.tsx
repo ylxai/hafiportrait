@@ -24,7 +24,7 @@ import {
   Monitor,
   Settings
 } from "lucide-react";
-import { ResponsiveGrid, MobileCard } from "./responsive-grid";
+// import { ResponsiveGrid, MobileCard } from "./responsive-grid"; // Removed - component deleted
 import { MobileDataTable } from "./mobile-data-table";
 import { QuickActionButtons } from "./quick-action-buttons";
 import { SlideshowPanel } from "./slideshow-panel";
@@ -67,39 +67,59 @@ export function DashboardSection({ stats, events = [] }: DashboardSectionProps) 
       </div>
 
       {/* Quick Stats */}
-      <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 4 }}>
-        <MobileCard
-          title="Total Event"
-          value={stats?.totalEvents || 0}
-          icon={<Calendar className="h-5 w-5" />}
-          subtitle="Event aktif & selesai"
-          trend="+12%"
-        />
-        <MobileCard
-          title="Total Foto"
-          value={stats?.totalPhotos || 0}
-          icon={<Camera className="h-5 w-5" />}
-          subtitle="Semua galeri"
-          trend="+8%"
-        />
-        <MobileCard
-          title="Total Pesan"
-          value={stats?.totalMessages || 0}
-          icon={<MessageSquare className="h-5 w-5" />}
-          subtitle="Dari pengunjung"
-          trend="+15%"
-        />
-        <MobileCard
-          title="Pengunjung"
-          value="2.4K"
-          icon={<Users className="h-5 w-5" />}
-          subtitle="Bulan ini"
-          trend="+23%"
-        />
-      </ResponsiveGrid>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Event</p>
+                <p className="text-2xl font-bold">{stats?.totalEvents || 0}</p>
+                <p className="text-xs text-gray-500">Event aktif & selesai</p>
+              </div>
+              <Calendar className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Foto</p>
+                <p className="text-2xl font-bold">{stats?.totalPhotos || 0}</p>
+                <p className="text-xs text-gray-500">Semua galeri</p>
+              </div>
+              <Camera className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Pesan</p>
+                <p className="text-2xl font-bold">{stats?.totalMessages || 0}</p>
+                <p className="text-xs text-gray-500">Dari pengunjung</p>
+              </div>
+              <MessageSquare className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pengunjung</p>
+                <p className="text-2xl font-bold">2.4K</p>
+                <p className="text-xs text-gray-500">Bulan ini</p>
+              </div>
+              <Users className="h-8 w-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Event Status Overview */}
-      <ResponsiveGrid columns={{ mobile: 2, tablet: 4, desktop: 4 }}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
@@ -132,7 +152,7 @@ export function DashboardSection({ stats, events = [] }: DashboardSectionProps) 
             <div className="text-sm text-purple-700">Diarsip</div>
           </CardContent>
         </Card>
-      </ResponsiveGrid>
+      </div>
 
       {/* Quick Actions */}
       <QuickActionButtons 
