@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { EnhancedToastContainer, type EnhancedToastProps } from '@/components/ui/enhanced-toast';
-// import { EnhancedNotificationCenter } from './enhanced-notification-center'; // Removed - component deleted
+import { RobustNotificationCenter } from './robust-notification-center';
 import { useStatusNotifications } from '@/hooks/use-status-notifications';
 import type { Event } from '@/lib/database';
 
@@ -318,10 +318,11 @@ export function SmartNotificationManager({
 
   return (
     <div className="relative">
-      {/* Enhanced Notification Center */}
-      <EnhancedNotificationCenter 
-        events={events} 
+      {/* Robust Notification Center */}
+      <RobustNotificationCenter 
+        events={events}
         onRefresh={onRefresh}
+        onStatusChange={onStatusChange}
       />
 
       {/* Enhanced Toast Container */}
@@ -329,6 +330,11 @@ export function SmartNotificationManager({
         toasts={toasts}
         onDismiss={removeToast}
       />
+
+      {/* Notification Settings Panel */}
+      <div className="mt-4">
+        <NotificationSettings />
+      </div>
 
       {/* Expose methods for external use */}
       <div style={{ display: 'none' }}>
