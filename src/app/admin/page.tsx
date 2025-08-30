@@ -9,7 +9,7 @@ import type { Event, Stats } from "@/lib/database";
 
 // Import modern components
 import { ModernAdminLayout } from "@/components/admin/modern-admin-layout";
-import { GlobalToastProvider } from "@/components/admin/global-toast-provider";
+import { GlobalToastProvider, globalToast } from "@/components/admin/global-toast-provider";
 import { 
   DashboardSection,
   EventsListSection,
@@ -127,10 +127,7 @@ export default function ModernAdminDashboard() {
       setIsEventFormOpen(false);
       
       // Show success notification
-      toast({
-        title: "✅ Event Berhasil Dibuat!",
-        description: `Event "${newEvent.name}" telah ditambahkan.`,
-      });
+      globalToast.success("Event Berhasil Dibuat!", `Event "${newEvent.name}" telah ditambahkan.`);
       
       // Show QR Code modal after creation
       setSelectedEventForQR(newEvent);
@@ -138,6 +135,9 @@ export default function ModernAdminDashboard() {
       
       // Navigate back to events list
       setActiveSection('events-list');
+    },
+    onError: (error: any) => {
+      globalToast.error("Gagal Membuat Event!", error.message || "Terjadi kesalahan saat membuat event.");
     },
   });
 
@@ -147,15 +147,15 @@ export default function ModernAdminDashboard() {
       if (!response.ok) throw new Error('Failed to update event');
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedEvent: Event) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
       setIsEventFormOpen(false);
       setEditingEvent(null);
-      toast({
-        title: "✅ Event Berhasil Diupdate!",
-        description: "Perubahan telah disimpan.",
-      });
+      globalToast.success("Event Berhasil Diupdate!", `Event "${updatedEvent.name}" telah diperbarui.`);
+    },
+    onError: (error: any) => {
+      globalToast.error("Gagal Update Event!", error.message || "Terjadi kesalahan saat mengupdate event.");
     },
   });
 
@@ -165,13 +165,14 @@ export default function ModernAdminDashboard() {
       if (!response.ok) throw new Error('Failed to delete event');
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, eventId) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
-      toast({
-        title: "✅ Event Berhasil Dihapus!",
-        description: "Event telah dihapus dari sistem.",
-      });
+      const deletedEvent = events.find(e => e.id === eventId);
+      globalToast.success("Event Berhasil Dihapus!", `Event "${deletedEvent?.name || 'Unknown'}" telah dihapus dari sistem.`);
+    },
+    onError: (error: any) => {
+      globalToast.error("Gagal Hapus Event!", error.message || "Terjadi kesalahan saat menghapus event.");
     },
   });
 

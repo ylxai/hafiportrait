@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import type { Event } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
+import { globalToast } from './global-toast-provider';
 import { copyWithToast } from "@/utils/clipboard";
 import { generateEventUrl } from "@/lib/app-config";
 import { QrCode, Share2, Copy, CheckCircle, ExternalLink } from "lucide-react";
@@ -70,13 +71,15 @@ export default function EventForm({ editingEvent, onSave, onCancel, isSaving, cr
 
   const handleSubmit = () => {
     if (!name || !date || !accessCode) {
-      toast({
-        title: "Data Tidak Lengkap",
-        description: "Mohon isi semua field yang diperlukan.",
-        variant: "destructive",
-      });
+      globalToast.error("Data Tidak Lengkap", "Mohon isi semua field yang diperlukan.");
       return;
     }
+    
+    // Show loading toast
+    const loadingId = globalToast.loading(
+      editingEvent ? "Mengupdate Event..." : "Membuat Event...", 
+      "Sedang memproses data event..."
+    );
     
     onSave({
       id: editingEvent?.id,

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import type { Event } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
+import { globalToast } from './global-toast-provider';
 import { useState } from "react";
 import { EventBackupManager } from "./event-backup-manager";
 import { EventStatusManager, type EventWithStatus } from "./event-status-manager";
@@ -220,6 +221,7 @@ export default function EventList({
                   {/* Delete Button */}
                   <Button size="sm" variant="destructive" onClick={() => {
                     if (confirm('Yakin ingin menghapus event ini? Semua foto dan pesan akan ikut terhapus.')) {
+                      globalToast.loading("Menghapus Event...", `Menghapus event "${event.name}"`);
                       onDelete(event.id);
                     }
                   }} className="min-h-[44px] min-w-[44px]">
