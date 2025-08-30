@@ -25,7 +25,7 @@ interface Toast {
   };
 }
 
-interface ToastContextType {
+interface GlobalToastContextType {
   showToast: (toast: Omit<Toast, 'id'>) => void;
   showSuccess: (title: string, message?: string) => void;
   showError: (title: string, message?: string) => void;
@@ -35,12 +35,12 @@ interface ToastContextType {
   hideToast: (id: string) => void;
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+const GlobalToastContext = createContext<GlobalToastContextType | undefined>(undefined);
 
-export function useToast() {
-  const context = useContext(ToastContext);
+export function useGlobalToast() {
+  const context = useContext(GlobalToastContext);
   if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
+    throw new Error('useGlobalToast must be used within GlobalToastProvider');
   }
   return context;
 }
@@ -115,7 +115,7 @@ export function GlobalToastProvider({ children }: { children: React.ReactNode })
   };
 
   return (
-    <ToastContext.Provider value={{
+    <GlobalToastContext.Provider value={{
       showToast,
       showSuccess,
       showError,
@@ -168,7 +168,7 @@ export function GlobalToastProvider({ children }: { children: React.ReactNode })
           </Card>
         ))}
       </div>
-    </ToastContext.Provider>
+    </GlobalToastContext.Provider>
   );
 }
 

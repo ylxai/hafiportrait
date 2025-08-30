@@ -618,9 +618,8 @@ export default function ModernAdminDashboard() {
           activeSection={activeSection}
           onSectionChange={setActiveSection}
           user={auth.user}
+          stats={stats}
         >
-        stats={stats}
-      >
         {renderCurrentSection()}
       </ModernAdminLayout>
 
