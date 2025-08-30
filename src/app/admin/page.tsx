@@ -9,6 +9,7 @@ import type { Event, Stats } from "@/lib/database";
 
 // Import modern components
 import { ModernAdminLayout } from "@/components/admin/modern-admin-layout";
+import { GlobalToastProvider } from "@/components/admin/global-toast-provider";
 import { 
   DashboardSection,
   EventsListSection,
@@ -611,12 +612,13 @@ export default function ModernAdminDashboard() {
   }
 
   return (
-    <ToastProvider>
-      <ModernAdminLayout
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-        user={auth.user}
-        onLogout={handleLogout}
+    <GlobalToastProvider>
+      <ToastProvider>
+        <ModernAdminLayout
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+          user={auth.user}
+        >
         stats={stats}
       >
         {renderCurrentSection()}
@@ -742,6 +744,7 @@ export default function ModernAdminDashboard() {
           setSelectedEventForQR(null);
         }}
       />
-    </ToastProvider>
+      </ToastProvider>
+    </GlobalToastProvider>
   );
 }

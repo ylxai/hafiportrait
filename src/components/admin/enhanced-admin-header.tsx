@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SmartNotificationManager } from './smart-notification-manager';
+import { RobustNotificationCenter } from './robust-notification-center';
 import { useIsMobile, useBreakpoint } from '@/hooks/use-mobile';
 import { 
   Menu, 
@@ -65,15 +65,12 @@ export function EnhancedAdminHeader({
 
           {/* Desktop Navigation & Actions */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Smart Notification Manager */}
-            <SmartNotificationManager 
+            {/* Robust Notification Center - Single source of truth */}
+            <RobustNotificationCenter 
               events={events}
               onRefresh={onRefresh}
               onStatusChange={onStatusChange}
             />
-
-            {/* Enhanced Notification Bell */}
-            <NotificationBell className="relative" />
 
             {/* User Menu */}
             <div className="relative">
@@ -132,10 +129,7 @@ export function EnhancedAdminHeader({
 
           {/* Mobile Actions */}
           <div className="md:hidden flex items-center gap-2">
-            {/* Mobile Notification Bell - Enhanced */}
-            <div className="relative">
-              <NotificationBell className="mobile-optimized" />
-            </div>
+            {/* Mobile Notification - Handled in mobile menu */}
 
             {/* Mobile Menu Button */}
             <button
@@ -167,9 +161,9 @@ export function EnhancedAdminHeader({
                 </div>
               </div>
 
-              {/* Mobile Smart Notification Manager */}
+              {/* Mobile Notification Center */}
               <div className="p-3 bg-blue-50 rounded-lg">
-                <SmartNotificationManager 
+                <RobustNotificationCenter 
                   events={events}
                   onRefresh={onRefresh}
                   onStatusChange={onStatusChange}

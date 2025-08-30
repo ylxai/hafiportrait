@@ -318,23 +318,12 @@ export function SmartNotificationManager({
 
   return (
     <div className="relative">
-      {/* Robust Notification Center */}
+      {/* Only use RobustNotificationCenter - no duplication */}
       <RobustNotificationCenter 
         events={events}
         onRefresh={onRefresh}
         onStatusChange={onStatusChange}
       />
-
-      {/* Enhanced Toast Container */}
-      <EnhancedToastContainer 
-        toasts={toasts}
-        onDismiss={removeToast}
-      />
-
-      {/* Notification Settings Panel */}
-      <div className="mt-4">
-        <NotificationSettings />
-      </div>
 
       {/* Expose methods for external use */}
       <div style={{ display: 'none' }}>
