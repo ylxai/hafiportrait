@@ -1,0 +1,188 @@
+/* Admin Dashboard Mobile Optimizations */
+
+/* Ensure all titles are responsive */
+.admin-title {
+  @apply text-lg md:text-xl lg:text-2xl font-bold;
+}
+
+.admin-subtitle {
+  @apply text-sm md:text-base text-gray-600;
+}
+
+/* Mobile-friendly buttons */
+.admin-button-mobile {
+  @apply w-full sm:w-auto min-h-[44px] text-base;
+}
+
+.admin-button-icon-mobile {
+  @apply h-8 w-8 p-0 min-h-[44px] min-w-[44px];
+}
+
+/* Mobile-friendly form elements */
+.admin-input-mobile {
+  @apply text-base min-h-[44px] px-4 py-3;
+}
+
+.admin-select-mobile {
+  @apply text-base min-h-[44px] px-4 py-3;
+}
+
+/* Mobile-friendly cards and containers */
+.admin-card-mobile {
+  @apply p-4 md:p-6;
+}
+
+.admin-header-mobile {
+  @apply flex flex-col sm:flex-row sm:items-center justify-between gap-4;
+}
+
+/* Mobile-friendly grid layouts */
+.admin-grid-mobile {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.admin-photo-grid-mobile {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4;
+}
+
+/* Mobile-friendly action buttons */
+.admin-action-buttons-mobile {
+  @apply flex flex-col sm:flex-row gap-2 w-full sm:w-auto;
+}
+
+/* Mobile-friendly text sizes */
+.admin-text-responsive {
+  @apply text-sm md:text-base;
+}
+
+.admin-text-small-responsive {
+  @apply text-xs md:text-sm;
+}
+
+/* Mobile-friendly spacing */
+.admin-spacing-mobile {
+  @apply space-y-4 md:space-y-6;
+}
+
+.admin-padding-mobile {
+  @apply p-4 md:p-6;
+}
+
+.admin-margin-mobile {
+  @apply m-4 md:m-6;
+}
+
+/* Mobile-friendly modal and dialog */
+.admin-modal-mobile {
+  @apply w-full max-w-[95vw] sm:max-w-2xl mx-4 sm:mx-auto;
+}
+
+/* Mobile-friendly table alternatives */
+.admin-table-mobile {
+  @apply block sm:table w-full;
+}
+
+.admin-table-row-mobile {
+  @apply block sm:table-row border-b sm:border-b-0 mb-4 sm:mb-0 p-4 sm:p-0 bg-white sm:bg-transparent rounded-lg sm:rounded-none shadow sm:shadow-none;
+}
+
+.admin-table-cell-mobile {
+  @apply block sm:table-cell text-left sm:text-center py-2 sm:py-4 px-0 sm:px-4;
+}
+
+/* Mobile-friendly navigation */
+.admin-nav-mobile {
+  @apply flex flex-col sm:flex-row gap-2 sm:gap-4;
+}
+
+/* Mobile-friendly stats cards */
+.admin-stats-mobile {
+  @apply grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4;
+}
+
+/* Mobile-friendly upload areas */
+.admin-upload-mobile {
+  @apply border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-8 text-center hover:border-gray-400 transition-colors;
+}
+
+/* Mobile-friendly search */
+.admin-search-mobile {
+  @apply w-full sm:w-auto min-w-0 sm:min-w-[200px];
+}
+
+/* Mobile-friendly badges and indicators */
+.admin-badge-mobile {
+  @apply text-xs px-2 py-1 rounded-full;
+}
+
+/* Mobile-friendly tooltips and popovers */
+.admin-tooltip-mobile {
+  @apply text-xs max-w-[200px] sm:max-w-xs;
+}
+
+/* Mobile-friendly loading states */
+.admin-loading-mobile {
+  @apply flex items-center justify-center p-8 md:p-12;
+}
+
+/* Mobile-friendly empty states */
+.admin-empty-mobile {
+  @apply text-center py-8 md:py-12 px-4;
+}
+
+/* Mobile-friendly error states */
+.admin-error-mobile {
+  @apply text-center py-6 md:py-8 px-4 text-red-600;
+}
+
+/* Responsive hide/show utilities */
+.mobile-only {
+  @apply block sm:hidden;
+}
+
+.desktop-only {
+  @apply hidden sm:block;
+}
+
+.tablet-up {
+  @apply hidden md:block;
+}
+
+/* Touch-friendly interactive elements */
+.touch-friendly {
+  @apply min-h-[44px] min-w-[44px];
+}
+
+/* Mobile-friendly overflow handling */
+.admin-overflow-mobile {
+  @apply overflow-x-auto sm:overflow-x-visible;
+}
+
+/* Mobile-friendly flex layouts */
+.admin-flex-mobile {
+  @apply flex flex-col sm:flex-row gap-4;
+}
+
+.admin-flex-center-mobile {
+  @apply flex flex-col sm:flex-row items-stretch sm:items-center gap-4;
+}
+
+/* Mobile-friendly sidebar */
+.admin-sidebar-mobile {
+  @apply fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0;
+}
+
+/* Mobile-friendly main content */
+.admin-main-mobile {
+  @apply flex-1 flex flex-col min-h-0;
+}
+
+/* Mobile-friendly header */
+.admin-header-bar-mobile {
+  @apply sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm;
+}
+
+/* Mobile-friendly content area */
+.admin-content-mobile {
+  @apply flex-1 overflow-y-auto p-4 lg:p-6;
+}

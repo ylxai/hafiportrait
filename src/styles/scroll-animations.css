@@ -1,0 +1,318 @@
+/* ===== SCROLL ANIMATIONS YANG MENAKJUBKAN ===== */
+
+/* Base scroll reveal animations */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered animations untuk multiple elements */
+.scroll-reveal-stagger {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-reveal-stagger:nth-child(1) { transition-delay: 0.1s; }
+.scroll-reveal-stagger:nth-child(2) { transition-delay: 0.2s; }
+.scroll-reveal-stagger:nth-child(3) { transition-delay: 0.3s; }
+.scroll-reveal-stagger:nth-child(4) { transition-delay: 0.4s; }
+.scroll-reveal-stagger:nth-child(5) { transition-delay: 0.5s; }
+.scroll-reveal-stagger:nth-child(6) { transition-delay: 0.6s; }
+
+.scroll-reveal-stagger.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide animations dari berbagai arah */
+.scroll-slide-left {
+  opacity: 0;
+  transform: translateX(-80px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-slide-right {
+  opacity: 0;
+  transform: translateX(80px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-slide-left.revealed,
+.scroll-slide-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scale animations */
+.scroll-scale {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Rotate animations */
+.scroll-rotate {
+  opacity: 0;
+  transform: rotate(-10deg) scale(0.9);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-rotate.revealed {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* Parallax effects */
+.parallax-slow {
+  transform: translateY(0);
+  transition: transform 0.1s ease-out;
+}
+
+.parallax-medium {
+  transform: translateY(0);
+  transition: transform 0.1s ease-out;
+}
+
+.parallax-fast {
+  transform: translateY(0);
+  transition: transform 0.1s ease-out;
+}
+
+/* Text reveal animations */
+.text-reveal {
+  overflow: hidden;
+}
+
+.text-reveal-inner {
+  display: inline-block;
+  transform: translateY(100%);
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.text-reveal.revealed .text-reveal-inner {
+  transform: translateY(0);
+}
+
+/* Typewriter effect */
+.typewriter {
+  overflow: hidden;
+  border-right: 3px solid var(--color-accent);
+  white-space: nowrap;
+  animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: var(--color-accent); }
+}
+
+/* Floating elements */
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-animation-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Pulse effects */
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(212, 165, 116, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+/* Shimmer effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Magnetic hover effect */
+.magnetic {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+}
+
+.magnetic:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* Tilt effect */
+.tilt {
+  transition: transform 0.3s ease;
+}
+
+.tilt:hover {
+  transform: perspective(1000px) rotateX(10deg) rotateY(10deg);
+}
+
+/* Morphing background */
+.morphing-bg {
+  background: linear-gradient(
+    45deg,
+    var(--color-bg-primary),
+    var(--color-bg-secondary),
+    var(--color-bg-tertiary)
+  );
+  background-size: 400% 400%;
+  animation: morphing 15s ease infinite;
+}
+
+@keyframes morphing {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Scroll progress indicator */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  z-index: 9999;
+  transition: width 0.1s ease;
+}
+
+/* Advanced hover effects */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-lift:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.hover-glow {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.hover-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.hover-glow:hover::before {
+  opacity: 0.1;
+}
+
+/* Intersection observer optimizations */
+.scroll-element {
+  will-change: transform, opacity;
+}
+
+.scroll-element.observed {
+  will-change: auto;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .scroll-reveal,
+  .scroll-reveal-stagger,
+  .scroll-slide-left,
+  .scroll-slide-right,
+  .scroll-scale,
+  .scroll-rotate {
+    transform: translateY(30px);
+    transition-duration: 0.6s;
+  }
+  
+  .parallax-slow,
+  .parallax-medium,
+  .parallax-fast {
+    transform: none !important;
+  }
+  
+  .float-animation,
+  .float-animation-slow {
+    animation-duration: 4s;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal-stagger,
+  .scroll-slide-left,
+  .scroll-slide-right,
+  .scroll-scale,
+  .scroll-rotate,
+  .text-reveal-inner,
+  .float-animation,
+  .float-animation-slow,
+  .pulse-glow,
+  .shimmer,
+  .morphing-bg {
+    animation: none !important;
+    transition: opacity 0.3s ease !important;
+  }
+  
+  .parallax-slow,
+  .parallax-medium,
+  .parallax-fast {
+    transform: none !important;
+  }
+}

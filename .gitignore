@@ -1,0 +1,510 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# package managers
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+dist/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env.local.backup.*
+.env.production
+.env.dev.public
+.env.local
+.env.circleci
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Build-time configuration backups
+.env.local.backup.*
+
+# Docker
+Dockerfile.backup
+docker-compose.yml
+.dockerignore.backup
+
+# CloudRun deployment files (keep for VPS)
+# cloudrun-service.yaml
+# deploy-cloudrun.sh
+
+# Temporary files
+tmp_*
+temp_*
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Additional patterns from remote
+# Compiled Java class files
+*.class
+
+# Compiled Python bytecode
+*.py[cod]
+
+# Package files
+*.jar
+
+# Maven
+target/
+
+# Unit test reports
+TEST*.xml
+
+# Applications
+*.app
+*.exe
+*.war
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+# DSLR System - Sensitive Files
+DSLR-System/google-drive-tokens.json
+DSLR-System/google-drive-credentials.json
+DSLR-System/service-account-key.json
+DSLR-System/Config/google-drive-config.json
+DSLR-System/Config/storage-credentials.json
+DSLR-System/Storage/tokens/
+DSLR-System/Storage/credentials/
+DSLR-System/.env
+DSLR-System/.env.local
+DSLR-System/.env.production
+DSLR-System/
+# DSLR System - Backup Files
+DSLR-System/Backup/dslr-backup/
+DSLR-System/Backup/local-backup/
+DSLR-System/Backup/*.jpg
+DSLR-System/Backup/*.jpeg
+DSLR-System/Backup/*.png
+DSLR-System/Backup/*.raw
+DSLR-System/Backup/*.cr2
+DSLR-System/Backup/*.nef
+
+# DSLR System - Log Files
+DSLR-System/logs/
+DSLR-System/*.log
+DSLR-System/Core/*.log
+DSLR-System/Storage/*.log
+
+# DSLR System - Temporary Files
+DSLR-System/tmp/
+DSLR-System/temp/
+DSLR-System/cache/
+
+# Backup Files (Created during development)
+backup_*/
+*.backup
+src/components/admin/EventList.tsx.backup
+src/components/admin/*.backup
+
+# Test Files (Temporary)
+tmp_rovodev_*
+test_*_integration.js
+*_test_*.js
+
+# Database Files (Local development)
+*.db
+*.sqlite
+*.sqlite3
+database.db
+local.db
+
+# Storage Test Files
+test-storage-*.js
+storage-test-*.js
+check-storage-*.js
+
+# Event Archives (Local)
+event-archives/
+./event-archives/
+dslr-backup/
+./dslr-backup/
+
+# Google Drive Tokens (All locations)
+google-drive-tokens.json
+**/google-drive-tokens.json
+google-drive-tokens.example.json
+google-drive-refresh-token.json
+
+# Cloudflare R2 Credentials
+r2-credentials.json
+cloudflare-r2-*.json
+storage-credentials.json
+
+# Development Scripts (Temporary)
+scripts/temp-*.js
+scripts/test-*.js
+scripts/debug-*.js
+
+# Documentation Drafts
+docs/draft-*.md
+docs/temp-*.md
+*.draft.md
+
+# Environment Backups
+.env.backup
+.env.*.backup
+.env.local.backup
+.env.production.backup
+
+# Build Artifacts
+dist/
+build/
+out/
+.next/
+.vercel/
+
+# Package Manager Files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml.backup
+
+# IDE and Editor Files
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Large Media Files (Development)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.raw
+*.cr2
+*.nef
+*.dng
+
+# Compressed Files
+
+# Environment Configuration Files (DO NOT COMMIT)
+env-*.md
+env-production.md
+env-staging.md
+env-development.md
+env-circleci.md
+env-cloudflare.md
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.tar.bz2
+
+# Deployment Files (Sensitive)
+deploy-keys/
+deployment-config.json
+production-secrets.json
+
+# ===== HAFIPORTRAIT SPECIFIC IGNORES =====
+
+# Sensitive Configuration Files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+*.env
+config/secrets.json
+config/credentials.json
+secrets/
+credentials/
+
+# API Keys & Tokens
+**/api-keys.json
+**/tokens.json
+**/auth-tokens.json
+service-account-key.json
+google-credentials.json
+cloudflare-credentials.json
+supabase-keys.json
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+database.json
+db-backup/
+database-dumps/
+
+# Storage & Upload Directories
+uploads/
+temp-uploads/
+storage/
+public/uploads/
+public/temp/
+public/storage/
+user-uploads/
+
+# Cache Directories (Additional)
+.cache/
+.parcel-cache/
+.swc/
+.turbo/
+node_modules/.cache/
+.eslintcache
+.stylelintcache
+
+# Logs & Debug Files (Additional)
+*.log
+logs/
+debug.log
+error.log
+access.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE & Editor Files (Additional)
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Backup Files
+*.backup
+*.bak
+*.tmp
+*.temp
+backup/
+backups/
+old/
+
+# Test Files
+coverage/
+.nyc_output/
+test-results/
+screenshots/
+videos/
+
+# Development Tools
+.storybook/build/
+chromatic-build/
+.docusaurus/
+
+# Runtime Files
+*.pid
+*.seed
+*.pid.lock
+
+# ===== PRODUCTION SPECIFIC =====
+
+# Production Environment Files
+.env.production.local
+production-config.json
+prod-secrets.json
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.csr
+ssl/
+certificates/
+
+# Docker Secrets
+docker-compose.override.yml
+docker-compose.prod.yml
+.dockerignore.local
+
+# PM2 Files
+ecosystem.config.local.js
+pm2.config.local.js
+.pm2/
+
+# Monitoring & Analytics
+analytics/
+monitoring/logs/
+performance-reports/
+
+# ===== DEVELOPMENT SPECIFIC =====
+
+# Local Development Files
+.local/
+local-config.json
+dev-notes.md
+todo.md
+scratch.js
+test.js
+playground/
+
+# Temporary Development Files
+tmp_*
+temp_*
+draft_*
+experimental_*
+prototype_*
+
+# Development Images & Assets
+dev-images/
+test-images/
+sample-photos/
+mock-data/
+
+# ===== SECURITY =====
+
+# Security Scan Results
+security-report.json
+vulnerability-report.json
+audit-results.json
+
+# Private Keys
+private-key.pem
+*.p12
+*.pfx
+
+# ===== IGNORE SPECIFIC FILES IN ROOT =====
+
+# Large test files that were accidentally added
+test-photo.jpg
+workflow.png
+RNX3mj8x
+10089928-8-CF3-4194-B45-B-C9128-CD6159-A.png
+AAFD29-B1-7457-494-E-A731-43-C3-A9-C676-DB.png
+
+# ===== DSLR SYSTEM SPECIFIC =====
+
+# DSLR System sensitive files
+DSLR-System/.env
+DSLR-System/credentials/
+DSLR-System/config/local-*
+DSLR-System/uploads/
+DSLR-System/temp/
+DSLR-System/logs/
+
+# ===== PYTHON VIRTUAL ENVIRONMENT =====
+
+# Python virtual environment (lokal directory)
+lokal/
+venv/
+env/
+.venv/
+.env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
