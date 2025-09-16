@@ -20,9 +20,9 @@ export default function BubbleMenu({ isScrolled, className = '' }: BubbleMenuPro
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems: MenuItem[] = [
-    { name: 'Beranda', href: '/', icon: Home, color: 'from-brand-secondary to-brand-primary' },
-    { name: 'Galeri', href: '#gallery', icon: Image, color: 'from-brand-primary to-brand-accent' },
+    { name: 'Beranda', href: '#home', icon: Home, color: 'from-brand-secondary to-brand-primary' },
     { name: 'Events', href: '#events', icon: Calendar, color: 'from-brand-accent to-brand-secondary' },
+    { name: 'Galeri', href: '#gallery', icon: Image, color: 'from-brand-primary to-brand-accent' },
     { name: 'Harga', href: '#pricing', icon: DollarSign, color: 'from-brand-secondary to-brand-primary' },
     { name: 'Kontak', href: '#contact', icon: Phone, color: 'from-brand-primary to-brand-secondary' },
   ];
@@ -45,12 +45,22 @@ export default function BubbleMenu({ isScrolled, className = '' }: BubbleMenuPro
   const handleMenuClick = (href: string) => {
     setIsOpen(false);
     
+    if (href === '#home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    
     if (href.startsWith('#')) {
-      const element = document.getElementById(href.replace('#', ''));
+      const targetId = href.replace('#', '');
+      const element = document.getElementById(targetId);
+      
       if (element) {
-        const targetPosition = element.offsetTop - 80;
+        const rect = element.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const targetTop = rect.top + scrollTop - 80;
+        
         window.scrollTo({
-          top: targetPosition,
+          top: targetTop,
           behavior: 'smooth'
         });
       }
@@ -66,7 +76,7 @@ export default function BubbleMenu({ isScrolled, className = '' }: BubbleMenuPro
         onClick={() => setIsOpen(!isOpen)}
         className={`bubble-toggle relative w-14 h-14 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 ${
           isScrolled 
-            ? 'bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg text-brand-text-primary' 
+            ? 'bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg text-gray-700' 
             : 'bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl text-white'
         }`}
         aria-label="Toggle menu"
@@ -86,7 +96,7 @@ export default function BubbleMenu({ isScrolled, className = '' }: BubbleMenuPro
                 onClick={() => handleMenuClick(item.href)}
                 className={`bubble-item group relative flex items-center gap-3 px-4 py-3 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 min-w-[140px] ${
                   isScrolled
-                    ? 'bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg text-brand-text-primary hover:shadow-xl'
+                    ? 'bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg text-gray-700 hover:shadow-xl'
                     : 'bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl text-white hover:bg-white/30'
                 }`}
               >

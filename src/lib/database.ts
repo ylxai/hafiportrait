@@ -372,9 +372,10 @@ class DatabaseService {
   async getHomepagePhotos(): Promise<Photo[]> {
     const { data, error } = await this.supabase
       .from('photos')
-      .select('*')
-      .eq('is_homepage', true) // Asumsi kolom ini ada di tabel photos
-      .order('uploaded_at', { ascending: false });
+      .select('id, url, thumbnail_url, original_name, optimized_images') // Keep optimized_images untuk compatibility
+      .eq('is_homepage', true) 
+      .order('uploaded_at', { ascending: false })
+      .limit(20); // Ambil semua foto homepage yang ada
     if (error) {
       // Log error yang lebih spesifik jika kolom tidak ditemukan
       if (error.code === '42P01') { // PostgreSQL error code for undefined_table
@@ -403,8 +404,21 @@ class DatabaseService {
   async getEvents(): Promise<Event[]> {
     const { data, error } = await this.supabase
       .from('events')
-      .select('*')
-      .order('date', { ascending: false });
+      .select('id, name, date, access_code, is_premium, qr_code, shareable_link, status')
+      .order('date', { ascending: false })
+      .limit(10); // Only fetch 10 recent events for homepage
+    
+    if (error) throw error;
+    return data || [];
+  }
+
+  // Lightweight version for homepage
+  async getHomepageEvents(): Promise<Event[]> {
+    const { data, error } = await this.supabase
+      .from('events')
+      .select('id, name, date, is_premium, status')
+      .order('date', { ascending: false })
+      .limit(6); // Only 6 events for homepage
     
     if (error) throw error;
     return data || [];

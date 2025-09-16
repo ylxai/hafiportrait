@@ -2,6 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Swiper Gallery Styles */
+.gallery-swiper {
+  width: 100%;
+  padding: 15px 0;
+  /* Mobile optimization */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.gallery-swiper .swiper-slide {
+  width: 200px;
+  height: 250px;
+  /* Hardware acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.swiper-slide-gallery {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.gallery-swiper .swiper-slide-active {
+  transform: scale(1.05) translateZ(0);
+}
+
+.gallery-swiper .swiper-pagination {
+  bottom: 5px !important;
+}
+
+.gallery-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.8);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.gallery-swiper .swiper-pagination-bullet-active {
+  background: #3b82f6;
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Mobile touch optimization */
+@media (max-width: 768px) {
+  .gallery-swiper {
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  .gallery-swiper .swiper-slide {
+    width: 180px;
+    height: 225px;
+  }
+}
+
 /* Minimal Lightbox Auto-Hide Styles */
 .lightbox-container {
   cursor: default;
@@ -46,6 +110,81 @@
 
 /* Import notification fix styles */
 @import '../styles/notification-fix.css';
+
+/* Modern Grid Gallery Optimizations */
+.modern-grid-gallery {
+  /* Container optimizations */
+  container-type: inline-size;
+  container-name: gallery;
+}
+
+/* Mobile-first responsive adjustments */
+@container gallery (max-width: 640px) {
+  .modern-grid-gallery {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+}
+
+@container gallery (max-width: 480px) {
+  .modern-grid-gallery {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .modern-grid-gallery > div {
+    border-radius: 0.5rem !important;
+  }
+}
+
+/* Featured photo optimizations for larger screens */
+@media (min-width: 768px) {
+  .featured-photo {
+    grid-row: span 2;
+    grid-column: span 2;
+  }
+}
+
+/* Touch-friendly hover states */
+@media (hover: none) {
+  .modern-grid-gallery > div:hover .group-hover\:opacity-100 {
+    opacity: 0;
+  }
+
+  .modern-grid-gallery > div:active .group-hover\:opacity-100 {
+    opacity: 1;
+  }
+}
+
+/* Performance optimizations for low-end devices */
+@media (prefers-reduced-data: reduce) {
+  .modern-grid-gallery > div {
+    transition: none !important;
+  }
+
+  .modern-grid-gallery > div img {
+    transform: none !important;
+  }
+}
+
+/* Smooth scroll animations for grid items */
+.grid-item-animate {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* Import mobile scroll effects */
 @import '../styles/mobile-scroll-effects.css';
@@ -598,6 +737,7 @@
   @media (max-width: 768px) {
     html {
       scroll-behavior: smooth;
+      scroll-padding-top: 4rem; /* Account for fixed header */
     }
     
     /* Prevent zoom on input focus (iOS) */
@@ -875,6 +1015,54 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Enhanced Mobile Skeleton Animations */
+@keyframes wave-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes scale-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(156, 163, 175, 0.3);
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(156, 163, 175, 0.5);
+    opacity: 1;
+  }
+}
+
+/* Skeleton animation utilities */
+.animate-wave-shimmer {
+  animation: wave-shimmer 2s ease-in-out infinite;
+}
+
+.animate-scale-pulse {
+  animation: scale-pulse 2s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* Import Core Animations (replaces multiple animation files) */
+@import '../styles/core-animations.css';
 
 /* Import Mobile Header Enhancements */
 @import '../styles/mobile-header-enhancements.css';

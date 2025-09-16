@@ -3,14 +3,24 @@
 import { Phone, Instagram, MapPin, Clock, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useScrollAnimation, useStaggeredAnimation } from "@/hooks/use-scroll-animations";
+import { useSectionScrollAnimations } from "@/hooks/use-scroll-animations";
 // import { motion, Easing } from "framer-motion"; // Disabled for build
 
 export default function ContactSection() {
-  // Scroll animations
-  const { elementRef: sectionRef, isVisible } = useScrollAnimation({ threshold: 0.1 });
-  const { elementRef: titleRef, isVisible: titleVisible } = useScrollAnimation({ threshold: 0.3 });
-  const { containerRef: cardsRef, visibleItems } = useStaggeredAnimation(4, 200);
+  // Consolidated scroll animations - optimized untuk mobile dan performance
+  const { section, title, stagger, deviceInfo } = useSectionScrollAnimations({
+    sectionThreshold: 0.1,
+    titleThreshold: 0.3,
+    itemCount: 4, // Contact cards count
+    staggerDelay: 200,
+    enableGPUOptimization: true,
+    respectReducedMotion: true
+  });
+
+  // Destructure untuk backward compatibility
+  const { elementRef: sectionRef, isVisible } = section;
+  const { elementRef: titleRef, isVisible: titleVisible } = title;
+  const { containerRef: cardsRef, visibleItems } = stagger;
   
   // Animation disabled for build
   // const easeOutCubicBezier: Easing = [0, 0, 0.58, 1];
@@ -25,7 +35,7 @@ export default function ContactSection() {
       content: "+62 895 700503193",
       href: "https://wa.me/6289570503193",
       description: "Chat langsung untuk konsultasi",
-      color: "text-[var(--color-accent)]",
+      color: "text-gray-900",
       bgColor: "bg-gray-50",
       hoverColor: "hover:bg-gray-100"
     },
@@ -35,7 +45,7 @@ export default function ContactSection() {
       content: "@hafiportrait",
       href: "https://instagram.com/hafiportrait",
       description: "Lihat portfolio terbaru kami",
-      color: "text-[var(--color-accent)]",
+      color: "text-gray-900",
       bgColor: "bg-gray-50",
       hoverColor: "hover:bg-gray-100"
     },
@@ -45,7 +55,7 @@ export default function ContactSection() {
       content: "hafiportrait@gmail.com",
       href: "mailto:hafiportrait@gmail.com",
       description: "Kirim detail acara Anda",
-      color: "text-[var(--color-accent)]",
+      color: "text-gray-900",
       bgColor: "bg-gray-50",
       hoverColor: "hover:bg-gray-100"
     }
@@ -61,17 +71,17 @@ export default function ContactSection() {
     <section 
       ref={sectionRef}
       id="contact" 
-      className={`py-20 bg-[var(--color-bg-secondary)] scroll-reveal ${isVisible ? 'revealed' : ''}`}
+      className="py-12 bg-gray-50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div 
           ref={titleRef}
-          className={`text-center mb-16 scroll-reveal ${titleVisible ? 'revealed' : ''}`}
+          className="text-center mb-16"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)] mb-2 text-reveal">
-            <span className="text-reveal-inner">Hubungi Kami</span>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            Hubungi Kami
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)] max-w-3xl mx-auto scroll-slide-left">
+          <p className="text-sm text-gray-600 max-w-3xl mx-auto">
             Siap untuk mengabadikan momen spesial Anda? Mari diskusikan kebutuhan photography Anda dengan tim profesional kami
           </p>
         </div>
@@ -83,7 +93,7 @@ export default function ContactSection() {
             {contactInfo.map((contact, index) => (
               <div 
                 key={index} 
-                className={`scroll-reveal-stagger ${visibleItems[index] ? 'revealed' : ''} hover-lift magnetic`}
+                className=""
               >
                 <Card className={`border-0 shadow-lg ${contact.bgColor} ${contact.hoverColor} transition-all duration-300 hover:shadow-xl group`}>
                   <CardContent className="p-6">
@@ -92,8 +102,8 @@ export default function ContactSection() {
                         <contact.icon className={`h-6 w-6 ${contact.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-[var(--color-text-primary)] text-lg">{contact.title}</h4>
-                        <p className="text-[var(--color-text-secondary)] text-sm mb-2">{contact.description}</p>
+                        <h4 className="font-bold text-gray-900 text-lg">{contact.title}</h4>
+                        <p className="text-gray-600 text-sm mb-2">{contact.description}</p>
                         <a
                           href={contact.href}
                           target="_blank"
@@ -116,24 +126,6 @@ export default function ContactSection() {
               </div>
             ))}
 
-            {/* Quick Contact CTA */}
-            <div> {/* Terapkan varian */}
-              <div className="bg-[var(--color-primary)] rounded-2xl p-8 text-white text-center shadow-lg"> {/* Menggunakan warna tema */}
-                <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-90" />
-                <h4 className="text-xl font-bold mb-2">Quick Consultation</h4>
-                <p className="mb-6 opacity-90"> {/* Menyesuaikan warna teks */}
-                  Chat dengan kami sekarang untuk mendapatkan quote dan informasi paket photography
-                </p>
-                <Button
-                  size="lg"
-                  className="bg-white text-wedding-gold hover:bg-gray-50 font-semibold mobile-button w-full sm:w-auto" 
-                  onClick={() => window.open('https://wa.me/6289570503193?text=Halo%20Hafiportrait,%20saya%20tertarik%20dengan%20layanan%20wedding%20photography%20Anda', '_blank')}
-                >
-                  <Phone className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  Chat WhatsApp
-                </Button>
-              </div>
-            </div>
           </div>
 
           {/* Business Info */}
@@ -149,12 +141,12 @@ export default function ContactSection() {
                 <CardContent className="space-y-4">
                   {workingHours.map((schedule, index) => (
                     <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                      <span className="font-medium text-[var(--color-text-primary)]">{schedule.day}</span>
-                      <span className="text-[var(--color-accent)] font-semibold">{schedule.time}</span>
+                      <span className="font-medium text-gray-900">{schedule.day}</span>
+                      <span className="text-gray-900 font-semibold">{schedule.time}</span>
                     </div>
                   ))}
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-[var(--color-text-secondary)]">
+                    <p className="text-sm text-gray-600">
                       <strong>Note:</strong> Emergency booking dan konsultasi weekend bisa diatur dengan appointment terlebih dahulu
                     </p>
                   </div>
@@ -165,24 +157,24 @@ export default function ContactSection() {
             <div> {/* Terapkan varian */}
               <Card className="border-0 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-xl text-[var(--color-text-primary)]">
-                    <MapPin className="h-6 w-6 text-[var(--color-accent)] mr-2" />
+                  <CardTitle className="flex items-center text-xl text-gray-900">
+                    <MapPin className="h-6 w-6 text-gray-900 mr-2" />
                     Coverage Area
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[var(--color-text-primary)]">Jabodetabek</span>
+                      <span className="text-gray-900">Jabodetabek</span>
                       <span className="text-green-600 font-semibold">Free Travel</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[var(--color-text-primary)]">Kalimantan Selatan</span>
+                      <span className="text-gray-900">Kalimantan Selatan</span>
                       <span className="text-blue-600 font-semibold">Available</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[var(--color-text-primary)]">Luar Kalimantan</span>
-                      <span className="text-[var(--color-accent)] font-semibold">By Request</span>
+                      <span className="text-gray-900">Luar Kalimantan</span>
+                      <span className="text-gray-900 font-semibold">By Request</span>
                     </div>
                   </div>
                 </CardContent>
@@ -191,20 +183,20 @@ export default function ContactSection() {
 
             {/* Social Proof */}
             <div> 
-              <Card className="border-0 shadow-lg bg-[var(--color-bg-primary)]"> {/* Menggunakan warna tema */}
+              <Card className="border-0 shadow-lg bg-white"> {/* Menggunakan warna tema */}
                 <CardContent className="p-6 text-center">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <p className="text-2xl font-bold text-[var(--color-accent)]">500+</p> {/* Menggunakan warna tema */}
-                      <p className="text-sm text-[var(--color-text-secondary)]">Happy Couples</p>
+                      <p className="text-2xl font-bold text-gray-900">500+</p>
+                      <p className="text-sm text-gray-600">Happy Couples</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-[var(--color-accent)]">5</p> {/* Menggunakan warna tema */}
-                      <p className="text-sm text-[var(--color-text-secondary)]">Years Experience</p>
+                      <p className="text-2xl font-bold text-gray-900">5</p>
+                      <p className="text-sm text-gray-600">Years Experience</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-[var(--color-accent)]">100%</p> {/* Menggunakan warna tema */}
-                      <p className="text-sm text-[var(--color-text-secondary)]">Satisfaction</p>
+                      <p className="text-2xl font-bold text-gray-900">100%</p>
+                      <p className="text-sm text-gray-600">Satisfaction</p>
                     </div>
                   </div>
                 </CardContent>

@@ -5,7 +5,12 @@ import { smartDatabase } from '@/lib/database-with-smart-storage';
 export async function GET() {
   try {
     const photos = await database.getHomepagePhotos();
-    return NextResponse.json(photos);
+    return NextResponse.json(photos, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600', // 30 minutes cache untuk homepage
+        // ETag removed for homepage - Cache-Control is sufficient for static content
+      },
+    });
   } catch (error: any) {
     console.error('Error fetching homepage photos from API:', error);
     return NextResponse.json({ message: `Error fetching homepage photos: ${error.message}` }, { status: 500 });

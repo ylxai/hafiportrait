@@ -9,8 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users, Camera, MapPin, Clock, ArrowRight, Play, CheckCircle, Clock3, RefreshCw, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import LoadingSpinner from "@/components/ui/loading-spinner";
+import OptimizedLoader from "@/components/reactbits/loading/OptimizedLoader";
+import UniversalSkeleton from "@/components/reactbits/skeleton/UniversalSkeleton";
 import type { Event } from "@/lib/database";
-import { useScrollAnimation, useStaggeredAnimation } from "@/hooks/use-scroll-animations";
+import { useSectionScrollAnimations } from "@/hooks/use-scroll-animations";
+import { useMobileErrorHandler } from "@/hooks/use-mobile-error-handler";
+import { MobileInlineError, MobileEmptyError, MobileNetworkStatus } from "@/components/error/mobile-inline-error";
 // import { motion, Easing } from "framer-motion"; // Komentar/hapus impor ini untuk menguji
 
 // easeOutCubicBezier: Easing = [0, 0, 0.58, 1]; // Komentari atau hapus definisi ini
@@ -83,31 +87,53 @@ export default function EventsSection() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'completed'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Menggunakan useQuery untuk mengambil data event
+  // Mobile error handler
+  const errorHandler = useMobileErrorHandler({
+    maxRetries: 3,
+    retryDelay: 1500,
+    exponentialBackoff: true,
+    showToasts: true,
+    autoRetry: true,
+    offlineMessage: "Data event akan dimuat saat koneksi kembali.",
+    retryMessage: "Mengambil data event..."
+  });
+  
+  // Enhanced useQuery dengan mobile error handling
   const { data: events, isLoading, isError, error, refetch } = useQuery<Event[]>({
-    queryKey: ['events'],
+    queryKey: ['events', 'homepage'],
     queryFn: async () => {
       try {
-        const response = await apiRequest('GET', '/api/events');
-        // Pastikan respons itu sendiri "ok" sebelum mencoba mengurai JSON
+        const response = await apiRequest('GET', '/api/events?homepage=true');
+        
         if (!response.ok) {
-          const errorBody = await response.text(); // Ambil teks error jika tidak ok
-          throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+          const errorBody = await response.text();
+          const errorMessage = `HTTP ${response.status}: ${errorBody || 'Server error'}`;
+          throw new Error(errorMessage);
         }
+        
         const data = await response.json();
         
-        // Pastikan data adalah array
         if (!Array.isArray(data)) {
           console.warn('API response is not an array:', data);
           return [];
         }
-        console.log("EventsSection: Data API berhasil diambil:", data); // LOG BARU
+        
+        // Reset error state on success
+        errorHandler.resetError();
+        console.log("EventsSection: Data berhasil dimuat:", data.length, "events (homepage optimized)");
         return data;
       } catch (e) {
-        console.error("EventsSection: Error saat mengambil data API:", e);
-        throw e; // Lanjutkan melempar error agar useQuery menangkapnya
+        console.error("EventsSection: Error mengambil data:", e);
+        
+        // Handle error with mobile error handler
+        await errorHandler.handleError(e, refetch, 'Memuat Events');
+        throw e;
       }
-    }, // Ganti dengan endpoint API yang benar untuk mengambil event
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes cache untuk homepage optimization
+    retry: false, // Disable react-query retry, use our custom handler
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true, // Auto refetch when network reconnects
   });
 
   // Filter events based on active filter
@@ -117,10 +143,20 @@ export default function EventsSection() {
     return status === activeFilter;
   }) || [];
 
-  // Scroll animations (setelah filteredEvents dideklarasikan)
-  const { elementRef: sectionRef, isVisible } = useScrollAnimation({ threshold: 0.1 });
-  const { elementRef: titleRef, isVisible: titleVisible } = useScrollAnimation({ threshold: 0.3 });
-  const { containerRef: eventsRef, visibleItems } = useStaggeredAnimation(filteredEvents.length || 6, 150);
+  // Consolidated scroll animations - optimized untuk mobile dan performance
+  const { section, title, stagger, deviceInfo } = useSectionScrollAnimations({
+    sectionThreshold: 0.1,
+    titleThreshold: 0.3,
+    itemCount: filteredEvents.length || 6,
+    staggerDelay: 150,
+    enableGPUOptimization: true,
+    respectReducedMotion: true
+  });
+
+  // Destructure untuk backward compatibility
+  const { elementRef: sectionRef, isVisible } = section;
+  const { elementRef: titleRef, isVisible: titleVisible } = title;
+  const { containerRef: eventsRef, visibleItems } = stagger;
 
   // Pull to refresh handler
   const handleRefresh = useCallback(async () => {
@@ -128,7 +164,7 @@ export default function EventsSection() {
     try {
       await refetch();
     } finally {
-      setTimeout(() => setIsRefreshing(false), 500); // Minimum loading time for UX
+      setTimeout(() => setIsRefreshing(false), 300); // Optimized loading time
     }
   }, [refetch]);
 
@@ -146,54 +182,36 @@ export default function EventsSection() {
 
   const filterCounts = getFilterCounts();
 
-  // LOG BARU: Pastikan status dan data sebelum render
-  console.log("EventsSection: Status Render", {
-    isLoading,
-    isError,
-    eventsLength: events?.length,
-    filteredLength: filteredEvents.length,
-    activeFilter,
-    filterCounts
-  });
-
+  
   return (
     <section 
       ref={sectionRef}
       id="events" 
-      className={`py-16 md:py-20 bg-[var(--color-bg-secondary)] scroll-reveal ${isVisible ? 'revealed' : ''}`}
+      className="pt-0 md:pt-4 pb-8 md:pb-12 bg-gray-50"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div 
-          ref={titleRef}
-          className={`text-center mb-8 md:mb-12 scroll-reveal ${titleVisible ? 'revealed' : ''}`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex-1">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--color-text-primary)] mb-2 text-reveal"> 
-                <span className="text-reveal-inner">Event Terbaru</span>
-              </h2>
-            </div>
-          </div>
-        </div>
+      {/* Mobile Network Status Indicator */}
+      <MobileNetworkStatus />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2">
 
         {/* Mobile-First Filter Tabs */}
-        <div className="mb-6 md:mb-8">
+        <div className="mb-1 md:mb-3">
           <Tabs value={activeFilter} onValueChange={(value) => setActiveFilter(value as any)} className="w-full">
             <div className="relative">
               {/* Pull to Refresh Indicator */}
               {isRefreshing && (
                 <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
-                  <RefreshCw className="w-4 h-4 text-wedding-gold animate-spin" />
+                  <RefreshCw className="w-4 h-4 text-amber-500 animate-spin" />
                 </div>
               )}
               
               {/* Sticky Filter Tabs */}
-              <div className="sticky top-16 bg-white/95 backdrop-blur-sm z-20 py-2 -mx-4 px-4">
+              <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-20 py-3 -mx-4 px-4">
                 <div className="flex items-center justify-between mb-2">
                   <TabsList className="grid grid-cols-4 h-10 md:h-12 bg-gray-100 rounded-xl p-1 flex-1 mr-3">
                   <TabsTrigger 
                     value="all" 
-                    className="text-xs md:text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-wedding-gold transition-all duration-200"
+                    className="text-xs md:text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-amber-600 transition-all duration-200"
                   >
                     <span className="flex items-center gap-1">
                       <Filter className="w-3 h-3 md:w-4 md:h-4" />
@@ -254,10 +272,10 @@ export default function EventsSection() {
                     onClick={handleRefresh}
                     variant="outline"
                     size="sm"
-                    className="h-10 md:h-12 w-10 md:w-12 p-0 rounded-xl border-gray-300 hover:border-[var(--color-accent)] hover:bg-gray-50 flex-shrink-0"
+                    className="h-10 md:h-12 w-10 md:w-12 p-0 rounded-xl border-gray-300 hover:border-purple-600 hover:bg-gray-50 flex-shrink-0"
                     disabled={isRefreshing}
                   >
-                    <RefreshCw className={`w-4 h-4 text-[var(--color-accent)] ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-4 h-4 text-purple-600 ${isRefreshing ? 'animate-spin' : ''}`} />
                   </Button>
                 </div>
               </div>
@@ -266,45 +284,48 @@ export default function EventsSection() {
         </div>
         
         {isLoading && (
-          <div className="space-y-6">
-            {/* Mobile filter tabs skeleton */}
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {['All', 'Live', 'Upcoming', 'Completed'].map((tab, i) => (
-                <div key={i} className="h-8 w-20 bg-gray-200 rounded-full flex-shrink-0 animate-pulse"></div>
-              ))}
-            </div>
-            
-            {/* Mobile events cards skeleton */}
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="flex-shrink-0 w-72 space-y-3">
-                  <div className="h-40 bg-gray-200 rounded-lg animate-pulse"></div>
-                  <div className="space-y-2">
-                    <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="flex gap-2">
-                      <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-                      <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="py-8">
+            <UniversalSkeleton type="events" className="w-full" animated={true} />
           </div>
         )}
 
-        {isError && (
-          <div className="text-center py-8 text-red-500">
-            <p>Gagal memuat event. Silakan coba lagi nanti.</p>
-          </div>
+        {/* Enhanced Mobile Error Handling */}
+        {isError && !isLoading && (
+          <MobileInlineError
+            error={error}
+            isRetrying={errorHandler.isRetrying || isRefreshing}
+            canRetry={errorHandler.canRetry}
+            onRetry={async () => {
+              setIsRefreshing(true);
+              try {
+                await errorHandler.manualRetry(refetch);
+              } finally {
+                setTimeout(() => setIsRefreshing(false), 500);
+              }
+            }}
+            variant="card"
+            size="md"
+            showDetails={process.env.NODE_ENV === 'development'}
+            className="mx-4 mb-6"
+          />
         )}
 
-        {/* Cek apakah events itu ada dan memiliki panjang > 0 */}
-        {!isLoading && !isError && events && events.length === 0 && ( // HANYA tampilkan jika array kosong
-          <div className="text-center py-12 text-gray-500">
-            <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>Belum ada event yang tersedia saat ini.</p>
-          </div>
+        {/* Enhanced Empty State */}
+        {!isLoading && !isError && events && events.length === 0 && (
+          <MobileEmptyError
+            title="Belum Ada Event"
+            description="Event terbaru akan muncul di sini. Periksa kembali nanti atau hubungi admin."
+            icon={Calendar}
+            onRetry={async () => {
+              setIsRefreshing(true);
+              try {
+                await refetch();
+              } finally {
+                setTimeout(() => setIsRefreshing(false), 500);
+              }
+            }}
+            className="mx-4"
+          />
         )}
 
         {/* Cek apakah events itu ada dan memiliki panjang > 0 */}
@@ -327,7 +348,7 @@ export default function EventsSection() {
                     
                     return (
                       <div key={event.id} className="flex-none w-80 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-                        <Card className="border-wedding-gold/20 shadow-md hover:shadow-lg transition-all duration-300 h-full hover:animate-pulse-glow">
+                        <Card className="border-amber-200 shadow-md hover:shadow-lg transition-all duration-300 h-full hover:animate-pulse-glow">
                           <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                               <CardTitle className="text-lg font-semibold text-gray-900 pr-2 leading-tight">
@@ -341,7 +362,7 @@ export default function EventsSection() {
                           </CardHeader>
                           <CardContent className="space-y-3 pt-0">
                             <div className="flex items-center text-sm text-gray-600">
-                              <Calendar className="w-4 h-4 mr-2 text-wedding-gold shrink-0" />
+                              <Calendar className="w-4 h-4 mr-2 text-amber-500 shrink-0" />
                               <span className="truncate">
                                 {new Date(event.date).toLocaleDateString('id-ID', { 
                                   year: 'numeric', 
@@ -352,7 +373,7 @@ export default function EventsSection() {
                             </div>
                             <div className="flex items-center gap-2">
                               {event.is_premium && (
-                                <Badge className="bg-wedding-gold text-white text-xs">
+                                <Badge className="bg-amber-500 text-white text-xs">
                                   <Camera className="w-3 h-3 mr-1" />
                                   Premium
                                 </Badge>
@@ -360,7 +381,7 @@ export default function EventsSection() {
                             </div>
                             <Button 
                               asChild 
-                              className="w-full bg-wedding-gold hover:bg-wedding-gold/90 text-white h-10 text-sm font-medium"
+                              className="w-full bg-amber-500 hover:bg-amber-600 text-white h-10 text-sm font-medium"
                             >
                               <a href={`/event/${event.id}`} target="_blank" rel="noopener noreferrer">
                                 Lihat Event 
@@ -391,7 +412,7 @@ export default function EventsSection() {
               
               return (
                 <div key={event.id} className="group animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
-                  <Card className="border-wedding-gold/20 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] overflow-hidden hover:animate-pulse-glow">
+                  <Card className="border-amber-200 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] overflow-hidden hover:animate-pulse-glow">
                     <CardHeader className="relative pb-3">
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg md:text-xl font-semibold text-gray-900 pr-2 leading-tight">
@@ -407,7 +428,7 @@ export default function EventsSection() {
                     <CardContent className="space-y-3 pt-0">
                       {/* Event Date */}
                       <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2 text-wedding-gold shrink-0" />
+                        <Calendar className="w-4 h-4 mr-2 text-amber-500 shrink-0" />
                         <span className="truncate">
                           {new Date(event.date).toLocaleDateString('id-ID', { 
                             year: 'numeric', 
@@ -420,7 +441,7 @@ export default function EventsSection() {
                       {/* Premium Badge */}
                       <div className="flex items-center gap-2">
                         {event.is_premium && (
-                          <Badge className="bg-wedding-gold text-white text-xs">
+                          <Badge className="bg-amber-500 text-white text-xs">
                             <Camera className="w-3 h-3 mr-1" />
                             Premium Event
                           </Badge>
@@ -435,7 +456,7 @@ export default function EventsSection() {
                       {/* Mobile-Optimized Button */}
                       <Button 
                         asChild 
-                        className="w-full bg-wedding-gold hover:bg-wedding-gold/90 text-white mt-4 h-10 md:h-11 text-sm md:text-base font-medium"
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-white mt-4 h-10 md:h-11 text-sm md:text-base font-medium"
                       >
                         <a href={`/event/${event.id}`} target="_blank" rel="noopener noreferrer">
                           <span className="flex items-center justify-center">

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Providers } from './providers'
-import "./globals.css";
+import "./globals.css"
+import "@/styles/unified-scroll-animations.css";
 import "@/styles/colors.css";
-import "@/styles/scroll-animations.css";
 import "@/styles/photo-grid-animations.css";
 import "@/styles/enhanced-homepage.css";
 import "@/styles/logo-fonts.css";

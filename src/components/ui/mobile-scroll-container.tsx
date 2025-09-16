@@ -7,9 +7,6 @@ import '@/styles/mobile-scroll-effects.css';
 interface MobileScrollContainerProps {
   children: ReactNode;
   className?: string;
-  enableParallax?: boolean;
-  parallaxSpeed?: number;
-  enableSnapScroll?: boolean;
   threshold?: number;
   delay?: number;
   animationType?: 'fade' | 'slide' | 'none';
@@ -18,9 +15,6 @@ interface MobileScrollContainerProps {
 export default function MobileScrollContainer({
   children,
   className = '',
-  enableParallax = false,
-  parallaxSpeed = 0.2,
-  enableSnapScroll = false,
   threshold = 0.15,
   delay = 0,
   animationType = 'fade'
@@ -30,14 +24,12 @@ export default function MobileScrollContainer({
   const { 
     elementRef, 
     isVisible, 
-    scrollY, 
     isMobile, 
     prefersReducedMotion 
   } = useMobileScrollEffects({
     threshold,
     delay,
-    enableParallax,
-    parallaxSpeed,
+    enableParallax: false,
     triggerOnce: true
   });
 
@@ -59,25 +51,15 @@ export default function MobileScrollContainer({
     return `${baseClass} ${animationClass} ${visibleClass}`.trim();
   };
 
-  // Get container styles
+  // Simple container - no complex styles needed
   const getContainerStyles = () => {
-    const styles: React.CSSProperties = {};
-    
-    if (enableParallax && !prefersReducedMotion && scrollY !== 0) {
-      styles.transform = `translateY(${scrollY}px)`;
-    }
-    
-    return styles;
+    return {};
   };
 
   return (
     <div
       ref={containerRef}
-      className={`
-        ${getAnimationClass()}
-        ${enableSnapScroll ? 'mobile-scroll-snap-item' : ''}
-        ${className}
-      `.trim()}
+      className={`${getAnimationClass()} ${className}`.trim()}
       style={getContainerStyles()}
     >
       {children}
@@ -132,23 +114,3 @@ export function MobileSlideUp({
   );
 }
 
-export function MobileParallax({ 
-  children, 
-  className = '', 
-  speed = 0.2 
-}: {
-  children: ReactNode;
-  className?: string;
-  speed?: number;
-}) {
-  return (
-    <MobileScrollContainer
-      className={className}
-      enableParallax={true}
-      parallaxSpeed={speed}
-      animationType="none"
-    >
-      {children}
-    </MobileScrollContainer>
-  );
-}

@@ -136,23 +136,23 @@ export default function ModernGlassmorphismPricing() {
 
   return (
     <>
-      <section className="py-20 bg-[var(--color-bg-secondary)] relative overflow-hidden">
+      <section id="pricing" className="py-12 bg-gray-50 relative overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text-primary)] mb-6">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
               Paket Harga
             </h2>
             
-            <p className="text-base text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-6">
+            <p className="text-base text-gray-600 max-w-2xl mx-auto mb-6">
               Pilih paket yang sesuai dengan kebutuhan event spesial Anda
             </p>
           </div>
           
           {isLoading && (
             <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-accent)] mx-auto"></div>
-              <p className="mt-4 text-[var(--color-text-secondary)]">Memuat paket harga...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Memuat paket harga...</p>
             </div>
           )}
           
@@ -160,7 +160,7 @@ export default function ModernGlassmorphismPricing() {
             <div className="text-center py-16">
               <div className="bg-white rounded-lg p-8 max-w-md mx-auto shadow-sm">
                 <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-[var(--color-text-secondary)] mb-6">Paket harga sedang dalam pembaruan. Silakan hubungi kami untuk informasi terbaru.</p>
+                <p className="text-gray-600 mb-6">Paket harga sedang dalam pembaruan. Silakan hubungi kami untuk informasi terbaru.</p>
                 <Button 
                   onClick={() => {
                     const fallbackPackage: PackageDetails = {
@@ -171,7 +171,7 @@ export default function ModernGlassmorphismPricing() {
                     setSelectedPackage(fallbackPackage);
                     setIsModalOpen(true);
                   }}
-                  className="bg-[var(--color-accent)] hover:bg-[var(--color-accent-light)] text-white rounded-lg px-6 py-3"
+                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-6 py-3"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Hubungi WhatsApp
@@ -193,26 +193,32 @@ export default function ModernGlassmorphismPricing() {
                     {/* Popular Badge */}
                     {pkg.is_popular && (
                       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-30">
-                        <div className="bg-[var(--color-accent)] text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                        <div className="bg-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                           TERPOPULER
                         </div>
                       </div>
                     )}
 
                     {/* Pricing Card */}
-                    <div className={`
-                      relative h-full bg-white rounded-lg overflow-hidden transition-all duration-300
-                      ${pkg.is_popular 
-                        ? 'ring-2 ring-[var(--color-accent)] shadow-lg' 
-                        : 'shadow-md hover:shadow-lg'
-                      }
-                      min-h-[600px]
-                    `}>
+                    <div 
+                      className={`
+                        relative h-full bg-white rounded-lg overflow-hidden transition-all duration-300
+                        ${pkg.is_popular 
+                          ? 'ring-2 ring-purple-600 shadow-lg' 
+                          : 'shadow-md hover:shadow-lg'
+                        }
+                        min-h-[600px]
+                      `}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        color: '#1f2937'
+                      }}
+                    >
                       
                       {/* Badge */}
                       {pkg.badge && !pkg.is_popular && (
                         <div className="absolute top-4 right-4 z-20">
-                          <span className="bg-gray-100 text-[var(--color-text-secondary)] px-3 py-1 rounded-lg text-xs font-medium">
+                          <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-xs font-medium">
                             {pkg.badge}
                           </span>
                         </div>
@@ -221,15 +227,26 @@ export default function ModernGlassmorphismPricing() {
                       <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col">
                         {/* Header */}
                         <div className="text-center mb-6">
-                          <h3 className="text-xl sm:text-2xl font-bold text-[var(--color-text-primary)] mb-4 leading-tight">
+                          <h3 
+                            className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 leading-tight"
+                            style={{ color: '#111827 !important' }}
+                          >
                             {pkg.name}
                           </h3>
                           
                           <div className="mb-6">
-                            <div className="text-3xl sm:text-4xl font-black text-[var(--color-accent)]">
+                            <div 
+                              className="text-3xl sm:text-4xl font-black text-purple-600"
+                              style={{ color: '#9333ea !important' }}
+                            >
                               {pkg.price}
                             </div>
-                            <div className="text-sm text-[var(--color-text-muted)] mt-1">/event</div>
+                            <div 
+                              className="text-sm text-gray-500 mt-1"
+                              style={{ color: '#6b7280 !important' }}
+                            >
+                              /event
+                            </div>
                           </div>
 
                           {/* Quick Stats */}
@@ -241,14 +258,14 @@ export default function ModernGlassmorphismPricing() {
                             } mb-6`}>
                               {pkg.duration && (
                                 <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                  <Clock className="w-5 h-5 text-[var(--color-accent)] mx-auto mb-2" />
-                                  <div className="font-medium text-[var(--color-text-primary)] text-center">{pkg.duration}</div>
+                                  <Clock className="w-5 h-5 text-purple-600 mx-auto mb-2" />
+                                  <div className="font-medium text-gray-900 text-center">{pkg.duration}</div>
                                 </div>
                               )}
                               {pkg.photos && (
                                 <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                  <Camera className="w-5 h-5 text-[var(--color-accent)] mx-auto mb-2" />
-                                  <div className="font-medium text-[var(--color-text-primary)] text-center">{pkg.photos}</div>
+                                  <Camera className="w-5 h-5 text-purple-600 mx-auto mb-2" />
+                                  <div className="font-medium text-gray-900 text-center">{pkg.photos}</div>
                                 </div>
                               )}
                             </div>
@@ -263,7 +280,7 @@ export default function ModernGlassmorphismPricing() {
                                 <div className="flex-shrink-0 mr-3 mt-0.5">
                                   <Check className="w-4 h-4 text-green-500" />
                                 </div>
-                                <span className="text-[var(--color-text-secondary)] leading-relaxed">{feature}</span>
+                                <span className="text-gray-600 leading-relaxed">{feature}</span>
                               </li>
                             ))}
                           </ul>
@@ -276,8 +293,8 @@ export default function ModernGlassmorphismPricing() {
                             className={`
                               w-full py-3 rounded-lg font-medium text-sm transition-all duration-300
                               ${pkg.is_popular 
-                                ? 'bg-[var(--color-accent)] hover:bg-[var(--color-accent-light)] text-white shadow-md hover:shadow-lg' 
-                                : 'bg-gray-100 hover:bg-gray-200 text-[var(--color-text-primary)]'
+                                ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg' 
+                                : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                               }
                             `}
                           >
@@ -287,7 +304,7 @@ export default function ModernGlassmorphismPricing() {
 
                           {/* Trust Indicator */}
                           <div className="mt-4 text-center">
-                            <div className="bg-gray-50 rounded-full px-4 py-2 inline-flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+                            <div className="bg-gray-50 rounded-full px-4 py-2 inline-flex items-center gap-2 text-xs text-gray-600">
                               <span className="font-medium">Respon cepat</span>
                               <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
                               <span className="font-medium">Konsultasi gratis</span>

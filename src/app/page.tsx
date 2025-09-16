@@ -1,80 +1,68 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Static imports for simple components
+// Static imports for all components
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { ScrollProgressBar } from "@/components/ui/scroll-progress-bar";
-import { MobileFadeIn, MobileSlideUp } from "@/components/ui/mobile-scroll-container";
+import HeroSlideshow from "@/components/hero-slideshow";
+import EventsSection from "@/components/events-section";
+import GallerySection from "@/components/gallery-section";
+import PricingSection from "@/components/modern-glassmorphism-pricing";
+import SpotlightPricingSection from "@/components/spotlight-pricing-section";
+import ContactSection from "@/components/contact-section";
 
-// Mobile-first optimized dynamic imports
-import { MobileSectionSkeleton } from "@/components/ui/mobile-skeleton";
+// Centralized data fetching function for server component
+async function getHomepageData() {
+  // Use absolute URL for server-side fetch, conditionally checking for development environment
+  const baseUrl = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3002' 
+    : (process.env.NEXTAUTH_URL_INTERNAL || 'http://localhost:3000');
 
-const HeroSlideshow = dynamic(() => import("@/components/hero-slideshow"), {
-  ssr: false,
-  loading: () => <MobileSectionSkeleton type="hero" />
-});
 
-const EventsSection = dynamic(() => import("@/components/events-section"), {
-  loading: () => <MobileSectionSkeleton type="events" height="h-auto" />
-});
+  const slideshowPromise = fetch(`${baseUrl}/api/slideshow`, { cache: 'no-store' });
+  const galleryPromise = fetch(`${baseUrl}/api/photos/homepage`, { cache: 'no-store' });
 
-const GallerySection = dynamic(() => import("@/components/gallery-section"), {
-  loading: () => <MobileSectionSkeleton type="gallery" height="h-auto" />
-});
+  try {
+    const [slideshowRes, galleryRes] = await Promise.all([slideshowPromise, galleryPromise]);
 
-const PricingSection = dynamic(() => import("@/components/pricing-section-glassmorphism"), {
-  loading: () => <MobileSectionSkeleton type="pricing" height="h-auto" />
-});
 
-const ContactSection = dynamic(() => import("@/components/contact-section"), {
-  loading: () => <MobileSectionSkeleton type="contact" height="h-auto" />
-});
+    if (!slideshowRes.ok || !galleryRes.ok) {
+      return { slideshowPhotos: [], galleryPhotos: [] };
+    }
 
-// Create QueryClient outside component to prevent recreation
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+    const slideshowPhotos = await slideshowRes.json();
+    const galleryPhotos = await galleryRes.json();
 
-export default function HomePage() {
+
+    const finalData = {
+      slideshowPhotos: Array.isArray(slideshowPhotos) ? slideshowPhotos : slideshowPhotos.photos || [],
+      galleryPhotos: Array.isArray(galleryPhotos) ? galleryPhotos : galleryPhotos.photos || []
+    };
+    
+
+    return finalData;
+  } catch (error) {
+    return { slideshowPhotos: [], galleryPhotos: [] };
+  }
+}
+
+export default async function HomePage() {
+  const { slideshowPhotos, galleryPhotos } = await getHomepageData();
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-white">
-          <ScrollProgressBar />
-          <Header />
-          <main className="relative">
-            <HeroSlideshow 
-              className="h-screen"
-              autoplay={true}
-              interval={6000}
-              showControls={true}
-            />
-            
-            <MobileFadeIn delay={200} threshold={0.2}>
-              <EventsSection />
-            </MobileFadeIn>
-            
-            <MobileSlideUp delay={300} threshold={0.15}>
-              <GallerySection />
-            </MobileSlideUp>
-            
-            <MobileFadeIn delay={400} threshold={0.2}>
-              <PricingSection />
-            </MobileFadeIn>
-            
-            <MobileSlideUp delay={500} threshold={0.15}>
-              <ContactSection />
-            </MobileSlideUp>
-          </main>
-          <Footer />
-        </div>
-    </QueryClientProvider>
+    <div className="min-h-screen bg-white">
+      <Header />
+      <main className="relative">
+        <HeroSlideshow
+          photos={slideshowPhotos}
+          className="h-screen"
+          autoplay={true}
+          interval={6000}
+          showControls={true}
+        />
+        <EventsSection />
+        <GallerySection photos={galleryPhotos} />
+        <SpotlightPricingSection />
+        <ContactSection />
+      </main>
+      <Footer />
+    </div>
   );
 }

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Play, Pause, ArrowRight, Phone, Eye, Sparkles } from 'lucide-react';
 import { OptimizedImage } from './ui/optimized-image';
 import Logo from './logo';
+import UniversalSkeleton from '@/components/reactbits/skeleton/UniversalSkeleton';
 // Removed complex loading animations for better performance
 // Removed complex scroll animations for better performance
 
@@ -18,26 +18,33 @@ interface SlideshowPhoto {
 }
 
 interface HeroSlideshowProps {
+  photos: SlideshowPhoto[];
   autoplay?: boolean;
   interval?: number;
   showControls?: boolean;
   className?: string;
 }
 
-// Simple smooth scrolling function
+// Simple reliable scroll function
 const smoothScrollToSection = (sectionId: string, offset: number = 80) => {
-  const element = document.getElementById(sectionId.replace('#', ''));
+  const targetId = sectionId.replace('#', '');
+  const element = document.getElementById(targetId);
+  
   if (!element) return;
 
-  const targetPosition = element.offsetTop - offset;
+  const rect = element.getBoundingClientRect();
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const targetTop = rect.top + scrollTop - offset;
+  
   window.scrollTo({
-    top: targetPosition,
+    top: targetTop,
     behavior: 'smooth'
   });
 };
 
-export default function HeroSlideshow({ 
-  autoplay = true, 
+export default function HeroSlideshow({
+  photos,
+  autoplay = true,
   interval = 5000,
   showControls = true,
   className = ''
@@ -72,25 +79,6 @@ export default function HeroSlideshow({
     "Wisuda Bersejarah 🎓"
   ];
 
-  // Fetch slideshow photos with mobile optimization
-  const { data: photos, isLoading, error } = useQuery<SlideshowPhoto[]>({
-    queryKey: ['slideshowPhotos'],
-    queryFn: async () => {
-      const response = await fetch('/api/photos/homepage');
-      if (!response.ok) {
-        throw new Error('Failed to fetch slideshow photos');
-      }
-      const data = await response.json();
-      return data.photos || data; // Handle both response formats
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    refetchOnWindowFocus: false, // Disable unnecessary refetch
-    refetchInterval: false, // Disable auto refetch
-    select: (data) => {
-      // Simple selection without mobile detection for faster loading
-      return data.slice(0, 6); // Limit to 6 photos for optimal performance
-    }
-  });
 
   // Simplified auto-play functionality
   useEffect(() => {
@@ -133,12 +121,10 @@ export default function HeroSlideshow({
 
   // Simplified navigation functions
   const goToPrevious = () => {
-    if (!photos) return;
     setCurrentIndex(prev => prev === 0 ? photos.length - 1 : prev - 1);
   };
 
   const goToNext = () => {
-    if (!photos) return;
     setCurrentIndex(prev => prev === photos.length - 1 ? 0 : prev + 1);
   };
 
@@ -158,52 +144,16 @@ export default function HeroSlideshow({
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
 
-    if (isLeftSwipe && photos && photos.length > 1) {
+    if (isLeftSwipe && photos.length > 1) {
       goToNext();
     }
-    if (isRightSwipe && photos && photos.length > 1) {
+    if (isRightSwipe && photos.length > 1) {
       goToPrevious();
     }
   };
 
-  // Mobile-optimized loading state
-  if (isLoading) {
-    return (
-      <div className={`relative ${className} bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden`}>
-        {/* Logo skeleton */}
-        <div className="absolute top-4 left-4 z-20">
-          <div className="h-8 w-32 bg-white/30 rounded-lg animate-pulse"></div>
-        </div>
-        
-        {/* Bubble menu skeleton */}
-        <div className="absolute top-4 right-4 z-20">
-          <div className="h-14 w-14 bg-white/30 rounded-full animate-pulse"></div>
-        </div>
-        
-        {/* Content skeleton */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center space-y-4 px-4 max-w-sm">
-            <div className="h-8 w-full bg-white/30 rounded-lg animate-pulse"></div>
-            <div className="h-6 w-3/4 bg-white/20 rounded-lg animate-pulse mx-auto"></div>
-            <div className="flex gap-3 justify-center mt-6">
-              <div className="h-12 w-28 bg-white/30 rounded-full animate-pulse"></div>
-              <div className="h-12 w-24 bg-white/20 rounded-full animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Bottom indicators */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Error or no photos - show fallback
-  if (error || !photos || photos.length === 0) {
+  // Handle if no photos
+  if (!photos || photos.length === 0) {
     return (
       <div className={`relative bg-white flex items-center justify-center ${className}`}>
         <div className="text-center space-y-4 max-w-2xl mx-auto px-4">
@@ -223,13 +173,13 @@ export default function HeroSlideshow({
               Portfolio
             </Button>
             <Button 
-              onClick={() => smoothScrollToSection('contact', 100)}
+              onClick={() => smoothScrollToSection('pricing', 100)}
               size="lg" 
               variant="outline"
               className="border-2 border-white text-white hover:bg-white hover:text-brand-primary font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 backdrop-blur-sm"
             >
-              <Phone className="mr-2" size={20} />
-              Kontak
+              <Sparkles className="mr-2" size={20} />
+              Harga
             </Button>
           </div>
         </div>
@@ -271,7 +221,7 @@ export default function HeroSlideshow({
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/50" />
 
       {/* Logo - Fixed Position */}
-      <div className="absolute top-4 left-4 z-20">
+      <div className="absolute top-4 left-4 z-30">
         <Logo 
           size="sm" 
           variant="light"
@@ -297,7 +247,7 @@ export default function HeroSlideshow({
             <Button 
               onClick={() => smoothScrollToSection('gallery', 100)}
               size="sm" 
-              className="group relative overflow-hidden bg-[var(--color-accent)] hover:bg-[var(--color-accent-light)] text-white font-bold h-8 md:h-9 text-xs px-3 md:px-4 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+              className="group relative overflow-hidden bg-purple-600 hover:bg-purple-700 text-white font-bold h-8 md:h-9 text-xs px-3 md:px-4 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
             >
               <span className="relative z-10 flex items-center gap-1">
                 <Eye className="w-3 h-3 group-hover:scale-125 transition-transform duration-300" />
@@ -307,16 +257,16 @@ export default function HeroSlideshow({
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
             </Button>
 
-            {/* Secondary CTA - Kontak */}
+            {/* Secondary CTA - Harga */}
             <Button 
-              onClick={() => smoothScrollToSection('contact', 100)}
+              onClick={() => smoothScrollToSection('pricing', 100)}
               size="sm" 
               variant="ghost" 
-              className="group relative overflow-hidden border border-white/30 text-white hover:text-[var(--color-accent)] h-8 md:h-9 text-xs px-3 md:px-4 rounded-lg font-bold backdrop-blur-md bg-black/20 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 active:scale-95"
+              className="group relative overflow-hidden border border-white/30 text-white hover:text-purple-400 h-8 md:h-9 text-xs px-3 md:px-4 rounded-lg font-bold backdrop-blur-md bg-black/20 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 active:scale-95"
             >
               <span className="relative z-10 flex items-center gap-1">
-                <Phone className="w-3 h-3 group-hover:rotate-12 group-hover:scale-125 transition-all duration-300" />
-                Kontak
+                <Sparkles className="w-3 h-3 group-hover:rotate-12 group-hover:scale-125 transition-all duration-300" />
+                Harga
               </span>
               {/* Border glow */}
               <div className="absolute inset-0 rounded-xl border border-white/50 scale-100 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -326,12 +276,12 @@ export default function HeroSlideshow({
       </div>
 
       {/* Navigation Controls */}
-      {showControls && photos.length > 1 && (
+      {showControls && photos && photos.length > 1 && (
         <>
           {/* Previous/Next Buttons */}
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-20 hidden md:flex items-center justify-center"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-30 hidden md:flex items-center justify-center"
             aria-label="Previous image"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -339,7 +289,7 @@ export default function HeroSlideshow({
 
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-20 hidden md:flex items-center justify-center"
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-30 hidden md:flex items-center justify-center"
             aria-label="Next image"
           >
             <ChevronRight className="w-6 h-6" />
@@ -348,15 +298,15 @@ export default function HeroSlideshow({
           {/* Play/Pause Button */}
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all z-20"
+            className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all z-10"
             aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </button>
 
           {/* Dots Indicator */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
-            {photos && photos.map((_, index) => (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-30">
+            {photos.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}

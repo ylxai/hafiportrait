@@ -20,7 +20,7 @@ export default function MobileHeader({ className = '' }: MobileHeaderProps) {
     <>
       {/* Mobile Scroll Progress Indicator */}
       <div 
-        className="mobile-scroll-indicator fixed top-0 left-0 w-full z-50"
+        className="mobile-scroll-indicator fixed top-0 left-0 w-full z-40"
         style={{ transform: `scaleX(${scrollProgress / 100})` }}
       />
 

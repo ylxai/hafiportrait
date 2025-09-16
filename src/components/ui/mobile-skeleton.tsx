@@ -2,19 +2,24 @@
 
 import { cn } from "@/lib/utils";
 
-// Base mobile-first skeleton
+// Skeleton yang dioptimasi untuk performa - tanpa delay
 function MobileSkeleton({
   className,
-  shimmer = true,
+  variant = "default",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
-  shimmer?: boolean;
+  variant?: "default" | "pulse";
 }) {
+  const variants = {
+    default: "animate-pulse bg-gray-200/80",
+    pulse: "animate-pulse bg-gray-200/80"
+  };
+
   return (
     <div
       className={cn(
-        "rounded-lg bg-gray-200/80 relative overflow-hidden",
-        shimmer && "animate-pulse",
+        "rounded-lg relative overflow-hidden",
+        variants[variant],
         className
       )}
       {...props}
@@ -22,97 +27,210 @@ function MobileSkeleton({
   );
 }
 
-// Mobile-optimized hero skeleton
+// Hero skeleton yang dioptimasi - tampil langsung tanpa delay
 function MobileHeroSkeleton() {
   return (
     <div className="h-screen bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
       {/* Logo skeleton */}
       <div className="absolute top-4 left-4 z-20">
-        <MobileSkeleton className="h-8 w-32" />
+        <MobileSkeleton 
+          className="h-8 w-32 rounded-md" 
+          variant="pulse"
+        />
       </div>
       
       {/* Bubble menu skeleton */}
       <div className="absolute top-4 right-4 z-20">
-        <MobileSkeleton className="h-14 w-14 rounded-full" />
+        <MobileSkeleton 
+          className="h-14 w-14 rounded-full" 
+          variant="pulse"
+        />
       </div>
       
-      {/* Content skeleton */}
+      {/* Content skeleton - tampil langsung */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center space-y-4 px-4 max-w-sm">
-          <MobileSkeleton className="h-8 w-full mx-auto" />
-          <MobileSkeleton className="h-6 w-3/4 mx-auto" />
+          {/* Main title skeleton */}
+          <MobileSkeleton 
+            className="h-10 w-full rounded-lg mx-auto" 
+            variant="pulse"
+          />
+          {/* Subtitle skeleton */}
+          <MobileSkeleton 
+            className="h-6 w-3/4 mx-auto rounded-md" 
+            variant="pulse"
+          />
+          {/* Buttons skeleton */}
           <div className="flex gap-3 justify-center mt-6">
-            <MobileSkeleton className="h-12 w-28 rounded-full" />
-            <MobileSkeleton className="h-12 w-24 rounded-full" />
+            <MobileSkeleton 
+              className="h-12 w-28 rounded-full" 
+              variant="pulse"
+            />
+            <MobileSkeleton 
+              className="h-12 w-24 rounded-full" 
+              variant="pulse"
+            />
           </div>
         </div>
       </div>
       
-      {/* Bottom indicators */}
+      {/* Dot indicators */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
         {Array.from({ length: 3 }).map((_, i) => (
-          <MobileSkeleton key={i} className="w-3 h-3 rounded-full" />
+          <MobileSkeleton 
+            key={i} 
+            className="w-3 h-3 rounded-full" 
+            variant="pulse"
+          />
         ))}
+      </div>
+      
+      {/* Swipe indicator skeleton */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
+        <MobileSkeleton 
+          className="h-6 w-48 rounded-full" 
+          variant="pulse"
+        />
       </div>
     </div>
   );
 }
 
-// Mobile gallery skeleton
+// Gallery skeleton yang dioptimasi - tampil langsung
 function MobileGallerySkeleton({ count = 6 }: { count?: number }) {
   return (
     <div className="py-12 px-4">
       {/* Title skeleton */}
       <div className="text-center mb-8 space-y-3">
-        <MobileSkeleton className="h-8 w-40 mx-auto" />
-        <MobileSkeleton className="h-4 w-56 mx-auto" />
+        <MobileSkeleton 
+          className="h-8 w-40 mx-auto rounded-lg" 
+          variant="pulse"
+        />
+        <MobileSkeleton 
+          className="h-4 w-56 mx-auto rounded-md" 
+          variant="pulse"
+        />
       </div>
       
       {/* Mobile grid - 2 columns */}
       <div className="grid grid-cols-2 gap-3">
         {Array.from({ length: count }).map((_, index) => (
           <div key={index} className="space-y-2">
-            <MobileSkeleton className="aspect-square rounded-lg" />
-            <MobileSkeleton className="h-3 w-3/4" />
+            <div className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
+              <MobileSkeleton 
+                className="aspect-square" 
+                variant="pulse"
+              />
+            </div>
+            <MobileSkeleton 
+              className="h-3 w-3/4 rounded-sm" 
+              variant="pulse"
+            />
           </div>
         ))}
+      </div>
+      
+      {/* Load more indicator */}
+      <div className="text-center mt-6">
+        <MobileSkeleton 
+          className="h-10 w-32 mx-auto rounded-lg" 
+          variant="pulse"
+        />
       </div>
     </div>
   );
 }
 
-// Mobile events skeleton
+// Events skeleton yang dioptimasi - tampil langsung
 function MobileEventsSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="py-12 px-4">
+    <div className="pt-8 pb-16 px-4">
       {/* Title skeleton */}
       <div className="text-center mb-8 space-y-3">
-        <MobileSkeleton className="h-8 w-32 mx-auto" />
-        <MobileSkeleton className="h-4 w-48 mx-auto" />
+        <MobileSkeleton 
+          className="h-8 w-40 mx-auto rounded-lg" 
+          variant="pulse"
+        />
+        <MobileSkeleton 
+          className="h-4 w-56 mx-auto rounded-md" 
+          variant="pulse"
+        />
       </div>
       
       {/* Filter tabs skeleton */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
         {['All', 'Live', 'Upcoming', 'Completed'].map((tab, i) => (
-          <MobileSkeleton key={i} className="h-8 w-20 rounded-full flex-shrink-0" />
+          <MobileSkeleton 
+            key={i} 
+            className="h-10 w-20 rounded-xl flex-shrink-0" 
+            variant="pulse"
+          />
         ))}
+        <MobileSkeleton 
+          className="h-10 w-10 rounded-xl flex-shrink-0" 
+          variant="pulse"
+        />
       </div>
       
       {/* Events cards - mobile scroll */}
       <div className="flex gap-4 overflow-x-auto pb-4">
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index} className="flex-shrink-0 w-72 space-y-3">
-            <MobileSkeleton className="h-40 rounded-lg" />
-            <div className="space-y-2">
-              <MobileSkeleton className="h-5 w-3/4" />
-              <MobileSkeleton className="h-4 w-1/2" />
-              <div className="flex gap-2">
-                <MobileSkeleton className="h-6 w-16 rounded-full" />
-                <MobileSkeleton className="h-6 w-20 rounded-full" />
+          <div key={index} className="flex-shrink-0 w-80 space-y-3">
+            {/* Card header with status badge */}
+            <div className="bg-white rounded-xl p-4 space-y-3 shadow-sm border border-gray-100">
+              <div className="flex items-start justify-between">
+                <MobileSkeleton 
+                  className="h-6 w-3/4 rounded-md" 
+                  variant="pulse"
+                />
+                <MobileSkeleton 
+                  className="h-6 w-16 rounded-full" 
+                  variant="pulse"
+                />
+              </div>
+              
+              {/* Event details */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <MobileSkeleton 
+                    className="h-4 w-4 rounded-sm" 
+                    variant="pulse"
+                  />
+                  <MobileSkeleton 
+                    className="h-4 w-32 rounded-sm" 
+                    variant="pulse"
+                  />
+                </div>
+                
+                {/* Badges */}
+                <div className="flex gap-2">
+                  <MobileSkeleton 
+                    className="h-6 w-20 rounded-full" 
+                    variant="pulse"
+                  />
+                  <MobileSkeleton 
+                    className="h-6 w-16 rounded-full" 
+                    variant="pulse"
+                  />
+                </div>
+                
+                {/* Action button */}
+                <MobileSkeleton 
+                  className="h-10 w-full rounded-lg" 
+                  variant="pulse"
+                />
               </div>
             </div>
           </div>
         ))}
+      </div>
+      
+      {/* Scroll indicator */}
+      <div className="text-center mt-4">
+        <MobileSkeleton 
+          className="h-5 w-48 mx-auto rounded-full" 
+          variant="pulse"
+        />
       </div>
     </div>
   );

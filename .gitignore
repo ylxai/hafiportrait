@@ -508,3 +508,24 @@ __pycache__/
 .Python
 pip-log.txt
 pip-delete-this-directory.txt
+
+# ===== SENSITIVE FILES - DO NOT COMMIT =====
+
+# Gemini/AI Configuration Files
+.gemini/
+gemini/
+*.gemini
+
+# Token and Configuration Files
+tok.txt
+mcp_config*.json
+*.token
+
+# Environment Files (Additional)
+.env.local
+
+# Test Directory (Contains duplicates)
+test/
+
+# Random Files
+XWUxjget

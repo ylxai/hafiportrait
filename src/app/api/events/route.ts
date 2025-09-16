@@ -3,8 +3,20 @@ import { database } from '@/lib/database'; // Mengimpor database langsung
 
 export async function GET(request: NextRequest) {
   try {
-    const events = await database.getEvents();
-    return NextResponse.json(events);
+    // Check if this is a request for homepage (lightweight version)
+    const url = new URL(request.url);
+    const isHomepage = url.searchParams.get('homepage') === 'true';
+    
+    const events = isHomepage 
+      ? await database.getHomepageEvents()
+      : await database.getEvents();
+    
+    return NextResponse.json(events, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600', // 30 minutes cache untuk homepage
+        'ETag': `"homepage-events-${Date.now()}"`, // Simple ETag
+      },
+    });
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.error('Get events error:', error);
