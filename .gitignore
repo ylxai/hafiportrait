@@ -279,6 +279,13 @@ Thumbs.db
 desktop.ini
 
 # Large Media Files (Development)
+
+# Temporary debug files and sensitive configs
+vercel-env-variables*.txt
+.env.production.template
+vercel-deployment-guide.md
+debug-checklist.md
+quick-fix.md
 *.mp4
 *.avi
 *.mov
