@@ -322,6 +322,6 @@ export async function middleware(request: NextRequest) {
 // Configure which routes to run middleware on
 export const config = {
   matcher: [
-    '/admin'
+    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
   ],
 };
