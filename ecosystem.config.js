@@ -44,6 +44,7 @@ module.exports = {
         SOCKETIO_PORT: 3001,
         HOST: '0.0.0.0'
       },
+      env_file: '.env.local',
       log_file: './logs/socketio-combined.log',
       out_file: './logs/socketio-out.log',
       error_file: './logs/socketio-error.log',

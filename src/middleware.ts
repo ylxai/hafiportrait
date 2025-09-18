@@ -210,11 +210,14 @@ export async function middleware(request: NextRequest) {
     return addCorsHeaders(response, origin);
   }
 
-  // Skip middleware for health checks and static assets
+  // Skip middleware for health checks, static assets, and public routes
   if (pathname.includes('/health') || 
       pathname.includes('/_next/') || 
       pathname.includes('/favicon') ||
-      pathname.includes('/api/health')) {
+      pathname.includes('/api/') ||
+      pathname === '/' ||
+      pathname.startsWith('/event/') ||
+      pathname.startsWith('/demo/')) {
     const response = NextResponse.next();
     return addCorsHeaders(response, origin);
   }
@@ -319,14 +322,6 @@ export async function middleware(request: NextRequest) {
 // Configure which routes to run middleware on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (all API routes to avoid infinite loops)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/admin'
   ],
 };

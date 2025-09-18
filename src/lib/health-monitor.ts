@@ -580,7 +580,8 @@ class HealthMonitor {
 // 🌟 Export singleton instance
 export const healthMonitor = new HealthMonitor();
 
-// 🚀 Auto-start monitoring in production
-if (process.env.NODE_ENV === 'production') {
-  healthMonitor.startMonitoring(60000); // Check every minute
-}
+// 🚀 Auto-start monitoring in production (disabled for Vercel build)
+// Health monitor will be started manually via PM2 on VPS
+// if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
+//   healthMonitor.startMonitoring(60000); // Check every minute
+// }

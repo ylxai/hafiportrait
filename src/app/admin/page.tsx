@@ -431,6 +431,18 @@ export default function ModernAdminDashboard() {
     setIsQRDialogOpen(true);
   };
 
+  // Handle modal backdrop click
+  const handleBackdropClick = () => {
+    setIsEventFormOpen(false);
+  };
+
+  // Handle event form cancel
+  const handleEventFormCancel = () => {
+    setIsEventFormOpen(false);
+    setEditingEvent(null);
+    setCreatedEvent(null);
+  };
+
   const handleEventSubmit = async (eventData: any) => {
     if (editingEvent) {
       updateEventMutation.mutate({ eventId: editingEvent.id, eventData });
@@ -626,18 +638,14 @@ export default function ModernAdminDashboard() {
       {isEventFormOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen p-4">
-            <div className="fixed inset-0 bg-black/50" onClick={() => setIsEventFormOpen(false)} />
+            <div className="fixed inset-0 bg-black/50" onClick={handleBackdropClick} />
             <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <EventForm
                 editingEvent={editingEvent}
                 createdEvent={createdEvent}
                 isSaving={createEventMutation.isPending || updateEventMutation.isPending}
                 onSave={handleEventSubmit}
-                onCancel={() => {
-                  setIsEventFormOpen(false);
-                  setEditingEvent(null);
-                  setCreatedEvent(null);
-                }}
+                onCancel={handleEventFormCancel}
               />
             </div>
           </div>
