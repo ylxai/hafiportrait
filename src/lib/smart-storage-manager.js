@@ -69,6 +69,7 @@ class SmartStorageManager {
       console.log('✅ Storage providers initialized');
     } catch (error) {
       console.error('❌ Failed to initialize storage providers:', error);
+      throw error;
     }
   }
 
@@ -169,8 +170,8 @@ class SmartStorageManager {
           break;
       }
 
-      // Update storage stats
-      this.updateStorageStats(storagePlan.tier, photoFile.size);
+      // Update storage stats with compressed file size
+      this.updateStorageStats(storagePlan.tier, uploadResult.size);
       
       // Create thumbnail for all tiers (only if main upload succeeded to cloud)
       let thumbnailUrl = null;
@@ -232,39 +233,6 @@ class SmartStorageManager {
 
   /**
    * Upload to Google Drive (Tier 2)
-   */
-  async uploadToGoogleDrive(photoFile, metadata, storagePlan) {
-    if (!this.googleDrive) {
-      await this.initializeProviders();
-    }
-    
-    // Compress for standard quality
-    const compressedFile = await this.compressImage(photoFile, storagePlan.compression);
-    
-    const uploadResult = await this.googleDrive.uploadPhoto(
-      compressedFile.buffer, 
-      compressedFile.name, 
-      {
-        eventId: metadata.eventId,
-        albumName: metadata.albumName,
-        uploaderName: metadata.uploaderName,
-        makePublic: true // Make publicly accessible
-      }
-    );
-    
-    console.log(`✅ Uploaded to Google Drive: ${uploadResult.fileName}`);
-    
-    return {
-      url: uploadResult.publicUrl || uploadResult.webViewLink,
-      path: uploadResult.fileId,
-      size: compressedFile.size,
-      storage: 'google-drive',
-      fileId: uploadResult.fileId
-    };
-  }
-
-  /**
-   * Upload to Google Drive (Tier 2) - Updated implementation
    */
   async uploadToGoogleDrive(photoFile, metadata, storagePlan) {
     if (!this.googleDrive) {

@@ -41,7 +41,7 @@ function UploadErrorFallback({ onRetry, albumName }: { onRetry?: () => void; alb
           <div className="bg-white p-3 rounded-lg text-xs text-gray-600 border border-red-200">
             <p className="font-medium mb-2 text-red-800">Kemungkinan penyebab:</p>
             <ul className="space-y-1">
-              <li>• File terlalu besar (maksimal 10MB)</li>
+              <li>• File terlalu besar (maksimal 50MB)</li>
               <li>• Format file tidak didukung</li>
               <li>• Koneksi internet terputus</li>
               <li>• Server sedang penuh</li>

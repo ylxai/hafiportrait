@@ -11,8 +11,23 @@ import "@/styles/logo-fonts.css";
 // import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
-  title: 'Hafi Portrait - Photo Sharing untuk Event',
-  description: 'Platform berbagi foto untuk event dan acara spesial',
+  title: 'HafiPortrait Photography - Event Photo Sharing',
+  description: 'Platform berbagi foto modern untuk semua event spesial Anda. Cepat, elegan, dan mudah digunakan.',
+  openGraph: {
+    title: 'HafiPortrait Photography - Event Photo Sharing',
+    description: 'Platform berbagi foto modern untuk semua event spesial Anda. Cepat, elegan, dan mudah digunakan.',
+    url: 'https://hafiportrait.photography',
+    siteName: 'HafiPortrait Photography',
+    images: [
+      {
+        url: 'https://azspktldiblhrwebzmwq.supabase.co/storage/v1/object/public/photos/homepage/1721883885939_w42oal_DSC09692.jpg', // Ganti dengan URL gambar utama Anda
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({

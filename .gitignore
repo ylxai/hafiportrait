@@ -529,3 +529,7 @@ test/
 
 # Random Files
 XWUxjget
+
+# Token update scripts (sensitive)
+scripts/utils/update-google-drive-token.js
+scripts/utils/google-drive-token-simple.js

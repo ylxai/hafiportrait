@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import type { Event } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
+import { useUnifiedNotifications } from '@/hooks/use-unified-notifications';
 import { copyWithToast } from "@/utils/clipboard";
 import { generateEventUrl } from "@/lib/app-config";
 import { QrCode, Share2, Copy, CheckCircle, ExternalLink } from "lucide-react";
@@ -31,6 +32,7 @@ interface EventFormProps {
 
 export default function EventForm({ editingEvent, onSave, onCancel, isSaving, createdEvent }: EventFormProps) {
   const { toast } = useToast();
+  const notifications = useUnifiedNotifications();
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [accessCode, setAccessCode] = useState<string>("");
@@ -60,21 +62,19 @@ export default function EventForm({ editingEvent, onSave, onCancel, isSaving, cr
   useEffect(() => {
     if (createdEvent && !editingEvent) {
       setShowSuccess(true);
+      // Show success notification
+      notifications.event.created(createdEvent.name);
       // Reset form
       setName("");
       setDate("");
       setAccessCode("");
       setIsPremium(false);
     }
-  }, [createdEvent, editingEvent]);
+  }, [createdEvent, editingEvent, notifications]);
 
   const handleSubmit = () => {
     if (!name || !date || !accessCode) {
-      toast({
-        title: "Data Tidak Lengkap",
-        description: "Mohon isi semua field yang diperlukan.",
-        variant: "destructive",
-      });
+      notifications.error("Data Tidak Lengkap", "Mohon isi semua field yang diperlukan.");
       return;
     }
     

@@ -293,7 +293,7 @@ export function MediaHomepageSection({
                 className="mt-1"
               />
               <p className="text-sm text-gray-500 mt-1">
-                Ukuran maksimal 10MB per file. Format: JPG, PNG, GIF
+                Ukuran maksimal 50MB per file. Format: JPG, PNG, GIF
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -500,12 +500,12 @@ export function MediaEventsSection({
     if (files.length === 0) return;
 
     // Validate file sizes
-    const invalidFiles = files.filter(file => file.size > 10 * 1024 * 1024);
+    const invalidFiles = files.filter(file => file.size > 50 * 1024 * 1024);
     if (invalidFiles.length > 0) {
-      alert(`${invalidFiles.length} file(s) melebihi ukuran maksimal 10MB dan akan dilewati.`);
+      alert(`${invalidFiles.length} file(s) melebihi ukuran maksimal 50MB dan akan dilewati.`);
     }
 
-    const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024);
+    const validFiles = files.filter(file => file.size <= 50 * 1024 * 1024);
     if (validFiles.length === 0) {
       alert("Tidak ada file yang valid untuk diupload.");
       return;
@@ -646,7 +646,7 @@ export function MediaEventsSection({
                 disabled={isUploading}
               />
               <p className="text-sm text-gray-500 mt-1">
-                Ukuran maksimal 10MB per file. Format: JPG, PNG, GIF. Bisa pilih multiple files.
+                Ukuran maksimal 50MB per file. Format: JPG, PNG, GIF. Bisa pilih multiple files.
               </p>
             </div>
 

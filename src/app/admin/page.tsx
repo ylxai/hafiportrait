@@ -442,10 +442,10 @@ export default function ModernAdminDashboard() {
   // Photo management handlers
   const handleHomepagePhotoUpload = (files: FileList) => {
     Array.from(files).forEach(file => {
-      if (file.size > 10 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
         toast({
           title: "File Terlalu Besar",
-          description: "Ukuran file maksimal 10MB.",
+          description: "Ukuran file maksimal 50MB.",
           variant: "destructive",
         });
         return;

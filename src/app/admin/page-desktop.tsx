@@ -433,10 +433,10 @@ export default function AdminDashboardGrouped() {
   const handleHomepagePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     files.forEach(file => {
-      if (file.size > 10 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
         toast({
           title: "File Terlalu Besar",
-          description: "Ukuran file maksimal 10MB.",
+          description: "Ukuran file maksimal 50MB.",
           variant: "destructive",
         });
         return;
@@ -511,10 +511,10 @@ export default function AdminDashboardGrouped() {
   const handleOfficialPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     files.forEach(file => {
-      if (file.size > 10 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
         toast({
           title: "File Terlalu Besar",
-          description: "Ukuran file maksimal 10MB.",
+          description: "Ukuran file maksimal 50MB.",
           variant: "destructive",
         });
         return;
@@ -1124,7 +1124,7 @@ export default function AdminDashboardGrouped() {
                                     className="w-full p-2 border rounded-lg mt-1"
                                   />
                                   <p className="text-sm text-muted-foreground mt-1">
-                                    Ukuran maksimal 10MB per file.
+                                    Ukuran maksimal 50MB per file.
                                   </p>
                                 </div>
                                 <div className="flex space-x-2">
@@ -1404,7 +1404,7 @@ export default function AdminDashboardGrouped() {
                                     className="w-full p-2 border rounded-lg mt-1"
                                   />
                                   <p className="text-sm text-muted-foreground mt-1">
-                                    Foto akan diupload ke album "Official" dengan uploader "Admin". Ukuran maksimal 10MB per file.
+                                    Foto akan diupload ke album "Official" dengan uploader "Admin". Ukuran maksimal 50MB per file.
                                   </p>
                                 </div>
                                 <div className="flex space-x-2">
@@ -1766,7 +1766,7 @@ export default function AdminDashboardGrouped() {
                               <option value={5}>5 MB</option>
                               <option value={10}>10 MB</option>
                               <option value={20}>20 MB</option>
-                              <option value={50}>50 MB</option>
+                              <option value={50}>50 MB (Recommended)</option>
                             </select>
                           </div>
                           <div className="space-y-3">

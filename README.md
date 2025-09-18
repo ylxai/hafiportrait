@@ -264,6 +264,36 @@ HafiPortrait adalah website photography portfolio dengan fokus mobile-first expe
 
 ---
 
+## 📚 **API DOCUMENTATION**
+
+### **🔗 Complete API Reference**
+- **[API Documentation](./API_DOCUMENTATION.md)** - Comprehensive API guide
+- **Base URL**: `http://localhost:3002/api` (development)
+- **File Upload Limit**: **50MB** (increased from 10MB)
+
+### **📤 Key Upload Endpoints**
+```bash
+# Event photo upload (50MB max)
+POST /api/events/{eventId}/photos
+
+# Homepage photo upload (50MB max) 
+POST /api/admin/photos/homepage
+
+# Storage analytics
+GET /api/admin/storage/analytics
+
+# System health (includes storage metrics)
+GET /api/monitoring/health
+```
+
+### **🎯 Smart Storage Features**
+- **Multi-tier Storage**: Cloudflare R2 → Google Drive → Local
+- **Auto Compression**: Premium/Standard/Thumbnail based on content
+- **Smart Folders**: Automatic folder organization per event
+- **Real-time Analytics**: Live storage usage monitoring
+
+---
+
 ## 🛠️ **DEVELOPMENT COMMANDS**
 
 ### **Core Development:**

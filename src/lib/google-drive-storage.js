@@ -69,6 +69,19 @@ class GoogleDriveStorage {
   }
 
   /**
+   * Get refresh token from environment or file
+   */
+  getRefreshTokenFromFile() {
+    // First try environment variable
+    if (process.env.GOOGLE_DRIVE_REFRESH_TOKEN) {
+      return process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+    }
+    
+    // Could implement file-based fallback here if needed
+    return null;
+  }
+
+  /**
    * Load saved authentication tokens
    */
   async loadTokens() {
@@ -259,9 +272,40 @@ class GoogleDriveStorage {
   async getTargetFolderId(metadata) {
     const { eventId, albumName, fileType } = metadata;
     
-    // For now, return root folder or event-specific folder
-    // In production, you'd maintain a mapping of event folders
-    return this.config.rootFolderId;
+    // If no eventId provided, use root folder
+    if (!eventId) {
+      return this.config.rootFolderId;
+    }
+    
+    try {
+      // Search for existing event folder
+      const query = `name contains '${eventId}' and mimeType='application/vnd.google-apps.folder'`;
+      const response = await this.drive.files.list({
+        q: query,
+        fields: 'files(id, name)',
+        pageSize: 10
+      });
+      
+      // If folder exists, return its ID
+      if (response.data.files && response.data.files.length > 0) {
+        const folder = response.data.files.find(f => f.name.includes(eventId));
+        if (folder) {
+          console.log(`✅ Found existing folder for event ${eventId}: ${folder.name}`);
+          return folder.id;
+        }
+      }
+      
+      // Create new folder if not found
+      const folderName = `Event_${eventId}_${Date.now()}`;
+      console.log(`📁 Creating new folder: ${folderName}`);
+      
+      const newFolder = await this.createFolder(folderName, this.config.rootFolderId);
+      return newFolder.id;
+      
+    } catch (error) {
+      console.warn(`⚠️ Failed to get/create folder for event ${eventId}, using root:`, error.message);
+      return this.config.rootFolderId;
+    }
   }
 
   /**

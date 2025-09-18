@@ -47,9 +47,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ message: 'Only image files are allowed' }, { status: 400 });
     }
 
-    // Validate file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ message: 'File size must be less than 10MB' }, { status: 400 });
+    // Validate file size (50MB max)
+    if (file.size > 50 * 1024 * 1024) {
+      return NextResponse.json({ message: 'File size must be less than 50MB' }, { status: 400 });
     }
 
     // Validate album name

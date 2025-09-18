@@ -94,10 +94,10 @@ function createFallbackCompression() {
     },
 
     basicSizeLimit(photoFile, settings) {
-      const maxSize = 10 * 1024 * 1024; // 10MB absolute limit
+      const maxSize = 50 * 1024 * 1024; // 50MB absolute limit
       
       if (photoFile.size > maxSize) {
-        throw new Error(`File too large: ${(photoFile.size / 1024 / 1024).toFixed(2)}MB (max: 10MB)`);
+        throw new Error(`File too large: ${(photoFile.size / 1024 / 1024).toFixed(2)}MB (max: 50MB)`);
       }
       
       return {

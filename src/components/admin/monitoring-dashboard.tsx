@@ -20,8 +20,12 @@ import {
   RefreshCw,
   Bell,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Cloud,
+  FolderOpen,
+  BarChart3
 } from 'lucide-react';
+import StorageAnalyticsDashboard from './storage-analytics-dashboard';
 
 interface HealthCheck {
   name: string;
@@ -249,6 +253,7 @@ export default function MonitoringDashboard() {
         <TabsList>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="system">System Resources</TabsTrigger>
+          <TabsTrigger value="storage">Storage Analytics</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
         </TabsList>
 
@@ -330,6 +335,11 @@ export default function MonitoringDashboard() {
               )}
             </div>
           )}
+        </TabsContent>
+
+        {/* Storage Analytics Tab */}
+        <TabsContent value="storage" className="space-y-4">
+          <StorageAnalyticsDashboard />
         </TabsContent>
 
         {/* Alerts Tab */}

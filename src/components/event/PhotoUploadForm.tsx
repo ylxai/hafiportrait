@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Camera, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUnifiedNotifications } from '@/hooks/use-unified-notifications';
 import { apiRequest } from '@/lib/queryClient';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -17,6 +18,7 @@ interface PhotoUploadFormProps {
 
 export default function PhotoUploadForm({ eventId, albumName, disabled = false }: PhotoUploadFormProps) {
   const { toast } = useToast();
+  const notifications = useUnifiedNotifications();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   
@@ -33,8 +35,8 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
         throw new Error('Hanya file gambar yang diperbolehkan');
       }
 
-      if (file.size > 15 * 1024 * 1024) {
-        throw new Error('Ukuran file maksimal 15MB');
+      if (file.size > 50 * 1024 * 1024) {
+        throw new Error('Ukuran file maksimal 50MB');
       }
 
       const formData = new FormData();
@@ -55,24 +57,29 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/events', eventId, 'photos'] });
       
       const uploaderDisplayName = uploaderName.trim() || 'Anonim';
-      toast({
-        title: "Foto Berhasil Diupload!",
-        description: `Foto berhasil ditambahkan ke album ${albumName} oleh ${uploaderDisplayName}.`,
-      });
+      const fileName = selectedFile?.name || 'File';
+      const tier = data?.storage_tier || data?.tier;
+      
+      notifications.upload.success(fileName, tier);
       
       // Reset selected file dan preview
       handleRemoveSelectedFile();
     },
     onError: (error) => {
-      toast({
-        title: "Upload Gagal",
-        description: error instanceof Error ? error.message : "Terjadi kesalahan saat upload",
-        variant: "destructive",
-      });
+      const fileName = selectedFile?.name || 'File';
+      const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan saat upload";
+      
+      if (errorMessage.includes('terlalu besar') || errorMessage.includes('50MB')) {
+        notifications.upload.fileTooLarge(fileName, '50MB');
+      } else if (errorMessage.includes('format') || errorMessage.includes('gambar')) {
+        notifications.upload.invalidFileType(fileName);
+      } else {
+        notifications.upload.failed(fileName, errorMessage);
+      }
     },
   });
 
@@ -91,20 +98,12 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
     ];
 
     if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().match(/\.(nef|cr2|arw|dng|raf)$/)) {
-      toast({
-        title: "Format File Tidak Didukung",
-        description: "Gunakan format: JPG, PNG, WEBP, HEIC, HEIF, GIF, BMP, NEF, CR2, ARW, DNG, RAF",
-        variant: "destructive",
-      });
+      notifications.upload.invalidFileType(file.name);
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) {
-      toast({
-        title: "File Terlalu Besar",
-        description: "Ukuran file maksimal 15MB.",
-        variant: "destructive",
-      });
+    if (file.size > 50 * 1024 * 1024) {
+      notifications.upload.fileTooLarge(file.name, '50MB');
       return;
     }
 
@@ -117,10 +116,7 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
       setPreviewUrl(url);
     }
 
-    toast({
-      title: "Foto Dipilih",
-      description: `${file.name} siap untuk diupload`,
-    });
+    notifications.info("Foto Dipilih", `${file.name} siap untuk diupload`);
   };
 
   // Fungsi untuk upload foto yang sudah dipilih
@@ -204,7 +200,7 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
             Pilih Foto
           </p>
           <p className="text-xs text-gray-500">
-            JPG, PNG, WEBP, HEIC, RAW (maks. 15MB)
+            JPG, PNG, WEBP, HEIC, RAW (maks. 50MB)
           </p>
         </div>
         <input
