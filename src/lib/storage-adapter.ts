@@ -35,24 +35,43 @@ export interface PhotoMetadata {
 export class StorageAdapter {
   private storageManager: any;
   private initialized: boolean = false;
+  private initializationError: Error | null = null;
 
   constructor() {
-    this.storageManager = new SmartStorageManager({
-      // Override default config if needed
-      local: {
-        backupFolder: process.env.LOCAL_BACKUP_PATH || './DSLR-System/Backup/dslr-backup'
-      }
-    });
+    try {
+      this.storageManager = new SmartStorageManager({
+        // Override default config if needed
+        local: {
+          backupFolder: process.env.LOCAL_BACKUP_PATH || './DSLR-System/Backup/dslr-backup'
+        }
+      });
+    } catch (error) {
+      this.initializationError = error instanceof Error ? error : new Error('Smart Storage Manager initialization failed');
+      console.error('❌ Smart Storage Manager constructor failed:', this.initializationError);
+    }
   }
 
   /**
    * Initialize storage providers
    */
   async initialize(): Promise<void> {
+    if (this.initializationError) {
+      throw this.initializationError;
+    }
+
     if (!this.initialized) {
-      await this.storageManager.initializeProviders();
-      this.initialized = true;
-      console.log('✅ Storage Adapter initialized');
+      try {
+        if (!this.storageManager) {
+          throw new Error('Smart Storage Manager not available');
+        }
+        await this.storageManager.initializeProviders();
+        this.initialized = true;
+        console.log('✅ Storage Adapter initialized');
+      } catch (error) {
+        const initError = error instanceof Error ? error : new Error('Storage initialization failed');
+        console.error('❌ Storage Adapter initialization failed:', initError);
+        throw initError;
+      }
     }
   }
 
@@ -134,6 +153,41 @@ export class StorageAdapter {
   async determineStorageTier(metadata: PhotoMetadata): Promise<any> {
     await this.initialize();
     return this.storageManager.determineStorageTier(metadata);
+  }
+
+  /**
+   * Upload original file for backup (uncompressed)
+   */
+  async uploadOriginalPhoto(file: File, metadata: PhotoMetadata): Promise<StorageUploadResult> {
+    await this.initialize();
+
+    // Convert File to the format expected by Smart Storage Manager
+    const arrayBuffer = await file.arrayBuffer();
+    const photoFile = {
+      buffer: Buffer.from(arrayBuffer),
+      name: file.name,
+      size: file.size,
+      type: file.type
+    };
+
+    // Use Google Drive specifically for original backup
+    const originalResult = await this.storageManager.uploadOriginalToGoogleDrive(photoFile, metadata);
+    
+    console.log(`✅ Original file backed up:`, {
+      storage: originalResult.storage,
+      fileId: originalResult.fileId,
+      size: originalResult.size
+    });
+
+    return {
+      url: originalResult.url,
+      path: originalResult.fileId,
+      size: originalResult.size,
+      storage: originalResult.storage,
+      tier: 'google-drive-original',
+      fileId: originalResult.fileId,
+      compressionUsed: 'none'
+    };
   }
 }
 

@@ -44,6 +44,8 @@ export function EnhancedLightbox({
     alt: photo.original_name,
     title: photo.original_name,
     description: photo.uploader_name ? `Uploaded by: ${photo.uploader_name}` : undefined,
+    // Add download link for original quality
+    download: `/api/photos/${photo.id}/original`,
   }));
 
   return (

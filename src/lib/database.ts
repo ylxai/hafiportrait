@@ -359,6 +359,26 @@ class DatabaseService {
   }
 
   // --- Metode Foto ---
+  async getAllPhotos(): Promise<Photo[]> {
+    const { data, error } = await this.supabase
+      .from('photos')
+      .select(`
+        *,
+        events (
+          name
+        )
+      `)
+      .order('uploaded_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    // Transform the data to include event_name
+    return data?.map(photo => ({
+      ...photo,
+      event_name: photo.events?.name || null
+    })) || [];
+  }
+
   async getEventPhotos(eventId: string): Promise<Photo[]> {
     const { data, error } = await this.supabase
       .from('photos')

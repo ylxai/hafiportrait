@@ -1,6 +1,7 @@
 /**
- * Service Worker for Push Notifications
- * Handles background notifications, offline queue, and click actions
+ * Service Worker for Browser Notifications
+ * Handles background notifications via WebSocket/Socket.IO, offline queue, and click actions
+ * Note: Can receive notifications from both push events and WebSocket/Socket.IO messages
  */
 
 const CACHE_NAME = 'hafi-portrait-notifications-v1';
@@ -48,7 +49,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Handle Push Messages from FCM
+// Handle Push Messages (from FCM or WebSocket/Socket.IO forwarded notifications)
 self.addEventListener('push', (event) => {
   console.log('📨 Push message received:', event);
   
@@ -215,6 +216,16 @@ self.addEventListener('message', (event) => {
       updateBadgeCount(payload.count);
       break;
       
+    case 'SHOW_NOTIFICATION':
+      // Handle WebSocket/Socket.IO notifications forwarded from main thread
+      showWebSocketNotification(payload);
+      break;
+      
+    case 'WEBSOCKET_NOTIFICATION':
+      // Alternative handler for WebSocket notifications
+      handleWebSocketNotification(payload);
+      break;
+      
     default:
       console.log('🤷 Unknown message type:', type);
   }
@@ -335,6 +346,62 @@ function updateBadgeCount(count) {
     }
   } catch (error) {
     console.error('❌ Error updating badge count:', error);
+  }
+}
+
+/**
+ * Show WebSocket/Socket.IO notification
+ */
+function showWebSocketNotification(notificationData) {
+  try {
+    const options = {
+      body: notificationData.message || notificationData.body,
+      icon: notificationData.icon || '/icons/icon-192x192.png',
+      badge: '/icons/badge-72x72.png',
+      vibrate: [200, 100, 200],
+      requireInteraction: notificationData.persistent || false,
+      silent: false,
+      renotify: true,
+      tag: `websocket-${notificationData.type || 'general'}`,
+      data: {
+        url: notificationData.url || '/admin',
+        timestamp: Date.now(),
+        type: notificationData.type || 'websocket',
+        source: 'websocket-socketio',
+        ...notificationData.data
+      }
+    };
+
+    self.registration.showNotification(
+      notificationData.title || 'Hafi Portrait',
+      options
+    ).then(() => {
+      console.log('✅ WebSocket/Socket.IO notification shown:', notificationData.title);
+      trackNotificationEvent('websocket_displayed', options.data);
+    });
+  } catch (error) {
+    console.error('❌ Error showing WebSocket notification:', error);
+  }
+}
+
+/**
+ * Handle WebSocket notification with processing
+ */
+function handleWebSocketNotification(payload) {
+  try {
+    // Process and show notification
+    showWebSocketNotification(payload);
+    
+    // Store in offline queue
+    storeNotificationOffline({
+      ...payload,
+      source: 'websocket-socketio',
+      receivedAt: Date.now()
+    });
+    
+    console.log('📨 WebSocket/Socket.IO notification processed:', payload.type);
+  } catch (error) {
+    console.error('❌ Error handling WebSocket notification:', error);
   }
 }
 

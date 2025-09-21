@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'hafiportrait-app',
+      name: 'hafiportrait-app-prod',
       script: 'pnpm',
       args: 'start',
       exec_mode: 'cluster',
@@ -12,22 +12,24 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
-        HOST: '0.0.0.0'
+        HOST: '0.0.0.0',
+        NEXT_PUBLIC_APP_URL: 'https://hafiportrait.photography'
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: 3000,
-        HOST: '0.0.0.0'
+        HOST: '0.0.0.0',
+        NEXT_PUBLIC_APP_URL: 'https://hafiportrait.photography'
       },
       env_file: '.env.production',
-      log_file: './logs/app-combined.log',
-      out_file: './logs/app-out.log',
-      error_file: './logs/app-error.log',
+      log_file: './logs/app-prod-combined.log',
+      out_file: './logs/app-prod-out.log',
+      error_file: './logs/app-prod-error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       merge_logs: true
     },
     {
-      name: 'hafiportrait-socketio',
+      name: 'hafiportrait-socketio-prod',
       script: 'node',
       args: 'socketio-server.js',
       instances: 1,
@@ -45,9 +47,9 @@ module.exports = {
         HOST: '0.0.0.0'
       },
       env_file: '.env.production',
-      log_file: './logs/socketio-combined.log',
-      out_file: './logs/socketio-out.log',
-      error_file: './logs/socketio-error.log',
+      log_file: './logs/socketio-prod-combined.log',
+      out_file: './logs/socketio-prod-out.log',
+      error_file: './logs/socketio-prod-error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       merge_logs: true
     }

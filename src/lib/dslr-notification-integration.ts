@@ -164,7 +164,7 @@ class DSLRNotificationIntegration {
     // Send via WebSocket for real-time updates
     this.wsClient.send('notification', notification);
 
-    // Also send push notification for background users
+    // Also send browser notification for background users via WebSocket/Socket.IO
     await this.sendPushNotification(notification);
   }
 
@@ -355,7 +355,7 @@ class DSLRNotificationIntegration {
   }
 
   /**
-   * Send push notification via API
+   * Send browser notification via WebSocket/Socket.IO API
    */
   private async sendPushNotification(notification: any): Promise<void> {
     try {

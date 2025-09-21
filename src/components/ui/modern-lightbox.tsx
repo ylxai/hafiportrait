@@ -174,8 +174,10 @@ export function ModernLightbox({
     if (!currentPhoto) return;
 
     const link = document.createElement('a');
-    link.href = currentPhoto.url;
+    // Use original API endpoint for download to get uncompressed file
+    link.href = `/api/photos/${currentPhoto.id}/original`;
     link.download = currentPhoto.original_name || `photo-${currentPhoto.id}.jpg`;
+    link.target = '_blank'; // Open in new tab to handle potential redirects
     link.click();
   }, [currentPhoto]);
 

@@ -27,7 +27,7 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Photo upload mutation
+  // Photo upload mutation with mobile optimization
   const uploadPhotoMutation = useMutation({
     mutationFn: async (file: File) => {
       // Validasi file
@@ -35,14 +35,26 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
         throw new Error('Hanya file gambar yang diperbolehkan');
       }
 
-      if (file.size > 50 * 1024 * 1024) {
-        throw new Error('Ukuran file maksimal 50MB');
+      // Mobile-specific file size limit
+      const maxSize = isMobile ? 30 * 1024 * 1024 : 50 * 1024 * 1024; // 30MB for mobile, 50MB for desktop
+      if (file.size > maxSize) {
+        const maxSizeText = isMobile ? '30MB' : '50MB';
+        throw new Error(`Ukuran file maksimal ${maxSizeText}`);
       }
 
       const formData = new FormData();
       formData.append('file', file);
       formData.append('uploaderName', uploaderName.trim() || 'Anonim');
       formData.append('albumName', albumName);
+
+      // Mobile optimization: Add connection quality detection
+      if (isMobile) {
+        const connection = (navigator as any).connection;
+        if (connection) {
+          formData.append('connectionType', connection.effectiveType || 'unknown');
+          formData.append('downlink', connection.downlink?.toString() || '0');
+        }
+      }
 
       const response = await apiRequest(
         'POST',
@@ -102,8 +114,12 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      notifications.upload.fileTooLarge(file.name, '50MB');
+    // Mobile-specific file size check
+    const maxSize = isMobile ? 30 * 1024 * 1024 : 50 * 1024 * 1024;
+    const maxSizeText = isMobile ? '30MB' : '50MB';
+    
+    if (file.size > maxSize) {
+      notifications.upload.fileTooLarge(file.name, maxSizeText);
       return;
     }
 
@@ -200,7 +216,8 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
             Pilih Foto
           </p>
           <p className="text-xs text-gray-500">
-            JPG, PNG, WEBP, HEIC, RAW (maks. 50MB)
+            JPG, PNG, WEBP, HEIC, RAW (maks. {isMobile ? '30MB' : '50MB'})
+            {isMobile && <span className="block mt-1 text-blue-600">📱 Mobile: Optimized for better upload</span>}
           </p>
         </div>
         <input

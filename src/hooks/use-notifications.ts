@@ -1,26 +1,18 @@
 /**
  * React Hook for Notification Management
- * Provides easy access to notification features and real-time updates
+ * Provides easy access to notification features and real-time updates via WebSocket/Socket.IO
+ * Supports both WebSocket and Socket.IO connections based on NEXT_PUBLIC_USE_SOCKETIO env
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { getWebSocketClient } from '@/lib/websocket-client';
-import { 
-  requestNotificationPermission, 
-  onForegroundMessage, 
-  subscribeToTopic,
-  unsubscribeFromTopic,
-  getCurrentToken,
-  sendTestNotification,
-  getNotificationPermission
-} from '@/lib/firebase-config';
+// Firebase removed - using WebSocket/Socket.IO notifications based on NEXT_PUBLIC_USE_SOCKETIO env
 import { useToast } from '@/components/ui/toast-notification';
 
 export interface NotificationState {
   isSupported: boolean;
   permission: NotificationPermission;
   isConnected: boolean;
-  fcmToken: string | null;
   unreadCount: number;
   isLoading: boolean;
   error: string | null;
@@ -29,9 +21,6 @@ export interface NotificationState {
 export interface NotificationHook {
   state: NotificationState;
   requestPermission: () => Promise<boolean>;
-  sendTest: () => Promise<void>;
-  subscribe: (topic: string) => Promise<void>;
-  unsubscribe: (topic: string) => Promise<void>;
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   clearError: () => void;
@@ -41,19 +30,13 @@ export interface NotificationHook {
 export function useNotifications(): NotificationHook {
   const { addToast } = useToast();
   const [state, setState] = useState<NotificationState>({
-    isSupported: false,
-    permission: 'default',
+    isSupported: 'Notification' in window,
+    permission: 'Notification' in window ? Notification.permission : 'default',
     isConnected: false,
-    fcmToken: null,
     unreadCount: 0,
-    isLoading: true,
+    isLoading: false,
     error: null
   });
-
-  // Initialize notification system
-  useEffect(() => {
-    initializeNotifications();
-  }, []);
 
   // Setup WebSocket connection
   useEffect(() => {
@@ -160,103 +143,37 @@ export function useNotifications(): NotificationHook {
     }
   }, [addToast]);
 
-  // Setup FCM foreground message listener
-  useEffect(() => {
-    if (state.fcmToken) {
-      onForegroundMessage((payload) => {
-        console.log('📨 Foreground FCM message:', payload);
-        
-        // Show toast for foreground messages
-        if (payload.notification) {
-          addToast({
-            type: 'info',
-            title: payload.notification.title || 'Notification',
-            message: payload.notification.body || 'You have a new notification',
-            action: payload.data?.url ? {
-              label: 'View',
-              onClick: () => window.open(payload.data.url, '_blank')
-            } : undefined
-          });
-        }
-        
-        // Update unread count
-        setState(prev => ({ ...prev, unreadCount: prev.unreadCount + 1 }));
-      });
-    }
-  }, [state.fcmToken, addToast]);
-
-  const initializeNotifications = async () => {
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-      // Check if notifications are supported
-      const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
-      const permission = getNotificationPermission();
-      const existingToken = getCurrentToken();
-
-      setState(prev => ({
-        ...prev,
-        isSupported,
-        permission,
-        fcmToken: existingToken,
-        isLoading: false
-      }));
-
-      console.log('🔔 Notification system initialized:', {
-        isSupported,
-        permission,
-        hasToken: !!existingToken
-      });
-
-    } catch (error) {
-      console.error('❌ Error initializing notifications:', error);
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: 'Failed to initialize notification system'
-      }));
-    }
-  };
+  // WebSocket/Socket.IO handles all real-time notifications
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     try {
+      if (!('Notification' in window)) {
+        throw new Error('Browser does not support notifications');
+      }
+
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const token = await requestNotificationPermission();
+      const permission = await Notification.requestPermission();
       
-      if (token) {
-        setState(prev => ({
-          ...prev,
-          permission: 'granted',
-          fcmToken: token,
-          isLoading: false
-        }));
+      setState(prev => ({
+        ...prev,
+        permission,
+        isLoading: false
+      }));
 
-        // Subscribe to default topics
-        await subscribeToTopic('general');
-        await subscribeToTopic('uploads');
-        
+      if (permission === 'granted') {
         addToast({
           type: 'success',
           title: 'Notifications Enabled',
-          message: 'You will now receive real-time notifications'
+          message: 'You will now receive browser notifications'
         });
-
         return true;
       } else {
-        setState(prev => ({
-          ...prev,
-          permission: 'denied',
-          isLoading: false,
-          error: 'Notification permission denied'
-        }));
-
         addToast({
           type: 'error',
           title: 'Permission Denied',
           message: 'Please enable notifications in your browser settings'
         });
-
         return false;
       }
     } catch (error) {
@@ -277,82 +194,38 @@ export function useNotifications(): NotificationHook {
     }
   }, [addToast]);
 
-  const sendTest = useCallback(async (): Promise<void> => {
-    try {
-      if (!state.fcmToken) {
-        throw new Error('No FCM token available');
-      }
-
-      await sendTestNotification();
-      
-      addToast({
-        type: 'info',
-        title: 'Test Sent',
-        message: 'Test notification has been sent'
-      });
-
-    } catch (error) {
-      console.error('❌ Error sending test notification:', error);
-      addToast({
-        type: 'error',
-        title: 'Test Failed',
-        message: 'Failed to send test notification'
-      });
-    }
-  }, [state.fcmToken, addToast]);
-
-  const subscribe = useCallback(async (topic: string): Promise<void> => {
-    try {
-      await subscribeToTopic(topic);
-      addToast({
-        type: 'success',
-        title: 'Subscribed',
-        message: `Subscribed to ${topic} notifications`
-      });
-    } catch (error) {
-      console.error('❌ Error subscribing to topic:', error);
-      addToast({
-        type: 'error',
-        title: 'Subscription Failed',
-        message: `Failed to subscribe to ${topic}`
-      });
-    }
-  }, [addToast]);
-
-  const unsubscribe = useCallback(async (topic: string): Promise<void> => {
-    try {
-      await unsubscribeFromTopic(topic);
-      addToast({
-        type: 'info',
-        title: 'Unsubscribed',
-        message: `Unsubscribed from ${topic} notifications`
-      });
-    } catch (error) {
-      console.error('❌ Error unsubscribing from topic:', error);
-      addToast({
-        type: 'error',
-        title: 'Unsubscribe Failed',
-        message: `Failed to unsubscribe from ${topic}`
-      });
-    }
-  }, [addToast]);
+  // FCM functions removed - using WebSocket + browser notifications only
 
   const markAsRead = useCallback((notificationId: string): void => {
-    // TODO: Send to server to mark as read
-    console.log('✅ Marking notification as read:', notificationId);
-    
-    // Update local unread count
-    setState(prev => ({ 
-      ...prev, 
-      unreadCount: Math.max(0, prev.unreadCount - 1) 
-    }));
+    try {
+      // Send to server via WebSocket
+      const wsClient = getWebSocketClient();
+      wsClient.send('mark_notification_read', { notificationId });
+      
+      console.log('✅ Marking notification as read:', notificationId);
+      
+      // Update local unread count
+      setState(prev => ({ 
+        ...prev, 
+        unreadCount: Math.max(0, prev.unreadCount - 1) 
+      }));
+    } catch (error) {
+      console.error('❌ Error marking notification as read:', error);
+    }
   }, []);
 
   const markAllAsRead = useCallback((): void => {
-    // TODO: Send to server to mark all as read
-    console.log('✅ Marking all notifications as read');
-    
-    setState(prev => ({ ...prev, unreadCount: 0 }));
+    try {
+      // Send to server via WebSocket
+      const wsClient = getWebSocketClient();
+      wsClient.send('mark_all_notifications_read', {});
+      
+      console.log('✅ Marking all notifications as read');
+      
+      setState(prev => ({ ...prev, unreadCount: 0 }));
+    } catch (error) {
+      console.error('❌ Error marking all notifications as read:', error);
+    }
   }, []);
 
   const clearError = useCallback((): void => {
@@ -373,9 +246,6 @@ export function useNotifications(): NotificationHook {
   return {
     state,
     requestPermission,
-    sendTest,
-    subscribe,
-    unsubscribe,
     markAsRead,
     markAllAsRead,
     clearError,

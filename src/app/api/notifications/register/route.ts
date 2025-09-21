@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Register FCM token for push notifications
+ * Register device for WebSocket/Socket.IO notifications
  * POST /api/notifications/register
  */
 export async function POST(request: NextRequest) {
@@ -11,48 +11,62 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: 'FCM token is required' },
+        { success: false, error: 'Device token is required for WebSocket/Socket.IO notifications' },
         { status: 400 }
       );
     }
 
-    // In production, store in database
-    // For now, we'll simulate the storage
+    // Store device info for WebSocket/Socket.IO notifications
+    // In production, store in database with session management
     const deviceInfo = {
       id: generateDeviceId(token),
-      token: token,
+      sessionToken: token, // WebSocket/Socket.IO session identifier
       userAgent: userAgent,
-      type: type,
+      connectionType: type, // 'web', 'mobile', 'desktop'
       registeredAt: timestamp || new Date().toISOString(),
       isActive: true,
       lastSeen: new Date().toISOString(),
-      topics: ['general'], // Default topic
-      preferences: {
+      subscribedRooms: ['general', 'uploads', 'system'], // WebSocket/Socket.IO rooms
+      notificationPreferences: {
         uploadSuccess: true,
         uploadFailed: true,
         cameraDisconnected: true,
         storageWarning: true,
         eventMilestone: true,
+        realTimeUpdates: true,
         quietHours: {
           enabled: false,
           start: '22:00',
           end: '08:00'
         }
+      },
+      connectionSettings: {
+        useSocketIO: process.env.NEXT_PUBLIC_USE_SOCKETIO === 'true',
+        autoReconnect: true,
+        heartbeatInterval: 30000
       }
     };
 
-    // TODO: Store in database
-    console.log('📱 Device registered:', deviceInfo);
+    // TODO: Store in database with WebSocket/Socket.IO session management
+    console.log('📱 Device registered for WebSocket/Socket.IO notifications:', {
+      deviceId: deviceInfo.id,
+      connectionType: deviceInfo.connectionType,
+      useSocketIO: deviceInfo.connectionSettings.useSocketIO,
+      rooms: deviceInfo.subscribedRooms
+    });
 
-    // Subscribe to default topics
+    // Subscribe to default WebSocket/Socket.IO rooms
     await subscribeToDefaultTopics(token);
 
     return NextResponse.json({
       success: true,
       data: {
         deviceId: deviceInfo.id,
-        topics: deviceInfo.topics,
-        message: 'Device registered successfully'
+        sessionToken: deviceInfo.sessionToken,
+        subscribedRooms: deviceInfo.subscribedRooms,
+        connectionSettings: deviceInfo.connectionSettings,
+        notificationPreferences: deviceInfo.notificationPreferences,
+        message: 'Device registered for WebSocket/Socket.IO notifications successfully'
       }
     });
 
@@ -66,28 +80,37 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Update FCM token registration
+ * Update device registration for WebSocket/Socket.IO notifications
  * PUT /api/notifications/register
  */
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { token, preferences, topics } = body;
+    const { token, preferences, rooms, connectionSettings } = body;
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: 'FCM token is required' },
+        { success: false, error: 'Device token is required for WebSocket/Socket.IO notifications' },
         { status: 400 }
       );
     }
 
-    // TODO: Update in database
-    console.log('🔄 Device updated:', { token, preferences, topics });
+    // TODO: Update in database - WebSocket/Socket.IO session and preferences
+    console.log('🔄 Device updated for WebSocket/Socket.IO:', { 
+      sessionToken: token, 
+      preferences, 
+      rooms, 
+      connectionSettings 
+    });
 
     return NextResponse.json({
       success: true,
       data: {
-        message: 'Device updated successfully'
+        sessionToken: token,
+        updatedRooms: rooms,
+        updatedPreferences: preferences,
+        connectionSettings: connectionSettings,
+        message: 'Device WebSocket/Socket.IO settings updated successfully'
       }
     });
 
@@ -111,18 +134,19 @@ export async function DELETE(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: 'FCM token is required' },
+        { success: false, error: 'Device token is required for WebSocket/Socket.IO notifications' },
         { status: 400 }
       );
     }
 
-    // TODO: Remove from database
-    console.log('🗑️ Device unregistered:', token);
+    // TODO: Remove from database - cleanup WebSocket/Socket.IO session
+    console.log('🗑️ Device unregistered from WebSocket/Socket.IO notifications:', token);
 
     return NextResponse.json({
       success: true,
       data: {
-        message: 'Device unregistered successfully'
+        sessionToken: token,
+        message: 'Device unregistered from WebSocket/Socket.IO notifications successfully'
       }
     });
 
@@ -144,12 +168,12 @@ function generateDeviceId(token: string): string {
 
 async function subscribeToDefaultTopics(token: string): Promise<void> {
   try {
-    // In production, use Firebase Admin SDK to subscribe to topics
+    // Subscribe to WebSocket/Socket.IO rooms for topic-based notifications
     const defaultTopics = ['general', 'uploads', 'system'];
     
     for (const topic of defaultTopics) {
-      // TODO: Use Firebase Admin SDK
-      console.log(`📢 Subscribing ${token.substring(0, 16)}... to topic: ${topic}`);
+      // Device will join these rooms when connecting to WebSocket/Socket.IO
+      console.log(`📢 Device ${token.substring(0, 16)}... will be subscribed to topic: ${topic}`);
     }
   } catch (error) {
     console.error('❌ Error subscribing to default topics:', error);

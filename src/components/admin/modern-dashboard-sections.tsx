@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
+  AlertTriangle,
   Calendar, 
   Camera, 
   MessageSquare, 
@@ -44,6 +46,11 @@ const ColorPaletteSwitcher = dynamic(() => import("../ui/color-palette-switcher"
 const PricingPackagesManager = dynamic(() => import("./pricing-packages-manager"), { ssr: false });
 const AlertDashboard = dynamic(() => import("./alert-dashboard").then(mod => ({ default: mod.AlertDashboard })), { ssr: false });
 const RealTimeMonitor = dynamic(() => import("./real-time-monitor").then(mod => ({ default: mod.RealTimeMonitor })), { ssr: false });
+
+// File Management Components
+const FileManager = dynamic(() => import("./file-manager").then(mod => ({ default: mod.FileManager })), { ssr: false });
+const PhotoSelector = dynamic(() => import("./photo-selector").then(mod => ({ default: mod.PhotoSelector })), { ssr: false });
+const StorageManager = dynamic(() => import("./storage-manager").then(mod => ({ default: mod.StorageManager })), { ssr: false });
 
 interface DashboardSectionProps {
   stats?: any;
@@ -800,13 +807,63 @@ export function MediaEventsSection({
 
 // System Sections
 export function SystemMonitorSection() {
+  const [activeTab, setActiveTab] = useState('overview');
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl md:text-2xl font-bold">System Monitor</h1>
-        <p className="text-sm md:text-base text-gray-600">Comprehensive system monitoring with real-time metrics, health checks, performance analysis, DSLR status, and security monitoring</p>
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="flex-1">
+          <h1 className="text-xl md:text-2xl font-bold">System Monitor</h1>
+          <p className="text-sm md:text-base text-gray-600">Unified system monitoring with real-time metrics and mobile-optimized interface</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button
+            variant={activeTab === 'overview' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setActiveTab('overview')}
+            className="w-full sm:w-auto"
+          >
+            <Monitor className="h-4 w-4 mr-2" />
+            Overview
+          </Button>
+          <Button
+            variant={activeTab === 'performance' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setActiveTab('performance')}
+            className="w-full sm:w-auto"
+          >
+            <Activity className="h-4 w-4 mr-2" />
+            Performance
+          </Button>
+        </div>
       </div>
-      <RealTimeMonitor />
+
+      {activeTab === 'overview' && (
+        <div className="space-y-4">
+          <RealTimeMonitor />
+        </div>
+      )}
+
+      {activeTab === 'performance' && (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                <Activity className="h-5 w-5 text-blue-500" />
+                <span>Detailed Performance Metrics</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RealTimeMonitor />
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <strong>Performance Analysis:</strong> Detailed metrics including response times, throughput, and resource usage trends.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
@@ -822,72 +879,53 @@ export function SystemRealTimeMonitorSection() {
 }
 
 export function SystemAlertDashboardSection() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl md:text-2xl font-bold">Alert Management</h1>
-        <p className="text-sm md:text-base text-gray-600">Kelola alerts dan notifikasi sistem</p>
-      </div>
-      <AlertDashboard />
-    </div>
-  );
-}
-
-export function SystemAdvancedMonitoringSection() {
-  const [activeTab, setActiveTab] = useState('realtime');
+  const [activeTab, setActiveTab] = useState('alerts');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div className="flex-1">
-          <h1 className="text-xl md:text-2xl font-bold">Advanced Monitoring</h1>
-          <p className="text-sm md:text-base text-gray-600">Monitoring sistem lengkap dengan real-time metrics dan alert management</p>
+          <h1 className="text-xl md:text-2xl font-bold">Alert Dashboard</h1>
+          <p className="text-sm md:text-base text-gray-600">Enhanced alert management with mobile-optimized interface, history, and routing configuration</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button
-            variant={activeTab === 'realtime' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setActiveTab('realtime')}
-            className="w-full sm:w-auto"
-          >
-            <Activity className="h-4 w-4 mr-2" />
-            Real-time
-          </Button>
           <Button
             variant={activeTab === 'alerts' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setActiveTab('alerts')}
             className="w-full sm:w-auto"
           >
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Active Alerts
+          </Button>
+          <Button
+            variant={activeTab === 'history' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setActiveTab('history')}
+            className="w-full sm:w-auto"
+          >
             <Monitor className="h-4 w-4 mr-2" />
-            Alerts
+            History
+          </Button>
+          <Button
+            variant={activeTab === 'settings' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setActiveTab('settings')}
+            className="w-full sm:w-auto"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
           </Button>
         </div>
       </div>
 
-      {activeTab === 'realtime' && (
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Activity className="h-5 w-5 text-blue-500" />
-                <span>Real-time System Metrics</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RealTimeMonitor />
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
       {activeTab === 'alerts' && (
         <div className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Monitor className="h-5 w-5 text-red-500" />
-                <span>Alert Dashboard</span>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+                <span>Current Alerts</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -896,9 +934,82 @@ export function SystemAdvancedMonitoringSection() {
           </Card>
         </div>
       )}
+
+      {activeTab === 'history' && (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                <Monitor className="h-5 w-5 text-blue-500" />
+                <span>Alert History</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <Monitor className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p className="text-sm md:text-base">Alert history will be implemented soon</p>
+                <p className="text-xs md:text-sm text-gray-400 mt-2">View past alerts with filtering and search capabilities</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                <Settings className="h-5 w-5 text-purple-500" />
+                <span>Alert Configuration</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">Notification Settings</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Email Notifications</span>
+                      <Switch defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">SMS Alerts</span>
+                      <Switch />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Push Notifications</span>
+                      <Switch defaultChecked />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">Alert Thresholds</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium">CPU Usage Warning (%)</label>
+                      <Input type="number" defaultValue="80" className="mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Memory Usage Warning (%)</label>
+                      <Input type="number" defaultValue="85" className="mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Disk Usage Critical (%)</label>
+                      <Input type="number" defaultValue="90" className="mt-1" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
+
 
 export function SystemDSLRSection() {
   return (
@@ -1036,6 +1147,43 @@ export function EventsStatusSection({ events = [] }: DashboardSectionProps) {
       <h1 className="text-xl md:text-2xl font-bold">Status Manager</h1>
       <EventStatusSummary events={events} />
       <AutoStatusManager events={events} />
+    </div>
+  );
+}
+
+// File Management Sections
+export function MediaFilesSection() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl md:text-2xl font-bold">File Manager</h1>
+        <p className="text-sm md:text-base text-gray-600">
+          Kelola file dan foto dengan bulk operations - pilih multiple files, download ZIP, dan cleanup manual
+        </p>
+      </div>
+      
+      <div className="space-y-6">
+        {/* Photo Selector with Bulk Actions */}
+        <PhotoSelector />
+        
+        {/* File Manager */}
+        <FileManager />
+      </div>
+    </div>
+  );
+}
+
+export function MediaStorageSection() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl md:text-2xl font-bold">Storage Analytics</h1>
+        <p className="text-sm md:text-base text-gray-600">
+          Analisis penggunaan storage, breakdown file types, dan rekomendasi cleanup
+        </p>
+      </div>
+      
+      <StorageManager />
     </div>
   );
 }

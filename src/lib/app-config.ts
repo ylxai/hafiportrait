@@ -11,26 +11,32 @@
 export function getAppBaseUrl(): string {
   // Server-side: Always use environment variables for consistent URL generation
   if (typeof window === 'undefined') {
-    // In development, always use public IP for shareable links
-    if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_DEV_URL_IP) {
-      return process.env.NEXT_PUBLIC_DEV_URL_IP;
-    }
-    
-    // Production: use configured URL
+    // Production: use configured URL first
     const envUrl = process.env.NEXT_PUBLIC_APP_URL;
     if (envUrl && envUrl !== 'http://localhost:3000' && !envUrl.includes('localhost')) {
       return envUrl;
     }
+    
+    // Development fallback: use public IP for shareable links
+    if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_DEV_URL_IP) {
+      return process.env.NEXT_PUBLIC_DEV_URL_IP;
+    }
   }
 
-  // Client-side: For copy operations, prefer public IP in development
+  // Client-side: For copy operations, prefer configured URL in production
   if (typeof window !== 'undefined' && window.location && window.location.protocol && window.location.host) {
-    // In development, always use public IP for shareable links
+    // Production: use configured domain if available
+    const envUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (process.env.NODE_ENV === 'production' && envUrl && envUrl !== 'http://localhost:3000' && !envUrl.includes('localhost')) {
+      return envUrl;
+    }
+    
+    // Development: use public IP for shareable links
     if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_DEV_URL_IP) {
       return process.env.NEXT_PUBLIC_DEV_URL_IP;
     }
     
-    // Production: use current window location
+    // Fallback: use current window location
     return `${window.location.protocol}//${window.location.host}`;
   }
 

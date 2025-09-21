@@ -30,11 +30,13 @@ class SmartStorageManager {
         types: ['raw', 'local-backup', 'emergency']
       },
       
-      // Compression settings
+      // Compression settings - Reduced compression for better quality
       compression: {
-        premium: { quality: 0.95, maxWidth: 4000 },
-        standard: { quality: 0.85, maxWidth: 2000 },
-        thumbnail: { quality: 0.75, maxWidth: 800 }
+        premium: { quality: 0.98, maxWidth: 6000 },
+        standard: { quality: 0.92, maxWidth: 4000 },
+        thumbnail: { quality: 0.80, maxWidth: 1200 },
+        // Keep original files separate for download
+        original: { quality: 1.0, maxWidth: null } // No compression for originals
       },
       
       ...config
@@ -182,12 +184,24 @@ class SmartStorageManager {
           console.warn('⚠️ Thumbnail creation failed:', thumbnailError.message);
         }
       }
+
+      // Try to backup original file (uncompressed) to Google Drive
+      let originalBackup = null;
+      if (!metadata.isOriginal && storagePlan.tier !== 'googleDrive') {
+        try {
+          originalBackup = await this.uploadOriginalToGoogleDrive(photoFile, metadata);
+          console.log('✅ Original file backed up to Google Drive');
+        } catch (originalError) {
+          console.warn('⚠️ Original backup failed:', originalError.message);
+        }
+      }
       
       return {
         ...uploadResult,
         tier: storagePlan.tier,
         thumbnailUrl,
-        compressionUsed: storagePlan.compression
+        compressionUsed: storagePlan.compression,
+        originalBackup
       };
       
     } catch (error) {
@@ -331,6 +345,36 @@ class SmartStorageManager {
       };
     }
   }
+  /**
+   * Upload original uncompressed file to Google Drive for backup
+   */
+  async uploadOriginalToGoogleDrive(photoFile, metadata) {
+    if (!this.googleDrive) {
+      await this.initializeProviders();
+    }
+
+    // Upload original file without compression
+    const originalFileName = `original_${photoFile.name}`;
+    const uploadResult = await this.googleDrive.uploadPhoto(
+      photoFile.buffer, 
+      originalFileName, 
+      {
+        eventId: metadata.eventId,
+        albumName: `${metadata.albumName}_originals`,
+        uploaderName: metadata.uploaderName,
+        makePublic: false // Keep originals private for download only
+      }
+    );
+
+    return {
+      url: uploadResult.webViewLink,
+      fileId: uploadResult.fileId,
+      storage: 'google-drive',
+      size: photoFile.size,
+      type: 'original'
+    };
+  }
+
   /**
    * Create thumbnail for fast loading
    */

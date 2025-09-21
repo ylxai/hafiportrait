@@ -72,7 +72,11 @@ class DatabaseWithSmartStorage {
           file_size: uploadResult.size,
           storage_path: uploadResult.path,
           storage_etag: uploadResult.etag,
-          storage_file_id: uploadResult.fileId
+          storage_file_id: uploadResult.fileId,
+          // Store original backup information
+          original_backup_file_id: uploadResult.originalBackup?.fileId,
+          original_backup_storage: uploadResult.originalBackup?.storage,
+          original_file_size: file.size
         })
         .select()
         .single();
@@ -86,15 +90,28 @@ class DatabaseWithSmartStorage {
       return photoData;
 
     } catch (error) {
-      console.error('❌ Smart Storage upload failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Smart Storage upload failed:', errorMessage);
       
-      // Fallback to original upload method if Smart Storage fails
+      // Categorize error types for better handling
+      const isStorageError = errorMessage.includes('storage') || errorMessage.includes('upload') || errorMessage.includes('connection');
+      const isValidationError = errorMessage.includes('validation') || errorMessage.includes('invalid') || errorMessage.includes('format');
+      
+      // Don't fallback for validation errors - they would fail again
+      if (isValidationError) {
+        throw error;
+      }
+      
+      // Fallback to original upload method for storage/connection issues
       console.log('🔄 Falling back to original upload method...');
       try {
-        return await originalDatabase.uploadEventPhoto(eventId, file, uploaderName, albumName);
+        const fallbackResult = await originalDatabase.uploadEventPhoto(eventId, file, uploaderName, albumName);
+        console.log('✅ Fallback upload successful');
+        return fallbackResult;
       } catch (fallbackError) {
-        console.error('❌ Fallback upload also failed:', fallbackError);
-        throw new Error(`Both Smart Storage and fallback upload failed. Last error: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`);
+        const fallbackMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
+        console.error('❌ Fallback upload also failed:', fallbackMessage);
+        throw new Error(`Upload failed on both Smart Storage (${errorMessage}) and fallback (${fallbackMessage})`);
       }
     }
   }
@@ -151,7 +168,11 @@ class DatabaseWithSmartStorage {
           file_size: uploadResult.size,
           storage_path: uploadResult.path,
           storage_etag: uploadResult.etag,
-          storage_file_id: uploadResult.fileId
+          storage_file_id: uploadResult.fileId,
+          // Store original backup information
+          original_backup_file_id: uploadResult.originalBackup?.fileId,
+          original_backup_storage: uploadResult.originalBackup?.storage,
+          original_file_size: file.size
         })
         .select()
         .single();
@@ -165,15 +186,27 @@ class DatabaseWithSmartStorage {
       return photoData;
 
     } catch (error) {
-      console.error('❌ Smart Storage homepage upload failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Smart Storage homepage upload failed:', errorMessage);
       
-      // Fallback to original upload method if Smart Storage fails
+      // Categorize error types for better handling
+      const isValidationError = errorMessage.includes('validation') || errorMessage.includes('invalid') || errorMessage.includes('format');
+      
+      // Don't fallback for validation errors
+      if (isValidationError) {
+        throw error;
+      }
+      
+      // Fallback to original upload method for storage/connection issues
       console.log('🔄 Falling back to original upload method...');
       try {
-        return await originalDatabase.uploadHomepagePhoto(file);
+        const fallbackResult = await originalDatabase.uploadHomepagePhoto(file);
+        console.log('✅ Homepage fallback upload successful');
+        return fallbackResult;
       } catch (fallbackError) {
-        console.error('❌ Fallback upload also failed:', fallbackError);
-        throw new Error(`Both Smart Storage and fallback upload failed. Last error: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`);
+        const fallbackMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
+        console.error('❌ Homepage fallback upload also failed:', fallbackMessage);
+        throw new Error(`Homepage upload failed on both Smart Storage (${errorMessage}) and fallback (${fallbackMessage})`);
       }
     }
   }
@@ -228,7 +261,11 @@ class DatabaseWithSmartStorage {
 
   // Helper methods
   private validateFileExtension(filename: string): boolean {
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    const allowedExtensions = [
+      'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'bmp',
+      // RAW formats
+      'nef', 'cr2', 'arw', 'dng', 'raf'
+    ];
     const ext = filename.split('.').pop()?.toLowerCase();
     return ext ? allowedExtensions.includes(ext) : false;
   }
@@ -242,6 +279,7 @@ class DatabaseWithSmartStorage {
 
   // Delegate all other methods to original database
   getAllEvents = originalDatabase.getAllEvents.bind(originalDatabase);
+  getAllPhotos = originalDatabase.getAllPhotos.bind(originalDatabase);
   getPublicEvents = originalDatabase.getPublicEvents.bind(originalDatabase);
   getEventById = originalDatabase.getEventById.bind(originalDatabase);
   createEvent = originalDatabase.createEvent.bind(originalDatabase);
@@ -268,3 +306,6 @@ class DatabaseWithSmartStorage {
 
 // Export the enhanced database service
 export const smartDatabase = new DatabaseWithSmartStorage();
+
+// Export as default database for compatibility
+export const database = smartDatabase;

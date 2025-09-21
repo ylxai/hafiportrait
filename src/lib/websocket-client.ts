@@ -33,10 +33,9 @@ class WebSocketClient {
   private messageQueue: WebSocketMessage[] = [];
 
   constructor(private url: string = '') {
-    // Disable WebSocket in production for now
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      console.log('🚫 WebSocket disabled in production environment');
-      return;
+    // Enable WebSocket in production with proper URL
+    if (typeof window !== 'undefined') {
+      console.log('✅ WebSocket enabled for production environment');
     }
     this.connect();
   }

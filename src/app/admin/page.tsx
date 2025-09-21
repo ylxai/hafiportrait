@@ -17,9 +17,10 @@ import {
   MediaHomepageSection,
   MediaSlideshowSection,
   MediaEventsSection,
+  MediaFilesSection,
+  MediaStorageSection,
   SystemMonitorSection,
   SystemAlertDashboardSection,
-  SystemAdvancedMonitoringSection,
   SystemDSLRSection,
   SystemBackupSection,
   SystemNotificationsSection,
@@ -567,12 +568,14 @@ export default function ModernAdminDashboard() {
         return <MediaSlideshowSection {...slideshowSectionProps} />;
       case 'media-events':
         return <MediaEventsSection {...eventPhotosSectionProps} />;
+      case 'media-files':
+        return <MediaFilesSection />;
+      case 'media-storage':
+        return <MediaStorageSection />;
       case 'system-monitor':
         return <SystemMonitorSection />;
       case 'system-alerts':
         return <SystemAlertDashboardSection />;
-      case 'system-advanced':
-        return <SystemAdvancedMonitoringSection />;
       case 'system-dslr':
         return <SystemDSLRSection />;
       case 'system-backup':

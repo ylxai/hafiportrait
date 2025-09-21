@@ -34,8 +34,21 @@ export async function POST(request: Request) {
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ message: 'Only image files are allowed' }, { status: 400 });
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 
+      'image/heic', 'image/heif', 'image/gif', 'image/bmp',
+      // RAW formats
+      'image/x-nikon-nef', 'image/x-canon-cr2', 'image/x-sony-arw',
+      'image/x-adobe-dng', 'image/x-fuji-raf'
+    ];
+
+    const isValidType = allowedTypes.includes(file.type) || 
+                       file.name.toLowerCase().match(/\.(nef|cr2|arw|dng|raf)$/);
+
+    if (!isValidType) {
+      return NextResponse.json({ 
+        message: 'Invalid file type. Allowed: JPG, PNG, WEBP, HEIC, RAW formats (NEF, CR2, ARW, DNG, RAF)' 
+      }, { status: 400 });
     }
 
     // Validate file size (50MB max)

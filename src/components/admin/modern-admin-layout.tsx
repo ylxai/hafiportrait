@@ -19,7 +19,10 @@ import {
   Activity,
   AlertTriangle,
   BarChart3,
-  DollarSign
+  DollarSign,
+  FolderOpen,
+  HardDrive,
+  Camera
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -113,6 +116,18 @@ export function ModernAdminLayout({
           label: 'Foto Event',
           icon: Calendar,
           action: () => onSectionChange('media-events')
+        },
+        {
+          id: 'media-files',
+          label: 'File Manager',
+          icon: FolderOpen,
+          action: () => onSectionChange('media-files')
+        },
+        {
+          id: 'media-storage',
+          label: 'Storage Analytics',
+          icon: HardDrive,
+          action: () => onSectionChange('media-storage')
         }
       ]
     },
@@ -134,21 +149,15 @@ export function ModernAdminLayout({
           action: () => onSectionChange('system-alerts')
         },
         {
-          id: 'system-advanced',
-          label: 'Advanced Monitoring',
-          icon: BarChart3,
-          action: () => onSectionChange('system-advanced')
-        },
-        {
           id: 'system-dslr',
           label: 'DSLR Monitor',
-          icon: Monitor,
+          icon: Camera,
           action: () => onSectionChange('system-dslr')
         },
         {
           id: 'system-backup',
           label: 'Backup Status',
-          icon: Monitor,
+          icon: HardDrive,
           action: () => onSectionChange('system-backup')
         },
         {

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Bell, BellRing, X, Check, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-// import { useNotifications } from '@/hooks/use-notifications';
+import { useNotifications } from '@/hooks/use-notifications';
 // import { getDSLRNotificationIntegration } from '@/lib/dslr-notification-integration';
 
 interface Notification {
@@ -30,6 +30,9 @@ interface NotificationBellProps {
 }
 
 export default function NotificationBell({ className = '' }: NotificationBellProps) {
+  // WebSocket/Socket.IO notification hook
+  const { state, requestPermission, markAsRead, markAllAsRead, clearError, reconnect } = useNotifications();
+  
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([
     // Dummy notifications for testing
@@ -62,13 +65,22 @@ export default function NotificationBell({ className = '' }: NotificationBellPro
     }
   ]);
 
-  // Debug logging
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-  const hasUnread = unreadCount > 0;
+  // Use WebSocket/Socket.IO notification state + local notifications
+  const localUnreadCount = notifications.filter(n => !n.isRead).length;
+  const totalUnreadCount = state.unreadCount + localUnreadCount;
+  const hasUnread = totalUnreadCount > 0;
 
   useEffect(() => {
     // Debug info available in browser dev tools
-  }, [isOpen, notifications.length, unreadCount]);
+    console.log('🔔 Notification state:', {
+      localNotifications: notifications.length,
+      localUnread: localUnreadCount,
+      wsUnread: state.unreadCount,
+      totalUnread: totalUnreadCount,
+      wsConnected: state.isConnected,
+      wsSupported: state.isSupported
+    });
+  }, [isOpen, notifications.length, localUnreadCount, state.unreadCount, state.isConnected]);
 
   // Initialize real notification system
   useEffect(() => {
@@ -252,7 +264,7 @@ export default function NotificationBell({ className = '' }: NotificationBellPro
           ${isOpen ? 'bg-blue-600 text-white shadow-lg' : ''}
           touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
         `}
-        aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
+        aria-label={`Notifications ${totalUnreadCount > 0 ? `(${totalUnreadCount} unread)` : ''}`}
       >
         {hasUnread ? (
           <BellRing className="h-6 w-6" />
@@ -261,12 +273,12 @@ export default function NotificationBell({ className = '' }: NotificationBellPro
         )}
         
         {/* Notification Badge */}
-        {unreadCount > 0 && (
+        {totalUnreadCount > 0 && (
           <Badge 
             variant="destructive" 
             className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 text-xs font-bold min-w-[24px] rounded-full animate-pulse"
           >
-            {unreadCount > 99 ? '99+' : unreadCount}
+            {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
           </Badge>
         )}
       </button>
@@ -303,9 +315,14 @@ export default function NotificationBell({ className = '' }: NotificationBellPro
             <div className="flex items-center justify-between p-4 border-b bg-gray-50">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-gray-900">Notifikasi</h3>
-                {unreadCount > 0 && (
+                {totalUnreadCount > 0 && (
                   <Badge variant="secondary" className="text-xs">
-                    {unreadCount} baru
+                    {totalUnreadCount} baru
+                  </Badge>
+                )}
+                {state.isConnected && (
+                  <Badge variant="outline" className="text-xs text-green-600">
+                    {state.isSupported && process.env.NEXT_PUBLIC_USE_SOCKETIO === 'true' ? 'Socket.IO' : 'WebSocket'}
                   </Badge>
                 )}
               </div>

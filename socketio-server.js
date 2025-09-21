@@ -22,9 +22,15 @@ const corsOptions = {
     'http://localhost:3002',
     'http://127.0.0.1:3002',
     
-    // VPS development/staging
+    // VPS development/staging (old IP)
     'http://74.63.10.103:3000',
     'http://74.63.10.103:3002',
+    
+    // VPS production (new IP)
+    'http://147.251.255.227:3000',
+    'http://147.251.255.227:3001',
+    'http://147.251.255.227:3002',
+    'http://147.251.255.227:3003',
     
     // Production domains
     'https://hafiportrait.photography',
@@ -178,12 +184,12 @@ const HOST = process.env.HOST || '0.0.0.0';
 server.listen(PORT, HOST, () => {
   console.log('🚀 Socket.IO Server started!');
   console.log(`📡 Listening on: http://${HOST}:${PORT}`);
-  console.log(`🌐 Public URL: http://74.63.10.103:${PORT}`);
-  console.log(`🔗 Health check: http://74.63.10.103:${PORT}/health`);
+  console.log(`🌐 Public URL: http://147.251.255.227:${PORT}`);
+  console.log(`🔗 Health check: http://147.251.255.227:${PORT}/health`);
   console.log('');
   console.log('📱 Client connection URLs:');
   console.log(`   Local: http://localhost:${PORT}`);
-  console.log(`   Public: http://74.63.10.103:${PORT}`);
+  console.log(`   Public: http://147.251.255.227:${PORT}`);
   console.log('');
   console.log('✅ Ready to accept connections!');
 });
