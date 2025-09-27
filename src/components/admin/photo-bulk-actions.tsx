@@ -89,12 +89,11 @@ export function PhotoBulkActions({
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/photos/bulk', {
+      const response = await fetch('/api/admin/files/bulk-delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          photoIds: Array.from(selectedPhotos),
-          action: 'delete'
+          fileIds: Array.from(selectedPhotos)
         })
       });
 
@@ -106,7 +105,7 @@ export function PhotoBulkActions({
       
       toast({
         title: 'Success',
-        description: `${result.deletedCount} photos deleted successfully`
+        description: `${result.data?.deletedCount || selectedPhotos.size} photos deleted successfully`
       });
 
       onSelectionChange(new Set());
@@ -175,6 +174,51 @@ export function PhotoBulkActions({
     }
   };
 
+  // Archive selected photos
+  const archiveSelectedPhotos = async () => {
+    if (selectedPhotos.size === 0) return;
+
+    const confirmed = window.confirm(
+      `Archive ${selectedPhotos.size} selected photos? They will be hidden from gallery but not deleted.`
+    );
+    if (!confirmed) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/photos/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          photoIds: Array.from(selectedPhotos),
+          action: 'archive'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to archive photos');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: 'Success',
+        description: `${result.data.archivedCount} photos archived successfully`
+      });
+
+      onSelectionChange(new Set());
+      onPhotosUpdated();
+    } catch (error) {
+      console.error('Error archiving photos:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to archive photos',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Move photos to different album
   const movePhotos = async (targetAlbum: string) => {
     if (selectedPhotos.size === 0) return;
@@ -198,7 +242,7 @@ export function PhotoBulkActions({
       
       toast({
         title: 'Success',
-        description: `${result.movedCount} photos moved to ${targetAlbum}`
+        description: `${result.data.movedCount} photos moved to ${targetAlbum}`
       });
 
       onSelectionChange(new Set());
@@ -380,7 +424,7 @@ export function PhotoBulkActions({
             
             <div className="space-y-4">
               {/* Primary Actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Button
                   onClick={downloadAsZip}
                   disabled={isLoading}
@@ -396,6 +440,26 @@ export function PhotoBulkActions({
                     <>
                       <Download className="h-5 w-5" />
                       <span>Download ZIP ({selectedPhotos.size} photos)</span>
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={archiveSelectedPhotos}
+                  disabled={isLoading}
+                  className="h-12 flex items-center justify-center gap-2 border-orange-300 hover:bg-orange-50"
+                  size="lg"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span>Archiving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="h-5 w-5 text-orange-600" />
+                      <span>Archive Selected</span>
                     </>
                   )}
                 </Button>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { database } from '@/lib/database-with-smart-storage';
+import { database } from '@/lib/database';
+import { directR2Uploader } from '@/lib/direct-r2-uploader';
 
 // This API route uses request URL parameters, so it must be dynamic
 export const dynamic = 'force-dynamic';

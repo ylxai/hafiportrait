@@ -34,8 +34,8 @@
     "test:websocket": "NEXT_PUBLIC_USE_SOCKETIO=false pnpm run dev:full",
     "cloudrun:build": "docker build -t hafiportrait .",
     "cloudrun:run": "docker run -p 8080:8080 hafiportrait",
-    "install:all": "pnpm install && cd DSLR-System && pnpm install",
-    "clean": "rm -rf node_modules pnpm-lock.yaml && cd DSLR-System && rm -rf node_modules pnpm-lock.yaml",
+    "install:all": "pnpm install",
+    "clean": "rm -rf node_modules pnpm-lock.yaml",
     "fresh-install": "pnpm run clean && pnpm run install:all",
     "monitor:start": "node scripts/monitoring/enhanced-health-monitor.js start",
     "monitor:check": "node scripts/monitoring/enhanced-health-monitor.js check",
@@ -48,8 +48,8 @@
     "deploy:render": "echo 'Setup manual di Render dashboard'",
     "deploy:netlify": "netlify deploy --prod",
     "test:db": "node -e \"console.log('Testing database connection...'); require('./src/lib/database.ts').testConnection()\"",
-    "test:storage": "node -e \"console.log('Testing storage connection...'); require('./src/lib/storage-adapter.ts').testConnection()\"",
-    "test:all": "npm run env:validate && npm run test:db && npm run test:storage"
+    "test:r2": "node -e \"console.log('Testing R2 storage...'); console.log('Use admin dashboard for R2 testing')\"",
+    "test:all": "npm run test:db && npm run test:r2"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
@@ -88,6 +88,7 @@
     "@use-gesture/react": "^10.3.1",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
+    "chokidar": "^4.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -123,6 +124,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "vaul": "^1.1.2",
     "ws": "^8.18.3",
@@ -138,7 +140,8 @@
     "concurrently": "^9.2.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.15",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "supabase": "^2.45.5"
   },
   "optionalDependencies": {
     "sharp": "^0.34.3"

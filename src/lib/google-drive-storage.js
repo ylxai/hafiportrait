@@ -93,6 +93,9 @@ class GoogleDriveStorage {
         this.auth.setCredentials({
           refresh_token: refreshToken
         });
+        
+        // Setup auto token refresh and wait for it to complete
+        await this.setupAutoTokenRefresh();
         return;
       }
 
@@ -103,9 +106,43 @@ class GoogleDriveStorage {
       
       this.auth.setCredentials(tokens);
       console.log('✅ Google Drive tokens loaded from file');
+      
+      // Setup auto token refresh and wait for it to complete
+      await this.setupAutoTokenRefresh();
     } catch (error) {
       console.log('⚠️ No saved tokens found, authentication required');
       throw new Error('Authentication required. Run: node storage-optimization-cli.js auth');
+    }
+  }
+
+  /**
+   * Setup automatic token refresh to prevent expiry
+   */
+  async setupAutoTokenRefresh() {
+    // Setup auto refresh on token expiry
+    this.auth.on('tokens', (tokens) => {
+      console.log('🔄 Google Drive tokens refreshed automatically');
+      
+      // Save new tokens if we have a refresh token
+      if (tokens.refresh_token) {
+        console.log('💾 Saving new refresh token');
+        this.saveTokens(tokens).catch(err => 
+          console.warn('⚠️ Failed to save refreshed tokens:', err.message)
+        );
+      }
+    });
+    
+    // Force token refresh if we only have refresh token - AWAIT this!
+    if (this.auth.credentials && this.auth.credentials.refresh_token && !this.auth.credentials.access_token) {
+      console.log('🔄 Refreshing access token...');
+      try {
+        const { credentials } = await this.auth.refreshAccessToken();
+        console.log('✅ Access token refreshed successfully');
+        this.auth.setCredentials(credentials);
+      } catch (err) {
+        console.error('❌ Failed to refresh access token:', err.message);
+        throw err; // Re-throw to prevent silent failures
+      }
     }
   }
 
@@ -209,14 +246,14 @@ class GoogleDriveStorage {
   }
 
   /**
-   * Upload photo to Google Drive
+   * Upload photo to Google Drive with automatic token refresh
    */
   async uploadPhoto(photoBuffer, fileName, metadata = {}) {
     if (!this.isInitialized) {
       await this.initialize();
     }
 
-    try {
+    return await this.executeWithTokenRefresh(async () => {
       // Determine target folder
       const folderId = await this.getTargetFolderId(metadata);
       
@@ -224,7 +261,7 @@ class GoogleDriveStorage {
       const fileMetadata = {
         name: fileName,
         parents: folderId ? [folderId] : undefined,
-        description: `Uploaded from DSLR system - Event: ${metadata.eventId || 'Unknown'}`
+        description: `Uploaded from HafiPortrait - Event: ${metadata.eventId || 'Unknown'}`
       };
 
       // Upload file
@@ -260,9 +297,47 @@ class GoogleDriveStorage {
         webContentLink: file.data.webContentLink,
         publicUrl: metadata.makePublic ? `https://drive.google.com/uc?id=${file.data.id}` : null
       };
+    });
+  }
+
+  /**
+   * Execute API call with automatic token refresh on auth errors
+   */
+  async executeWithTokenRefresh(apiCall, retryCount = 0) {
+    const maxRetries = 2;
+    
+    try {
+      return await apiCall();
     } catch (error) {
-      console.error('❌ Failed to upload to Google Drive:', error);
-      throw error;
+      // Check if it's an authentication error
+      const isAuthError = error.code === 401 || 
+                         error.message.includes('Invalid Credentials') ||
+                         error.message.includes('Token has been expired') ||
+                         error.message.includes('unauthorized');
+      
+      if (isAuthError && retryCount < maxRetries) {
+        console.log(`🔄 Auth error detected, refreshing token (attempt ${retryCount + 1}/${maxRetries})...`);
+        
+        try {
+          // Force token refresh
+          const { credentials } = await this.auth.refreshAccessToken();
+          this.auth.setCredentials(credentials);
+          console.log('✅ Token refreshed successfully, retrying API call...');
+          
+          // Retry the API call
+          return await this.executeWithTokenRefresh(apiCall, retryCount + 1);
+        } catch (refreshError) {
+          console.error('❌ Token refresh failed:', refreshError.message);
+          throw new Error(`Authentication failed: ${refreshError.message}`);
+        }
+      } else if (retryCount >= maxRetries) {
+        console.error('❌ Max retries exceeded for API call');
+        throw new Error(`Max retries exceeded: ${error.message}`);
+      } else {
+        // Not an auth error, rethrow
+        console.error('❌ API call failed:', error.message);
+        throw error;
+      }
     }
   }
 

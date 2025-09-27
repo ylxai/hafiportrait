@@ -143,8 +143,8 @@ class EventStorageManager {
   async getEventPhotos(eventId) {
     try {
       // Import database here to avoid circular dependencies
-      const { smartDatabase } = await import('./database-with-smart-storage');
-      const photos = await smartDatabase.getEventPhotos(eventId);
+      const { database } = await import('./database');
+      const photos = await database.getEventPhotos(eventId);
       return photos;
     } catch (error) {
       console.error(`❌ Failed to get photos for event ${eventId}:`, error);
@@ -340,7 +340,7 @@ class EventStorageManager {
 
     // Fallback to database lookup
     try {
-      const { smartDatabase } = await import('./database-with-smart-storage');
+      const { database } = await import('./database');
       const { supabaseAdmin } = await import('./supabase');
       
       const { data: events, error } = await supabaseAdmin
@@ -434,8 +434,8 @@ class EventStorageManager {
       }
       
       // Mark event as archived in database
-      const { smartDatabase } = await import('./database-with-smart-storage');
-      await smartDatabase.updateEvent(eventId, { 
+      const { database } = await import('./database');
+      await database.updateEvent(eventId, { 
         is_archived: true,
         archived_at: new Date().toISOString(),
         backup_id: backupId,

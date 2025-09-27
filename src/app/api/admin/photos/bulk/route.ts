@@ -52,59 +52,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
-  try {
-    const { photoIds } = await request.json();
-
-    if (!photoIds || !Array.isArray(photoIds) || photoIds.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Photo IDs are required' },
-        { status: 400 }
-      );
-    }
-
-    console.log(`🗑️ Bulk deleting ${photoIds.length} photos`);
-
-    let deletedCount = 0;
-    let failedDeletes: string[] = [];
-
-    // Delete photos one by one for better error handling
-    for (const photoId of photoIds) {
-      try {
-        await database.deletePhoto(photoId);
-        deletedCount++;
-        console.log(`✅ Deleted photo: ${photoId}`);
-      } catch (error) {
-        console.error(`❌ Failed to delete photo ${photoId}:`, error);
-        failedDeletes.push(photoId);
-      }
-    }
-
-    const result = {
-      deletedCount,
-      failedCount: failedDeletes.length,
-      failedIds: failedDeletes,
-      totalRequested: photoIds.length
-    };
-
-    return NextResponse.json({
-      success: true,
-      data: result,
-      message: `Successfully deleted ${deletedCount} of ${photoIds.length} photos`
-    });
-
-  } catch (error) {
-    console.error('❌ Error in bulk delete operation:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to delete photos',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
-}
 
 /**
  * Move photos to different album or event

@@ -8,37 +8,24 @@ import PricingSection from "@/components/modern-glassmorphism-pricing";
 import SpotlightPricingSection from "@/components/spotlight-pricing-section";
 import ContactSection from "@/components/contact-section";
 
-// Centralized data fetching function for server component
+// Optimized data fetching with proper error handling and caching
 async function getHomepageData() {
-  // Use absolute URL for server-side fetch, conditionally checking for development environment
-  const baseUrl = process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3002' 
-    : (process.env.NEXTAUTH_URL_INTERNAL || 'http://localhost:3000');
-
-
-  const slideshowPromise = fetch(`${baseUrl}/api/slideshow`, { cache: 'no-store' });
-  const galleryPromise = fetch(`${baseUrl}/api/photos/homepage`, { cache: 'no-store' });
-
   try {
-    const [slideshowRes, galleryRes] = await Promise.all([slideshowPromise, galleryPromise]);
-
-
-    if (!slideshowRes.ok || !galleryRes.ok) {
-      return { slideshowPhotos: [], galleryPhotos: [] };
-    }
-
-    const slideshowPhotos = await slideshowRes.json();
-    const galleryPhotos = await galleryRes.json();
-
-
-    const finalData = {
-      slideshowPhotos: Array.isArray(slideshowPhotos) ? slideshowPhotos : slideshowPhotos.photos || [],
-      galleryPhotos: Array.isArray(galleryPhotos) ? galleryPhotos : galleryPhotos.photos || []
-    };
+    // Import database directly instead of HTTP fetch to avoid localhost issues
+    const { database } = await import('@/lib/database');
     
+    // Direct database calls are faster than HTTP requests
+    const [slideshowPhotos, galleryPhotos] = await Promise.all([
+      database.getHomepagePhotos(), // Use same function for slideshow
+      database.getHomepagePhotos()
+    ]);
 
-    return finalData;
+    return {
+      slideshowPhotos: slideshowPhotos.slice(0, 8) || [], // Limit slideshow to 8 photos
+      galleryPhotos: galleryPhotos.slice(0, 12) || [] // Limit gallery to 12 photos
+    };
   } catch (error) {
+    console.error('Homepage data fetch error:', error);
     return { slideshowPhotos: [], galleryPhotos: [] };
   }
 }

@@ -249,11 +249,11 @@ export default function PhotoLightbox({ photos, currentIndex, onClose, onDelete,
             {/* Enhanced Download with Quality Indicator */}
             <div className="relative group">
               <a 
-                href={currentPhoto.storage_file_id ? `/api/photos/${currentPhoto.id}/original` : currentPhoto.url}
+                href={currentPhoto.google_drive_backup_url ? `/api/photos/${currentPhoto.id}/original` : currentPhoto.url}
                 download 
                 target="_blank" 
                 rel="noopener noreferrer"
-                title={currentPhoto.storage_file_id ? "Download Original 100%" : "Download Compressed Version"}
+                title={currentPhoto.google_drive_backup_url ? "Download Original 100%" : "Download Compressed Version"}
               >
                 <Button 
                   variant="ghost" 
@@ -263,18 +263,18 @@ export default function PhotoLightbox({ photos, currentIndex, onClose, onDelete,
                   <Download className="h-5 w-5" />
                   {/* Honest Quality Badge */}
                   <span className={`absolute -top-1 -right-1 text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center ${
-                    currentPhoto.storage_file_id 
+                    currentPhoto.google_drive_backup_url 
                       ? 'bg-green-400 text-green-900' 
                       : 'bg-orange-400 text-orange-900'
                   }`}>
-                    {currentPhoto.storage_file_id ? '💯' : '⭐'}
+                    {currentPhoto.google_drive_backup_url ? '💯' : '⭐'}
                   </span>
                 </Button>
               </a>
               
               {/* Mobile Quality Tooltip - Honest Communication */}
               <div className="sm:hidden absolute top-12 right-0 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                {currentPhoto.storage_file_id ? 'Original 100%' : 'Compressed'}
+                {currentPhoto.google_drive_backup_url ? 'Original 100%' : 'Compressed'}
               </div>
             </div>
             
@@ -305,11 +305,11 @@ export default function PhotoLightbox({ photos, currentIndex, onClose, onDelete,
               {/* Mobile Quality Indicator - Honest Labels */}
               <div className="sm:hidden ml-2">
                 <span className={`text-xs px-2 py-1 rounded ${
-                  currentPhoto.storage_file_id 
+                  currentPhoto.google_drive_backup_url 
                     ? 'bg-green-500/20 text-green-300' 
                     : 'bg-orange-500/20 text-orange-300'
                 }`}>
-                  {currentPhoto.storage_file_id ? '100%' : 'COMP'}
+                  {currentPhoto.google_drive_backup_url ? '100%' : 'COMP'}
                 </span>
               </div>
             </div>

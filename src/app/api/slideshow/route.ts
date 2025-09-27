@@ -6,21 +6,24 @@ export async function GET() {
   try {
     const supabase = createClient();
     
+    // Use proper slideshow columns
     const { data: photos, error } = await supabase
       .from('photos')
       .select('*')
       .eq('is_slideshow', true)
       .eq('slideshow_active', true)
-      .order('slideshow_order', { ascending: true });
+      .order('slideshow_order', { ascending: true })
 
     if (error) {
       console.error('Error fetching slideshow photos:', error);
-      return NextResponse.json({ error: 'Failed to fetch slideshow photos' }, { status: 500 });
+      // Return empty array instead of error to prevent homepage crash
+      return NextResponse.json([]);
     }
 
     return NextResponse.json(photos || []);
   } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Unexpected error in slideshow API:', error);
+    // Return empty array instead of error to prevent homepage crash
+    return NextResponse.json([]);
   }
 }

@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabase'; // Remove .ts extension
+import { supabaseAdmin } from './supabase';
 import { ImageOptimizerServer } from './image-optimizer-server';
 import { getAppBaseUrl } from './app-config';
 
@@ -37,6 +37,19 @@ export type Photo = {
   image_metadata?: ImageMetadata | null;
   compression_stats?: CompressionStats | null;
   likes?: number;
+  // Add missing fields for file manager
+  file_size?: number;
+  storage_path?: string | null;
+  storage_tier?: string | null;
+  storage_provider?: string | null;
+  compression_used?: boolean | null;
+  event_name?: string | null; // For join queries
+  // Add archive fields
+  is_archived?: boolean | null;
+  archived_at?: string | null;
+  // Add Google Drive backup for original photos
+  google_drive_backup_url?: string | null;
+  original_file_size?: number;
 };
 
 export type OptimizedImages = {
@@ -390,22 +403,28 @@ class DatabaseService {
   }
 
   async getHomepagePhotos(): Promise<Photo[]> {
-    const { data, error } = await this.supabase
-      .from('photos')
-      .select('id, url, thumbnail_url, original_name, optimized_images') // Keep optimized_images untuk compatibility
-      .eq('is_homepage', true) 
-      .order('uploaded_at', { ascending: false })
-      .limit(20); // Ambil semua foto homepage yang ada
-    if (error) {
-      // Log error yang lebih spesifik jika kolom tidak ditemukan
-      if (error.code === '42P01') { // PostgreSQL error code for undefined_table
-        if (process.env.NODE_ENV === 'development') {
-          console.error("Database Error: Column 'is_homepage' does not exist. Please add it to your 'photos' table.");
-        }
+    try {
+      const { data, error } = await this.supabase
+        .from('photos')
+        .select('id, url, thumbnail_url, original_name, optimized_images, uploaded_at') // Add uploaded_at yang dibutuhkan untuk order
+        .eq('is_homepage', true)
+        .or('is_archived.is.null,is_archived.eq.false') // Only non-archived photos
+        .order('uploaded_at', { ascending: false })
+        .limit(20); // Increase limit untuk show more photos
+      
+      if (error) {
+        console.error('Database Error in getHomepagePhotos:', error);
+        // Return empty array instead of throwing to prevent homepage crash
+        return [];
       }
-      throw error;
+      
+      console.log(`📸 getHomepagePhotos: Found ${data?.length || 0} homepage photos`);
+      return data || [];
+    } catch (error) {
+      console.error('Error in getHomepagePhotos:', error);
+      // Graceful fallback - return empty array to prevent homepage crash
+      return [];
     }
-    return data;
   }
 
   private validateFileExtension(filename: string): boolean {
@@ -542,6 +561,9 @@ class DatabaseService {
       // Convert File to Buffer for server-side processing
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
+      const originalFileSize = buffer.length;
+      
+      console.log(`📸 Processing upload: ${file.name} (${this.formatFileSize(originalFileSize)})`);
       
       // Process image with optimization (server-side)
       const optimizedImages = await this.imageOptimizer.processImage(buffer, file.name, `events/${eventId}`);
@@ -554,11 +576,35 @@ class DatabaseService {
         width: metadata.width || 0,
         height: metadata.height || 0,
         format: metadata.format || 'jpeg',
-        original_size: buffer.length
+        original_size: originalFileSize
       };
 
       // Calculate compression stats
       const compressionStats = ImageOptimizerServer.getCompressionStats(optimizedImages);
+
+      // Initialize Google Drive backup
+      let googleDriveBackupUrl = null;
+      try {
+        console.log('☁️ Starting Google Drive backup...');
+        const GoogleDriveStorage = require('./google-drive-storage.js');
+        const gdStorage = new GoogleDriveStorage();
+        
+        // Create backup file name
+        const backupFileName = `backup_${this.generateFileName(file.name)}`;
+        const backupPath = `Events/${eventId}/${albumName}/${backupFileName}`;
+        
+        // Upload to Google Drive (async, non-blocking)
+        googleDriveBackupUrl = await gdStorage.uploadFile(buffer, backupPath, {
+          name: backupFileName,
+          parents: [`Events/${eventId}/${albumName}`]
+        });
+        
+        console.log(`✅ Google Drive backup completed: ${googleDriveBackupUrl}`);
+      } catch (backupError) {
+        console.error('⚠️ Google Drive backup failed:', backupError);
+        // Continue with upload even if backup fails
+        console.log('📤 Continuing upload without backup...');
+      }
 
       const { data: photoData, error: insertError } = await this.supabase
         .from('photos')
@@ -573,12 +619,24 @@ class DatabaseService {
           filename: this.generateFileName(file.name),
           optimized_images: optimizedImages,
           image_metadata: imageMetadata,
-          compression_stats: compressionStats
+          compression_stats: compressionStats,
+          // Add Google Drive backup fields
+          google_drive_backup_url: googleDriveBackupUrl,
+          original_file_size: originalFileSize,
+          storage_provider: 'cloudflare-r2', // Set explicit storage provider
+          storage_path: optimizedImages.original.url.split('/').slice(-4).join('/') // Extract path from URL
         })
         .select()
         .single();
 
       if (insertError) throw insertError;
+      
+      console.log(`✅ Photo uploaded successfully: ${photoData.id}`);
+      console.log(`📊 Original: ${this.formatFileSize(originalFileSize)} → Optimized: ${this.formatFileSize(optimizedImages.original.size)}`);
+      if (googleDriveBackupUrl) {
+        console.log(`☁️ Backup URL: ${googleDriveBackupUrl}`);
+      }
+      
       return photoData;
     } catch (error) {
       console.error('Error uploading optimized event photo:', error);
@@ -596,6 +654,9 @@ class DatabaseService {
       // Convert File to Buffer for server-side processing
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
+      const originalFileSize = buffer.length;
+      
+      console.log(`🏠 Processing homepage upload: ${file.name} (${this.formatFileSize(originalFileSize)})`);
       
       // Process image with optimization (server-side)
       const optimizedImages = await this.imageOptimizer.processImage(buffer, file.name, 'homepage');
@@ -608,11 +669,35 @@ class DatabaseService {
         width: metadata.width || 0,
         height: metadata.height || 0,
         format: metadata.format || 'jpeg',
-        original_size: buffer.length
+        original_size: originalFileSize
       };
 
       // Calculate compression stats
       const compressionStats = ImageOptimizerServer.getCompressionStats(optimizedImages);
+
+      // Initialize Google Drive backup for homepage photos
+      let googleDriveBackupUrl = null;
+      try {
+        console.log('☁️ Starting Google Drive backup for homepage photo...');
+        const GoogleDriveStorage = require('./google-drive-storage.js');
+        const gdStorage = new GoogleDriveStorage();
+        
+        // Create backup file name
+        const backupFileName = `homepage_backup_${this.generateFileName(file.name)}`;
+        const backupPath = `Homepage/${backupFileName}`;
+        
+        // Upload to Google Drive (async, non-blocking)
+        googleDriveBackupUrl = await gdStorage.uploadFile(buffer, backupPath, {
+          name: backupFileName,
+          parents: ['Homepage']
+        });
+        
+        console.log(`✅ Google Drive backup completed: ${googleDriveBackupUrl}`);
+      } catch (backupError) {
+        console.error('⚠️ Google Drive backup failed:', backupError);
+        // Continue with upload even if backup fails
+        console.log('📤 Continuing homepage upload without backup...');
+      }
 
       const { data: photoData, error: insertError } = await this.supabase
         .from('photos')
@@ -627,12 +712,24 @@ class DatabaseService {
           filename: this.generateFileName(file.name),
           optimized_images: optimizedImages,
           image_metadata: imageMetadata,
-          compression_stats: compressionStats
+          compression_stats: compressionStats,
+          // Add Google Drive backup fields
+          google_drive_backup_url: googleDriveBackupUrl,
+          original_file_size: originalFileSize,
+          storage_provider: 'cloudflare-r2', // Set explicit storage provider
+          storage_path: optimizedImages.original.url.split('/').slice(-2).join('/') // Extract path from URL
         })
         .select()
         .single();
 
       if (insertError) throw insertError;
+      
+      console.log(`✅ Homepage photo uploaded successfully: ${photoData.id}`);
+      console.log(`📊 Original: ${this.formatFileSize(originalFileSize)} → Optimized: ${this.formatFileSize(optimizedImages.original.size)}`);
+      if (googleDriveBackupUrl) {
+        console.log(`☁️ Backup URL: ${googleDriveBackupUrl}`);
+      }
+      
       return photoData;
     } catch (error) {
       console.error('Error uploading optimized homepage photo:', error);
@@ -660,7 +757,82 @@ class DatabaseService {
     }
 
     try {
-      // Extract file path from URL or use stored filename
+      console.log(`🗑️ Starting delete process for photo: ${photo.id}`);
+      console.log(`📁 Storage provider: ${photo.storage_provider || 'unknown'}`);
+      console.log(`📂 Storage path: ${photo.storage_path || 'N/A'}`);
+
+      // Delete from storage first based on storage provider
+      if (photo.storage_provider === 'cloudflare-r2') {
+        await this.deleteFromCloudflareR2(photo);
+      } else {
+        // Fallback to Supabase storage for older photos
+        await this.deleteFromSupabaseStorage(photo);
+      }
+
+      // Then delete from database
+      const { error: deleteDbError } = await this.supabase
+        .from('photos')
+        .delete()
+        .eq('id', photoId);
+
+      if (deleteDbError) throw deleteDbError;
+      
+      console.log(`✅ Photo deleted successfully: ${photo.id}`);
+    } catch (error) {
+      console.error(`❌ Error deleting photo ${photoId}:`, error);
+      
+      // For storage errors, try to delete from database anyway to prevent orphaned records
+      if (error instanceof Error && error.message.includes('storage')) {
+        console.log(`⚠️ Storage deletion failed, but continuing with database cleanup`);
+        const { error: deleteDbError } = await this.supabase
+          .from('photos')
+          .delete()
+          .eq('id', photoId);
+          
+        if (deleteDbError) throw deleteDbError;
+        console.log(`✅ Database record deleted despite storage error`);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  private async deleteFromCloudflareR2(photo: Photo): Promise<void> {
+    try {
+      const { S3Client, DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+      
+      // Initialize R2 client
+      const r2Client = new S3Client({
+        region: 'auto',
+        endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || '',
+        },
+      });
+
+      // Use storage_path if available, otherwise construct path
+      const filePath = photo.storage_path || this.constructFilePath(photo);
+      
+      console.log(`☁️ Deleting from Cloudflare R2: ${filePath}`);
+      
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME || '',
+        Key: filePath,
+      });
+
+      await r2Client.send(deleteCommand);
+      console.log(`✅ Successfully deleted from R2: ${filePath}`);
+      
+    } catch (error) {
+      console.error(`❌ Error deleting from Cloudflare R2:`, error);
+      throw new Error(`Cloudflare R2 storage deletion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  private async deleteFromSupabaseStorage(photo: Photo): Promise<void> {
+    try {
+      // Extract file path from URL or use stored filename (legacy logic)
       let filePath: string;
       
       if (photo.filename) {
@@ -670,7 +842,6 @@ class DatabaseService {
         } else if (photo.event_id) {
           filePath = `events/${photo.event_id}/${photo.filename}`;
         } else {
-          // Fallback if structure is unclear
           filePath = photo.filename;
         }
       } else {
@@ -683,43 +854,51 @@ class DatabaseService {
         } else if (photo.event_id) {
           filePath = `events/${photo.event_id}/${fileName}`;
         } else {
-          // Fallback if structure is unclear
           filePath = fileName;
         }
       }
 
-      // Delete from storage first
+      console.log(`🗄️ Deleting from Supabase Storage: ${filePath}`);
+
       const { error: deleteStorageError } = await this.supabase.storage
         .from('photos')
         .remove([filePath]);
 
       if (deleteStorageError) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error deleting file from storage:', deleteStorageError);
-        }
-        // Continue with database deletion even if storage deletion fails
-      }
-
-      // Then delete from database
-      const { error: deleteDbError } = await this.supabase
-        .from('photos')
-        .delete()
-        .eq('id', photoId);
-
-      if (deleteDbError) throw deleteDbError;
-    } catch (error) {
-      // If it's not a storage error, rethrow
-      if (error instanceof Error && !error.message.includes('storage')) {
-        throw error;
+        console.error('Error deleting from Supabase storage:', deleteStorageError);
+        throw new Error(`Supabase storage deletion failed: ${deleteStorageError.message}`);
       }
       
-      // For storage errors, try to delete from database anyway
-      const { error: deleteDbError } = await this.supabase
-        .from('photos')
-        .delete()
-        .eq('id', photoId);
-        
-      if (deleteDbError) throw deleteDbError;
+      console.log(`✅ Successfully deleted from Supabase storage: ${filePath}`);
+      
+    } catch (error) {
+      console.error(`❌ Error deleting from Supabase storage:`, error);
+      throw error;
+    }
+  }
+
+  private constructFilePath(photo: Photo): string {
+    // Construct file path as fallback if storage_path is not available
+    if (photo.filename) {
+      if (photo.is_homepage) {
+        return `homepage/${photo.filename}`;
+      } else if (photo.event_id) {
+        return `events/${photo.event_id}/Tamu/${photo.filename}`;
+      } else {
+        return photo.filename;
+      }
+    } else {
+      // Extract from URL as last resort
+      const urlParts = photo.url.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      
+      if (photo.is_homepage) {
+        return `homepage/${fileName}`;
+      } else if (photo.event_id) {
+        return `events/${photo.event_id}/Tamu/${fileName}`;
+      } else {
+        return fileName;
+      }
     }
   }
 
@@ -811,16 +990,21 @@ class DatabaseService {
 
   // --- Metode Statistik ---
   async getStats(): Promise<Stats> {
+    // Count only non-archived events
     const { count: totalEvents, error: eventsError } = await this.supabase
       .from('events')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .or('is_archived.is.null,is_archived.eq.false');
     if (eventsError) throw eventsError;
 
+    // Count only non-archived photos (consistent with getAllPhotos)
     const { count: totalPhotos, error: photosError } = await this.supabase
       .from('photos')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .or('is_archived.is.null,is_archived.eq.false');
     if (photosError) throw photosError;
 
+    // Count all messages (no archive concept for messages)
     const { count: totalMessages, error: messagesError } = await this.supabase
       .from('messages')
       .select('*', { count: 'exact', head: true });

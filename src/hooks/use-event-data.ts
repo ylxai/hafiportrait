@@ -28,11 +28,13 @@ export function useEventData(eventId: string) {
       return response.json() as Promise<Photo[]>;
     },
     enabled: !!eventId,
-    staleTime: 2 * 1000, // 2 seconds - very fresh data
-    refetchInterval: 5 * 1000, // Refetch every 5 seconds
+    staleTime: 1 * 1000, // 1 second - more aggressive cache invalidation
+    refetchInterval: 3 * 1000, // Faster refresh every 3 seconds (was 5)
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnReconnect: true, // Refetch when reconnecting
     refetchIntervalInBackground: true, // Continue refetching in background
+    retry: 1, // Retry failed requests once
+    retryDelay: 1000, // 1 second retry delay
   });
 
   // Fetch event messages

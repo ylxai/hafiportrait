@@ -304,8 +304,13 @@ class DatabaseWithSmartStorage {
   validateEventAccess = originalDatabase.validateEventAccess.bind(originalDatabase);
 }
 
-// Export the enhanced database service
-export const smartDatabase = new DatabaseWithSmartStorage();
+// ⚠️ DEPRECATED: Smart Storage system is being phased out
+// Use @/lib/database and @/lib/direct-r2-uploader instead
+console.warn('⚠️ Smart Storage system is deprecated. Use direct R2 uploader instead.');
 
-// Export as default database for compatibility
-export const database = smartDatabase;
+// Temporarily disabled to prevent fallback usage
+// export const smartDatabase = new DatabaseWithSmartStorage();
+// export const database = smartDatabase;
+
+// Throw error if accidentally imported
+throw new Error('Smart Storage system is deprecated. Use @/lib/database and @/lib/direct-r2-uploader instead.');

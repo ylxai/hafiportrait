@@ -191,5 +191,12 @@ export class StorageAdapter {
   }
 }
 
-// Export singleton instance
-export const storageAdapter = new StorageAdapter();
+// ⚠️ DEPRECATED: Smart Storage Adapter is being phased out
+// Use @/lib/direct-r2-uploader instead
+console.warn('⚠️ Storage Adapter (Smart Storage) is deprecated. Use direct R2 uploader instead.');
+
+// Temporarily disabled to prevent Smart Storage Manager usage
+// export const storageAdapter = new StorageAdapter();
+
+// Throw error if accidentally imported
+throw new Error('Storage Adapter (Smart Storage) is deprecated. Use @/lib/direct-r2-uploader instead.');

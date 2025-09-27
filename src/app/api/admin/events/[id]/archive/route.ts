@@ -57,8 +57,8 @@ export async function GET(
     const { id: eventId } = await params;
     
     // Get event archive status from database
-    const { smartDatabase } = await import('@/lib/database-with-smart-storage');
-    const event = await smartDatabase.getEventById(eventId);
+    const { database } = await import('@/lib/database');
+    const event = await database.getEventById(eventId);
     
     if (!event) {
       return NextResponse.json({
@@ -101,8 +101,8 @@ export async function DELETE(
     console.log(`🔄 Unarchiving event: ${eventId}`);
     
     // Unarchive the event (remove archive status)
-    const { smartDatabase } = await import('@/lib/database-with-smart-storage');
-    const updatedEvent = await smartDatabase.updateEvent(eventId, {
+    const { database } = await import('@/lib/database');
+    const updatedEvent = await database.updateEvent(eventId, {
       is_archived: false,
       archived_at: undefined
       // Keep backup_id and google_drive_backup_url for reference

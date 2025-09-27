@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { database } from '@/lib/database-with-smart-storage';
+import { database } from '@/lib/database';
 import fs from 'fs/promises';
 import path from 'path';
 

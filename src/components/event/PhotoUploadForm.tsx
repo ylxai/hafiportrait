@@ -277,8 +277,8 @@ export default function PhotoUploadForm({ eventId, albumName, disabled = false }
             disabled={uploadPhotoMutation.isPending}
             className={`w-full ${
               albumName === 'Tamu' 
-                ? 'bg-wedding-rose hover:bg-wedding-rose/90' 
-                : 'bg-wedding-sage hover:bg-wedding-sage/90'
+                ? 'bg-rose-500 hover:bg-rose-600' 
+                : 'bg-emerald-500 hover:bg-emerald-600'
             } text-white ${isMobile ? 'h-11' : 'h-10'}`}
           >
             {uploadPhotoMutation.isPending ? (

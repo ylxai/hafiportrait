@@ -205,8 +205,10 @@ src/components/admin/*.backup
 
 # Test Files (Temporary)
 tmp_rovodev_*
+tmp_*
 test_*_integration.js
 *_test_*.js
+*.backup.json
 
 # Database Files (Local development)
 *.db

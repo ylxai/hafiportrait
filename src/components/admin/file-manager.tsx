@@ -20,6 +20,8 @@ import {
   Archive
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface FileItem {
   id: string;
@@ -50,11 +52,30 @@ export function FileManager({ className = '' }: FileManagerProps) {
   const [filterType, setFilterType] = useState<'all' | 'images' | 'documents' | 'archives'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPath, setCurrentPath] = useState('/');
+  const [showMoveDialog, setShowMoveDialog] = useState(false);
+  const [moveTargetFile, setMoveTargetFile] = useState<string | null>(null);
+  const [availableAlbums, setAvailableAlbums] = useState<string[]>([]);
+  const [availableEvents, setAvailableEvents] = useState<any[]>([]);
 
   // Load files on mount
   useEffect(() => {
     loadFiles();
+    loadMoveOptions();
   }, [currentPath]);
+
+  // Load move options (albums and events)
+  const loadMoveOptions = async () => {
+    try {
+      const response = await fetch('/api/admin/photos/move');
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableAlbums(data.data?.albums || []);
+        setAvailableEvents(data.data?.events || []);
+      }
+    } catch (error) {
+      console.error('Error loading move options:', error);
+    }
+  };
 
   const loadFiles = useCallback(async () => {
     setIsLoading(true);
@@ -70,7 +91,8 @@ export function FileManager({ className = '' }: FileManagerProps) {
       }
 
       const data = await response.json();
-      setFiles(data.files || []);
+      // Handle API response structure - files are in data.files
+      setFiles(data.data?.files || data.files || []);
     } catch (error) {
       console.error('Error loading files:', error);
       toast({
@@ -143,9 +165,11 @@ export function FileManager({ className = '' }: FileManagerProps) {
         throw new Error('Failed to delete files');
       }
 
+      const result = await response.json();
+      
       toast({
         title: 'Success',
-        description: `${selectedFiles.size} files deleted successfully`
+        description: `${result.data?.deletedCount || selectedFiles.size} files deleted successfully`
       });
 
       setSelectedFiles(new Set());
@@ -160,6 +184,127 @@ export function FileManager({ className = '' }: FileManagerProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Delete single file
+  const deleteSingleFile = async (fileId: string) => {
+    if (!confirm('Delete this file? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/admin/files/${fileId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete file');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'File deleted successfully'
+      });
+
+      await loadFiles();
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete file',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Download single file
+  const downloadFile = async (fileId: string, filename: string) => {
+    try {
+      const response = await fetch(`/api/admin/files/${fileId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to get download URL');
+      }
+
+      const result = await response.json();
+      
+      if (result.success && result.data?.downloadUrl) {
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = result.data.downloadUrl;
+        link.download = result.data.filename || filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast({
+          title: 'Success',
+          description: 'Download started'
+        });
+      } else {
+        throw new Error('No download URL provided');
+      }
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to download file',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Move file functionality
+  const moveFile = async (fileId: string, targetAlbum: string, targetEvent?: string) => {
+    try {
+      const response = await fetch('/api/admin/photos/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          photoIds: [fileId],
+          targetAlbum,
+          targetEvent
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to move file');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: 'Success',
+        description: `File moved successfully to ${targetAlbum}`
+      });
+
+      await loadFiles();
+    } catch (error) {
+      console.error('Error moving file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to move file',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Show move dialog
+  const showMoveDialogForFile = (fileId: string) => {
+    setMoveTargetFile(fileId);
+    setShowMoveDialog(true);
+  };
+
+  // Handle move dialog submit
+  const handleMoveSubmit = async (targetAlbum: string, targetEvent?: string) => {
+    if (!moveTargetFile) return;
+    
+    await moveFile(moveTargetFile, targetAlbum, targetEvent);
+    setShowMoveDialog(false);
+    setMoveTargetFile(null);
   };
 
   // Format file size
@@ -304,23 +449,30 @@ export function FileManager({ className = '' }: FileManagerProps) {
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <Button size="sm" variant="ghost">
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => downloadFile(file.id, file.name)}
+                      disabled={isLoading}
+                      title="Download file"
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => toggleFileSelection(file.id)}
+                      onClick={() => showMoveDialogForFile(file.id)}
+                      disabled={isLoading || file.id.startsWith('local-')}
+                      title={file.id.startsWith('local-') ? 'Cannot move local backup files' : 'Move file'}
                     >
                       <Move className="h-4 w-4" />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => {
-                        setSelectedFiles(new Set([file.id]));
-                        deleteSelectedFiles();
-                      }}
+                      onClick={() => deleteSingleFile(file.id)}
+                      disabled={isLoading}
+                      title="Delete file"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -331,6 +483,121 @@ export function FileManager({ className = '' }: FileManagerProps) {
           )}
         </div>
       </CardContent>
+
+      {/* Move Dialog */}
+      <MoveFileDialog
+        isOpen={showMoveDialog}
+        onClose={() => {
+          setShowMoveDialog(false);
+          setMoveTargetFile(null);
+        }}
+        onSubmit={handleMoveSubmit}
+        availableAlbums={availableAlbums}
+        availableEvents={availableEvents}
+        currentFile={moveTargetFile ? files.find(f => f.id === moveTargetFile) : null}
+      />
     </Card>
+  );
+}
+
+// Move File Dialog Component
+interface MoveFileDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (targetAlbum: string, targetEvent?: string) => void;
+  availableAlbums: string[];
+  availableEvents: any[];
+  currentFile: FileItem | null | undefined;
+}
+
+function MoveFileDialog({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  availableAlbums, 
+  availableEvents, 
+  currentFile 
+}: MoveFileDialogProps) {
+  const [selectedAlbum, setSelectedAlbum] = useState<string>('');
+  const [selectedEvent, setSelectedEvent] = useState<string>('');
+
+  const handleSubmit = () => {
+    if (!selectedAlbum) {
+      alert('Please select an album');
+      return;
+    }
+    onSubmit(selectedAlbum, selectedEvent || undefined);
+  };
+
+  if (!currentFile) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Move File</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-600 mb-2">
+              Moving: <strong>{currentFile.name}</strong>
+            </p>
+            {currentFile.metadata?.eventName && (
+              <p className="text-xs text-gray-500">
+                Current event: {currentFile.metadata.eventName}
+              </p>
+            )}
+            {currentFile.metadata?.albumName && (
+              <p className="text-xs text-gray-500">
+                Current album: {currentFile.metadata.albumName}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Target Album</label>
+            <Select value={selectedAlbum} onValueChange={setSelectedAlbum}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select album" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableAlbums.map(album => (
+                  <SelectItem key={album} value={album}>
+                    {album}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Target Event (Optional)</label>
+            <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+              <SelectTrigger>
+                <SelectValue placeholder="Keep current event or select new" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Keep current event</SelectItem>
+                {availableEvents.map(event => (
+                  <SelectItem key={event.id} value={event.id}>
+                    {event.name} ({new Date(event.date).toLocaleDateString()})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={!selectedAlbum}>
+              Move File
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

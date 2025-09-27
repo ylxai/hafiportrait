@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { database } from '@/lib/database';
-import { smartDatabase } from '@/lib/database-with-smart-storage';
+import { directR2Uploader } from '@/lib/direct-r2-uploader';
 import { uploadFile, generateFilePath } from '@/lib/supabase';
+
+// Configure API route for large file uploads
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 30 seconds timeout
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -15,10 +20,8 @@ export async function GET() {
 
     return NextResponse.json(publicPhotos, { status: 200 });
   } catch (error) {
-    // Log error for debugging (consider using proper logging service in production)
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching homepage photos from API:', error);
-    }
+    // Always log errors for debugging
+    console.error('Error fetching homepage photos from API:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json({ message: 'Gagal mengambil foto homepage', error: errorMessage }, { status: 500 });
   }
@@ -56,14 +59,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'File size must be less than 50MB' }, { status: 400 });
     }
 
-    // Upload homepage photo using Smart Storage Manager
-    const photo = await smartDatabase.uploadHomepagePhoto(file);
+    // Upload homepage photo directly to Cloudflare R2
+    const photo = await directR2Uploader.uploadHomepagePhoto({
+      file,
+      compression: {
+        quality: 95, // High quality for homepage
+        maxWidth: 3000
+      }
+    });
     return NextResponse.json(photo, { status: 201 });
   } catch (error) {
-    // Log error for debugging (consider using proper logging service in production)
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Homepage photo upload error:', error);
-    }
+    // Always log errors for debugging
+    console.error('Homepage photo upload error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json({ message: `Failed to upload photo: ${errorMessage}` }, { status: 500 });
   }
