@@ -1,0 +1,185 @@
+/* ===== UNIFIED SCROLL ANIMATIONS SYSTEM ===== */
+/* Optimized for performance and mobile devices */
+
+/* Base scroll behavior */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
+/* Performance-first approach - only essential animations */
+.scroll-element {
+  will-change: opacity, transform;
+}
+
+.scroll-element.scroll-visible {
+  will-change: auto;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .scroll-element {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Mobile-optimized animations */
+@media (max-width: 768px) {
+  .scroll-element {
+    /* Shorter durations on mobile for better UX */
+    transition-duration: 300ms !important;
+  }
+  
+  /* Disable complex transforms on low-end devices */
+  @media (hover: none) and (pointer: coarse) {
+    .scroll-element {
+      transform: none !important;
+      filter: none !important;
+    }
+  }
+}
+
+/* Battery saving mode */
+@media (prefers-reduced-motion: reduce), 
+       (prefers-color-scheme: dark) and (max-width: 768px) {
+  .scroll-element {
+    animation: none !important;
+    transition: opacity 0.2s ease-out !important;
+  }
+}
+
+/* Performance optimizations */
+.scroll-container {
+  contain: layout style paint;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Skeleton loading animations */
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton-animate {
+  background-image: linear-gradient(
+    90deg,
+    #f0f0f0 0px,
+    rgba(229, 229, 229, 0.8) 40px,
+    #f0f0f0 80px
+  );
+  background-size: 200px 100%;
+  animation: skeleton-loading 1.5s infinite linear;
+}
+
+/* Dark mode skeleton */
+@media (prefers-color-scheme: dark) {
+  .skeleton-animate {
+    background-image: linear-gradient(
+      90deg,
+      #374151 0px,
+      rgba(75, 85, 99, 0.8) 40px,
+      #374151 80px
+    );
+  }
+}
+
+/* Disable skeleton animation in reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-animate {
+    animation: none;
+    background-image: none;
+    background-color: #f0f0f0;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    .skeleton-animate {
+      background-color: #374151;
+    }
+  }
+}
+
+/* Loading spinner optimizations */
+.optimized-spinner {
+  animation: spin 1s linear infinite;
+  will-change: transform;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Pulse animation for loaders */
+.optimized-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Bounce animation for dot loaders */
+.optimized-bounce {
+  animation: bounce 1.4s ease-in-out infinite both;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Cleanup styles - remove conflicting animations */
+.clean-animation-reset {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* Intersection observer helper classes */
+.intersection-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.intersection-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Safe transform classes */
+.safe-transform {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Performance hints */
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+.gpu-accelerated.animation-complete {
+  will-change: auto;
+}

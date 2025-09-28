@@ -1,0 +1,51 @@
+{
+  "monitoring": {
+    "enabled": true,
+    "interval": 60000,
+    "retentionDays": 30,
+    "alertCooldown": 300000
+  },
+  "thresholds": {
+    "cpu": {
+      "warning": 70,
+      "critical": 85
+    },
+    "memory": {
+      "warning": 80,
+      "critical": 90
+    },
+    "storage": {
+      "warning": 85,
+      "critical": 95
+    },
+    "responseTime": {
+      "warning": 1000,
+      "critical": 2000
+    },
+    "errorRate": {
+      "warning": 5,
+      "critical": 10
+    }
+  },
+  "notifications": {
+    "slack": {
+      "enabled": false,
+      "webhook": "",
+      "channel": "#alerts"
+    },
+    "email": {
+      "enabled": false,
+      "smtp": {
+        "host": "",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "",
+          "pass": ""
+        }
+      },
+      "from": "alerts@hafiportrait.com",
+      "to": []
+    }
+  }
+}

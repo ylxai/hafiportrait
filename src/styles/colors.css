@@ -1,0 +1,111 @@
+/**
+ * HafiPortrait - Soft Futurism 2025 Color Palette
+ * Modern Photography Brand Colors - Trending 2025
+ */
+
+:root {
+  /* === PRIMARY BRAND COLORS === */
+  --color-primary: #0E7490;        /* Cyan Deep - Professional */
+  --color-primary-light: #0891B2;  /* Cyan Medium */
+  --color-primary-lighter: #22D3EE; /* Cyan Light */
+  
+  --color-secondary: #FF8CC8;      /* Soft Pink - Romantic */
+  --color-secondary-light: #FFB3D9; /* Pink Light */
+  --color-secondary-lighter: #FECDD3; /* Pink Lighter */
+  
+  --color-accent: #A855F7;         /* Purple - Creative */
+  --color-accent-light: #C084FC;   /* Purple Light */
+  
+  /* === SUPPORTING COLORS === */
+  --color-sage: #84CC16;           /* Sage Green - Natural */
+  --color-lavender: #8B5CF6;      /* Lavender - Elegant */
+  --color-coral: #FB7185;         /* Coral - Warm */
+  
+  /* === NEUTRAL COLORS === */
+  --color-bg-primary: #FEFEFE;     /* Pure White */
+  --color-bg-secondary: #F8FAFC;   /* Slate 50 */
+  --color-bg-tertiary: #F1F5F9;    /* Slate 100 */
+  --color-bg-dark: #0F172A;       /* Slate 900 */
+  
+  --color-text-primary: #0F172A;   /* Slate 900 */
+  --color-text-secondary: #475569; /* Slate 600 */
+  --color-text-muted: #94A3B8;     /* Slate 400 */
+  --color-text-light: #CBD5E1;     /* Slate 300 */
+  
+  --color-border: #E2E8F0;         /* Slate 200 */
+  --color-border-light: #F1F5F9;   /* Slate 100 */
+  
+  /* === GRADIENT COMBINATIONS === */
+  --gradient-primary: linear-gradient(135deg, #0E7490 0%, #FF8CC8 100%);
+  --gradient-secondary: linear-gradient(135deg, #A855F7 0%, #22D3EE 100%);
+  --gradient-accent: linear-gradient(135deg, #FF8CC8 0%, #C084FC 50%, #22D3EE 100%);
+  --gradient-soft: linear-gradient(135deg, #FECDD3 0%, #F8FAFC 100%);
+  
+  /* === UI ELEMENTS === */
+  --color-button-bg: #0E7490;      /* Cyan Deep Button */
+  --color-button-text: #FFFFFF;    /* White Text */
+  --color-button-hover: #0891B2;   /* Cyan Medium Hover */
+  
+  --color-button-secondary-bg: #FF8CC8;  /* Pink Button */
+  --color-button-secondary-text: #FFFFFF; /* White Text */
+  --color-button-secondary-hover: #FFB3D9; /* Pink Light Hover */
+  
+  --color-button-accent-bg: var(--gradient-primary); /* Gradient Button */
+  --color-button-accent-text: #FFFFFF;
+  
+  /* === STATES === */
+  --color-success: #10B981;        /* Emerald 500 */
+  --color-error: #EF4444;          /* Red 500 */
+  --color-warning: #F59E0B;        /* Amber 500 */
+  --color-info: #3B82F6;           /* Blue 500 */
+  
+  /* === MODERN SHADOWS === */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  
+  /* === COLORED SHADOWS === */
+  --shadow-cyan-sm: 0 1px 2px 0 rgba(14, 116, 144, 0.15);
+  --shadow-cyan: 0 4px 6px -1px rgba(14, 116, 144, 0.2), 0 2px 4px -2px rgba(14, 116, 144, 0.2);
+  --shadow-cyan-lg: 0 10px 15px -3px rgba(14, 116, 144, 0.25), 0 4px 6px -4px rgba(14, 116, 144, 0.25);
+  
+  --shadow-pink-sm: 0 1px 2px 0 rgba(255, 140, 200, 0.15);
+  --shadow-pink: 0 4px 6px -1px rgba(255, 140, 200, 0.2), 0 2px 4px -2px rgba(255, 140, 200, 0.2);
+  --shadow-pink-lg: 0 10px 15px -3px rgba(255, 140, 200, 0.25), 0 4px 6px -4px rgba(255, 140, 200, 0.25);
+  
+  --shadow-gradient: 0 10px 25px -5px rgba(14, 116, 144, 0.1), 0 8px 10px -6px rgba(255, 140, 200, 0.1);
+}
+
+/* === DARK MODE SUPPORT === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary: #0F172A;     /* Slate 900 */
+    --color-bg-secondary: #1E293B;   /* Slate 800 */
+    --color-bg-tertiary: #334155;    /* Slate 700 */
+    
+    --color-text-primary: #F8FAFC;   /* Slate 50 */
+    --color-text-secondary: #CBD5E1; /* Slate 300 */
+    --color-text-muted: #94A3B8;     /* Slate 400 */
+    
+    --color-border: #475569;         /* Slate 600 */
+    --color-border-light: #334155;   /* Slate 700 */
+    
+    /* Adjust gradients for dark mode */
+    --gradient-soft: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+  }
+}
+
+/* === GLASSMORPHISM EFFECTS === */
+.glass-effect {
+  background: rgba(248, 250, 252, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(248, 250, 252, 0.2);
+}
+
+.glass-effect-dark {
+  background: rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(15, 23, 42, 0.2);
+}

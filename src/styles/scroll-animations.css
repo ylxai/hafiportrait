@@ -1,0 +1,42 @@
+/* ===== BASIC SCROLL ANIMATIONS ===== */
+
+/* Simple fade in animation only */
+.scroll-reveal {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+}
+
+/* Basic smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
+/* Disable complex animations on mobile for performance */
+@media (max-width: 768px) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Clean, minimal animations only */
+.simple-fade {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.simple-fade.visible {
+  opacity: 1;
+}
+
+/* Remove all complex transform animations that might interfere */

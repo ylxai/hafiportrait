@@ -1,0 +1,188 @@
+/* Heart Animation Styles - Mobile Optimized with GPU Acceleration */
+
+/* GPU Acceleration Base Classes */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+.gpu-layer {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+
+@keyframes heart-burst {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0, 0, 1) rotate3d(0, 0, 1, 0deg);
+    opacity: 0;
+  }
+  15% {
+    transform: translate3d(0, 0, 0) scale3d(1.3, 1.3, 1) rotate3d(0, 0, 1, -5deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1) rotate3d(0, 0, 1, 5deg);
+    opacity: 1;
+  }
+  45% {
+    transform: translate3d(0, 0, 0) scale3d(1.2, 1.2, 1) rotate3d(0, 0, 1, -2deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotate3d(0, 0, 1, 0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(0.8, 0.8, 1) rotate3d(0, 0, 1, 0deg);
+    opacity: 0;
+  }
+}
+
+@keyframes heart-float {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(0, -20px, 0) scale3d(1.1, 1.1, 1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(0, -40px, 0) scale3d(0.8, 0.8, 1);
+    opacity: 0;
+  }
+}
+
+@keyframes heart-pulse {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+}
+
+.animate-heart-burst {
+  animation: heart-burst 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.animate-heart-float {
+  animation: heart-float 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.animate-heart-pulse {
+  animation: heart-pulse 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Floating hearts effect */
+.heart-particles {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.heart-particle {
+  position: absolute;
+  color: #ef4444;
+  font-size: 1.5rem;
+  animation: heart-float 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+/* Mobile-optimized: Reduced particles for better performance */
+.heart-particle:nth-child(1) { 
+  animation-delay: 0s; 
+  left: 45%; 
+}
+.heart-particle:nth-child(2) { 
+  animation-delay: 0.15s; 
+  left: 50%; 
+}
+.heart-particle:nth-child(3) { 
+  animation-delay: 0.3s; 
+  left: 55%; 
+}
+
+/* Performance optimization: Reduce motion for low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  .heart-particle {
+    animation: none !important;
+    opacity: 0;
+  }
+  
+  .animate-heart-burst {
+    animation: heart-pulse 0.3s ease-out !important;
+  }
+  
+  .animate-heart-float {
+    animation: none !important;
+  }
+  
+  .heart-button {
+    transition: none !important;
+  }
+  
+  .heart-button:hover {
+    transform: none !important;
+  }
+}
+
+/* Mobile-Optimized Button Effects with GPU Acceleration */
+.heart-button {
+  transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              background-color 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, background-color;
+  transform: translateZ(0);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  backface-visibility: hidden;
+}
+
+.heart-button:hover {
+  transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1);
+}
+
+.heart-button:active {
+  transform: translate3d(0, 0, 0) scale3d(0.95, 0.95, 1);
+}
+
+.heart-button.liked {
+  background-color: rgb(239 68 68 / 0.9) !important;
+  transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1);
+}
+
+.heart-button.liked .heart-icon {
+  fill: white;
+  color: white;
+  animation: heart-pulse 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Touch Optimization */
+@media (hover: none) and (pointer: coarse) {
+  .heart-button:hover {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  
+  .heart-button:active {
+    transform: translate3d(0, 0, 0) scale3d(0.98, 0.98, 1);
+  }
+}

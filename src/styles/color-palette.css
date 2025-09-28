@@ -1,0 +1,204 @@
+/**
+ * Dynamic Color Palette CSS
+ * CSS custom properties for dynamic theming
+ */
+
+:root {
+  /* Default color variables - will be overridden by JavaScript */
+  --color-bg-primary: #f8f6f0;
+  --color-bg-secondary: #ffffff;
+  --color-bg-accent: #f0ede5;
+  
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #2d2d2d;
+  --color-text-muted: #666666;
+  
+  --color-accent-primary: #d4af37;
+  --color-accent-secondary: #c9a96e;
+  --color-accent-gold: #e6b17a;
+  
+  --color-button-primary: #d4af37;
+  --color-button-secondary: #c9a96e;
+  --color-button-hover: #b8941f;
+  
+  --color-border: #e0ddd6;
+  --color-shadow: rgba(212, 175, 55, 0.1);
+  --color-overlay: rgba(45, 45, 45, 0.8);
+  
+  --gradient-hero: linear-gradient(135deg, #f8f6f0 0%, #f0ede5 50%, #e8e3d8 100%);
+  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8f6f0 100%);
+  --gradient-button: linear-gradient(135deg, #d4af37 0%, #c9a96e 100%);
+}
+
+/* Utility classes for dynamic colors */
+.bg-dynamic-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-dynamic-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.bg-dynamic-accent {
+  background-color: var(--color-bg-accent);
+}
+
+.text-dynamic-primary {
+  color: var(--color-text-primary);
+}
+
+.text-dynamic-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-dynamic-muted {
+  color: var(--color-text-muted);
+}
+
+.text-dynamic-accent {
+  color: var(--color-accent-primary);
+}
+
+.border-dynamic {
+  border-color: var(--color-border);
+}
+
+.shadow-dynamic {
+  box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow);
+}
+
+.bg-gradient-dynamic-hero {
+  background: var(--gradient-hero);
+}
+
+.bg-gradient-dynamic-card {
+  background: var(--gradient-card);
+}
+
+.bg-gradient-dynamic-button {
+  background: var(--gradient-button);
+}
+
+/* Button variants with dynamic colors */
+.btn-dynamic-primary {
+  background-color: var(--color-button-primary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-button-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-dynamic-primary:hover {
+  background-color: var(--color-button-hover);
+  border-color: var(--color-button-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.btn-dynamic-secondary {
+  background-color: transparent;
+  color: var(--color-accent-primary);
+  border: 2px solid var(--color-accent-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-dynamic-secondary:hover {
+  background-color: var(--color-accent-primary);
+  color: var(--color-bg-primary);
+}
+
+/* Card styles with dynamic colors */
+.card-dynamic {
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px var(--color-shadow);
+  transition: all 0.3s ease-in-out;
+}
+
+.card-dynamic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--color-shadow);
+}
+
+/* Hero section with dynamic background */
+.hero-dynamic {
+  background: var(--gradient-hero);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-dynamic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, var(--color-accent-primary)20 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, var(--color-accent-secondary)20 0%, transparent 50%);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* Smooth transitions for palette changes */
+* {
+  transition: background-color 0.3s ease-in-out, 
+              color 0.3s ease-in-out, 
+              border-color 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out;
+}
+
+/* Theme-specific overrides */
+.theme-bold-professional {
+  --shadow-intensity: 0.2;
+}
+
+.theme-modern-romantic {
+  --border-radius: 12px;
+}
+
+.theme-warm-sunset {
+  --shadow-warmth: 1.2;
+}
+
+.theme-ocean-breeze {
+  --shadow-coolness: 1.1;
+}
+
+.theme-forest-green {
+  --shadow-natural: 1.0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-dynamic {
+    background-attachment: scroll;
+  }
+  
+  .card-dynamic {
+    box-shadow: 0 1px 4px var(--color-shadow);
+  }
+  
+  .card-dynamic:hover {
+    transform: none;
+    box-shadow: 0 2px 8px var(--color-shadow);
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .theme-auto {
+    --color-bg-primary: #1a1a1a;
+    --color-bg-secondary: #2d2d2d;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #e0e0e0;
+  }
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}

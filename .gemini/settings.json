@@ -1,0 +1,20 @@
+{
+  "tools": {
+    "shell": {
+      "enableInteractiveShell": true
+    }
+  },
+  "security": {
+    "folderTrust": {
+      "enabled": true
+    }
+  },
+  "general": {
+    "enablePromptCompletion": true
+  },
+  "ui": {
+    "accessibility": {
+      "screenReader": false
+    }
+  }
+}
