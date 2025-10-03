@@ -20,6 +20,58 @@ This guide provides complete integration details for Python scripts to work with
 
 ---
 
+## ⚙️ **Backend Image Processing with Sharp**
+
+All uploaded images are processed on the server using the **Sharp** library. Sharp is a high-performance Node.js image processing module that handles resizing, compression, and format conversion.
+
+### **Key Sharp Functions:**
+
+-   **Resizing**: Images are automatically resized to various dimensions for optimal display on web and mobile devices (e.g., thumbnails, standard view).
+-   **Compression**: Sharp applies efficient compression (JPEG, WebP) to reduce file size without significant quality loss, improving loading times.
+-   **Format Conversion**: It can convert images to modern formats like WebP for better performance.
+-   **Metadata**: Sharp can strip unnecessary metadata from images to further reduce size.
+
+This processing is handled automatically by the backend. The Python upload scripts do not need to perform any image manipulation before uploading.
+
+---
+
+## 🔑 **Retrieving the `eventId`**
+
+The `eventId` is a crucial parameter for all API endpoints as it directs the photos to the correct event gallery. Here’s how to obtain it:
+
+### **1. From the Event URL:**
+
+The `eventId` is typically found in the URL of the event page.
+
+-   **URL Structure**: `https://yourdomain.com/event/{eventId}`
+-   **Example**: For the URL `https://hafiportrait.com/event/16073628-2359-4df7-a505-f8a2a6139cf3`, the `eventId` is `16073628-2359-4df7-a505-f8a2a6139cf3`.
+
+### **2. Via API Endpoint (for automated systems):**
+
+If you need to fetch the `eventId` programmatically, you can use an API endpoint that lists events or allows searching by event name.
+
+```http
+GET /api/events?eventName=testing
+```
+
+**Example Response:**
+
+```json
+{
+  "events": [
+    {
+      "id": "16073628-2359-4df7-a505-f8a2a6139cf3",
+      "name": "testing",
+      "date": "2024-12-25"
+    }
+  ]
+}
+```
+
+The Python script can then parse this response to extract the `id` for use in subsequent upload requests. For the test environment, you can use the static `eventId` provided in the **Support** section.
+
+---
+
 ## 🔧 **API ENDPOINTS**
 
 ### **1. Single File Upload (Existing - Backward Compatible)**
@@ -709,7 +761,8 @@ def main():
         
         # Print final statistics
         stats = uploader.get_statistics()
-        print(f"\n📊 Final Statistics:")
+        print(f"
+📊 Final Statistics:")
         print(f"   Total uploads: {stats['total_uploads']}")
         print(f"   Success rate: {stats['success_rate_percent']:.1f}%")
         print(f"   Total size: {stats['total_size']/1024/1024:.1f} MB")
@@ -833,4 +886,3 @@ The new batch upload endpoint is the **recommended approach** for all new integr
 > **Documentation Version**: 2.0  
 > **Last Updated**: 2024-12-29  
 > **Phase 2 Status**: ✅ Production Ready
-```
