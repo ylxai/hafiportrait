@@ -17,58 +17,314 @@ This guide provides complete integration details for Python scripts to work with
 - ✅ **Mobile Optimization**: Device-specific limits and timeouts
 - ✅ **Better Error Handling**: Detailed error responses and partial success support
 - ✅ **Performance**: 200-300% faster upload processing
+- ✅ **Sharp.js Processing**: Automatic image compression and optimization
+- ✅ **Multi-tier Storage**: Primary (Cloudflare R2) + Backup (Google Drive)
 
 ---
 
-## ⚙️ **Backend Image Processing with Sharp**
+## 🖼️ **IMAGE PROCESSING DETAILS**
 
-All uploaded images are processed on the server using the **Sharp** library. Sharp is a high-performance Node.js image processing module that handles resizing, compression, and format conversion.
+### **Sharp.js Compression Pipeline:**
 
-### **Key Sharp Functions:**
+The system automatically processes all uploaded images using Sharp.js with the following specifications:
 
--   **Resizing**: Images are automatically resized to various dimensions for optimal display on web and mobile devices (e.g., thumbnails, standard view).
--   **Compression**: Sharp applies efficient compression (JPEG, WebP) to reduce file size without significant quality loss, improving loading times.
--   **Format Conversion**: It can convert images to modern formats like WebP for better performance.
--   **Metadata**: Sharp can strip unnecessary metadata from images to further reduce size.
-
-This processing is handled automatically by the backend. The Python upload scripts do not need to perform any image manipulation before uploading.
-
----
-
-## 🔑 **Retrieving the `eventId`**
-
-The `eventId` is a crucial parameter for all API endpoints as it directs the photos to the correct event gallery. Here’s how to obtain it:
-
-### **1. From the Event URL:**
-
-The `eventId` is typically found in the URL of the event page.
-
--   **URL Structure**: `https://yourdomain.com/event/{eventId}`
--   **Example**: For the URL `https://hafiportrait.com/event/16073628-2359-4df7-a505-f8a2a6139cf3`, the `eventId` is `16073628-2359-4df7-a505-f8a2a6139cf3`.
-
-### **2. Via API Endpoint (for automated systems):**
-
-If you need to fetch the `eventId` programmatically, you can use an API endpoint that lists events or allows searching by event name.
-
-```http
-GET /api/events?eventName=testing
-```
-
-**Example Response:**
-
-```json
+#### **Compression Settings by Album:**
+```javascript
+// Official Album (Photographer's photos)
 {
-  "events": [
-    {
-      "id": "16073628-2359-4df7-a505-f8a2a6139cf3",
-      "name": "testing",
-      "date": "2024-12-25"
-    }
-  ]
+  quality: 95,           // Higher quality for professional photos
+  maxWidth: 3000,        // Preserve high resolution
+  format: 'jpeg',        // Optimized format
+  progressive: true,     // Progressive JPEG loading
+  mozjpeg: true         // Enhanced compression
+}
+
+// Guest Albums (Tamu, Bridesmaid)
+{
+  quality: 90,           // Balanced quality for guest photos
+  maxWidth: 2400,        // Optimized for web viewing
+  format: 'jpeg',        // Consistent format
+  progressive: true,     // Progressive loading
+  mozjpeg: true         // Enhanced compression
 }
 ```
 
-The Python script can then parse this response to extract the `id` for use in subsequent upload requests. For the test environment, you can use the static `eventId` provided in the **Support** section.
+#### **Automatic Processing Features:**
+```javascript
+// Image Optimization Pipeline
+1. Format Detection: Auto-detect JPEG, PNG, WebP, HEIC, etc.
+2. Orientation Fix: Auto-rotate based on EXIF data
+3. Compression: Quality optimization based on album type
+4. Resize: Smart resizing while maintaining aspect ratio
+5. Progressive: Enable progressive JPEG for faster loading
+6. Metadata: Strip unnecessary EXIF data for privacy
+7. Watermark: Optional watermark application (configurable)
+```
+
+#### **Supported Input Formats:**
+```javascript
+// Supported by Sharp.js processing
+SUPPORTED_FORMATS = [
+  'image/jpeg', 'image/jpg',     // Standard JPEG
+  'image/png',                   // PNG with transparency
+  'image/webp',                  // Modern WebP format
+  'image/heic', 'image/heif',    // Apple HEIC format
+  'image/gif',                   // Animated GIF (first frame)
+  'image/bmp',                   // Bitmap format
+  'image/tiff'                   // TIFF format
+]
+
+// RAW formats (converted via Sharp if supported)
+RAW_FORMATS = [
+  'image/x-nikon-nef',           // Nikon RAW
+  'image/x-canon-cr2',           // Canon RAW  
+  'image/x-sony-arw',            // Sony RAW
+  'image/x-adobe-dng',           // Adobe DNG
+  'image/x-fuji-raf'             // Fujifilm RAW
+]
+```
+
+#### **Processing Performance:**
+```python
+# Expected processing times (approximate)
+PROCESSING_TIMES = {
+    'small_image': '< 2 seconds',      # < 5MB files
+    'medium_image': '2-5 seconds',     # 5-20MB files  
+    'large_image': '5-10 seconds',     # 20-50MB files
+    'batch_processing': '+30% overhead' # Additional time for batch
+}
+```
+
+---
+
+## 🔍 **EVENT ID MANAGEMENT**
+
+### **How to Obtain Event IDs:**
+
+#### **Method 1: API Endpoint - List All Events**
+```python
+import requests
+
+def get_all_events(base_url="http://localhost:3000"):
+    """Retrieve all events from the system"""
+    try:
+        response = requests.get(f"{base_url}/api/events", timeout=10)
+        response.raise_for_status()
+        
+        events = response.json()
+        return events
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching events: {e}")
+        return []
+
+# Usage example
+events = get_all_events()
+for event in events:
+    print(f"Event: {event['name']} (ID: {event['id']})")
+    print(f"  Date: {event['date']}")
+    print(f"  Code: {event['access_code']}")
+    print(f"  URL: {event['shareable_link']}")
+    print()
+```
+
+#### **Method 2: API Endpoint - Search Events**
+```python
+def search_events_by_name(event_name, base_url="http://localhost:3000"):
+    """Search for events by name"""
+    try:
+        # Get all events first (no search endpoint available)
+        events = get_all_events(base_url)
+        
+        # Filter by name (case-insensitive)
+        matching_events = [
+            event for event in events 
+            if event_name.lower() in event['name'].lower()
+        ]
+        
+        return matching_events
+        
+    except Exception as e:
+        print(f"Error searching events: {e}")
+        return []
+
+# Usage example
+wedding_events = search_events_by_name("wedding")
+```
+
+#### **Method 3: Direct Database Query (Advanced)**
+```python
+import psycopg2
+from datetime import datetime
+
+def get_events_from_database(connection_string):
+    """Direct database access for event information"""
+    try:
+        conn = psycopg2.connect(connection_string)
+        cursor = conn.cursor()
+        
+        # Query events table
+        cursor.execute("""
+            SELECT id, name, date, access_code, shareable_link, 
+                   created_at, updated_at, is_premium
+            FROM events 
+            WHERE date >= %s 
+            ORDER BY date DESC
+        """, (datetime.now().date(),))
+        
+        events = cursor.fetchall()
+        
+        # Convert to dictionaries
+        event_list = []
+        for event in events:
+            event_dict = {
+                'id': event[0],
+                'name': event[1], 
+                'date': event[2],
+                'access_code': event[3],
+                'shareable_link': event[4],
+                'created_at': event[5],
+                'updated_at': event[6],
+                'is_premium': event[7]
+            }
+            event_list.append(event_dict)
+        
+        return event_list
+        
+    except Exception as e:
+        print(f"Database error: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+# Usage (requires database credentials)
+# events = get_events_from_database("postgresql://user:pass@host:port/db")
+```
+
+#### **Method 4: Extract from URL**
+```python
+import re
+from urllib.parse import urlparse
+
+def extract_event_id_from_url(url):
+    """Extract event ID from HafiPortrait event URL"""
+    try:
+        # Pattern for event URLs: /event/{event_id}
+        pattern = r'/event/([a-f0-9-]{36})'
+        match = re.search(pattern, url)
+        
+        if match:
+            return match.group(1)
+        else:
+            print(f"No event ID found in URL: {url}")
+            return None
+            
+    except Exception as e:
+        print(f"Error extracting event ID: {e}")
+        return None
+
+# Usage examples
+event_urls = [
+    "http://localhost:3000/event/16073628-2359-4df7-a505-f8a2a6139cf3",
+    "https://hafiportrait.com/event/12345678-1234-5678-9abc-123456789abc?code=ABC123"
+]
+
+for url in event_urls:
+    event_id = extract_event_id_from_url(url)
+    if event_id:
+        print(f"Event ID: {event_id}")
+```
+
+### **Event Information Structure:**
+```python
+# Complete event object structure
+EVENT_STRUCTURE = {
+    'id': 'string (UUID format)',              # Primary identifier
+    'name': 'string',                          # Event name
+    'date': 'string (YYYY-MM-DD)',            # Event date
+    'access_code': 'string',                   # Guest access code
+    'shareable_link': 'string (full URL)',     # Public event URL
+    'qr_code': 'string (QR code image URL)',   # QR code for easy access
+    'is_premium': 'boolean',                   # Premium event features
+    'created_at': 'string (ISO timestamp)',    # Creation timestamp
+    'updated_at': 'string (ISO timestamp)',    # Last update timestamp
+    'photographer_name': 'string (optional)',  # Photographer info
+    'location': 'string (optional)',           # Event location
+    'description': 'string (optional)'         # Event description
+}
+```
+
+### **Helper Functions for Event Management:**
+```python
+class EventManager:
+    def __init__(self, base_url="http://localhost:3000"):
+        self.base_url = base_url
+        self.session = requests.Session()
+    
+    def get_event_by_id(self, event_id):
+        """Get detailed event information by ID"""
+        try:
+            response = self.session.get(f"{self.base_url}/api/events/{event_id}")
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching event {event_id}: {e}")
+            return None
+    
+    def get_recent_events(self, limit=10):
+        """Get most recent events"""
+        try:
+            events = get_all_events(self.base_url)
+            # Sort by date descending
+            sorted_events = sorted(events, key=lambda x: x['date'], reverse=True)
+            return sorted_events[:limit]
+        except Exception as e:
+            print(f"Error fetching recent events: {e}")
+            return []
+    
+    def validate_event_exists(self, event_id):
+        """Validate that an event ID exists and is accessible"""
+        event = self.get_event_by_id(event_id)
+        return event is not None
+    
+    def get_event_upload_stats(self, event_id):
+        """Get upload statistics for an event"""
+        try:
+            response = self.session.get(f"{self.base_url}/api/events/{event_id}/photos")
+            response.raise_for_status()
+            photos = response.json()
+            
+            return {
+                'total_photos': len(photos),
+                'albums': {
+                    'official': len([p for p in photos if p.get('album_name') == 'Official']),
+                    'tamu': len([p for p in photos if p.get('album_name') == 'Tamu']),
+                    'bridesmaid': len([p for p in photos if p.get('album_name') == 'Bridesmaid'])
+                }
+            }
+        except Exception as e:
+            print(f"Error fetching upload stats: {e}")
+            return None
+
+# Usage example
+event_manager = EventManager()
+event_id = "16073628-2359-4df7-a505-f8a2a6139cf3"
+
+# Validate event exists
+if event_manager.validate_event_exists(event_id):
+    # Get event details
+    event_info = event_manager.get_event_by_id(event_id)
+    print(f"Event: {event_info['name']}")
+    
+    # Get upload statistics
+    stats = event_manager.get_event_upload_stats(event_id)
+    if stats:
+        print(f"Total photos: {stats['total_photos']}")
+        print(f"Album breakdown: {stats['albums']}")
+else:
+    print(f"Event {event_id} not found or not accessible")
+```
 
 ---
 
