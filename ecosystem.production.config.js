@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'hafiportrait-app-prod',
+      name: 'hafiportrait-app',
       script: 'pnpm',
       args: 'start',
       exec_mode: 'cluster',
@@ -29,7 +29,7 @@ module.exports = {
       merge_logs: true
     },
     {
-      name: 'hafiportrait-socketio-prod',
+      name: 'hafiportrait-socketio',
       script: 'node',
       args: 'socketio-server.js',
       instances: 1,
@@ -39,11 +39,13 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         SOCKETIO_PORT: 3001,
+        SOCKETIO_DOMAIN: 'socket.hafiportrait.photography',
         HOST: '0.0.0.0'
       },
       env_production: {
         NODE_ENV: 'production',
         SOCKETIO_PORT: 3001,
+        SOCKETIO_DOMAIN: 'socket.hafiportrait.photography',
         HOST: '0.0.0.0'
       },
       env_file: '.env.production',

@@ -17,10 +17,24 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Auth me endpoint called');
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get('admin_session')?.value;
-    console.log('🍪 Session ID from cookie:', sessionId ? 'exists' : 'missing');
+    
+    // Try multiple cookie variants for compatibility (ordered by preference)
+    const sessionId = cookieStore.get('admin_session')?.value ||
+                     cookieStore.get('admin_session_backup')?.value ||
+                     cookieStore.get('admin_session_simple')?.value ||
+                     cookieStore.get('admin_session_fallback')?.value ||
+                     cookieStore.get('test_session')?.value;
+    
+    console.log('🍪 Session ID from cookies:', sessionId ? 'found' : 'missing');
+    console.log('🍪 Available cookies:', {
+      admin_session: cookieStore.get('admin_session')?.value ? 'exists' : 'missing',
+      admin_session_backup: cookieStore.get('admin_session_backup')?.value ? 'exists' : 'missing',
+      admin_session_simple: cookieStore.get('admin_session_simple')?.value ? 'exists' : 'missing',
+      admin_session_fallback: cookieStore.get('admin_session_fallback')?.value ? 'exists' : 'missing'
+    });
 
     if (!sessionId) {
+      console.log('❌ No session cookie found');
       return corsErrorResponse('No active session', 401);
     }
 

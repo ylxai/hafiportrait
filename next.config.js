@@ -16,6 +16,11 @@ if (process.env.NODE_ENV === 'production') {
 const path = require('path')
 
 const nextConfig = {
+  // Fix chunk loading errors in production
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  },
+  
   webpack: (config, { isServer }) => {
     // Fix webpack cache performance warning
     config.cache = {
@@ -82,7 +87,7 @@ const nextConfig = {
   },
   
   images: {
-    domains: ['localhost', 'api.qrserver.com', 'azspktldiblhrwebzmwq.supabase.co', '147.251.255.227', 'hafiportrait.photography', 'photos.hafiportrait.photography'],
+    domains: ['localhost', 'api.qrserver.com', 'azspktldiblhrwebzmwq.supabase.co', '147.251.255.227', 'hafiportrait.photography', 'www.hafiportrait.photography', 'photos.hafiportrait.photography'],
     formats: ['image/webp', 'image/avif'],
   },
   
@@ -95,6 +100,11 @@ const nextConfig = {
   // Optimizations
   poweredByHeader: false,
   compress: true,
+  
+  // Remove custom build ID to let Next.js handle it naturally
+  // generateBuildId: async () => {
+  //   return 'production-stable';
+  // },
   
   // Experimental features for App Router - duplicate removed
 

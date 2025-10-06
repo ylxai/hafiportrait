@@ -39,20 +39,10 @@ export function useAuth(): AuthState & AuthActions {
 
   const router = useRouter();
 
-  // Helper function to get base URL with environment detection
+  // Helper function to get base URL - SIMPLIFIED for production
   const getBaseUrl = useCallback(() => {
-    // Client-side: use current origin (works for IP access)
-    if (typeof window !== 'undefined' && window.location && window.location.origin) {
-      return window.location.origin;
-    }
-    
-    // Server-side: use environment variables as fallback
-    if (process.env.NEXT_PUBLIC_APP_URL) {
-      return process.env.NEXT_PUBLIC_APP_URL;
-    }
-    
-    // Development fallback
-    return 'http://localhost:3000';
+    // Always use relative URLs in production for better compatibility
+    return '';
   }, []);
 
   // Helper function for API calls with retry and timeout
@@ -66,17 +56,21 @@ export function useAuth(): AuthState & AuthActions {
     for (let i = 0; i <= retries; i++) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
         
         const response = await fetch(`${baseUrl}${endpoint}`, {
           ...options,
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
             ...options.headers,
           },
           signal: controller.signal,
         });
+        
+        console.log(`🔍 Auth request: ${baseUrl}${endpoint} -> ${response.status}`);
         
         clearTimeout(timeoutId);
         return response;
@@ -266,27 +260,34 @@ export function useAuth(): AuthState & AuthActions {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
-  // Check auth on mount
+  // Check auth on mount with error handling and faster timeout
   useEffect(() => {
-    checkAuth();
-  }, []); // Remove checkAuth dependency to prevent infinite loop
-  
-  // Timeout fallback to prevent infinite loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (state.isLoading) {
-        console.warn('Auth check timeout, setting loading to false');
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          isAuthenticated: false,
-          error: null
-        }));
-      }
-    }, 5000); // 5 second timeout
+    let mounted = true;
     
-    return () => clearTimeout(timeout);
-  }, [state.isLoading]);
+    const performAuthCheck = async () => {
+      try {
+        if (mounted) {
+          await checkAuth();
+        }
+      } catch (error) {
+        console.error('Initial auth check failed:', error);
+        if (mounted) {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            isAuthenticated: false,
+            error: null
+          }));
+        }
+      }
+    };
+    
+    performAuthCheck();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []); // Remove checkAuth dependency to prevent infinite loop
 
   return {
     ...state,

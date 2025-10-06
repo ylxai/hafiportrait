@@ -6,7 +6,7 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
+     * - api (API routes) - EXCLUDED from middleware  
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
@@ -17,6 +17,14 @@ export const config = {
 }
 
 export function middleware(request: NextRequest) {
-  // Simple middleware without edge-incompatible APIs
-  return NextResponse.next()
+  // CRITICAL: Do not intercept API routes that set cookies
+  const response = NextResponse.next()
+  
+  // Add security headers for non-API routes only
+  if (!request.nextUrl.pathname.startsWith('/api/')) {
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+  }
+  
+  return response
 }

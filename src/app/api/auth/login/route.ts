@@ -204,69 +204,90 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const isProduction = process.env.NODE_ENV === 'production';
 
-    // Detect HTTPS correctly behind reverse proxy
+    // Get request info for domain detection
     const hostHeader = request.headers.get('host') || '';
     const xfp = (request.headers.get('x-forwarded-proto') || '').toLowerCase();
-    const isHttps = xfp === 'https' || origin?.startsWith('https://') || request.url.startsWith('https://');
+    const referer = request.headers.get('referer') || '';
+    
+    // More robust HTTPS detection for Cloudflare/proxy environments
+    const isHttps = xfp === 'https' || 
+                   origin?.startsWith('https://') || 
+                   request.url.startsWith('https://') ||
+                   referer.startsWith('https://');
 
-    const isLocalhost =
-      hostHeader.includes('localhost') ||
-      hostHeader.startsWith('127.0.0.1') ||
-      origin?.includes('localhost') ||
-      origin?.includes('127.0.0.1') ||
-      request.url.includes('localhost') ||
-      request.url.includes('127.0.0.1');
+    // Clear localhost detection - only for actual localhost/127.0.0.1
+    const isLocalhost = hostHeader.includes('localhost') || 
+                       hostHeader.startsWith('127.0.0.1') ||
+                       hostHeader.startsWith('0.0.0.0');
 
-    // Set cookie with proper domain handling
+    // Domain detection - priority for hafiportrait.photography
+    const isHafiPortraitDomain = hostHeader.includes('hafiportrait.photography') || 
+                                origin?.includes('hafiportrait.photography') ||
+                                referer.includes('hafiportrait.photography');
+
+    // VPS IP detection
+    const isVPSAccess = hostHeader.includes('147.251.255.227') || 
+                       origin?.includes('147.251.255.227');
+
+    console.log('🔍 Request Analysis:', {
+      hostHeader,
+      origin,
+      referer,
+      xfp,
+      isHttps,
+      isLocalhost,
+      isHafiPortraitDomain,
+      isVPSAccess,
+      isProduction,
+      userAgent: userAgent.substring(0, 100)
+    });
+
+    // Base cookie options
     const cookieOptions: any = {
       httpOnly: true,
-      secure: false, // Will be set conditionally below
+      secure: false, // Will be set based on context
       sameSite: 'lax',
       maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
     };
 
-    // Set secure flag when served over HTTPS or in production on non-localhost
-    if ((isHttps && !isLocalhost) || (isProduction && !isLocalhost)) {
-      cookieOptions.secure = true;
-    } else {
-      cookieOptions.secure = false;
-    }
-
-    // Only set cookie domain if current host is under hafiportrait.photography
-    const isHafiPortraitDomain = hostHeader.endsWith('hafiportrait.photography') || hostHeader.endsWith('.hafiportrait.photography');
+    // Domain-specific cookie configuration with enhanced logic
     if (isHafiPortraitDomain) {
-      cookieOptions.domain = '.hafiportrait.photography';
-      console.log('🌐 Setting cookie domain for hafiportrait.photography');
+      // Domain access - ALWAYS use both domain and host-only cookies
+      cookieOptions.domain = 'hafiportrait.photography';
+      // Set secure=true for HTTPS domain cookies
+      cookieOptions.secure = true;
+      cookieOptions.sameSite = 'lax';
+      console.log('🌐 Domain access detected - Setting secure domain cookie');
+    } else if (isVPSAccess && !isLocalhost) {
+      // VPS IP access - host-only cookie with conditional secure
+      cookieOptions.secure = isHttps;
+      console.log('🖥️ VPS access detected - Setting host-only cookie, secure:', isHttps);
+    } else if (isLocalhost) {
+      // Local development - no secure flag
+      cookieOptions.secure = false;
+      console.log('🏠 Localhost access detected - Setting non-secure cookie');
     } else {
-      // Host-only cookie (works for IPs and other hosts)
-      console.log('🌐 Leaving cookie domain undefined (host-only). Host:', hostHeader);
+      // Fallback - determine based on production and HTTPS
+      cookieOptions.secure = isProduction && isHttps;
+      console.log('🔧 Fallback config - secure:', cookieOptions.secure);
     }
 
-    console.log('🔧 COOKIE DEBUG - Environment check:', {
-      NODE_ENV: process.env.NODE_ENV,
-      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      isProduction,
-      isLocalhost,
-      isHttps,
-      isHafiPortraitDomain,
-      hostHeader,
-      requestUrl: request.url,
-      origin,
-      xfp,
-      cookieSecure: cookieOptions.secure,
-      cookieDomain: cookieOptions.domain,
-      cookieOptions: JSON.stringify(cookieOptions),
+    console.log('🍪 Final Cookie Configuration:', {
+      domain: cookieOptions.domain,
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite,
+      httpOnly: cookieOptions.httpOnly,
+      maxAge: cookieOptions.maxAge,
+      sessionId: sessionId.substring(0, 20) + '...'
     });
     
-    console.log('🍪 FINAL Cookie options before setting:', cookieOptions);
-    console.log('🍪 Setting cookie with sessionId:', sessionId);
-    
+    // Set cookie via cookies() API
     try {
       cookieStore.set('admin_session', sessionId, cookieOptions);
-      console.log('🍪 Cookie set successfully');
+      console.log('✅ Cookie set via cookies() API');
     } catch (error) {
-      console.error('🍪 Cookie setting failed:', error);
+      console.error('❌ Failed to set cookie via cookies() API:', error);
     }
 
     // Return user data (without sensitive info)
@@ -284,27 +305,62 @@ export async function POST(request: NextRequest) {
       session: {
         expires_in: 24 * 60 * 60, // 24 hours in seconds
         created_at: new Date().toISOString()
-      }
+      },
+      debug: {
+        cookieDomain: cookieOptions.domain,
+        cookieSecure: cookieOptions.secure,
+        cookieSameSite: cookieOptions.sameSite,
+        accessType: isHafiPortraitDomain ? 'domain' : isVPSAccess ? 'vps' : 'other',
+        detectedDomain: isHafiPortraitDomain,
+        requestOrigin: origin,
+        requestHost: hostHeader
+      },
+      // Add sessionId for client-side cookie fallback
+      sessionId: sessionId
     };
 
-    console.log('Login successful, preparing response with cookies');
+    console.log('📤 Sending login response');
     
-    // Build response and set cookies explicitly on response
+    // Create response with multiple cookie setting attempts
     const res = NextResponse.json(responseData, { status: 200 });
     
-    // Set domain cookie (if defined)
+    // Set multiple cookie variants for maximum compatibility
     try {
-      if (cookieOptions.domain) {
-        res.cookies.set('admin_session', sessionId, cookieOptions);
-        console.log('🍪 Response cookie (domain) set');
-      }
-      // Also set a host-only cookie (no domain) to maximize browser compatibility
-      const hostOnlyOptions: any = { ...cookieOptions };
+      // Primary cookie with domain (for production)
+      res.cookies.set('admin_session', sessionId, cookieOptions);
+      console.log('✅ Primary response cookie set');
+      
+      // ALWAYS set host-only cookie (without domain) for compatibility
+      const hostOnlyOptions = { ...cookieOptions };
       delete hostOnlyOptions.domain;
-      res.cookies.set('admin_session', sessionId, hostOnlyOptions);
-      console.log('🍪 Response cookie (host-only) set');
-    } catch (e) {
-      console.error('🍪 Setting cookies on response failed:', e);
+      res.cookies.set('admin_session_backup', sessionId, hostOnlyOptions);
+      console.log('✅ Backup response cookie set');
+      
+      // Additional fallback cookie with minimal options (most compatible)
+      res.cookies.set('admin_session_fallback', sessionId, {
+        httpOnly: true,
+        path: '/',
+        maxAge: 86400,
+        secure: cookieOptions.secure,
+        sameSite: 'lax'
+      });
+      console.log('✅ Fallback response cookie set');
+      
+      // For domain access, also set a simple cookie without domain restrictions
+      if (isHafiPortraitDomain) {
+        res.cookies.set('admin_session_simple', sessionId, {
+          httpOnly: true,
+          path: '/',
+          maxAge: 86400,
+          secure: true,
+          sameSite: 'lax'
+          // NO domain property = host-only cookie
+        });
+        console.log('✅ Simple host-only cookie set for domain access');
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to set response cookies:', error);
     }
 
     // Add CORS headers

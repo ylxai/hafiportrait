@@ -2,18 +2,19 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import HeroSlideshow from "@/components/hero-slideshow";
-import EventsSection from "@/components/events-section";
+import ClientEventsSection from "@/components/client-events-section";
 import GallerySection from "@/components/gallery-section";
 import PricingSection from "@/components/modern-glassmorphism-pricing";
-import SpotlightPricingSection from "@/components/spotlight-pricing-section";
+import ClientPricingSection from "@/components/client-pricing-section";
 import ContactSection from "@/components/contact-section";
 
 // Optimized data fetching for SSR with proper error handling
 async function getHomepageData() {
   try {
-    // Dynamic port selection for runtime
-    const port = process.env.NODE_ENV === 'production' ? '3000' : '3002';
-    const baseUrl = `http://localhost:${port}`;
+    // Dynamic base URL selection for runtime
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'http://127.0.0.1:3000'  // Use localhost IP for internal SSR calls
+      : 'http://localhost:3002';
     
     const response = await fetch(`${baseUrl}/api/photos/homepage`, {
       next: { revalidate: 300 } // Cache for 5 minutes
@@ -37,6 +38,7 @@ async function getHomepageData() {
 }
 
 export default async function HomePage() {
+  // Force client-side rendering for better domain compatibility
   const { slideshowPhotos, galleryPhotos } = await getHomepageData();
 
   return (
@@ -50,9 +52,9 @@ export default async function HomePage() {
           interval={6000}
           showControls={true}
         />
-        <EventsSection />
+        <ClientEventsSection />
         <GallerySection photos={galleryPhotos} />
-        <SpotlightPricingSection />
+        <ClientPricingSection />
         <ContactSection />
       </main>
       <Footer />

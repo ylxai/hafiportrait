@@ -23,6 +23,8 @@ function getAllowedOrigins(): string[] {
       'http://127.0.0.1:3001',
       'http://147.251.255.227:3000',
       'http://147.251.255.227:3001',
+      'http://147.251.255.227:3002',
+      'http://147.251.255.227:3003',
     ] : []),
     
     // Vercel preview domains
@@ -62,9 +64,11 @@ function isOriginAllowed(origin: string): boolean {
     // Allow production domain and localhost for internal requests
     if (origin === 'https://hafiportrait.photography' || 
         origin === 'https://www.hafiportrait.photography' ||
+        origin === 'http://hafiportrait.photography' ||
         !origin || // Allow requests without origin (server-to-server)
         origin.includes('localhost') || 
-        origin.includes('127.0.0.1')) {
+        origin.includes('127.0.0.1') ||
+        origin.includes('147.251.255.227')) {
       return true;
     }
   }

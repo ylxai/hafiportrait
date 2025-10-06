@@ -57,7 +57,12 @@ export default function SpotlightPricingSection() {
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch('/api/pricing-packages');
+      const response = await fetch('/api/pricing-packages', {
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setPackages(data);
