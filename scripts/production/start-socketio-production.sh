@@ -31,8 +31,8 @@ pm2 status
 
 echo ""
 echo "✅ Socket.IO Server Started!"
-echo "🌐 Public URL: http://74.63.10.103:3001"
-echo "🔗 Health Check: http://74.63.10.103:3001/health"
+echo "🌐 Public URL: http://147.251.255.227:3001"
+echo "🔗 Health Check: http://147.251.255.227:3001/health"
 echo ""
 echo "📝 Useful Commands:"
 echo "   pm2 logs hafiportrait-socketio  # View logs"
@@ -44,7 +44,7 @@ echo ""
 # Test health endpoint
 echo "🔍 Testing health endpoint..."
 sleep 3
-curl -s http://74.63.10.103:3001/health | jq . 2>/dev/null || curl -s http://74.63.10.103:3001/health
+curl -s http://147.251.255.227:3001/health | jq . 2>/dev/null || curl -s http://147.251.255.227:3001/health
 
 echo ""
 echo "🎉 Socket.IO Production Setup Complete!"
