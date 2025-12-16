@@ -66,7 +66,7 @@ export default function PhotoUploader({
     }
     
     return null;
-  }, [maxFileSize]);
+  }, [maxFileSize, ACCEPTED_TYPES]);
 
   /**
    * Add files to upload queue

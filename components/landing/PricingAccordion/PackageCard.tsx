@@ -53,7 +53,7 @@ export default function PackageCard({
       return <BookOpen className="w-4 h-4 text-brand-teal flex-shrink-0" />
     }
     if (lowerFeature.includes('cetak') || lowerFeature.includes('edited')) {
-      return <Image className="w-4 h-4 text-brand-teal flex-shrink-0" />
+      return <Image className="w-4 h-4 text-brand-teal flex-shrink-0" aria-label="Print/edited feature" />
     }
     return <span className="text-brand-teal text-sm flex-shrink-0">✓</span>
   }
