@@ -1,0 +1,550 @@
+# ===========================================
+# HAFIPORTRAIT PHOTOGRAPHY PLATFORM
+# Comprehensive .gitignore
+# ===========================================
+
+# ===================
+# Environment Files & Secrets
+# ===================
+# Environment configuration files
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.production.backup
+.env.*.backup
+
+# API Keys & Credentials
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+credentials.json
+service-account.json
+
+# Authentication & Security
+jwt-secret.txt
+auth-keys.json
+api-keys.json
+.secrets/
+secrets/
+
+# Database URLs & Connection Strings
+database.url
+db-connection.txt
+
+# ===================
+# Next.js Specific
+# ===================
+# Build directories
+.next/
+out/
+dist/
+build/
+
+# Cache directories
+.next/cache/
+.swc/
+
+# Vercel deployment
+.vercel/
+.vercel.json
+
+# Turbo
+.turbo/
+
+# Next.js build info
+next-env.d.ts
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Static export
+out/
+
+# ===================
+# Node.js & Dependencies
+# ===================
+# Dependencies
+node_modules/
+jspm_packages/
+bower_components/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnpm-store/
+.yarn/
+.pnp
+.pnp.js
+
+# npm/yarn cache
+.npm
+.eslintcache
+.node_repl_history
+.yarn-integrity
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===================
+# Photography Platform Specific
+# ===================
+# Uploaded Photos & Media
+public/uploads/
+public/uploads/**/*
+uploads/
+uploads/**/*
+media/
+media/**/*
+
+# Client Photos (Private)
+public/gallery/clients/
+public/gallery/private/
+private-photos/
+client-photos/
+
+# Cloudflare R2 Cache
+.r2-cache/
+r2-cache/
+cloudflare-cache/
+
+# Image Processing
+public/thumbnails/
+public/optimized/
+public/compressed/
+thumbnails/
+optimized/
+compressed/
+.sharp-cache/
+
+# Video Content
+public/videos/
+videos/
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# High-resolution originals
+originals/
+high-res/
+raw-photos/
+
+# Image backups
+image-backups/
+photo-backups/
+
+# Temporary uploads
+temp-uploads/
+tmp-uploads/
+.tmp/
+
+# ===================
+# Development Files
+# ===================
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IDE - JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# IDE - Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# IDE - Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+.tmp/
+tmp/
+temp/
+
+# Debug files
+debug/
+debug.log
+*.log.*
+
+# ===================
+# Testing
+# ===================
+# Test coverage
+coverage/
+.coverage
+*.lcov
+.nyc_output/
+lib-cov/
+
+# Test results
+test-results/
+test-reports/
+
+# Playwright
+playwright-report/
+playwright/.cache/
+.playwright/
+
+# Jest
+.jest-cache/
+
+# Vitest
+.vitest/
+
+# E2E screenshots & videos
+screenshots/
+test-screenshots/
+test-videos/
+
+# ===================
+# Database & Redis
+# ===================
+# SQLite
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-journal
+
+# PostgreSQL
+*.dump
+*.sql.gz
+pg_dump_*
+
+# MySQL
+*.sql
+
+# Database backups
+database-backups/
+db-backups/
+*.backup.sql
+backups/*.sql
+
+# Redis
+dump.rdb
+redis-data/
+*.rdb
+
+# Prisma migrations (temporary)
+prisma/migrations/*/*.sql.tmp
+prisma/migrations/*/migration.sql.bak
+
+# Database seeds (if sensitive)
+prisma/seeds/production-data.ts
+
+# ===================
+# Production & Deployment
+# ===================
+# PM2
+.pm2/
+.pm2-*/
+pm2.log
+pm2-error.log
+ecosystem.config.production.js
+
+# Process files
+*.pid
+*.seed
+pids/
+
+# Nginx
+nginx.conf
+nginx-*.conf
+!nginx.conf.example
+
+# SSL Certificates
+*.crt
+*.cer
+*.der
+*.pem
+*.key
+*.csr
+ssl/
+certs/
+certificates/
+
+# Apache
+.htaccess
+.htpasswd
+
+# VPS Configuration
+vps-config/
+server-config/
+deployment-config/
+!deployment/*.example
+
+# Deployment scripts with credentials
+deploy-production.sh
+deploy-*.sh
+!deploy.example.sh
+
+# Docker (if used)
+docker-compose.override.yml
+.dockerignore.local
+
+# Kubernetes (if used)
+*.kubeconfig
+k8s-secrets/
+
+# CI/CD
+.circleci/config.local.yml
+.travis.yml.local
+
+# ===================
+# Documentation & Auto-generated
+# ===================
+# Auto-generated summaries
+SUMMARY.md
+PROJECT_SUMMARY.md
+CHANGELOG_AUTO.md
+*-summary.md
+*-SUMMARY.md
+
+# Documentation builds
+docs/build/
+docs/_build/
+site/
+
+# Archive files
+archive/*.tar.gz
+archive/*.zip
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# Generated API docs
+api-docs/generated/
+docs/api/generated/
+
+# ===================
+# Monitoring & Analytics
+# ===================
+# Logs
+logs/
+*.log
+combined.log
+error.log
+access.log
+application.log
+server.log
+
+# Monitoring data
+monitoring/
+metrics/
+.monitoring/
+
+# Analytics data
+analytics-data/
+.analytics/
+
+# Performance reports
+lighthouse-reports/
+performance-reports/
+
+# ===================
+# Build Artifacts
+# ===================
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Distribution
+dist/
+dist-*/
+build/
+builds/
+
+# Webpack
+.webpack/
+webpack-stats.json
+
+# Rollup
+.rollup.cache/
+
+# Parcel
+.parcel-cache/
+.cache/
+
+# ===================
+# Miscellaneous
+# ===================
+# Temporary test files created by Rovo Dev
+tmp_rovodev_*
+
+# OS generated files
+*.swp
+*.swo
+*~
+
+# Lock files
+*.lock
+
+# Compressed files
+*.gz
+*.zip
+*.tar
+*.rar
+
+# Editor backup files
+*.bak
+*.orig
+
+# Session files
+.session
+sessions/
+
+# Cache directories
+.cache/
+cache/
+
+# Storybook
+.storybook-out/
+storybook-static/
+
+# GraphQL
+.graphqlconfig
+
+# TypeScript
+*.tsbuildinfo
+
+# ESLint
+.eslintcache
+
+# Stylelint
+.stylelintcache
+
+# Prettier
+.prettiercache
+
+# Package manager metadata
+.pnpm-debug.log
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Sentry
+.sentryclirc
+
+# Bundle analyzer
+.next/analyze/
+
+# Turborepo
+.turbo/
+
+# ===================
+# Project-Specific Exceptions
+# ===================
+# Keep example configuration files
+!.env.example
+!config.example.json
+!nginx.conf.example
+
+# Keep placeholder images
+!public/placeholder.jpg
+!public/placeholder.png
+
+# Keep example uploads directory structure
+!public/uploads/.gitkeep
+!uploads/.gitkeep
+
+# Keep documentation
+!docs/**/*.md
+!README.md
+!CONTRIBUTING.md
+!LICENSE.md
+
+# Keep GitHub workflows
+!.github/workflows/*.yml
+!.github/ISSUE_TEMPLATE/*.md
+
+# Keep deployment examples
+!deployment/*.example
+!deployment/README.md

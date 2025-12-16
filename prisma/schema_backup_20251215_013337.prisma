@@ -1,0 +1,369 @@
+// Backup created before package management system implementation
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum EventStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String?  @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         UserRole @default(CLIENT)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  events         Event[]
+  uploadedPhotos Photo[] @relation("UploadedPhotos")
+  deletedPhotos  Photo[] @relation("DeletedPhotos")
+
+  @@map("users")
+}
+
+model Event {
+  id                  String      @id @default(cuid())
+  name                String
+  slug                String      @unique
+  accessCode          String      @unique @map("access_code")
+  qrCodeUrl           String?     @map("qr_code_url")
+  storageDurationDays Int         @default(30) @map("storage_duration_days")
+  status              EventStatus @default(DRAFT)
+  eventDate           DateTime?   @map("event_date")
+  clientEmail         String?     @map("client_email")
+  clientPhone         String?     @map("client_phone")
+  description         String?     @db.Text
+  location            String?
+  coverPhotoId        String?     @map("cover_photo_id")
+  coupleName          String?     @map("couple_name") @db.VarChar(200)
+  displayStatus       String?     @map("display_status") @db.VarChar(20)
+  coverPhotoUrl       String?     @map("cover_photo_url") @db.VarChar(500)
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
+  expiresAt           DateTime?   @map("expires_at")
+
+  // Foreign Keys
+  clientId String @map("client_id")
+  client   User   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Relations
+  photos        Photo[]
+  comments      Comment[]
+  guestSessions GuestSession[]
+
+  @@index([slug])
+  @@index([accessCode])
+  @@index([clientId])
+  @@index([status, createdAt], name: "event_status_created")
+  @@index([clientId, status], name: "event_user_status")
+  @@index([displayStatus], name: "events_display_status_idx")
+  @@index([eventDate], name: "events_event_date_idx")
+  @@map("events")
+}
+
+model Photo {
+  id          String @id @default(cuid())
+  filename    String
+  originalUrl String @map("original_url")
+
+  // Enhanced thumbnail fields
+  thumbnailUrl       String? @map("thumbnail_url")
+  thumbnailSmallUrl  String? @map("thumbnail_small_url")
+  thumbnailMediumUrl String? @map("thumbnail_medium_url")
+  thumbnailLargeUrl  String? @map("thumbnail_large_url")
+
+  // Metadata fields
+  fileSize Int?    @map("file_size")
+  mimeType String? @map("mime_type")
+  width    Int?
+  height   Int?
+  exifData Json?   @map("exif_data")
+
+  // Organization fields
+  displayOrder Int     @default(0) @map("display_order")
+  caption      String? @db.Text
+  isFeatured   Boolean @default(false) @map("is_featured")
+
+  // Statistics
+  likesCount    Int @default(0) @map("likes_count")
+  viewsCount    Int @default(0) @map("views_count")
+  downloadCount Int @default(0) @map("download_count")
+
+  // Soft delete fields
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Foreign Keys
+  eventId String @map("event_id")
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  uploadedById String? @map("uploaded_by_id")
+  uploadedBy   User?   @relation("UploadedPhotos", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  deletedById   String? @map("deleted_by_id")
+  deletedByUser User?   @relation("DeletedPhotos", fields: [deletedById], references: [id], onDelete: SetNull)
+
+  // Relations
+  comments Comment[]
+  likes    PhotoLike[]
+
+  @@index([eventId])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@index([deletedBy])
+  @@index([isFeatured])
+  @@index([createdAt])
+  @@index([eventId, deletedAt], name: "photo_event_deleted")
+  @@index([eventId, displayOrder], name: "photo_event_order")
+  @@index([createdAt, deletedAt], name: "photo_created_deleted")
+  @@index([createdAt], name: "photo_uploaded")
+  @@map("photos")
+}
+
+model Comment {
+  id           String   @id @default(cuid())
+  guestId      String   @map("guest_id")
+  guestName    String   @map("guest_name")
+  email        String?
+  message      String   @db.Text
+  relationship String?
+  status       String   @default("approved") // approved, pending, rejected
+  ipAddress    String?  @map("ip_address")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Foreign Keys
+  eventId String @map("event_id")
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  photoId String? @map("photo_id")
+  photo   Photo?  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([photoId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([photoId, createdAt], name: "comment_photo_created")
+  @@index([eventId, createdAt], name: "comment_event_created")
+  @@map("comments")
+}
+
+model PhotoLike {
+  id        String   @id @default(cuid())
+  guestId   String   @map("guest_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Foreign Keys
+  photoId String @map("photo_id")
+  photo   Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@unique([photoId, guestId])
+  @@index([photoId])
+  @@index([photoId, guestId], name: "like_photo_guest")
+  @@index([createdAt], name: "like_created")
+  @@map("photo_likes")
+}
+
+model PortfolioPhoto {
+  id              String   @id @default(cuid())
+  filename        String
+  originalUrl     String   @map("original_url")
+  thumbnailUrl    String   @map("thumbnail_url")
+  displayOrder    Int      @default(0) @map("display_order")
+  isFeatured      Boolean  @default(false) @map("is_featured")
+  category        String?
+  description     String?  @db.Text
+  isFeaturedBento Boolean  @default(false) @map("is_featured_bento")
+  bentoSize       String?  @map("bento_size") @db.VarChar(20)
+  bentoPriority   Int?     @default(0) @map("bento_priority")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([displayOrder])
+  @@index([isFeatured])
+  @@index([isFeaturedBento])
+  @@index([bentoPriority])
+  @@map("portfolio_photos")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String   @db.Text
+  status    String   @default("new")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+model GuestSession {
+  id           String   @id @default(cuid())
+  sessionId    String   @unique @map("session_id")
+  eventId      String   @map("event_id")
+  guestToken   String   @map("guest_token") @db.Text
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  expiresAt    DateTime @map("expires_at")
+  lastAccessAt DateTime @default(now()) @map("last_access_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([sessionId])
+  @@index([expiresAt])
+  @@map("guest_sessions")
+}
+
+model PhotoDownload {
+  id           String   @id @default(cuid())
+  photoId      String   @map("photo_id")
+  guestId      String   @map("guest_id")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent") @db.Text
+  downloadedAt DateTime @default(now()) @map("downloaded_at")
+
+  @@index([photoId])
+  @@index([guestId])
+  @@index([downloadedAt])
+  @@map("photo_downloads")
+}
+
+model PhotoView {
+  id        String   @id @default(cuid())
+  photoId   String   @map("photo_id")
+  guestId   String   @map("guest_id")
+  ipAddress String?  @map("ip_address")
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+
+  @@index([photoId])
+  @@index([guestId])
+  @@index([viewedAt])
+  @@map("photo_views")
+}
+
+model EventSettings {
+  id                       String   @id @default(cuid())
+  eventId                  String   @unique @map("event_id")
+  allowGuestDownloads      Boolean  @default(true) @map("allow_guest_downloads")
+  allowGuestLikes          Boolean  @default(true) @map("allow_guest_likes")
+  allowGuestComments       Boolean  @default(false) @map("allow_guest_comments")
+  requireCommentModeration Boolean  @default(false) @map("require_comment_moderation")
+  requirePasswordAccess    Boolean  @default(false) @map("require_password_access")
+  accessPassword           String?  @map("access_password")
+  welcomeMessage           String?  @map("welcome_message") @db.Text
+  showPhotographerCredit   Boolean  @default(true) @map("show_photographer_credit")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  @@map("event_settings")
+}
+
+model PricingPackage {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  category     String
+  price        Decimal  @db.Decimal(10, 2)
+  currency     String   @default("IDR")
+  description  String?  @db.Text
+  duration     String?
+  shotCount    Int?     @map("shot_count")
+  features     Json     @default("[]")
+  isActive     Boolean  @default(true) @map("is_active")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([displayOrder])
+  @@index([isActive])
+  @@map("pricing_packages")
+}
+
+model HeroSlideshow {
+  id           String   @id @default(cuid())
+  imageUrl     String   @map("image_url") @db.VarChar(255)
+  thumbnailUrl String?  @map("thumbnail_url") @db.VarChar(255)
+  displayOrder Int      @default(0) @map("display_order")
+  title        String?  @db.VarChar(100)
+  subtitle     String?  @db.VarChar(200)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@map("hero_slideshow")
+}
+
+model SlideshowSettings {
+  id               String   @id @default(cuid())
+  timingSeconds    Int      @default(5) @map("timing_seconds")
+  transitionEffect String   @default("fade") @map("transition_effect") @db.VarChar(20)
+  autoplay         Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("slideshow_settings")
+}
+
+model FormSubmission {
+  id              String   @id @default(cuid())
+  name            String   @db.VarChar(100)
+  whatsapp        String   @db.VarChar(20)
+  email           String   @db.VarChar(100)
+  packageInterest String?  @map("package_interest") @db.VarChar(100)
+  weddingDate     String?  @map("wedding_date") @db.VarChar(100)
+  message         String?  @db.Text
+  status          String   @default("new") @db.VarChar(20)
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("form_submissions")
+}
+
+model BottomNavigationSettings {
+  id                String   @id @default(cuid())
+  homeEnabled       Boolean  @default(true) @map("home_enabled")
+  portfolioEnabled  Boolean  @default(true) @map("portfolio_enabled")
+  pricingEnabled    Boolean  @default(true) @map("pricing_enabled")
+  contactEnabled    Boolean  @default(true) @map("contact_enabled")
+  instagramUrl      String?  @map("instagram_url") @db.VarChar(255)
+  whatsappNumber    String?  @map("whatsapp_number") @db.VarChar(20)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("bottom_navigation_settings")
+}

@@ -1,0 +1,242 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { ZodError } from 'zod'
+import { AppError, ValidationError, RateLimitError, ErrorCode } from './types'
+import { Prisma } from '@prisma/client'
+
+/**
+ * Standard error response format
+ */
+interface ErrorResponse {
+  success: false
+  error: string
+  code?: string
+  errors?: string[]
+  requestId?: string
+}
+
+/**
+ * Generate unique request ID
+ */
+function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).substring(7)}`
+}
+
+/**
+ * Log error dengan context
+ */
+function logError(error: Error, context?: Record<string, any>): void {
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const timestamp = new Date().toISOString()
+
+  if (isDevelopment) {
+    console.error('\n❌ Error occurred:', {
+      timestamp,
+      message: error.message,
+      stack: error.stack,
+      context,
+    })
+  } else {
+    // Production: log minimal info
+    console.error('Error:', {
+      timestamp,
+      message: error.message,
+      name: error.name,
+      ...(context && { context }),
+    })
+  }
+}
+
+/**
+ * Handle AppError instances
+ */
+function handleAppError(error: AppError, requestId: string): NextResponse<ErrorResponse> {
+  logError(error, { requestId, code: error.code, ...error.context })
+
+  const response: ErrorResponse = {
+    success: false,
+    error: error.message,
+    code: error.code,
+    requestId,
+  }
+
+  // Add validation errors jika ada
+  if (error instanceof ValidationError && error.errors.length > 0) {
+    response.errors = error.errors
+  }
+
+  const nextResponse = NextResponse.json(response, { status: error.statusCode })
+
+  // Add rate limit headers jika rate limit error
+  if (error instanceof RateLimitError && error.retryAfter) {
+    nextResponse.headers.set('Retry-After', error.retryAfter.toString())
+    nextResponse.headers.set('X-RateLimit-Reset', error.retryAfter.toString())
+  }
+
+  return nextResponse
+}
+
+/**
+ * Handle Zod validation errors
+ */
+function handleZodError(error: ZodError, requestId: string): NextResponse<ErrorResponse> {
+  const errors = error.errors.map((err) => {
+    const path = err.path.join('.')
+    return path ? `${path}: ${err.message}` : err.message
+  })
+
+  logError(error, { requestId, validationErrors: errors })
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'Validation failed',
+      code: ErrorCode.VALIDATION_ERROR,
+      errors,
+      requestId,
+    },
+    { status: 400 }
+  )
+
+}
+/**
+ * Handle Prisma errors
+ */
+function handlePrismaError(error: Error, requestId: string): NextResponse<ErrorResponse> {
+  const isDevelopment = process.env.NODE_ENV === 'development'
+
+  // Prisma unique constraint violation
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2002') {
+      const field = (error.meta?.target as string[])?.join(', ') || 'field'
+      logError(error, { requestId, prismaCode: error.code })
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: `A record with this ${field} already exists`,
+          code: ErrorCode.CONFLICT,
+          requestId,
+        },
+        { status: 409 }
+      )
+
+    }
+    // Record not found
+    if (error.code === 'P2025') {
+      logError(error, { requestId, prismaCode: error.code })
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Record not found',
+          code: ErrorCode.NOT_FOUND,
+          requestId,
+        },
+        { status: 404 }
+      )
+
+    }
+  }
+  // Generic Prisma error
+  logError(error, { requestId, type: 'PrismaError' })
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: isDevelopment ? error.message : 'Database operation failed',
+      code: ErrorCode.DATABASE_ERROR,
+      requestId,
+    },
+    { status: 500 }
+  )
+
+}
+/**
+ * Main error handler
+ * Converts errors to standardized NextResponse
+ */
+export function handleError(error: unknown, context?: Record<string, any>): NextResponse<ErrorResponse> {
+  const requestId = generateRequestId()
+  const isDevelopment = process.env.NODE_ENV === 'development'
+
+  // Handle AppError
+  if (error instanceof AppError) {
+    return handleAppError(error, requestId)
+  }
+
+  // Handle Zod validation errors
+  if (error instanceof ZodError) {
+    return handleZodError(error, requestId)
+  }
+
+  // Handle Prisma errors
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError ||
+    error instanceof Prisma.PrismaClientValidationError
+  ) {
+    return handlePrismaError(error as Error, requestId)
+  }
+
+  // Handle standard Error
+  if (error instanceof Error) {
+    logError(error, { requestId, ...context })
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: isDevelopment ? error.message : 'An unexpected error occurred',
+        code: ErrorCode.INTERNAL_ERROR,
+        requestId,
+      },
+      { status: 500 }
+    )
+
+  }
+  // Handle unknown errors
+  console.error('Unknown error type:', error)
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'An unexpected error occurred',
+      code: ErrorCode.INTERNAL_ERROR,
+      requestId,
+    },
+    { status: 500 }
+  )
+
+}
+/**
+ * Async handler wrapper untuk API routes
+ * Automatically catches dan handles errors
+ * Supports both Request and NextRequest
+ */
+export function asyncHandler(
+  handler: (request: NextRequest, context?: any) => Promise<NextResponse>
+) {
+  return async (request: NextRequest, context?: any): Promise<NextResponse> => {
+    try {
+      return await handler(request, context)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+}
+
+/**
+ * Success response helper
+ */
+export function successResponse<T>(
+  data: T,
+  message?: string,
+  status: number = 200
+): NextResponse {
+  return NextResponse.json(
+    {
+      success: true,
+      ...(message && { message }),
+      data,
+    },
+    { status }
+  )
+}

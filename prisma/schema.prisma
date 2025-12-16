@@ -1,0 +1,374 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model additional_services {
+  id            String   @id
+  name          String
+  description   String?
+  price         Int
+  is_active     Boolean  @default(true)
+  display_order Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+
+  @@index([display_order])
+  @@index([is_active])
+}
+
+model bottom_navigation_settings {
+  id                String   @id
+  home_enabled      Boolean  @default(true)
+  portfolio_enabled Boolean  @default(true)
+  pricing_enabled   Boolean  @default(true)
+  contact_enabled   Boolean  @default(true)
+  instagram_url     String?  @db.VarChar(255)
+  whatsapp_number   String?  @db.VarChar(20)
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+}
+
+model comments {
+  id           String   @id
+  guest_name   String
+  message      String
+  created_at   DateTime @default(now())
+  event_id     String
+  photo_id     String?
+  email        String?
+  guest_id     String
+  ip_address   String?
+  relationship String?
+  status       String   @default("approved")
+  updated_at   DateTime
+  events       events   @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  photos       photos?  @relation(fields: [photo_id], references: [id], onDelete: Cascade)
+
+  @@index([event_id, created_at], map: "comment_event_created")
+  @@index([photo_id, created_at], map: "comment_photo_created")
+  @@index([created_at])
+  @@index([event_id])
+  @@index([photo_id])
+  @@index([status])
+}
+
+model contact_messages {
+  id         String   @id
+  name       String
+  email      String
+  phone      String?
+  message    String
+  status     String   @default("new")
+  created_at DateTime @default(now())
+  updated_at DateTime
+
+  @@index([created_at])
+  @@index([status])
+}
+
+model event_settings {
+  id                         String   @id
+  event_id                   String   @unique
+  allow_guest_downloads      Boolean  @default(true)
+  allow_guest_likes          Boolean  @default(true)
+  allow_guest_comments       Boolean  @default(false)
+  require_password_access    Boolean  @default(false)
+  access_password            String?
+  welcome_message            String?
+  show_photographer_credit   Boolean  @default(true)
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime
+  require_comment_moderation Boolean  @default(false)
+}
+
+model events {
+  id                    String           @id
+  name                  String
+  slug                  String           @unique
+  access_code           String           @unique
+  qr_code_url           String?
+  storage_duration_days Int              @default(30)
+  status                EventStatus      @default(DRAFT)
+  created_at            DateTime         @default(now())
+  updated_at            DateTime
+  expires_at            DateTime?
+  client_id             String
+  client_email          String?
+  client_phone          String?
+  description           String?
+  event_date            DateTime?
+  location              String?
+  cover_photo_id        String?
+  comments              comments[]
+  users                 users            @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  guest_sessions        guest_sessions[]
+  photos                photos[]
+
+  @@index([status, created_at], map: "event_status_created")
+  @@index([client_id, status], map: "event_user_status")
+  @@index([access_code])
+  @@index([client_id])
+  @@index([slug])
+}
+
+model form_submissions {
+  id               String   @id
+  name             String   @db.VarChar(100)
+  whatsapp         String   @db.VarChar(20)
+  email            String   @db.VarChar(100)
+  package_interest String?  @db.VarChar(100)
+  wedding_date     String?  @db.VarChar(100)
+  message          String?
+  status           String   @default("new") @db.VarChar(20)
+  notes            String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime
+
+  @@index([created_at])
+  @@index([status])
+}
+
+model guest_sessions {
+  id             String   @id
+  session_id     String   @unique
+  event_id       String
+  guest_token    String
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime @default(now())
+  expires_at     DateTime
+  last_access_at DateTime @default(now())
+  events         events   @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@index([event_id])
+  @@index([expires_at])
+  @@index([session_id])
+}
+
+model hero_slideshow {
+  id            String   @id
+  image_url     String   @db.VarChar(255)
+  thumbnail_url String?  @db.VarChar(255)
+  display_order Int      @default(0)
+  title         String?  @db.VarChar(100)
+  subtitle      String?  @db.VarChar(200)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+
+  @@index([display_order])
+  @@index([is_active])
+}
+
+model package_categories {
+  id           String     @id
+  name         String     @unique
+  slug         String     @unique
+  icon         String?
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime
+  packages     packages[]
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@index([slug])
+}
+
+model packages {
+  id                 String             @id
+  name               String
+  description        String?
+  price              Int
+  features           Json               @default("[]")
+  is_best_seller     Boolean            @default(false)
+  is_active          Boolean            @default(true)
+  display_order      Int                @default(0)
+  category_id        String
+  created_at         DateTime           @default(now())
+  updated_at         DateTime
+  package_categories package_categories @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@index([category_id])
+  @@index([display_order])
+  @@index([is_active])
+  @@index([is_best_seller])
+}
+
+model photo_downloads {
+  id            String   @id
+  photo_id      String
+  guest_id      String
+  ip_address    String?
+  user_agent    String?
+  downloaded_at DateTime @default(now())
+
+  @@index([downloaded_at])
+  @@index([guest_id])
+  @@index([photo_id])
+}
+
+model photo_likes {
+  id         String   @id
+  guest_id   String
+  created_at DateTime @default(now())
+  photo_id   String
+  photos     photos   @relation(fields: [photo_id], references: [id], onDelete: Cascade)
+
+  @@unique([photo_id, guest_id])
+  @@index([created_at], map: "like_created")
+  @@index([photo_id, guest_id], map: "like_photo_guest")
+  @@index([photo_id])
+}
+
+model photo_views {
+  id         String   @id
+  photo_id   String
+  guest_id   String
+  ip_address String?
+  viewed_at  DateTime @default(now())
+
+  @@index([guest_id])
+  @@index([photo_id])
+  @@index([viewed_at])
+}
+
+model photos {
+  id                                 String        @id
+  filename                           String
+  original_url                       String
+  thumbnail_url                      String?
+  display_order                      Int           @default(0)
+  likes_count                        Int           @default(0)
+  created_at                         DateTime      @default(now())
+  updated_at                         DateTime
+  event_id                           String
+  caption                            String?
+  deleted_at                         DateTime?
+  download_count                     Int           @default(0)
+  file_size                          Int?
+  height                             Int?
+  is_featured                        Boolean       @default(false)
+  mime_type                          String?
+  thumbnail_large_url                String?
+  thumbnail_medium_url               String?
+  thumbnail_small_url                String?
+  uploaded_by_id                     String?
+  views_count                        Int           @default(0)
+  width                              Int?
+  exif_data                          Json?
+  deleted_by_id                      String?
+  deleted_by                         String?
+  comments                           comments[]
+  photo_likes                        photo_likes[]
+  users_photos_deleted_by_idTousers  users?        @relation("photos_deleted_by_idTousers", fields: [deleted_by_id], references: [id])
+  events                             events        @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  users_photos_uploaded_by_idTousers users?        @relation("photos_uploaded_by_idTousers", fields: [uploaded_by_id], references: [id])
+
+  @@index([created_at, deleted_at], map: "photo_created_deleted")
+  @@index([event_id, deleted_at], map: "photo_event_deleted")
+  @@index([event_id, display_order], map: "photo_event_order")
+  @@index([created_at])
+  @@index([deleted_at])
+  @@index([deleted_by])
+  @@index([display_order])
+  @@index([event_id])
+  @@index([is_featured])
+}
+
+model portfolio_photos {
+  id                String   @id
+  filename          String
+  original_url      String
+  thumbnail_url     String
+  display_order     Int      @default(0)
+  is_featured       Boolean  @default(false)
+  category          String?
+  description       String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+  bento_priority    Int?     @default(0)
+  bento_size        String?  @db.VarChar(20)
+  is_featured_bento Boolean  @default(false)
+
+  @@index([bento_priority])
+  @@index([display_order])
+  @@index([is_featured_bento])
+  @@index([is_featured])
+}
+
+model pricing_packages {
+  id            String   @id
+  name          String
+  slug          String   @unique
+  category      String
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String   @default("IDR")
+  description   String?
+  duration      String?
+  shot_count    Int?
+  features      Json     @default("[]")
+  is_active     Boolean  @default(true)
+  display_order Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+
+  @@index([category])
+  @@index([display_order])
+  @@index([is_active])
+}
+
+model slideshow_settings {
+  id                String   @id
+  timing_seconds    Int      @default(5)
+  transition_effect String   @default("fade") @db.VarChar(20)
+  autoplay          Boolean  @default(true)
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+}
+
+model users {
+  id                                  String   @id
+  email                               String   @unique
+  password_hash                       String
+  name                                String
+  role                                UserRole @default(CLIENT)
+  created_at                          DateTime @default(now())
+  updated_at                          DateTime
+  username                            String?  @unique
+  events                              events[]
+  photos_photos_deleted_by_idTousers  photos[] @relation("photos_deleted_by_idTousers")
+  photos_photos_uploaded_by_idTousers photos[] @relation("photos_uploaded_by_idTousers")
+  refreshTokens                       refresh_tokens[]
+}
+
+enum EventStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+model refresh_tokens {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  user_id    String
+  expires_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
+}

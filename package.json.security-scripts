@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "cleanup:tokens": "node scripts/cleanup-expired-tokens.js",
+    "security:audit": "bash scripts/security-audit.sh",
+    "test:security": "vitest run __tests__/security",
+    "socket:enhanced": "node server/socket-server-enhanced.js"
+  }
+}
