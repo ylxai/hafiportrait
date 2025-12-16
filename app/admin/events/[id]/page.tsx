@@ -36,6 +36,18 @@ interface Event {
   }
 }
 
+interface EventUpdateFormData {
+  name?: string
+  slug?: string
+  status?: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'
+  clientEmail?: string
+  clientPhone?: string
+  eventDate?: string
+  description?: string
+  location?: string
+  storageDurationDays?: number
+}
+
 export default function EventDetailPage() {
   const router = useRouter()
   const params = useParams()
@@ -74,7 +86,7 @@ export default function EventDetailPage() {
     fetchEvent()
   }, [fetchEvent])
 
-  const handleUpdate = async (formData: any) => {
+  const handleUpdate = async (formData: EventUpdateFormData) => {
     try {
       const response = await fetch(`/api/admin/events/${eventId}`, {
         method: 'PATCH',

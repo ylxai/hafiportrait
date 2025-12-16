@@ -43,6 +43,42 @@ import { memoryManager } from '@/lib/storage/memory-manager';
 const MAX_FILES_PER_REQUEST = 100;
 
 /**
+ * EXIF Data Interface
+ */
+interface ExifData {
+  // Camera information
+  Make?: string
+  Model?: string
+  Software?: string
+  
+  // Image settings
+  ISOSpeedRatings?: number
+  FNumber?: number
+  ExposureTime?: string
+  FocalLength?: number
+  Flash?: string
+  WhiteBalance?: string
+  
+  // Image dimensions
+  ImageWidth?: number
+  ImageHeight?: number
+  Orientation?: number
+  
+  // Date/time information
+  DateTime?: string
+  DateTimeOriginal?: string
+  DateTimeDigitized?: string
+  
+  // GPS information
+  GPSLatitude?: number
+  GPSLongitude?: number
+  GPSAltitude?: number
+  
+  // Additional metadata
+  [key: string]: string | number | boolean | undefined
+}
+
+/**
  * POST handler for photo upload
  */
 export async function POST(
@@ -319,7 +355,7 @@ export async function POST(
                   mimeType: file.type,
                   width: metadata.width,
                   height: metadata.height,
-                  exifData: exifData as any, // NEW: Store EXIF data
+                  exifData: exifData as ExifData | null, // Store EXIF data with proper typing
                   eventId: eventId,
                   uploadedById: userId,
                   displayOrder: nextDisplayOrder++,
