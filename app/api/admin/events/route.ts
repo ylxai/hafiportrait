@@ -3,7 +3,9 @@ import { getUserFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { handleError } from '@/lib/errors/handler'
 import { generateAccessCode } from '@/lib/utils/slug'
+import { EventListApiResponse, EventApiResponse } from '@/lib/types/api'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 
 // Validation schema
 const createEventSchema = z.object({
@@ -38,8 +40,8 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'createdAt'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
 
-    // Build where clause
-    const where: any = {}
+    // Build where clause with proper Prisma types
+    const where: Prisma.EventWhereInput = {}
     
     if (search) {
       where.OR = [
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (status !== 'all') {
-      where.status = status.toUpperCase()
+      where.status = status.toUpperCase() as Prisma.EnumEventStatusFilter
     }
 
     // Get total count
@@ -81,15 +83,40 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({
-      events,
-      pagination: {
+    // Transform events data to match interface
+    const transformedEvents = events.map(event => ({
+      id: event.id,
+      name: event.name,
+      description: null, // Not selected in this query
+      date: event.eventDate?.toISOString() || event.createdAt.toISOString(),
+      slug: event.slug,
+      accessCode: event.accessCode,
+      isActive: event.status === 'ACTIVE',
+      coverPhotoId: null, // TODO: Add cover photo logic
+      coverPhotoUrl: null,
+      photosCount: event._count.photos,
+      viewsCount: 0, // TODO: Implement analytics
+      downloadsCount: 0, // TODO: Implement analytics
+      createdAt: event.createdAt.toISOString(),
+      updatedAt: event.updatedAt.toISOString(),
+    }))
+
+    const response: EventListApiResponse = {
+      success: true,
+      data: {
+        events: transformedEvents,
+        total,
+        hasMore: (page * limit) < total
+      },
+      meta: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
-      },
-    })
+        hasMore: (page * limit) < total
+      }
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     return handleError(error)
   }
@@ -175,13 +202,31 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(
-      {
-        message: 'Event created successfully',
-        event,
-      },
-      { status: 201 }
-    )
+    // Transform created event to match interface
+    const transformedEvent = {
+      id: event.id,
+      name: event.name,
+      description: null,
+      date: event.eventDate?.toISOString() || event.createdAt.toISOString(),
+      slug: event.slug,
+      accessCode: event.accessCode,
+      isActive: event.status === 'ACTIVE',
+      coverPhotoId: null,
+      coverPhotoUrl: null,
+      photosCount: 0,
+      viewsCount: 0,
+      downloadsCount: 0,
+      createdAt: event.createdAt.toISOString(),
+      updatedAt: event.createdAt.toISOString(),
+    }
+
+    const response: EventApiResponse = {
+      success: true,
+      data: transformedEvent,
+      message: 'Event created successfully'
+    }
+
+    return NextResponse.json(response, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { handleError } from '@/lib/errors/handler'
+import { DashboardApiResponse, DashboardData, RecentEventData } from '@/lib/types/api'
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,7 +58,17 @@ export async function GET(request: NextRequest) {
     const totalViews = 0
     const totalDownloads = 0
 
-    return NextResponse.json({
+    // Transform recent events to match interface
+    const formattedRecentEvents: RecentEventData[] = recentEvents.map(event => ({
+      id: event.id,
+      name: event.name,
+      date: event.eventDate || event.createdAt.toISOString(),
+      photosCount: event._count.photos,
+      viewsCount: 0, // TODO: Implement analytics
+      isActive: event.status === 'ACTIVE'
+    }))
+
+    const dashboardData: DashboardData = {
       statistics: {
         totalEvents,
         activeEvents,
@@ -67,8 +78,15 @@ export async function GET(request: NextRequest) {
         totalMessages,
         newMessages,
       },
-      recentEvents,
-    })
+      recentEvents: formattedRecentEvents,
+    }
+
+    const response: DashboardApiResponse = {
+      success: true,
+      data: dashboardData
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     return handleError(error)
   }
