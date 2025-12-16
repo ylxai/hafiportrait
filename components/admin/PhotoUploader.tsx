@@ -17,6 +17,9 @@ import { Upload, X, CheckCircle, AlertCircle, Loader2, Image as ImageIcon } from
 import { useAdminToast } from '@/hooks/toast/useAdminToast';
 import { showFileValidationError } from '@/lib/toast/toast-utils';
 
+// Accepted file types - moved outside component to be stable
+const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
 interface UploadFile {
   id: string;
   file: File;
@@ -48,9 +51,6 @@ export default function PhotoUploader({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useAdminToast();
 
-  // Accepted file types
-  const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
   /**
    * Validate file
    */
@@ -66,7 +66,7 @@ export default function PhotoUploader({
     }
     
     return null;
-  }, [maxFileSize, ACCEPTED_TYPES]);
+  }, [maxFileSize]);
 
   /**
    * Add files to upload queue
