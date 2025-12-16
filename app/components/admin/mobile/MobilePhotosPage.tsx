@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Search, Upload, Filter, Image as ImageIcon } from 'lucide-react'
 
 interface Photo {
@@ -78,10 +79,15 @@ export default function MobilePhotosPage() {
             onClick={() => router.push(`/admin/photos/${photo.id}`)}
             className="aspect-square rounded-lg overflow-hidden cursor-pointer"
           >
-            <img
+            <Image
               src={photo.thumbnailUrl}
-              alt={photo.filename}
+              alt={`Photo: ${photo.filename}`}
+              width={300}
+              height={300}
               className="w-full h-full object-cover"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             />
           </div>
         ))}

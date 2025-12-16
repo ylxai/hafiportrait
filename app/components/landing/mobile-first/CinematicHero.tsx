@@ -81,12 +81,12 @@ export default function CinematicHero() {
   const nextSlide = useCallback(() => {
     const totalSlides = displaySlides.length
     setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }, [displaySlides.length, currentSlide])
+  }, [displaySlides.length])
 
   const prevSlide = useCallback(() => {
     const totalSlides = displaySlides.length
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }, [displaySlides.length, currentSlide])
+  }, [displaySlides.length])
 
   useEffect(() => {
     fetchSlideshow()

@@ -54,7 +54,7 @@ export default function PhotoUploader({
   /**
    * Validate file
    */
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
       return `File type ${file.type} not supported. Use JPG, PNG, or WebP.`;
     }
@@ -66,7 +66,7 @@ export default function PhotoUploader({
     }
     
     return null;
-  };
+  }, [maxFileSize]);
 
   /**
    * Add files to upload queue

@@ -201,7 +201,13 @@ export default function MobileDashboard() {
                 <p className="text-2xl font-bold text-gray-900">{stats?.totalPhotos || 0}</p>
               </div>
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Image className="w-5 h-5 text-purple-600" />
+                <Image 
+                  className="w-5 h-5 text-purple-600" 
+                  alt="Photos icon"
+                  width={20}
+                  height={20}
+                  src="/icons/photos.svg"
+                />
               </div>
             </div>
           </div>
