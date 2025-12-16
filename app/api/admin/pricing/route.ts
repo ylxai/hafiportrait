@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { PackagesApiResponse } from '@/lib/types/api';
+import { Prisma } from '@prisma/client';
 
 function slugify(text: string): string {
   return text
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const activeOnly = searchParams.get('active') === 'true';
 
-    const where: any = {};
+    const where: Prisma.PricingPackageWhereInput = {};
     if (category) where.category = category;
     if (activeOnly) where.isActive = true;
 
@@ -43,7 +45,8 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ packages });
-  } catch (error: any) {
+  } catch (error) {
+    console.error('Error fetching pricing packages:', error);
     return NextResponse.json(
       { error: 'Failed to fetch pricing packages' },
       { status: 500 }
