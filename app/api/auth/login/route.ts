@@ -15,8 +15,18 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   // Log request
   logRequest(request)
 
-  // Apply rate limiting (5 attempts per 15 minutes)
-  const rateLimitResult = await rateLimit(request, RateLimitPresets.AUTH)
+  // Apply rate limiting (5 attempts per 15 minutes) - temporarily disabled for Redis issues
+  let rateLimitResult
+  try {
+    rateLimitResult = await rateLimit(request, RateLimitPresets.AUTH)
+  } catch (redisError) {
+    console.warn('Rate limiting disabled due to Redis error:', redisError)
+    rateLimitResult = { 
+      allowed: true, 
+      count: 0, 
+      resetTime: Date.now() + 900000 
+    }
+  }
 
   // Parse request body
   const body = await request.json()
