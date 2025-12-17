@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { usePhotoLikes } from '@/hooks/usePhotoLikes';
 
 interface LikeButtonProps {
@@ -19,7 +19,7 @@ interface LikeButtonProps {
   disabled?: boolean;
 }
 
-export default function LikeButton({
+function LikeButton({
   photoId,
   eventSlug,
   initialLikesCount,
@@ -109,3 +109,17 @@ export default function LikeButton({
     </button>
   );
 }
+
+// Memoize to prevent re-renders when props haven't changed
+export default memo(LikeButton, (prevProps, nextProps) => {
+  return (
+    prevProps.photoId === nextProps.photoId &&
+    prevProps.eventSlug === nextProps.eventSlug &&
+    prevProps.initialLikesCount === nextProps.initialLikesCount &&
+    prevProps.size === nextProps.size &&
+    prevProps.showCount === nextProps.showCount &&
+    prevProps.className === nextProps.className &&
+    prevProps.disabled === nextProps.disabled &&
+    prevProps.onLikeChange === nextProps.onLikeChange
+  );
+});

@@ -5,7 +5,7 @@
  * Displays list of comments with sorting and filtering
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import CommentCard from './CommentCard';
 import type { Comment } from '@/hooks/useComments';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
@@ -18,11 +18,14 @@ interface CommentListProps {
 export default function CommentList({ comments, isLoading }: CommentListProps) {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
-  const sortedComments = [...comments].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-  });
+  // Memoize expensive sorting operation to avoid re-sorting on every render
+  const sortedComments = useMemo(() => {
+    return [...comments].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [comments, sortOrder]);
 
   if (isLoading) {
     return (

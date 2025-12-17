@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import Image from 'next/image';
 import LikeButton from './LikeButton';
 import HeartAnimation from './HeartAnimation';
@@ -27,7 +27,7 @@ interface HeartAnimationState {
   y: number;
 }
 
-export default function PhotoTile({ 
+function PhotoTile({ 
   photo, 
   eventSlug,
   onClick, 
@@ -148,3 +148,15 @@ export default function PhotoTile({
     </>
   );
 }
+
+// Memoize component to prevent unnecessary re-renders
+// Only re-render if photo data, eventSlug, onClick, or allowLikes changes
+export default memo(PhotoTile, (prevProps, nextProps) => {
+  return (
+    prevProps.photo.id === nextProps.photo.id &&
+    prevProps.photo.likesCount === nextProps.photo.likesCount &&
+    prevProps.eventSlug === nextProps.eventSlug &&
+    prevProps.allowLikes === nextProps.allowLikes &&
+    prevProps.onClick === nextProps.onClick
+  );
+});

@@ -6,7 +6,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -240,12 +240,15 @@ export default function DraggablePhotoGrid({
     [photos, eventId, previousOrder]
   );
 
-  // Filter photos by search term (client-side filtering)
-  const filteredPhotos = searchTerm
-    ? photos.filter((photo) =>
-        photo.filename.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : photos;
+  // Filter photos by search term (client-side filtering) - memoized for performance
+  const filteredPhotos = useMemo(() => {
+    if (!searchTerm) return photos;
+    
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return photos.filter((photo) =>
+      photo.filename.toLowerCase().includes(lowerSearchTerm)
+    );
+  }, [photos, searchTerm]);
 
   // Handle photo click
   const handlePhotoClick = useCallback((photoId: string) => {
@@ -280,9 +283,10 @@ export default function DraggablePhotoGrid({
     window.location.href = `?${params.toString()}`;
   };
 
-  const activePhoto = activeId
-    ? photos.find((photo) => photo.id === activeId)
-    : null;
+  // Memoize active photo lookup for performance
+  const activePhoto = useMemo(() => {
+    return activeId ? photos.find((photo) => photo.id === activeId) : null;
+  }, [activeId, photos]);
 
   const selectedPhoto = selectedPhotoIndex >= 0 ? filteredPhotos[selectedPhotoIndex] : null;
 
