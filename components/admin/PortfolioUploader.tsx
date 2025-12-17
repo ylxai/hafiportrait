@@ -88,10 +88,23 @@ export default function PortfolioUploader({
       })
 
       if (!response.ok) {
-        throw new Error('Upload failed')
+        const errorText = await response.text()
+        console.error('Upload failed:', response.status, errorText)
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json()
+      const responseText = await response.text()
+      console.log('Raw response:', responseText)
+      
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError)
+        console.error('Response text:', responseText)
+        throw new Error('Invalid server response format')
+      }
+      
       setUploadResults(data.results || [])
 
       // Clear successful uploads
