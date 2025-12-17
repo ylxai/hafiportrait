@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, memo } from 'react';
-import Image from 'next/image';
+import OptimizedImage, { ImagePresets } from '../common/OptimizedImage';
 import LikeButton from './LikeButton';
 import HeartAnimation from './HeartAnimation';
 
@@ -99,20 +99,12 @@ function PhotoTile({
         onMouseDown={handleDoubleTap}
         onTouchStart={handleDoubleTap}
       >
-        {!isLoaded && (
-          <div className="absolute inset-0 animate-pulse bg-gray-300" />
-        )}
-        
-        <Image
+        <OptimizedImage
           src={thumbnailUrl || ''}
           alt={`Photography image: ${photo.filename}`}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className={`object-cover transition-all duration-300 ${
-            isLoaded ? 'opacity-100 group-hover:scale-105' : 'opacity-0'
-          }`}
+          className="group-hover:scale-105 transition-transform duration-300"
           onLoad={() => setIsLoaded(true)}
-          loading="lazy"
+          {...ImagePresets.thumbnail}
         />
 
         {/* Like button overlay */}

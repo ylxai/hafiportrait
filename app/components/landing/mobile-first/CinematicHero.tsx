@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import Image from 'next/image'
+import OptimizedImage, { ImagePresets } from '../../../components/common/OptimizedImage'
 
 interface HeroSlide {
   id: string
@@ -257,13 +257,11 @@ export default function CinematicHero() {
           className="absolute inset-0"
         >
           {/* Background Image */}
-          <Image
+          <OptimizedImage
             src={displaySlides[currentSlide]?.imageUrl || '/images/hero/wedding-1.jpg'}
             alt={`${displaySlides[currentSlide]?.title} ${displaySlides[currentSlide]?.subtitle}` || 'Wedding Photography'}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
+            className="absolute inset-0"
+            {...ImagePresets.hero}
           />
           
           {/* Fallback gradient if image doesn't exist */}
