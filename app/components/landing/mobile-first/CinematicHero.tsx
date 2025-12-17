@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import OptimizedImage, { ImagePresets } from '../../../components/common/OptimizedImage'
+import { useHeroSlideshowCache } from '../../../hooks/useApiCache'
 
 interface HeroSlide {
   id: string
@@ -21,6 +22,9 @@ interface SlideshowSettings {
 }
 
 export default function CinematicHero() {
+  // Use cached API hook for hero slideshow data
+  const { data: slideshowData, isLoading } = useHeroSlideshowCache()
+  
   const [slides, setSlides] = useState<HeroSlide[]>([])
   const [settings, setSettings] = useState<SlideshowSettings>({
     timingSeconds: 3.5,
