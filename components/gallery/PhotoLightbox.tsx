@@ -34,27 +34,25 @@ export default function PhotoLightbox({
   eventSlug,
   allowLikes = true,
 }: PhotoLightboxProps) {
+  const currentPhoto = photos[currentIndex]
+  
+  // All hooks must be at the top, before any conditional returns
   const [isLoading, setIsLoading] = useState(true)
   const [showControls, setShowControls] = useState(true)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  const currentPhoto = photos[currentIndex]
-
-  // Guard against invalid photo data
-  if (!currentPhoto) {
-    return null
-  }
-
   const [localLikesCount, setLocalLikesCount] = useState(
-    currentPhoto.likes_count
+    currentPhoto?.likes_count || 0
   )
   const hasPrev = currentIndex > 0
   const hasNext = currentIndex < photos.length - 1
 
   // Update local likes count when photo changes
   useEffect(() => {
-    setLocalLikesCount(currentPhoto.likes_count)
-  }, [currentPhoto.likes_count, currentIndex])
+    if (currentPhoto) {
+      setLocalLikesCount(currentPhoto.likes_count)
+    }
+  }, [currentPhoto, currentIndex])
 
   // Keyboard navigation
   useEffect(() => {
@@ -124,6 +122,8 @@ export default function PhotoLightbox({
 
   const handleDownload = async () => {
     try {
+      if (!currentPhoto) return
+      
       const response = await fetch(
         `/api/gallery/${eventSlug}/photos/${currentPhoto.id}/download`
       )
@@ -159,6 +159,11 @@ export default function PhotoLightbox({
     },
     [currentPhoto?.id]
   )
+
+  // Guard against invalid photo data - AFTER all hooks
+  if (!currentPhoto) {
+    return null
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black">
