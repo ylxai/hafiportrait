@@ -39,7 +39,7 @@ export default function FeaturedEvents() {
     }
   }
 
-  if (isLoading || events.length === 0) {
+  if (isLoading || !events || events.length === 0) {
     return null // Don't show section if no events
   }
 
@@ -68,7 +68,7 @@ export default function FeaturedEvents() {
 
         {/* Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {events.map((event, index) => (
+          {events && events.length > 0 && events.map((event, index) => (
             <Link
               key={event.id}
               href={`/${event.slug}`}

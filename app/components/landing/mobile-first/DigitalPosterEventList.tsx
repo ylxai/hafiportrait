@@ -65,7 +65,7 @@ export default function DigitalPosterEventList() {
   )
 
   }
-  if (events.length === 0) {
+  if (!events || events.length === 0) {
     return null
   }
 
@@ -90,7 +90,7 @@ export default function DigitalPosterEventList() {
 
         {/* Event Cards */}
         <div className="space-y-6 max-w-5xl mx-auto">
-          {events.map((event, index) => (
+          {events && events.length > 0 && events.map((event, index) => (
             <motion.div
               key={event.id}
               initial={{ y: 50, opacity: 0 }}
