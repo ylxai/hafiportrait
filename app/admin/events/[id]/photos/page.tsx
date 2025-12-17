@@ -38,7 +38,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   // Fetch event with photos
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { id: eventId },
     select: {
       id: true,

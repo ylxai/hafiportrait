@@ -190,10 +190,10 @@ export default function AdminEventsPage() {
                       <Camera className="w-4 h-4 mr-1" />
                       <span>{event._count.photos} photos</span>
                     </div>
-                    {event.eventDate && (
+                    {event.event_date && (
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
-                        <span>{new Date(event.eventDate).toLocaleDateString('id-ID')}</span>
+                        <span>{new Date(event.event_date).toLocaleDateString('id-ID')}</span>
                       </div>
                     )}
                   </div>

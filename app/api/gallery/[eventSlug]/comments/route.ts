@@ -55,7 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Fetch comments
-    const comments = await prisma.comment.findMany({
+    const comments = await prisma.comments.findMany({
       where: {
         eventId: event.id,
         ...(photoId && { photoId }),
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     // Get total count
-    const totalCount = await prisma.comment.count({
+    const totalCount = await prisma.comments.count({
       where: {
         eventId: event.id,
         ...(photoId && { photoId }),

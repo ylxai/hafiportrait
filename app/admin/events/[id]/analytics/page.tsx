@@ -18,7 +18,7 @@ export default async function EventAnalyticsPage({ params }: PageProps) {
   const { id: eventId } = await params;
 
   // Verify event exists
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { id: eventId },
     select: {
       id: true,

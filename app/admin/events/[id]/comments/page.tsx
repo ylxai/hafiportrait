@@ -17,7 +17,7 @@ export default async function CommentModerationPage({ params }: PageProps) {
   const { id: eventId } = await params;
 
   // Verify event exists
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { id: eventId },
     select: {
       id: true,
@@ -32,8 +32,8 @@ export default async function CommentModerationPage({ params }: PageProps) {
 
   // Get initial comments data
   const [comments, totalCount, pendingCount] = await Promise.all([
-    prisma.comment.findMany({
-      where: { eventId },
+    prisma.comments.findMany({
+      where: { event_id: eventId },
       select: {
         id: true,
         guestName: true,
@@ -54,8 +54,8 @@ export default async function CommentModerationPage({ params }: PageProps) {
       },
       take: 50,
     }),
-    prisma.comment.count({ where: { eventId } }),
-    prisma.comment.count({ where: { eventId, status: 'pending' } }),
+    prisma.comments.count({ where: { event_id: eventId } }),
+    prisma.comments.count({ where: { event_id: eventId, status: 'pending' } }),
   ]);
 
   return (
