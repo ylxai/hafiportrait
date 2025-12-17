@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { getGallerySession } from '@/lib/gallery/auth';
 import PhotoGrid from '@/components/gallery/PhotoGrid';
 import GalleryHeader from '@/components/gallery/GalleryHeader';
+import { GalleryErrorBoundary } from '@/components/error-boundaries';
 
 interface PageProps {
   params: Promise<{
@@ -73,7 +74,9 @@ export default async function GalleryPage({ params }: PageProps) {
       />
       
       <main className="container mx-auto px-4 py-6">
-        <PhotoGrid event_id={event.id} eventSlug={event.slug} />
+        <GalleryErrorBoundary errorContext="Gallery Photos" eventSlug={event.slug}>
+          <PhotoGrid event_id={event.id} eventSlug={event.slug} />
+        </GalleryErrorBoundary>
       </main>
     </div>
   );

@@ -8,6 +8,7 @@ import { cookies } from 'next/headers';
 import { verifyJWT } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import DraggablePhotoGrid from '@/components/admin/DraggablePhotoGrid';
+import { AdminErrorBoundary } from '@/components/error-boundaries';
 import Link from 'next/link';
 import { ChevronRight, Upload, Image as ImageIcon } from 'lucide-react';
 
@@ -230,13 +231,15 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
 
         {/* Photo Grid with Drag & Drop */}
         {formattedPhotos.length > 0 ? (
-          <DraggablePhotoGrid
-            photos={formattedPhotos}
-            event_id={event_id}
-            currentSort={sort}
-            currentFilter={resolvedSearchParams.filter}
-            currentSearch={resolvedSearchParams.search}
-          />
+          <AdminErrorBoundary errorContext="Photo Management Grid">
+            <DraggablePhotoGrid
+              photos={formattedPhotos}
+              event_id={event_id}
+              currentSort={sort}
+              currentFilter={resolvedSearchParams.filter}
+              currentSearch={resolvedSearchParams.search}
+            />
+          </AdminErrorBoundary>
         ) : (
           <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
             <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />

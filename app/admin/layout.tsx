@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import { AdminErrorBoundary } from '@/components/error-boundaries'
 
 interface User {
   id: string
@@ -79,7 +80,11 @@ export default function AdminRootLayout({
 
   // Protected pages need admin layout
   if (user) {
-    return <AdminLayout>{children}</AdminLayout>
+    return (
+      <AdminErrorBoundary errorContext="Admin Layout">
+        <AdminLayout>{children}</AdminLayout>
+      </AdminErrorBoundary>
+    )
   }
 
   return null

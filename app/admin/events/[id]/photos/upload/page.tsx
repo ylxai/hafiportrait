@@ -10,6 +10,7 @@ import prisma from '@/lib/prisma';
 import PhotoUploader from '@/components/admin/PhotoUploader';
 import Link from 'next/link';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { UploadErrorBoundary } from '@/components/error-boundaries';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -93,16 +94,18 @@ export default async function PhotoUploadPage({ params }: PageProps) {
 
         {/* Main Content */}
         <div className="rounded-lg bg-white p-8 shadow-sm">
-          <PhotoUploader
-            event_id={event_id}
-            eventName={event.name}
-            onUploadComplete={() => {
-              // Redirect to photo management page after upload
-              // This is handled by the client component or we can add a router.push here if we made this a client component, 
-              // but this is a server component rendering a client component.
-              // The PhotoUploader should handle redirection or UI feedback.
-            }}
-          />
+          <UploadErrorBoundary errorContext="Photo Upload" eventId={event_id}>
+            <PhotoUploader
+              event_id={event_id}
+              eventName={event.name}
+              onUploadComplete={() => {
+                // Redirect to photo management page after upload
+                // This is handled by the client component or we can add a router.push here if we made this a client component, 
+                // but this is a server component rendering a client component.
+                // The PhotoUploader should handle redirection or UI feedback.
+              }}
+            />
+          </UploadErrorBoundary>
         </div>
 
         {/* Help Text */}

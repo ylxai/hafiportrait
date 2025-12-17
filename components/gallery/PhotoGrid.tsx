@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import PhotoTile from './PhotoTile'
 import PhotoLightbox from './PhotoLightbox'
+import { PhotoTileErrorBoundary } from '@/components/error-boundaries'
 
 interface Photo {
   id: string
@@ -191,13 +192,14 @@ export default function PhotoGrid({
     <>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
         {photos.map((photo, index) => (
-          <PhotoTile
-            key={photo.id}
-            photo={photo}
-            eventSlug={eventSlug}
-            onClick={() => handlePhotoClick(index)}
-            allowLikes={allowLikes}
-          />
+          <PhotoTileErrorBoundary key={photo.id} photoId={photo.id}>
+            <PhotoTile
+              photo={photo}
+              eventSlug={eventSlug}
+              onClick={() => handlePhotoClick(index)}
+              allowLikes={allowLikes}
+            />
+          </PhotoTileErrorBoundary>
         ))}
       </div>
 

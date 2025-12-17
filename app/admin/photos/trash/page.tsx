@@ -8,6 +8,7 @@ import { cookies } from 'next/headers';
 import { verifyJWT } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import TrashPhotoGrid from '@/components/admin/TrashPhotoGrid';
+import { AdminErrorBoundary } from '@/components/error-boundaries';
 import Link from 'next/link';
 import { ChevronRight, Trash2 } from 'lucide-react';
 
@@ -212,7 +213,9 @@ export default async function TrashPage({ searchParams }: PageProps) {
         {/* Photos Grid */}
         {formattedPhotos.length > 0 ? (
           <>
-            <TrashPhotoGrid photos={formattedPhotos} isAdmin={isAdmin} />
+            <AdminErrorBoundary errorContext="Trash Photos Grid">
+              <TrashPhotoGrid photos={formattedPhotos} isAdmin={isAdmin} />
+            </AdminErrorBoundary>
 
             {/* Pagination */}
             {totalPages > 1 && (
