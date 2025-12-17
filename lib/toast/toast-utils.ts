@@ -103,7 +103,19 @@ export const updateToast = (
 // Handle API errors with toast
 export const handleApiError = (error: unknown, defaultMessage: string = 'An error occurred') => {
   const errorObj = error as { response?: { data?: { error?: string } }; message?: string }
-  const message = errorObj?.response?.data?.error || errorObj?.message || defaultMessage
+  let message = defaultMessage
+  
+  // Extract string message from various error formats
+  if (errorObj?.response?.data?.error) {
+    message = typeof errorObj.response.data.error === 'string' 
+      ? errorObj.response.data.error 
+      : JSON.stringify(errorObj.response.data.error)
+  } else if (errorObj?.message) {
+    message = typeof errorObj.message === 'string' 
+      ? errorObj.message 
+      : JSON.stringify(errorObj.message)
+  }
+  
   showErrorToast(message)
 }
 

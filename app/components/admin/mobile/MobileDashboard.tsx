@@ -127,7 +127,7 @@ export default function MobileDashboard() {
     return (
       <div className="p-4">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-          {error}
+          {typeof error === 'string' ? error : 'An error occurred while loading dashboard data'}
         </div>
       </div>
     )
