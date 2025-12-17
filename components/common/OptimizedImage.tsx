@@ -8,6 +8,7 @@ interface OptimizedImageProps {
   alt: string;
   width?: number;
   height?: number;
+  fill?: boolean;
   className?: string;
   sizes?: string;
   priority?: boolean;
@@ -34,6 +35,7 @@ function OptimizedImage({
   alt,
   width,
   height,
+  fill = false,
   className = '',
   sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
   priority = false,
@@ -120,12 +122,11 @@ function OptimizedImage({
       <Image
         src={currentSrc}
         alt={alt}
-        width={width}
-        height={height}
+        {...(fill ? { fill: true } : { width: width || 800, height: height || 600 })}
         className={`
           object-cover transition-opacity duration-300
           ${isLoading ? 'opacity-0' : 'opacity-100'}
-          ${width && height ? '' : 'w-full h-full'}
+          ${fill ? '' : 'w-full h-full'}
         `}
         sizes={sizes}
         priority={priority}
@@ -176,6 +177,7 @@ export const ImagePresets = {
 
   // Hero images
   hero: {
+    fill: true,
     quality: 90,
     aspectRatio: 'video' as const,
     sizes: '100vw',
