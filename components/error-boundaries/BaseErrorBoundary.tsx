@@ -93,7 +93,7 @@ export class BaseErrorBoundary extends Component<
     })
   }
 
-  render() {
+  override render() {
     const { hasError, error, errorInfo } = this.state
     const { children, fallback, showDevDetails } = this.props
 

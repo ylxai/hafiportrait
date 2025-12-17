@@ -34,7 +34,7 @@ interface GalleryErrorBoundaryProps {
 export function GalleryErrorBoundary({
   children,
   errorContext = 'Gallery',
-  eventSlug,
+  eventSlug: _eventSlug,
   onError,
   fallbackType = 'full',
 }: GalleryErrorBoundaryProps) {
@@ -60,7 +60,7 @@ export function GalleryErrorBoundary({
     <BaseErrorBoundary
       errorContext={errorContext}
       onError={(error) => handleError(error)}
-      fallback={(error, errorInfo, reset) => {
+      fallback={(error, _errorInfo, reset) => {
         const errorId = `gallery-${Date.now()}`
         
         if (fallbackType === 'tile') {
@@ -96,7 +96,7 @@ export function PhotoTileErrorBoundary({
   return (
     <BaseErrorBoundary
       errorContext={`PhotoTile-${photoId || 'unknown'}`}
-      fallback={(error, errorInfo, reset) => (
+      fallback={(_error, _errorInfo, reset) => (
         <PhotoTileErrorFallback reset={reset} />
       )}
       onError={(error) => {

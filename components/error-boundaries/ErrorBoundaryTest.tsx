@@ -37,10 +37,12 @@ export function ErrorBoundaryTest({
   // Async error - throws after delay
   useEffect(() => {
     if (type === 'async' && shouldError) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         throw new Error(message)
       }, 100)
+      return () => clearTimeout(timer)
     }
+    return undefined
   }, [type, shouldError, message])
 
   // Delayed error - throws after specified delay
@@ -51,6 +53,7 @@ export function ErrorBoundaryTest({
       }, delay)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [type, shouldError, message, delay])
 
   // Event handler error

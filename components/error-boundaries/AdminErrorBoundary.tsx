@@ -35,7 +35,7 @@ export function AdminErrorBoundary({
   children,
   errorContext = 'Admin Panel',
   onError,
-  showDevDetails = true, // Show more details for admins
+  showDevDetails = true,
 }: AdminErrorBoundaryProps) {
   const handleError = (error: Error) => {
     // Log to console
@@ -78,6 +78,7 @@ export function AdminErrorBoundary({
             reset={reset}
             context={errorContext}
             showDevDetails={showDevDetails}
+            showContactSupport={false}
           />
         )
       }}

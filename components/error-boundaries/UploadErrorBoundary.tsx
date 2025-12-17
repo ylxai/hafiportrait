@@ -79,7 +79,7 @@ export function UploadErrorBoundary({
     <BaseErrorBoundary
       errorContext={errorContext}
       onError={(error) => handleError(error)}
-      fallback={(error, errorInfo, reset) => {
+      fallback={(error, _errorInfo, reset) => {
         const errorId = `upload-${eventId || 'unknown'}-${Date.now()}`
 
         return (

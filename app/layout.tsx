@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ToastProvider } from '@/components/providers/ToastProvider'
 import { RootErrorBoundary } from '@/components/error-boundaries'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'Hafiportrait - Editorial Wedding Photography for Modern Couples',
@@ -51,16 +52,24 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-        {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-BESTMV5CN2"></script>
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-BESTMV5CN2');
-          `
-        }} />
+        {/* Google Analytics Script */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-BESTMV5CN2"
+          async
+        />
+        <Script
+          id="google-analytics-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-BESTMV5CN2');
+            `
+          }}
+        />
       </head>
       <body className="font-sans antialiased">
         <RootErrorBoundary userType="guest">

@@ -134,7 +134,7 @@ export function GeneralErrorFallback({
  * Specific to photo gallery errors
  */
 export function GalleryErrorFallback({
-  error,
+  error: _error,
   errorId,
   reset,
   showContactSupport = true,
@@ -200,7 +200,7 @@ export function GalleryErrorFallback({
  * Specific to photo upload errors
  */
 export function UploadErrorFallback({
-  error,
+  error: _error,
   errorId,
   reset,
 }: Omit<ErrorFallbackProps, 'errorInfo' | 'context' | 'showContactSupport'>) {
@@ -263,6 +263,8 @@ export function AdminErrorFallback({
   errorId,
   reset,
   context = 'Admin Panel',
+  showDevDetails: _showDevDetails,
+  showContactSupport: _showContactSupport,
 }: ErrorFallbackProps) {
   const isDev = process.env.NODE_ENV === 'development'
 
