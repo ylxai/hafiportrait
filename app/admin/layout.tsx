@@ -31,8 +31,8 @@ export default function AdminRootLayout({
         
         if (response.ok) {
           const userData = await response.json()
-          if (userData?.role === 'ADMIN') {
-            setUser(userData)
+          if (userData?.user?.role === 'ADMIN') {
+            setUser(userData.user)
           } else {
             router.replace('/admin/login')
           }
