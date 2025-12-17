@@ -140,7 +140,7 @@ class EnhancedLogger {
     if (!isDevelopment) return
     
     const entry = this.createLogEntry(LogLevel.DEBUG, message, { context })
-    console.debug(formatLogEntry(entry))
+    console.debug(formatLogEntry(entry)) // eslint-disable-line no-console
   }
 
   /**
@@ -148,7 +148,7 @@ class EnhancedLogger {
    */
   info(message: string, context?: Record<string, unknown>): void {
     const entry = this.createLogEntry(LogLevel.INFO, message, { context })
-    console.info(formatLogEntry(entry))
+    console.info(formatLogEntry(entry)) // eslint-disable-line no-console
   }
 
   /**
@@ -156,7 +156,7 @@ class EnhancedLogger {
    */
   warn(message: string, context?: Record<string, unknown>): void {
     const entry = this.createLogEntry(LogLevel.WARN, message, { context })
-    console.warn(formatLogEntry(entry))
+    console.warn(formatLogEntry(entry)) // eslint-disable-line no-console
   }
 
   /**
@@ -183,7 +183,7 @@ class EnhancedLogger {
       ...context
     })
     
-    console.error(formatLogEntry(entry))
+    console.error(formatLogEntry(entry)) // eslint-disable-line no-console
     
     // In production, you might want to send to external logging service
     if (isProduction && severity === 'critical') {
@@ -212,7 +212,7 @@ class EnhancedLogger {
       ...context
     })
     
-    console.error(formatLogEntry(entry))
+    console.error(formatLogEntry(entry)) // eslint-disable-line no-console
     
     // Always send critical errors to external service
     if (isProduction) {
@@ -242,7 +242,7 @@ class EnhancedLogger {
       }
     )
     
-    console.error(formatLogEntry(entry))
+    console.error(formatLogEntry(entry)) // eslint-disable-line no-console
     
     if (isProduction && (severity === 'critical' || severity === 'high')) {
       this.sendToExternalService(entry)
@@ -272,11 +272,11 @@ class EnhancedLogger {
     })
     
     if (level === LogLevel.ERROR) {
-      console.error(formatLogEntry(entry))
+      console.error(formatLogEntry(entry)) // eslint-disable-line no-console
     } else if (level === LogLevel.WARN) {
-      console.warn(formatLogEntry(entry))
+      console.warn(formatLogEntry(entry)) // eslint-disable-line no-console
     } else if (isDevelopment || status >= 400) {
-      console.info(formatLogEntry(entry))
+      console.info(formatLogEntry(entry)) // eslint-disable-line no-console
     }
   }
 
@@ -310,7 +310,7 @@ class EnhancedLogger {
   private sendToExternalService(entry: LogEntry): void {
     // TODO: Implement integration with external logging service
     // Examples: Sentry, LogRocket, DataDog, CloudWatch, etc.
-    console.error('CRITICAL ERROR - Would send to external service:', entry)
+    console.error('CRITICAL ERROR - Would send to external service:', entry) // eslint-disable-line no-console
   }
 }
 

@@ -18,29 +18,29 @@ export default async function EventAccessPage({ params, searchParams }: PageProp
   const { code } = await searchParams;
 
   // Find event
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { slug: eventSlug },
     select: {
       id: true,
       name: true,
       slug: true,
       status: true,
-      eventDate: true,
+      event_date: true,
       location: true,
       description: true,
-      coverPhotoId: true,
+      cover_photo_id: true,
       photos: {
         where: {
-          deletedAt: null,
+          deleted_at: null,
         },
         select: {
           id: true,
-          thumbnailMediumUrl: true,
-          thumbnailUrl: true,
+          thumbnail_medium_url: true,
+          thumbnail_url: true,
         },
         take: 1,
         orderBy: {
-          displayOrder: 'asc',
+          display_order: 'asc',
         },
       },
     },
@@ -78,13 +78,13 @@ export default async function EventAccessPage({ params, searchParams }: PageProp
   }
 
   // Get cover photo URL
-  const coverPhotoUrl = event.photos[0]?.thumbnailMediumUrl || event.photos[0]?.thumbnailUrl || null;
+  const coverPhotoUrl = event.photos[0]?.thumbnail_medium_url || event.photos[0]?.thumbnail_url || null;
 
   return (
     <GuestAccessForm
       eventSlug={eventSlug}
       eventName={event.name}
-      eventDate={event.eventDate?.toISOString() || null}
+      eventDate={event.event_date?.toISOString() || null}
       coverPhotoUrl={coverPhotoUrl}
     />
   );
@@ -93,7 +93,7 @@ export default async function EventAccessPage({ params, searchParams }: PageProp
 export async function generateMetadata({ params }: PageProps) {
   const { eventSlug } = await params;
   
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { slug: eventSlug },
     select: {
       name: true,

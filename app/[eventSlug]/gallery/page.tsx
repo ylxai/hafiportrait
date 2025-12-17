@@ -15,17 +15,17 @@ export default async function GalleryPage({ params }: PageProps) {
   const { eventSlug } = await params;
 
   // Find event
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { slug: eventSlug },
     select: {
       id: true,
       name: true,
       slug: true,
       status: true,
-      eventDate: true,
+      event_date: true,
       location: true,
       description: true,
-      coverPhotoId: true,
+      cover_photo_id: true,
     },
   });
 
@@ -56,10 +56,10 @@ export default async function GalleryPage({ params }: PageProps) {
   }
 
   // Get photo count
-  const photoCount = await prisma.photo.count({
+  const photoCount = await prisma.photos.count({
     where: {
-      eventId: event.id,
-      deletedAt: null,
+      event_id: event.id,
+      deleted_at: null,
     },
   });
 
@@ -67,7 +67,7 @@ export default async function GalleryPage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50">
       <GalleryHeader
         eventName={event.name}
-        eventDate={event.eventDate}
+        eventDate={event.event_date}
         location={event.location}
         photoCount={photoCount}
       />
@@ -82,12 +82,12 @@ export default async function GalleryPage({ params }: PageProps) {
 export async function generateMetadata({ params }: PageProps) {
   const { eventSlug } = await params;
   
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { slug: eventSlug },
     select: {
       name: true,
       description: true,
-      eventDate: true,
+      event_date: true,
     },
   });
 
