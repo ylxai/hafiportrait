@@ -85,7 +85,10 @@ export async function getUserFromRequest(
   if (cookieHeader) {
     const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
       const [key, value] = cookie.trim().split('=')
-      acc[key] = value
+      // Fix: Check if key exists before using it as index
+      if (key) {
+        acc[key] = value ?? ''
+      }
       return acc
     }, {} as Record<string, string>)
     

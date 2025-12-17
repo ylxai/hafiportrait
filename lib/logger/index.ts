@@ -70,6 +70,7 @@ interface LogEntry {
   action?: string
   category?: string
   severity?: ErrorSeverity
+  sessionId?: string
 }
 
 /**
@@ -318,6 +319,28 @@ class EnhancedLogger {
  * Global logger instance
  */
 export const logger = new EnhancedLogger()
+
+/**
+ * Application error logging - Uses ApplicationError type
+ */
+export function logApplicationError(error: ApplicationError, context?: Record<string, any>): void {
+  const errorContext: ErrorContext = {
+    error,
+    severity: 'medium', // Default severity for application errors
+    category: error.code || 'application',
+    component: context?.component || 'unknown',
+    action: context?.action || 'unknown',
+    user_id: context?.user_id,
+    metadata: context
+  }
+  
+  logger.logError(errorContext)
+  
+  // Additional handling based on error code
+  if (error.code?.includes('CRITICAL') || error.message?.includes('critical')) {
+    logger.critical(`Critical Application Error: ${error.code}`, error, context)
+  }
+}
 
 /**
  * Legacy compatibility (deprecated - use logger.error instead)

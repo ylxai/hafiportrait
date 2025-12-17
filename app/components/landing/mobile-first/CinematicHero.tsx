@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import OptimizedImage, { ImagePresets } from '@/components/common/OptimizedImage'
+import OptimizedImage, {
+  ImagePresets,
+} from '@/components/common/OptimizedImage'
 import { useHeroSlideshowCache } from '@/hooks/useApiCache'
 
 interface HeroSlide {
@@ -21,25 +23,29 @@ interface SlideshowSettings {
   autoplay: boolean
 }
 
+interface SlideshowData {
+  slides: HeroSlide[]
+  settings: SlideshowSettings
+}
+
 export default function CinematicHero() {
   // Use cached API hook for hero slideshow data
-  const { data: slideshowData, isLoading } = useHeroSlideshowCache()
-  
+  const { data: slideshowData } = useHeroSlideshowCache<SlideshowData>()
+
   const [slides, setSlides] = useState<HeroSlide[]>([])
   const [settings, setSettings] = useState<SlideshowSettings>({
     timingSeconds: 3.5,
     transitionEffect: 'fade',
-    autoplay: true
+    autoplay: true,
   })
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-  
+
   // ENHANCED: Swipe gesture state (touch + mouse)
   const [touchStart, setTouchStart] = useState<number>(0)
   const [touchEnd, setTouchEnd] = useState<number>(0)
   const [isDragging, setIsDragging] = useState(false)
-  
+
   const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null)
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -51,7 +57,7 @@ export default function CinematicHero() {
       thumbnail_url: null,
       title: 'Capture Your',
       subtitle: 'Love Story',
-      display_order: 0
+      display_order: 0,
     },
     {
       id: '2',
@@ -59,7 +65,7 @@ export default function CinematicHero() {
       thumbnail_url: null,
       title: 'Timeless',
       subtitle: 'Memories',
-      display_order: 1
+      display_order: 1,
     },
     {
       id: '3',
@@ -67,7 +73,7 @@ export default function CinematicHero() {
       thumbnail_url: null,
       title: 'Every Moment',
       subtitle: 'Matters',
-      display_order: 2
+      display_order: 2,
     },
     {
       id: '4',
@@ -75,8 +81,8 @@ export default function CinematicHero() {
       thumbnail_url: null,
       title: 'Your Special',
       subtitle: 'Day',
-      display_order: 3
-    }
+      display_order: 3,
+    },
   ]
 
   const displaySlides = slides.length > 0 ? slides : fallbackSlides
@@ -93,29 +99,18 @@ export default function CinematicHero() {
   }, [displaySlides.length])
 
   useEffect(() => {
-    fetchSlideshow()
-  }, [])
-
-  const fetchSlideshow = async () => {
-    try {
-      const response = await fetch('/api/public/hero-slideshow')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.slides && data.slides.length > 0) {
-          setSlides(data.slides)
-          const enhancedSettings = {
-            ...data.settings,
-            timingSeconds: data.settings.timingSeconds > 5 ? 3.5 : data.settings.timingSeconds
-          }
-          setSettings(enhancedSettings)
-        }
+    if (slideshowData?.slides && slideshowData.slides.length > 0) {
+      setSlides(slideshowData.slides)
+      const enhancedSettings = {
+        ...slideshowData.settings,
+        timingSeconds:
+          slideshowData.settings.timingSeconds > 5
+            ? 3.5
+            : slideshowData.settings.timingSeconds,
       }
-    } catch (error) {
-      console.error('Error fetching slideshow:', error)
-    } finally {
-      setIsLoaded(true)
+      setSettings(enhancedSettings)
     }
-  }
+  }, [slideshowData])
 
   // ENHANCED: Autoplay with pause functionality
   useEffect(() => {
@@ -141,11 +136,11 @@ export default function CinematicHero() {
   // Pause autoplay temporarily after user interaction
   const pauseAutoplayTemporarily = (duration: number = 3000) => {
     setIsPaused(true)
-    
+
     if (pauseTimeoutRef.current) {
       clearTimeout(pauseTimeoutRef.current)
     }
-    
+
     pauseTimeoutRef.current = setTimeout(() => {
       setIsPaused(false)
     }, duration)
@@ -153,17 +148,21 @@ export default function CinematicHero() {
 
   // FIXED: Touch handlers (Mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-    setTouchEnd(0)
+    if (e.targetTouches[0]?.clientX) {
+      setTouchStart(e.targetTouches[0].clientX)
+      setTouchEnd(0)
+    }
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
+    if (e.targetTouches[0]?.clientX) {
+      setTouchEnd(e.targetTouches[0].clientX)
+    }
   }
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return
-    
+
     const distance = touchStart - touchEnd
     const isLeftSwipe = distance > 50
     const isRightSwipe = distance < -50
@@ -175,7 +174,7 @@ export default function CinematicHero() {
       prevSlide()
       pauseAutoplayTemporarily()
     }
-    
+
     // Reset
     setTouchStart(0)
     setTouchEnd(0)
@@ -196,13 +195,13 @@ export default function CinematicHero() {
   const handleMouseUp = () => {
     if (!isDragging) return
     setIsDragging(false)
-    
+
     if (!touchStart || !touchEnd) return
-    
+
     const distance = touchStart - touchEnd
     const isLeftSwipe = distance > 50
     const isRightSwipe = distance < -50
-    
+
     if (isLeftSwipe) {
       nextSlide()
       pauseAutoplayTemporarily()
@@ -211,7 +210,7 @@ export default function CinematicHero() {
       prevSlide()
       pauseAutoplayTemporarily()
     }
-    
+
     // Reset
     setTouchStart(0)
     setTouchEnd(0)
@@ -233,8 +232,8 @@ export default function CinematicHero() {
   }
 
   return (
-    <section 
-      className="relative h-screen w-full overflow-hidden bg-black select-none"
+    <section
+      className="relative h-screen w-full select-none overflow-hidden bg-black"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -249,38 +248,44 @@ export default function CinematicHero() {
         <motion.div
           key={currentSlide}
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1
+          animate={{
+            opacity: 1,
+            scale: 1,
           }}
           exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ 
+          transition={{
             duration: 0.5,
-            ease: 'easeInOut' 
+            ease: 'easeInOut',
           }}
           className="absolute inset-0"
         >
           {/* Background Image */}
           <OptimizedImage
-            src={displaySlides[currentSlide]?.imageUrl || '/images/hero/wedding-1.jpg'}
-            alt={`${displaySlides[currentSlide]?.title} ${displaySlides[currentSlide]?.subtitle}` || 'Wedding Photography'}
+            src={
+              displaySlides[currentSlide]?.imageUrl ||
+              '/images/hero/wedding-1.jpg'
+            }
+            alt={
+              `${displaySlides[currentSlide]?.title} ${displaySlides[currentSlide]?.subtitle}` ||
+              'Wedding Photography'
+            }
             className="absolute inset-0"
             {...ImagePresets.hero}
           />
-          
+
           {/* Fallback gradient if image doesn't exist */}
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-          
+
           {/* Image overlay */}
           <div className="absolute inset-0 bg-black/40" />
-          
+
           {/* Gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center pointer-events-none">
+      <div className="pointer-events-none relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -291,32 +296,32 @@ export default function CinematicHero() {
             className="space-y-6"
           >
             {/* Main Title */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight">
+            <h1 className="text-5xl font-light tracking-tight md:text-7xl lg:text-8xl">
               <span className="block text-white/90">
                 {displaySlides[currentSlide]?.title || 'Capture Your'}
               </span>
-              <span className="block text-white font-serif italic mt-2">
+              <span className="mt-2 block font-serif italic text-white">
                 {displaySlides[currentSlide]?.subtitle || 'Love Story'}
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-light">
+            <p className="mx-auto max-w-2xl text-lg font-light text-white/80 md:text-xl">
               Professional Wedding & Portrait Photography
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8 pointer-events-auto">
+            <div className="pointer-events-auto mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <a
                 href="#pricing"
-                className="group relative px-8 py-4 bg-white text-gray-900 rounded-full font-medium text-lg overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
+                className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-lg font-medium text-gray-900 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
               >
                 <span className="relative z-10">Pricelist</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </a>
               <button
                 onClick={scrollToPortfolio}
-                className="px-8 py-4 border-2 border-white/30 backdrop-blur-sm text-white rounded-full font-medium text-lg hover:bg-white/10 hover:border-white/50 transition-all duration-300 active:scale-95"
+                className="rounded-full border-2 border-white/30 px-8 py-4 text-lg font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10 active:scale-95"
               >
                 View Portfolio
               </button>
@@ -326,7 +331,7 @@ export default function CinematicHero() {
       </div>
 
       {/* Page Dots Indicator */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+      <div className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 gap-2">
         {displaySlides.map((_, index) => (
           <button
             key={index}
@@ -334,9 +339,9 @@ export default function CinematicHero() {
               setCurrentSlide(index)
               pauseAutoplayTemporarily()
             }}
-            className={`w-3 h-3 rounded-full transition-all duration-300 pointer-events-auto ${
-              index === currentSlide 
-                ? 'bg-white scale-125' 
+            className={`pointer-events-auto h-3 w-3 rounded-full transition-all duration-300 ${
+              index === currentSlide
+                ? 'scale-125 bg-white'
                 : 'bg-white/30 hover:bg-white/60'
             }`}
             aria-label={`Go to slide ${index + 1}`}
@@ -348,23 +353,28 @@ export default function CinematicHero() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 1, repeat: Infinity, repeatType: 'reverse' }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+        transition={{
+          delay: 0.8,
+          duration: 1,
+          repeat: Infinity,
+          repeatType: 'reverse',
+        }}
+        className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2"
       >
         <button
           onClick={scrollToPortfolio}
-          className="flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors active:scale-95 pointer-events-auto"
+          className="pointer-events-auto flex flex-col items-center gap-2 text-white/60 transition-colors hover:text-white active:scale-95"
           aria-label="Scroll down"
         >
           <span className="text-sm font-light tracking-wider">SCROLL</span>
-          <ChevronDown className="w-6 h-6" />
+          <ChevronDown className="h-6 w-6" />
         </button>
       </motion.div>
 
       {/* Decorative Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-10 top-1/4 h-32 w-32 rounded-full bg-purple-500/10 blur-3xl" />
+        <div className="absolute bottom-1/4 right-10 h-40 w-40 rounded-full bg-pink-500/10 blur-3xl" />
       </div>
     </section>
   )

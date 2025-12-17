@@ -9,7 +9,7 @@ export async function POST(
   try {
     const { eventSlug } = await params;
     const body = await request.json();
-    const { access_code, password } = body;
+    const { access_code } = body;
     
     // TODO: Implement password protection for events
     // if (event.requirePasswordAccess && password !== event.accessPassword) {

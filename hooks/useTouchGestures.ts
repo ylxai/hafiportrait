@@ -13,18 +13,26 @@ export function useTouchGestures(threshold: number = 50) {
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY
+      // Fix: Check if touches array has elements
+      const touch = e.touches[0]
+      if (touch) {
+        touchStartRef.current = {
+          x: touch.clientX,
+          y: touch.clientY
+        }
       }
     }
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (!touchStartRef.current) return
 
+      // Fix: Check if changedTouches array has elements
+      const touch = e.changedTouches[0]
+      if (!touch) return
+
       const touchEnd = {
-        x: e.changedTouches[0].clientX,
-        y: e.changedTouches[0].clientY
+        x: touch.clientX,
+        y: touch.clientY
       }
 
       const deltaX = touchEnd.x - touchStartRef.current.x

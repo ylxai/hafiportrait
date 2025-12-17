@@ -8,7 +8,7 @@ datasource db {
 }
 
 model additional_services {
-  id            String   @id
+  id            String   @id @default(uuid())
   name          String
   description   String?
   price         Int
@@ -22,7 +22,7 @@ model additional_services {
 }
 
 model bottom_navigation_settings {
-  id                String   @id
+  id                String   @id @default(uuid())
   home_enabled      Boolean  @default(true)
   portfolio_enabled Boolean  @default(true)
   pricing_enabled   Boolean  @default(true)
@@ -34,7 +34,7 @@ model bottom_navigation_settings {
 }
 
 model comments {
-  id           String   @id
+  id           String   @id @default(uuid())
   guest_name   String
   message      String
   created_at   DateTime @default(now())
@@ -58,7 +58,7 @@ model comments {
 }
 
 model contact_messages {
-  id         String   @id
+  id         String   @id @default(uuid())
   name       String
   email      String
   phone      String?
@@ -72,7 +72,7 @@ model contact_messages {
 }
 
 model event_settings {
-  id                         String   @id
+  id                         String   @id @default(uuid())
   event_id                   String   @unique
   allow_guest_downloads      Boolean  @default(true)
   allow_guest_likes          Boolean  @default(true)
@@ -87,7 +87,7 @@ model event_settings {
 }
 
 model events {
-  id                    String           @id
+  id                    String           @id @default(uuid())
   name                  String
   slug                  String           @unique
   access_code           String           @unique
@@ -117,7 +117,7 @@ model events {
 }
 
 model form_submissions {
-  id               String   @id
+  id               String   @id @default(uuid())
   name             String   @db.VarChar(100)
   whatsapp         String   @db.VarChar(20)
   email            String   @db.VarChar(100)
@@ -134,7 +134,7 @@ model form_submissions {
 }
 
 model guest_sessions {
-  id             String   @id
+  id             String   @id @default(uuid())
   session_id     String   @unique
   event_id       String
   guest_token    String
@@ -151,7 +151,7 @@ model guest_sessions {
 }
 
 model hero_slideshow {
-  id            String   @id
+  id            String   @id @default(uuid())
   image_url     String   @db.VarChar(255)
   thumbnail_url String?  @db.VarChar(255)
   display_order Int      @default(0)
@@ -166,7 +166,7 @@ model hero_slideshow {
 }
 
 model package_categories {
-  id            String     @id
+  id            String     @id @default(uuid())
   name          String     @unique
   slug          String     @unique
   icon          String?
@@ -182,7 +182,7 @@ model package_categories {
 }
 
 model packages {
-  id                 String             @id
+  id                 String             @id @default(uuid())
   name               String
   description        String?
   price              Int
@@ -202,7 +202,7 @@ model packages {
 }
 
 model photo_downloads {
-  id            String   @id
+  id            String   @id @default(uuid())
   photo_id      String
   guest_id      String
   ip_address    String?
@@ -215,7 +215,7 @@ model photo_downloads {
 }
 
 model photo_likes {
-  id         String   @id
+  id         String   @id @default(uuid())
   guest_id   String
   created_at DateTime @default(now())
   photo_id   String
@@ -228,7 +228,7 @@ model photo_likes {
 }
 
 model photo_views {
-  id         String   @id
+  id         String   @id @default(uuid())
   photo_id   String
   guest_id   String
   ip_address String?
@@ -240,7 +240,7 @@ model photo_views {
 }
 
 model photos {
-  id                                 String        @id
+  id                                 String        @id @default(uuid())
   filename                           String
   original_url                       String
   thumbnail_url                      String?
@@ -283,7 +283,7 @@ model photos {
 }
 
 model portfolio_photos {
-  id                String   @id
+  id                String   @id @default(uuid())
   filename          String
   original_url      String
   thumbnail_url     String
@@ -304,7 +304,7 @@ model portfolio_photos {
 }
 
 model pricing_packages {
-  id            String   @id
+  id            String   @id @default(uuid())
   name          String
   slug          String   @unique
   category      String
@@ -325,7 +325,7 @@ model pricing_packages {
 }
 
 model slideshow_settings {
-  id                String   @id
+  id                String   @id @default(uuid())
   timing_seconds    Int      @default(5)
   transition_effect String   @default("fade") @db.VarChar(20)
   autoplay          Boolean  @default(true)
@@ -334,7 +334,7 @@ model slideshow_settings {
 }
 
 model users {
-  id                                  String           @id
+  id                                  String           @id @default(uuid())
   email                               String           @unique
   password_hash                       String
   name                                String

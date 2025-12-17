@@ -2,13 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import Image from 'next/image'
 import { 
   X, 
   LogOut, 
-  Camera, 
-  Calendar, 
-  Users, 
   Settings,
   Package,
   MessageSquare,
@@ -16,8 +12,8 @@ import {
   FileText,
   Home,
   Palette,
-  Grid3X3,
-  Slideshow
+  Grid3x3,
+  Presentation as Slideshow
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -51,7 +47,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
       description: 'Kelola halaman utama',
       subItems: [
         { name: 'Hero Slideshow', href: '/admin/landing-page/hero-slideshow', icon: Slideshow },
-        { name: 'Bento Grid', href: '/admin/landing-page/bento-grid', icon: Grid3X3 },
+        { name: 'Bento Grid', href: '/admin/landing-page/bento-grid', icon: Grid3x3 },
         { name: 'Form Submissions', href: '/admin/landing-page/form-submissions', icon: FileText }
       ]
     },
@@ -61,7 +57,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
       description: 'Manajemen paket layanan',
       subItems: [
         { name: 'All Packages', href: '/admin/packages', icon: Package },
-        { name: 'Categories', href: '/admin/packages/categories', icon: Grid3X3 }
+        { name: 'Categories', href: '/admin/packages/categories', icon: Grid3x3 }
       ]
     },
     {
@@ -157,7 +153,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
             const hasSubItems = item.subItems && item.subItems.length > 0
             const isExpanded = expandedItems.has(item.name)
             const is_active = item.href ? isItemActive(item.href) : false
-            const isParentActive = hasSubItems && item.subItems.some(sub => isItemActive(sub.href))
+            const isParentActive = hasSubItems && item.subItems?.some(sub => isItemActive(sub.href))
 
             if (hasSubItems) {
               return (
@@ -180,7 +176,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
                   </button>
                   {isExpanded && (
                     <div className="ml-6 space-y-1">
-                      {item.subItems.map((subItem) => {
+                      {item.subItems?.map((subItem) => {
                         const SubIcon = subItem.icon
                         const isSubActive = isItemActive(subItem.href)
                         return (

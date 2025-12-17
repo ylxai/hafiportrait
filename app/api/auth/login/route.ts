@@ -49,7 +49,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
       email: true,
       name: true,
       role: true,
-      passwordHash: true,
+      password_hash: true,
     },
   })
 
@@ -65,7 +65,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   }
 
   // Verify password
-  const isValidPassword = await verifyPassword(password, user.passwordHash)
+  const isValidPassword = await verifyPassword(password, user.password_hash)
   if (!isValidPassword) {
     logSecurityEvent({
       type: 'AUTH_FAILED',

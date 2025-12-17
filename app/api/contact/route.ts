@@ -34,7 +34,6 @@ export async function POST(request: Request) {
         phone: sanitizedData.phone,
         message: sanitizedData.message,
         status: 'new',
-        id: crypto.randomUUID(),
         updated_at: new Date(),
       },
     })

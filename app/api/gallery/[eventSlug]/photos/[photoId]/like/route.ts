@@ -57,12 +57,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if likes are enabled
-    const settings = await prisma.eventSettings.findUnique({
+    const settings = await prisma.event_settings.findUnique({
       where: { event_id: event.id },
-      select: { allowGuestLikes: true },
+      select: { allow_guest_likes: true },
     });
 
-    const allowLikes = settings?.allowGuestLikes ?? true;
+    const allowLikes = settings?.allow_guest_likes ?? true;
     if (!allowLikes) {
       return NextResponse.json(
         { error: 'Likes are disabled for this event' },
@@ -105,10 +105,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Create like (upsert to handle duplicates gracefully)
     try {
-      await prisma.photoLike.create({
+      await prisma.photo_likes.create({
         data: {
+          id: crypto.randomUUID(),
           photo_id: photo_id,
-          guestId: guestId,
+          guest_id: guestId,
         },
       });
 
@@ -213,10 +214,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Delete like
-    const deletedLike = await prisma.photoLike.deleteMany({
+    const deletedLike = await prisma.photo_likes.deleteMany({
       where: {
         photo_id: photo_id,
-        guestId: guestId,
+        guest_id: guestId,
       },
     });
 

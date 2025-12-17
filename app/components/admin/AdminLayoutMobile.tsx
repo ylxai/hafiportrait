@@ -6,12 +6,7 @@ import BottomTabNavigation from './mobile/BottomTabNavigation'
 import MobileHeader from './mobile/MobileHeader'
 import QuickActionsFAB from './mobile/QuickActionsFAB'
 
-interface User {
-  id: string
-  email: string
-  name: string
-  role: string
-}
+
 
 interface AdminLayoutMobileProps {
   children: React.ReactNode
@@ -20,7 +15,6 @@ interface AdminLayoutMobileProps {
 export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [newMessagesCount, setNewMessagesCount] = useState(0)
 

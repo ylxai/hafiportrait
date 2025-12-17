@@ -1,39 +1,41 @@
-'use client';
+'use client'
 
 /**
  * Comment Moderation Table Component
  * Displays comments with moderation actions
  */
 
-import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { useState } from 'react'
+import { formatDistanceToNow } from 'date-fns'
 import {
   CheckCircleIcon,
   XCircleIcon,
   TrashIcon,
   MagnifyingGlassIcon,
   ArrowDownTrayIcon,
-} from '@heroicons/react/24/outline';
+  ChatBubbleLeftRightIcon,
+  ClockIcon,
+} from '@heroicons/react/24/outline'
 
 interface Comment {
-  id: string;
-  guest_name: string;
-  email: string | null;
-  message: string;
-  relationship: string | null;
-  status: string;
-  created_at: Date;
+  id: string
+  guest_name: string
+  email: string | null
+  message: string
+  relationship: string | null
+  status: string
+  created_at: Date
   photos: {
-    filename: string;
-    thumbnail_url: string | null;
-  } | null;
+    filename: string
+    thumbnail_url: string | null
+  } | null
 }
 
 interface CommentModerationTableProps {
-  event_id: string;
-  initialComments: Comment[];
-  initialTotalCount: number;
-  initialPendingCount: number;
+  event_id: string
+  initialComments: Comment[]
+  initialTotalCount: number
+  initialPendingCount: number
 }
 
 export default function CommentModerationTable({
@@ -42,51 +44,52 @@ export default function CommentModerationTable({
   initialTotalCount,
   initialPendingCount,
 }: CommentModerationTableProps) {
-  const [comments, setComments] = useState(initialComments);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [comments, setComments] = useState(initialComments)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   // Filter comments
   const filteredComments = comments.filter((comment) => {
-    const matchesStatus = filterStatus === 'all' || comment.status === filterStatus;
+    const matchesStatus =
+      filterStatus === 'all' || comment.status === filterStatus
     const matchesSearch =
       searchQuery === '' ||
       comment.guest_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      comment.message.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+      comment.message.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesStatus && matchesSearch
+  })
 
   // Handle select all
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(filteredComments.map((c) => c.id));
+      setSelectedIds(filteredComments.map((c) => c.id))
     } else {
-      setSelectedIds([]);
+      setSelectedIds([])
     }
-  };
+  }
 
   // Handle individual select
   const handleSelect = (id: string, checked: boolean) => {
     if (checked) {
-      setSelectedIds([...selectedIds, id]);
+      setSelectedIds([...selectedIds, id])
     } else {
-      setSelectedIds(selectedIds.filter((cid) => cid !== id));
+      setSelectedIds(selectedIds.filter((cid) => cid !== id))
     }
-  };
+  }
 
   // Handle bulk action
   const handleBulkAction = async (action: 'approve' | 'reject' | 'delete') => {
     if (selectedIds.length === 0) {
-      alert('Please select comments to perform action');
-      return;
+      alert('Please select comments to perform action')
+      return
     }
 
-    const confirmMsg = `Are you sure you want to ${action} ${selectedIds.length} comment(s)?`;
-    if (!confirm(confirmMsg)) return;
+    const confirmMsg = `Are you sure you want to ${action} ${selectedIds.length} comment(s)?`
+    if (!confirm(confirmMsg)) return
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
       const response = await fetch(`/api/admin/events/${event_id}/comments`, {
@@ -98,37 +101,37 @@ export default function CommentModerationTable({
           commentIds: selectedIds,
           action,
         }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to perform action');
+        throw new Error('Failed to perform action')
       }
 
       // Update local state
       if (action === 'delete') {
-        setComments(comments.filter((c) => !selectedIds.includes(c.id)));
+        setComments(comments.filter((c) => !selectedIds.includes(c.id)))
       } else {
-        const newStatus = action === 'approve' ? 'approved' : 'rejected';
+        const newStatus = action === 'approve' ? 'approved' : 'rejected'
         setComments(
           comments.map((c) =>
             selectedIds.includes(c.id) ? { ...c, status: newStatus } : c
           )
-        );
+        )
       }
 
-      setSelectedIds([]);
-      alert(`Successfully ${action}d ${selectedIds.length} comment(s)`);
+      setSelectedIds([])
+      alert(`Successfully ${action}d ${selectedIds.length} comment(s)`)
     } catch (error) {
-      console.error('Error performing action:', error);
-      alert('Failed to perform action');
+      console.error('Error performing action:', error)
+      alert('Failed to perform action')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Handle export
   const handleExport = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       const response = await fetch(`/api/admin/events/${event_id}/comments`, {
         method: 'POST',
@@ -136,44 +139,87 @@ export default function CommentModerationTable({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ action: 'export' }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to export');
+        throw new Error('Failed to export')
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `comments-${Date.now()}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `comments-${Date.now()}.csv`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
     } catch (error) {
-      console.error('Error exporting:', error);
-      alert('Failed to export comments');
+      console.error('Error exporting:', error)
+      alert('Failed to export comments')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white shadow">
+      {/* Stats Overview */}
+      <div className="border-b border-gray-200 bg-gray-50 p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="flex items-center">
+              <ChatBubbleLeftRightIcon className="mr-3 h-8 w-8 text-blue-500" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Comments
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {initialTotalCount}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="flex items-center">
+              <ClockIcon className="mr-3 h-8 w-8 text-yellow-500" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Pending Review
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {initialPendingCount}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="flex items-center">
+              <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Approved</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {initialTotalCount - initialPendingCount}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters and Actions */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="border-b border-gray-200 p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* Search */}
-          <div className="flex-1 max-w-md">
+          <div className="max-w-md flex-1">
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search comments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -183,7 +229,7 @@ export default function CommentModerationTable({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -194,7 +240,7 @@ export default function CommentModerationTable({
             <button
               onClick={handleExport}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               <ArrowDownTrayIcon className="h-5 w-5" />
               Export CSV
@@ -211,7 +257,7 @@ export default function CommentModerationTable({
             <button
               onClick={() => handleBulkAction('approve')}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
             >
               <CheckCircleIcon className="h-4 w-4" />
               Approve
@@ -219,7 +265,7 @@ export default function CommentModerationTable({
             <button
               onClick={() => handleBulkAction('reject')}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
             >
               <XCircleIcon className="h-4 w-4" />
               Reject
@@ -227,7 +273,7 @@ export default function CommentModerationTable({
             <button
               onClick={() => handleBulkAction('delete')}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
             >
               <TrashIcon className="h-4 w-4" />
               Delete
@@ -244,32 +290,38 @@ export default function CommentModerationTable({
               <th className="px-6 py-3 text-left">
                 <input
                   type="checkbox"
-                  checked={selectedIds.length === filteredComments.length && filteredComments.length > 0}
+                  checked={
+                    selectedIds.length === filteredComments.length &&
+                    filteredComments.length > 0
+                  }
                   onChange={(e) => handleSelectAll(e.target.checked)}
                   className="rounded border-gray-300"
                 />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
                 Message
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
                 Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 bg-white">
             {filteredComments.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                <td
+                  colSpan={6}
+                  className="px-6 py-12 text-center text-gray-500"
+                >
                   No comments found
                 </td>
               </tr>
@@ -280,18 +332,24 @@ export default function CommentModerationTable({
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(comment.id)}
-                      onChange={(e) => handleSelect(comment.id, e.target.checked)}
+                      onChange={(e) =>
+                        handleSelect(comment.id, e.target.checked)
+                      }
                       className="rounded border-gray-300"
                     />
                   </td>
                   <td className="px-6 py-4">
                     <div>
-                      <div className="font-medium text-gray-900">{comment.guest_name}</div>
+                      <div className="font-medium text-gray-900">
+                        {comment.guest_name}
+                      </div>
                       {comment.email && (
-                        <div className="text-sm text-gray-500">{comment.email}</div>
+                        <div className="text-sm text-gray-500">
+                          {comment.email}
+                        </div>
                       )}
                       {comment.relationship && (
-                        <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 rounded">
+                        <span className="mt-1 inline-block rounded bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
                           {comment.relationship}
                         </span>
                       )}
@@ -299,32 +357,36 @@ export default function CommentModerationTable({
                   </td>
                   <td className="px-6 py-4">
                     <div className="max-w-md">
-                      <p className="text-sm text-gray-900 line-clamp-2">{comment.message}</p>
+                      <p className="line-clamp-2 text-sm text-gray-900">
+                        {comment.message}
+                      </p>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
                         comment.status === 'approved'
                           ? 'bg-green-100 text-green-800'
                           : comment.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                       }`}
                     >
                       {comment.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.created_at), {
+                      addSuffix: true,
+                    })}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       {comment.status !== 'approved' && (
                         <button
                           onClick={() => {
-                            setSelectedIds([comment.id]);
-                            handleBulkAction('approve');
+                            setSelectedIds([comment.id])
+                            handleBulkAction('approve')
                           }}
                           className="text-green-600 hover:text-green-800"
                           title="Approve"
@@ -335,8 +397,8 @@ export default function CommentModerationTable({
                       {comment.status !== 'rejected' && (
                         <button
                           onClick={() => {
-                            setSelectedIds([comment.id]);
-                            handleBulkAction('reject');
+                            setSelectedIds([comment.id])
+                            handleBulkAction('reject')
                           }}
                           className="text-red-600 hover:text-red-800"
                           title="Reject"
@@ -346,8 +408,8 @@ export default function CommentModerationTable({
                       )}
                       <button
                         onClick={() => {
-                          setSelectedIds([comment.id]);
-                          handleBulkAction('delete');
+                          setSelectedIds([comment.id])
+                          handleBulkAction('delete')
                         }}
                         className="text-gray-600 hover:text-gray-800"
                         title="Delete"
@@ -363,5 +425,5 @@ export default function CommentModerationTable({
         </table>
       </div>
     </div>
-  );
+  )
 }

@@ -1,15 +1,25 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
+import Image from 'next/image'
 /**
  * Photo Uploader with Persistence
- * 
+ *
  * Enhanced photo uploader with upload progress persistence
  */
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { Upload, X, CheckCircle, AlertCircle, Loader2, Image as ImageIcon, Pause, Play, Trash2 } from 'lucide-react';
-import { IntegratedUploadQueue } from '@/lib/upload/uploadQueueIntegrated';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import {
+  Upload,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Image as ImageIcon,
+  Pause,
+  Play,
+  Trash2,
+} from 'lucide-react'
+import { IntegratedUploadQueue } from '@/lib/upload/uploadQueueIntegrated'
 import {
   UploadSession,
   UploadFileState,
@@ -24,18 +34,18 @@ import {
   updateFileState,
   removeFileFromSession,
   getCompletedFiles,
-} from '@/lib/upload/uploadPersistence';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { ConnectionStatusBanner } from '@/components/upload/ConnectionStatus';
-import { ResumeUploadBanner } from '@/components/upload/ResumeUploadBanner';
-import { UploadHistoryPanel } from '@/components/upload/UploadHistoryPanel';
+} from '@/lib/upload/uploadPersistence'
+import { useNetworkStatus } from '@/hooks/useNetworkStatus'
+import { ConnectionStatusBanner } from '@/components/upload/ConnectionStatus'
+import { ResumeUploadBanner } from '@/components/upload/ResumeUploadBanner'
+import { UploadHistoryPanel } from '@/components/upload/UploadHistoryPanel'
 
 interface PhotoUploaderPersistentProps {
-  event_id: string;
-  eventName: string;
-  onUploadComplete?: (results: any) => void;
-  maxFiles?: number;
-  maxFileSize?: number;
+  event_id: string
+  eventName: string
+  onUploadComplete?: (results: any) => void
+  maxFiles?: number
+  maxFileSize?: number
 }
 
 export default function PhotoUploaderPersistent({
@@ -45,301 +55,339 @@ export default function PhotoUploaderPersistent({
   maxFiles = 500,
   maxFileSize = 50 * 1024 * 1024,
 }: PhotoUploaderPersistentProps) {
-  const [session, setSession] = useState<UploadSession | null>(null);
-  const [pendingSession, setPendingSession] = useState<UploadSession | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadQueueRef = useRef<IntegratedUploadQueue | null>(null);
-  const filesMapRef = useRef<Map<string, File>>(new Map());
+  const [session, setSession] = useState<UploadSession | null>(null)
+  const [pendingSession, setPendingSession] = useState<UploadSession | null>(
+    null
+  )
+  const [showHistory, setShowHistory] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const uploadQueueRef = useRef<IntegratedUploadQueue | null>(null)
+  const filesMapRef = useRef<Map<string, File>>(new Map())
 
-  const { isOnline } = useNetworkStatus();
+  const { isOnline } = useNetworkStatus()
 
-  const ACCEPTED_TYPES = useMemo(() => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'], []);
+  const ACCEPTED_TYPES = useMemo(
+    () => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    []
+  )
 
   // Load existing session on mount
   useEffect(() => {
-    const existingSession = loadUploadState();
-    
-    if (existingSession && existingSession.event_id === event_id && hasPendingUploads(existingSession)) {
-      setPendingSession(existingSession);
+    const existingSession = loadUploadState()
+
+    if (
+      existingSession &&
+      existingSession.event_id === event_id &&
+      hasPendingUploads(existingSession)
+    ) {
+      setPendingSession(existingSession)
     } else if (existingSession && existingSession.event_id === event_id) {
-      clearUploadState();
+      clearUploadState()
     }
-  }, [event_id]);
+  }, [event_id])
 
   // Handle upload completion
   const handleUploadComplete = useCallback(() => {
-    if (!session) return;
-    
-    saveUploadHistory(session);
-    clearUploadState();
-    
+    if (!session) return
+
+    saveUploadHistory(session)
+    clearUploadState()
+
     const stats = {
-      success: session.files.filter(f => f.status === 'completed').length,
-      error: session.files.filter(f => f.status === 'failed').length,
+      success: session.files.filter((f) => f.status === 'completed').length,
+      error: session.files.filter((f) => f.status === 'failed').length,
       total: session.files.length,
-    };
-    
-    if (onUploadComplete) {
-      onUploadComplete(stats);
     }
-  }, [session, onUploadComplete]);
+
+    if (onUploadComplete) {
+      onUploadComplete(stats)
+    }
+  }, [session, onUploadComplete])
 
   // Initialize upload queue
   useEffect(() => {
-    if (!session) return;
+    if (!session) return
 
     const queue = new IntegratedUploadQueue(event_id, {
       maxConcurrent: 3,
       maxRetries: 10,
       onProgress: (fileId, progress, uploadedBytes) => {
         setSession((prev) => {
-          if (!prev) return prev;
-          return updateFileState(prev, fileId, { progress, uploadedBytes });
-        });
+          if (!prev) return prev
+          return updateFileState(prev, fileId, { progress, uploadedBytes })
+        })
       },
       onFileComplete: (fileId) => {
         setSession((prev) => {
-          if (!prev) return prev;
-          return updateFileState(prev, fileId, { status: 'completed', progress: 100 });
-        });
+          if (!prev) return prev
+          return updateFileState(prev, fileId, {
+            status: 'completed',
+            progress: 100,
+          })
+        })
       },
       onFileError: (fileId, error) => {
         setSession((prev) => {
-          if (!prev) return prev;
-          return updateFileState(prev, fileId, { status: 'failed', error });
-        });
+          if (!prev) return prev
+          return updateFileState(prev, fileId, { status: 'failed', error })
+        })
       },
       onStatusChange: (status) => {
         if (status === 'completed') {
-          handleUploadComplete();
+          handleUploadComplete()
         }
       },
       onRetrying: (fileId, attempt, delay) => {
+        console.log(
+          `Retrying upload for file ${fileId}, attempt ${attempt}, next retry in ${delay}ms`
+        )
+        // Could add toast notification here for retry feedback
+        // toast.showInfo(`Retrying upload (attempt ${attempt})...`);
       },
-    });
+    })
 
-    uploadQueueRef.current = queue;
+    uploadQueueRef.current = queue
 
     return () => {
-      queue.destroy();
-    };
-  }, [session, event_id, handleUploadComplete]);
+      queue.destroy()
+    }
+  }, [session, event_id, handleUploadComplete])
 
   // Save session to localStorage
   useEffect(() => {
     if (session) {
-      saveUploadState(session);
+      saveUploadState(session)
     }
-  }, [session]);
+  }, [session])
 
   // Pause uploads when offline
   useEffect(() => {
-    if (!uploadQueueRef.current) return;
+    if (!uploadQueueRef.current) return
 
     if (!isOnline) {
-      uploadQueueRef.current.pause();
+      uploadQueueRef.current.pause()
     } else if (uploadQueueRef.current.getStatus() === 'paused') {
-      uploadQueueRef.current.resume();
+      uploadQueueRef.current.resume()
     }
-  }, [isOnline]);
+  }, [isOnline])
 
-  const validateFile = useCallback((file: File): string | null => {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      return `Tipe file ${file.type} tidak didukung. Gunakan JPG, PNG, atau WebP.`;
-    }
-    
-    if (file.size > maxFileSize) {
-      const maxMB = maxFileSize / 1024 / 1024;
-      const fileMB = file.size / 1024 / 1024;
-      return `Ukuran file ${fileMB.toFixed(2)}MB melebihi maksimum ${maxMB}MB.`;
-    }
-    
-    return null;
-  }, [ACCEPTED_TYPES, maxFileSize]);
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        return `Tipe file ${file.type} tidak didukung. Gunakan JPG, PNG, atau WebP.`
+      }
 
-  const addFiles = useCallback((newFiles: FileList | File[]) => {
-    const fileArray = Array.from(newFiles);
-    const currentFiles = session?.files || [];
-    
-    if (currentFiles.length + fileArray.length > maxFiles) {
-      alert(`Maksimum ${maxFiles} files. Saat ini: ${currentFiles.length}, Menambahkan: ${fileArray.length}`);
-      return;
-    }
+      if (file.size > maxFileSize) {
+        const maxMB = maxFileSize / 1024 / 1024
+        const fileMB = file.size / 1024 / 1024
+        return `Ukuran file ${fileMB.toFixed(2)}MB melebihi maksimum ${maxMB}MB.`
+      }
 
-    const uploadFileStates: UploadFileState[] = fileArray.map((file) => {
-      const error = validateFile(file);
-      const fileId = `${Date.now()}-${Math.random()}`;
-      
-      filesMapRef.current.set(fileId, file);
-      
-      return {
-        id: fileId,
-        file: {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          lastModified: file.lastModified,
-        },
-        progress: 0,
-        status: error ? 'failed' : 'queued',
-        uploadedChunks: [],
-        totalChunks: 1,
-        error: error || undefined,
-        retryCount: 0,
-      };
-    });
+      return null
+    },
+    [ACCEPTED_TYPES, maxFileSize]
+  )
 
-    if (session) {
-      setSession({
-        ...session,
-        files: [...session.files, ...uploadFileStates],
-        updated_at: Date.now(),
-      });
-    } else {
-      const newSession = createUploadSession(event_id, uploadFileStates);
-      setSession(newSession);
-    }
-  }, [session, event_id, maxFiles, validateFile]);
+  const addFiles = useCallback(
+    (newFiles: FileList | File[]) => {
+      const fileArray = Array.from(newFiles)
+      const currentFiles = session?.files || []
+
+      if (currentFiles.length + fileArray.length > maxFiles) {
+        alert(
+          `Maksimum ${maxFiles} files. Saat ini: ${currentFiles.length}, Menambahkan: ${fileArray.length}`
+        )
+        return
+      }
+
+      const uploadFileStates: UploadFileState[] = fileArray.map((file) => {
+        const error = validateFile(file)
+        const fileId = `${Date.now()}-${Math.random()}`
+
+        filesMapRef.current.set(fileId, file)
+
+        return {
+          id: fileId,
+          file: {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: file.lastModified,
+          },
+          progress: 0,
+          status: error ? 'failed' : 'queued',
+          uploadedChunks: [],
+          totalChunks: 1,
+          error: error || undefined,
+          retryCount: 0,
+        }
+      })
+
+      if (session) {
+        setSession({
+          ...session,
+          files: [...session.files, ...uploadFileStates],
+          updated_at: Date.now(),
+        })
+      } else {
+        const newSession = createUploadSession(event_id, uploadFileStates)
+        setSession(newSession)
+      }
+    },
+    [session, event_id, maxFiles, validateFile]
+  )
 
   const resumePendingSession = useCallback(() => {
-    if (!pendingSession) return;
-    
-    setSession(pendingSession);
-    setPendingSession(null);
-    
+    if (!pendingSession) return
+
+    setSession(pendingSession)
+    setPendingSession(null)
+
     setTimeout(() => {
-      uploadQueueRef.current?.start();
-    }, 100);
-  }, [pendingSession]);
+      uploadQueueRef.current?.start()
+    }, 100)
+  }, [pendingSession])
 
   const cancelPendingSession = useCallback(() => {
-    clearUploadState();
-    setPendingSession(null);
-  }, []);
+    clearUploadState()
+    setPendingSession(null)
+  }, [])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+    e.preventDefault()
+    setIsDragging(true)
+  }, [])
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
+    e.preventDefault()
+    setIsDragging(false)
+  }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const droppedFiles = e.dataTransfer.files;
-    if (droppedFiles.length > 0) {
-      addFiles(droppedFiles);
-    }
-  }, [addFiles]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      setIsDragging(false)
 
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      addFiles(e.target.files);
-    }
-  }, [addFiles]);
+      const droppedFiles = e.dataTransfer.files
+      if (droppedFiles.length > 0) {
+        addFiles(droppedFiles)
+      }
+    },
+    [addFiles]
+  )
 
-  const removeFile = useCallback((fileId: string) => {
-    if (!session) return;
-    
-    filesMapRef.current.delete(fileId);
-    uploadQueueRef.current?.removeFile(fileId);
-    
-    const updatedSession = removeFileFromSession(session, fileId);
-    setSession(updatedSession);
-    
-    if (updatedSession.files.length === 0) {
-      clearUploadState();
-      setSession(null);
-    }
-  }, [session]);
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        addFiles(e.target.files)
+      }
+    },
+    [addFiles]
+  )
+
+  const removeFile = useCallback(
+    (fileId: string) => {
+      if (!session) return
+
+      filesMapRef.current.delete(fileId)
+      uploadQueueRef.current?.removeFile(fileId)
+
+      const updatedSession = removeFileFromSession(session, fileId)
+      setSession(updatedSession)
+
+      if (updatedSession.files.length === 0) {
+        clearUploadState()
+        setSession(null)
+      }
+    },
+    [session]
+  )
 
   const clearAll = useCallback(() => {
-    uploadQueueRef.current?.stop();
-    filesMapRef.current.clear();
-    clearUploadState();
-    setSession(null);
-  }, []);
+    uploadQueueRef.current?.stop()
+    filesMapRef.current.clear()
+    clearUploadState()
+    setSession(null)
+  }, [])
 
   const clearCompleted = useCallback(() => {
-    if (!session) return;
-    
-    const completedFiles = getCompletedFiles(session);
-    completedFiles.forEach(file => {
-      filesMapRef.current.delete(file.id);
-      uploadQueueRef.current?.removeFile(file.id);
-    });
-    
-    const remainingFiles = session.files.filter(f => f.status !== 'completed');
-    
+    if (!session) return
+
+    const completedFiles = getCompletedFiles(session)
+    completedFiles.forEach((file) => {
+      filesMapRef.current.delete(file.id)
+      uploadQueueRef.current?.removeFile(file.id)
+    })
+
+    const remainingFiles = session.files.filter((f) => f.status !== 'completed')
+
     if (remainingFiles.length === 0) {
-      clearUploadState();
-      setSession(null);
+      clearUploadState()
+      setSession(null)
     } else {
       setSession({
         ...session,
         files: remainingFiles,
         updated_at: Date.now(),
-      });
+      })
     }
-  }, [session]);
+  }, [session])
 
   const uploadAll = useCallback(async () => {
-    if (!session) return;
-    
-    session.files.forEach(fileState => {
+    if (!session) return
+
+    session.files.forEach((fileState) => {
       if (fileState.status === 'queued' || fileState.status === 'failed') {
-        const actualFile = filesMapRef.current.get(fileState.id);
-        uploadQueueRef.current?.addFile(fileState, actualFile);
+        const actualFile = filesMapRef.current.get(fileState.id)
+        uploadQueueRef.current?.addFile(fileState, actualFile!!)
       }
-    });
-    
-    await uploadQueueRef.current?.start();
-  }, [session]);
+    })
+
+    await uploadQueueRef.current?.start()
+  }, [session])
 
   const pauseUpload = useCallback(() => {
-    uploadQueueRef.current?.pause();
-  }, []);
+    uploadQueueRef.current?.pause()
+  }, [])
 
   const resumeUpload = useCallback(() => {
-    uploadQueueRef.current?.resume();
-  }, []);
+    uploadQueueRef.current?.resume()
+  }, [])
 
   // Upload complete handler moved above to avoid hoisting issues
 
   const retryFailed = useCallback(() => {
-    if (!session) return;
-    
-    const updatedFiles = session.files.map(f =>
-      f.status === 'failed' ? { ...f, status: 'queued' as const, error: undefined, retryCount: 0 } : f
-    );
-    
+    if (!session) return
+
+    const updatedFiles = session.files.map((f) =>
+      f.status === 'failed'
+        ? { ...f, status: 'queued' as const, error: undefined, retryCount: 0 }
+        : f
+    )
+
     setSession({
       ...session,
       files: updatedFiles,
       updated_at: Date.now(),
-    });
-  }, [session]);
+    })
+  }, [session])
 
-  const stats = session ? {
-    total: session.files.length,
-    queued: session.files.filter((f) => f.status === 'queued').length,
-    uploading: session.files.filter((f) => f.status === 'uploading').length,
-    completed: session.files.filter((f) => f.status === 'completed').length,
-    failed: session.files.filter((f) => f.status === 'failed').length,
-    paused: session.files.filter((f) => f.status === 'paused').length,
-  } : { total: 0, queued: 0, uploading: 0, completed: 0, failed: 0, paused: 0 };
+  const stats = session
+    ? {
+        total: session.files.length,
+        queued: session.files.filter((f) => f.status === 'queued').length,
+        uploading: session.files.filter((f) => f.status === 'uploading').length,
+        completed: session.files.filter((f) => f.status === 'completed').length,
+        failed: session.files.filter((f) => f.status === 'failed').length,
+        paused: session.files.filter((f) => f.status === 'paused').length,
+      }
+    : { total: 0, queued: 0, uploading: 0, completed: 0, failed: 0, paused: 0 }
 
-  const queueStatus = uploadQueueRef.current?.getStatus() || 'idle';
-  const isUploading = queueStatus === 'uploading';
-  const isPaused = queueStatus === 'paused';
-  const canUpload = stats.queued > 0 && !isUploading && !isPaused;
+  const queueStatus = uploadQueueRef.current?.getStatus() || 'idle'
+  const isUploading = queueStatus === 'uploading'
+  const isPaused = queueStatus === 'paused'
+  const canUpload = stats.queued > 0 && !isUploading && !isPaused
 
   return (
     <div className="space-y-6">
@@ -348,13 +396,14 @@ export default function PhotoUploaderPersistent({
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Upload Foto</h2>
           <p className="mt-1 text-sm text-gray-600">
-            Upload foto untuk event: <span className="font-semibold">{eventName}</span>
+            Upload foto untuk event:{' '}
+            <span className="font-semibold">{eventName}</span>
           </p>
         </div>
-        
+
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className="text-sm text-[#54ACBF] hover:text-[#54ACBF]/80 font-medium"
+          className="text-sm font-medium text-[#54ACBF] hover:text-[#54ACBF]/80"
         >
           {showHistory ? 'Sembunyikan Riwayat' : 'Tampilkan Riwayat'}
         </button>
@@ -394,7 +443,7 @@ export default function PhotoUploaderPersistent({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="text-[#54ACBF] hover:text-[#54ACBF]/80 font-semibold"
+              className="font-semibold text-[#54ACBF] hover:text-[#54ACBF]/80"
             >
               Klik untuk memilih
             </button>
@@ -404,7 +453,8 @@ export default function PhotoUploaderPersistent({
             JPG, PNG, WebP hingga {maxFileSize / 1024 / 1024}MB per file
           </p>
           <p className="mt-1 text-xs text-gray-400">
-            Maksimum {maxFiles} file per batch • Progress upload otomatis tersimpan
+            Maksimum {maxFiles} file per batch • Progress upload otomatis
+            tersimpan
           </p>
         </div>
         <input
@@ -427,25 +477,33 @@ export default function PhotoUploaderPersistent({
             </div>
             {stats.queued > 0 && (
               <div>
-                <span className="font-semibold text-gray-700">{stats.queued}</span>
+                <span className="font-semibold text-gray-700">
+                  {stats.queued}
+                </span>
                 <span className="text-gray-600"> antrian</span>
               </div>
             )}
             {stats.uploading > 0 && (
               <div>
-                <span className="font-semibold text-blue-600">{stats.uploading}</span>
+                <span className="font-semibold text-blue-600">
+                  {stats.uploading}
+                </span>
                 <span className="text-gray-600"> uploading</span>
               </div>
             )}
             {stats.completed > 0 && (
               <div>
-                <span className="font-semibold text-green-600">{stats.completed}</span>
+                <span className="font-semibold text-green-600">
+                  {stats.completed}
+                </span>
                 <span className="text-gray-600"> selesai</span>
               </div>
             )}
             {stats.failed > 0 && (
               <div>
-                <span className="font-semibold text-red-600">{stats.failed}</span>
+                <span className="font-semibold text-red-600">
+                  {stats.failed}
+                </span>
                 <span className="text-gray-600"> gagal</span>
               </div>
             )}
@@ -456,7 +514,7 @@ export default function PhotoUploaderPersistent({
               <button
                 onClick={clearCompleted}
                 disabled={isUploading}
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-50 flex items-center gap-1.5"
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 Hapus Selesai
@@ -480,7 +538,7 @@ export default function PhotoUploaderPersistent({
             {isUploading && (
               <button
                 onClick={pauseUpload}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 flex items-center gap-2"
+                className="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
               >
                 <Pause className="h-4 w-4" />
                 Jeda
@@ -489,7 +547,7 @@ export default function PhotoUploaderPersistent({
             {isPaused && (
               <button
                 onClick={resumeUpload}
-                className="rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-600 flex items-center gap-2"
+                className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-600"
               >
                 <Play className="h-4 w-4" />
                 Lanjutkan
@@ -499,7 +557,7 @@ export default function PhotoUploaderPersistent({
               <button
                 onClick={uploadAll}
                 disabled={!canUpload}
-                className="rounded-lg bg-[#54ACBF] px-6 py-2 text-sm font-semibold text-white hover:bg-[#54ACBF]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-[#54ACBF] px-6 py-2 text-sm font-semibold text-white hover:bg-[#54ACBF]/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Upload Semua
               </button>
@@ -512,16 +570,16 @@ export default function PhotoUploaderPersistent({
       {session && session.files.length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {session.files.map((fileState) => {
-            const actualFile = filesMapRef.current.get(fileState.id);
-            const preview = actualFile ? URL.createObjectURL(actualFile) : '';
-            
+            const actualFile = filesMapRef.current.get(fileState.id)
+            const preview = actualFile ? URL.createObjectURL(actualFile) : ''
+
             return (
               <div
                 key={fileState.id}
                 className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
               >
                 {preview && (
-                  <div className="relative w-full h-full">
+                  <div className="relative h-full w-full">
                     <Image
                       src={preview}
                       alt={`Upload preview: ${fileState.file.name}`}
@@ -534,7 +592,7 @@ export default function PhotoUploaderPersistent({
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                <div className="absolute top-2 right-2">
+                <div className="absolute right-2 top-2">
                   {fileState.status === 'queued' && (
                     <button
                       onClick={() => removeFile(fileState.id)}
@@ -575,10 +633,15 @@ export default function PhotoUploaderPersistent({
                   </p>
                   <p className="text-xs text-white/80">
                     {(fileState.file.size / 1024 / 1024).toFixed(2)} MB
-                    {fileState.progress > 0 && fileState.status === 'uploading' && ` • ${fileState.progress}%`}
+                    {fileState.progress > 0 &&
+                      fileState.status === 'uploading' &&
+                      ` • ${fileState.progress}%`}
                   </p>
                   {fileState.error && (
-                    <p className="mt-1 text-xs text-red-300 line-clamp-2" title={fileState.error}>
+                    <p
+                      className="mt-1 line-clamp-2 text-xs text-red-300"
+                      title={fileState.error}
+                    >
                       {fileState.error}
                     </p>
                   )}
@@ -589,7 +652,7 @@ export default function PhotoUploaderPersistent({
                   )}
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
@@ -601,10 +664,11 @@ export default function PhotoUploaderPersistent({
             Belum ada foto dipilih. Mulai dengan menambahkan foto di atas.
           </p>
           <p className="mt-1 text-xs text-gray-500">
-            Progress upload akan otomatis tersimpan dan dapat dilanjutkan kapan saja.
+            Progress upload akan otomatis tersimpan dan dapat dilanjutkan kapan
+            saja.
           </p>
         </div>
       )}
     </div>
-  );
+  )
 }

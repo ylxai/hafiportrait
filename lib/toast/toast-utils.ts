@@ -1,50 +1,10 @@
-import toast from 'react-hot-toast'
+/**
+ * Toast Utility Functions
+ * Helper functions for showing toast notifications
+ * Uses react-hot-toast library
+ */
 
-// Toast messages constants
-export const TOAST_MESSAGES = {
-  photo: {
-    uploadSuccess: (count: number) => 
-      `${count} photo${count > 1 ? 's' : ''} uploaded successfully`,
-    uploadError: (filename: string) => 
-      `Failed to upload ${filename}`,
-    uploadFileSizeError: (filename: string, maxSize: string) =>
-      `${filename} exceeds maximum size of ${maxSize}`,
-    uploadFileTypeError: (filename: string) =>
-      `${filename} has invalid file type`,
-    deleteSuccess: 'Photo deleted successfully',
-    deleteError: 'Failed to delete photo',
-    downloadSuccess: 'Photo downloaded successfully',
-    downloadError: 'Failed to download photo',
-  },
-  event: {
-    createSuccess: 'Event created successfully',
-    createError: 'Failed to create event',
-    updateSuccess: 'Event updated successfully',
-    updateError: 'Failed to update event',
-    deleteSuccess: 'Event deleted successfully',
-    deleteError: 'Failed to delete event',
-  },
-  message: {
-    sendSuccess: 'Message sent successfully',
-    sendError: 'Failed to send message',
-    deleteSuccess: 'Message deleted successfully',
-    deleteError: 'Failed to delete message',
-  },
-  auth: {
-    loginSuccess: 'Logged in successfully',
-    loginError: 'Invalid credentials',
-    logoutSuccess: 'Logged out successfully',
-    logoutError: 'Failed to logout',
-  },
-  general: {
-    saveSuccess: 'Saved successfully',
-    saveError: 'Failed to save',
-    deleteSuccess: 'Deleted successfully',
-    deleteError: 'Failed to delete',
-    updateSuccess: 'Updated successfully',
-    updateError: 'Failed to update',
-  }
-}
+import toast from 'react-hot-toast'
 
 // Toast helper functions
 export const showSuccessToast = (message: string) => {
@@ -73,11 +33,11 @@ export const dismissToast = (toastId: string) => {
 
 // Photo upload toast helpers
 export const showPhotoUploadSuccess = (count: number) => {
-  showSuccessToast(TOAST_MESSAGES.photo.uploadSuccess(count))
+  showSuccessToast(`${count} photo${count > 1 ? 's' : ''} uploaded successfully`)
 }
 
 export const showPhotoUploadError = (filename: string) => {
-  showErrorToast(TOAST_MESSAGES.photo.uploadError(filename))
+  showErrorToast(`Failed to upload ${filename}`)
 }
 
 export const showPhotoUploadValidationError = (
@@ -87,11 +47,11 @@ export const showPhotoUploadValidationError = (
 ) => {
   if (error === 'size') {
     showErrorToast(
-      TOAST_MESSAGES.photo.uploadFileSizeError(filename, maxSize || '50MB')
+      `${filename} exceeds maximum size of ${maxSize || '50MB'}`
     )
   } else {
     showErrorToast(
-      TOAST_MESSAGES.photo.uploadFileTypeError(filename)
+      `${filename} has invalid file type`
     )
   }
 }
@@ -104,7 +64,7 @@ export const updateToast = (
   toastId: string, 
   type: 'success' | 'error' | 'warning' | 'info', 
   message: string,
-  options?: any
+  options?: Record<string, unknown>
 ) => {
   toast.dismiss(toastId)
   
@@ -141,8 +101,9 @@ export const updateToast = (
 }
 
 // Handle API errors with toast
-export const handleApiError = (error: any, defaultMessage: string = 'An error occurred') => {
-  const message = error?.response?.data?.error || error?.message || defaultMessage
+export const handleApiError = (error: unknown, defaultMessage: string = 'An error occurred') => {
+  const errorObj = error as { response?: { data?: { error?: string } }; message?: string }
+  const message = errorObj?.response?.data?.error || errorObj?.message || defaultMessage
   showErrorToast(message)
 }
 
@@ -152,9 +113,9 @@ export const showPromiseToast = async <T>(
   messages: {
     loading: string
     success: string | ((data: T) => string)
-    error: string | ((error: any) => string)
+    error: string | ((error: unknown) => string)
   },
-  options?: any
+  options?: Record<string, unknown>
 ): Promise<T> => {
   return toast.promise(
     promise,

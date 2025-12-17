@@ -1,6 +1,6 @@
 /**
  * Database Query Optimization Helpers
- * 
+ *
  * PERFORMANCE CRITICAL:
  * - Prevents N+1 queries
  * - Optimized includes and selects
@@ -8,7 +8,7 @@
  * - Reduced data transfer
  */
 
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client'
 
 /**
  * Optimized event select (basic info only)
@@ -21,10 +21,10 @@ export const eventBasicSelect = {
   event_date: true,
   location: true,
   access_code: true,
-  coverPhotoUrl: true,
+  cover_photo_id: true,
   created_at: true,
   updated_at: true,
-} satisfies Prisma.EventSelect;
+} satisfies Prisma.eventsSelect
 
 /**
  * Optimized event with counts
@@ -34,10 +34,10 @@ export const eventWithCountsInclude = {
     select: {
       photos: { where: { deleted_at: null } },
       comments: true,
-      guestSessions: true,
+      guest_sessions: true,
     },
   },
-} satisfies Prisma.EventInclude;
+} satisfies Prisma.eventsInclude
 
 /**
  * Optimized photo select (list view)
@@ -58,7 +58,7 @@ export const photoListSelect = {
   display_order: true,
   created_at: true,
   caption: true,
-} satisfies Prisma.PhotoSelect;
+} satisfies Prisma.photosSelect
 
 /**
  * Optimized photo select (detail view)
@@ -84,50 +84,50 @@ export const photoDetailSelect = {
   created_at: true,
   updated_at: true,
   event_id: true,
-} satisfies Prisma.PhotoSelect;
+} satisfies Prisma.photosSelect
 
 /**
  * Optimized comment select
  */
 export const commentSelect = {
   id: true,
-  guestName: true,
+  guest_name: true,
   message: true,
   relationship: true,
   status: true,
   created_at: true,
   photo_id: true,
-} satisfies Prisma.CommentSelect;
+} satisfies Prisma.commentsSelect
 
 /**
  * Optimized comment with photo
  */
 export const commentWithPhotoSelect = {
   id: true,
-  guestName: true,
+  guest_name: true,
   message: true,
   relationship: true,
   status: true,
   created_at: true,
-  photo: {
+  photos: {
     select: {
       id: true,
       filename: true,
       thumbnail_small_url: true,
     },
   },
-} satisfies Prisma.CommentSelect;
+} satisfies Prisma.commentsSelect
 
 /**
  * Event query helper: Get events with optimized queries
  */
 export function buildEventQuery(options: {
-  includePhotoCounts?: boolean;
-  includeClient?: boolean;
-  page?: number;
-  limit?: number;
-  where?: Prisma.EventWhereInput;
-  orderBy?: Prisma.EventOrderByWithRelationInput;
+  includePhotoCounts?: boolean
+  includeClient?: boolean
+  page?: number
+  limit?: number
+  where?: Prisma.eventsWhereInput
+  orderBy?: Prisma.eventsOrderByWithRelationInput
 }) {
   const {
     includePhotoCounts = true,
@@ -136,9 +136,9 @@ export function buildEventQuery(options: {
     limit = 20,
     where = {},
     orderBy = { created_at: 'desc' },
-  } = options;
+  } = options
 
-  const query: Prisma.EventFindManyArgs = {
+  const query: Prisma.eventsFindManyArgs = {
     where,
     orderBy,
     take: limit,
@@ -156,20 +156,20 @@ export function buildEventQuery(options: {
       }),
       ...(includePhotoCounts && eventWithCountsInclude),
     },
-  };
+  }
 
-  return query;
+  return query
 }
 
 /**
  * Photo query helper: Get photos with optimized queries
  */
 export function buildPhotoQuery(options: {
-  event_id: string;
-  includeDeleted?: boolean;
-  page?: number;
-  limit?: number;
-  orderBy?: Prisma.PhotoOrderByWithRelationInput;
+  event_id: string
+  includeDeleted?: boolean
+  page?: number
+  limit?: number
+  orderBy?: Prisma.photosOrderByWithRelationInput
 }) {
   const {
     event_id,
@@ -177,34 +177,34 @@ export function buildPhotoQuery(options: {
     page = 1,
     limit = 50,
     orderBy = { display_order: 'asc' },
-  } = options;
+  } = options
 
-  const where: Prisma.PhotoWhereInput = {
+  const where: Prisma.photosWhereInput = {
     event_id,
     ...(includeDeleted ? {} : { deleted_at: null }),
-  };
+  }
 
-  const query: Prisma.PhotoFindManyArgs = {
+  const query: Prisma.photosFindManyArgs = {
     where,
     orderBy,
     take: limit,
     skip: (page - 1) * limit,
     select: photoListSelect,
-  };
+  }
 
-  return query;
+  return query
 }
 
 /**
  * Comment query helper: Get comments with optimized queries
  */
 export function buildCommentQuery(options: {
-  event_id?: string;
-  photo_id?: string;
-  status?: string;
-  page?: number;
-  limit?: number;
-  includePhoto?: boolean;
+  event_id?: string
+  photo_id?: string
+  status?: string
+  page?: number
+  limit?: number
+  includePhoto?: boolean
 }) {
   const {
     event_id,
@@ -213,35 +213,35 @@ export function buildCommentQuery(options: {
     page = 1,
     limit = 50,
     includePhoto = false,
-  } = options;
+  } = options
 
-  const where: Prisma.CommentWhereInput = {
+  const where: Prisma.commentsWhereInput = {
     ...(event_id && { event_id }),
     ...(photo_id && { photo_id }),
     status,
-  };
+  }
 
-  const query: Prisma.CommentFindManyArgs = {
+  const query: Prisma.commentsFindManyArgs = {
     where,
     orderBy: { created_at: 'desc' },
     take: limit,
     skip: (page - 1) * limit,
     select: includePhoto ? commentWithPhotoSelect : commentSelect,
-  };
+  }
 
-  return query;
+  return query
 }
 
 /**
  * Pagination helper
  */
 export interface PaginationInfo {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 export function buildPaginationInfo(
@@ -249,8 +249,8 @@ export function buildPaginationInfo(
   limit: number,
   total: number
 ): PaginationInfo {
-  const totalPages = Math.ceil(total / limit);
-  
+  const totalPages = Math.ceil(total / limit)
+
   return {
     page,
     limit,
@@ -258,7 +258,7 @@ export function buildPaginationInfo(
     totalPages,
     hasNext: page < totalPages,
     hasPrev: page > 1,
-  };
+  }
 }
 
 /**
@@ -267,20 +267,23 @@ export function buildPaginationInfo(
 export function buildSearchWhere(
   search: string,
   fields: string[]
-): Prisma.EventWhereInput | Prisma.PhotoWhereInput | Prisma.CommentWhereInput {
+):
+  | Prisma.eventsWhereInput
+  | Prisma.photosWhereInput
+  | Prisma.commentsWhereInput {
   if (!search || search.trim().length === 0) {
-    return {};
+    return {}
   }
 
-  const searchTerm = search.trim();
+  const searchTerm = search.trim()
   const OR = fields.map((field) => ({
     [field]: {
       contains: searchTerm,
       mode: 'insensitive' as const,
     },
-  }));
+  }))
 
-  return { OR };
+  return { OR }
 }
 
 /**
@@ -292,23 +295,23 @@ export function buildDateRangeWhere(
   endDate?: Date
 ): any {
   if (!startDate && !endDate) {
-    return {};
+    return {}
   }
 
-  const where: any = {};
-  
+  const where: any = {}
+
   if (startDate && endDate) {
     where[field] = {
       gte: startDate,
       lte: endDate,
-    };
+    }
   } else if (startDate) {
-    where[field] = { gte: startDate };
+    where[field] = { gte: startDate }
   } else if (endDate) {
-    where[field] = { lte: endDate };
+    where[field] = { lte: endDate }
   }
 
-  return where;
+  return where
 }
 
 /**
@@ -320,20 +323,20 @@ export async function processBatch<T>(
   processor: (batch: T[]) => Promise<void>
 ): Promise<void> {
   for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    await processor(batch);
+    const batch = items.slice(i, i + batchSize)
+    await processor(batch)
   }
 }
 
 /**
  * Transaction helper: Ensure atomic operations
  */
-export function buildTransactionOptions(): Prisma.TransactionOptions {
+export function buildTransactionOptions() {
   return {
     maxWait: 5000, // 5 seconds
     timeout: 10000, // 10 seconds
     isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-  };
+  }
 }
 
 const queryOptimizer = {
@@ -343,7 +346,7 @@ const queryOptimizer = {
   photoDetailSelect,
   commentSelect,
   commentWithPhotoSelect,
-  
+
   // Query builders
   buildEventQuery,
   buildPhotoQuery,
@@ -351,9 +354,9 @@ const queryOptimizer = {
   buildPaginationInfo,
   buildSearchWhere,
   buildDateRangeWhere,
-  
+
   // Helpers
   processBatch,
   buildTransactionOptions,
-};
-export default queryOptimizer;
+}
+export default queryOptimizer

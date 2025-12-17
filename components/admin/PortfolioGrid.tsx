@@ -21,7 +21,10 @@ interface PortfolioGridProps {
   onUpdate: () => void
 }
 
-export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) {
+export default function PortfolioGrid({
+  photos,
+  onUpdate,
+}: PortfolioGridProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ category: '', description: '' })
@@ -40,7 +43,7 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
     if (selectedIds.size === photos.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(photos.map(p => p.id)))
+      setSelectedIds(new Set(photos.map((p) => p.id)))
     }
   }
 
@@ -68,10 +71,13 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
     if (!confirm(`Delete ${ids.length} photo(s)?`)) return
 
     try {
-      const response = await fetch(`/api/admin/portfolio?ids=${ids.join(',')}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      })
+      const response = await fetch(
+        `/api/admin/portfolio?ids=${ids.join(',')}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      )
 
       if (response.ok) {
         setSelectedIds(new Set())
@@ -117,16 +123,16 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
     <div className="space-y-4">
       {/* Bulk Actions */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between bg-brand-teal/10 p-4 rounded-lg">
+        <div className="flex items-center justify-between rounded-lg bg-brand-teal/10 p-4">
           <div className="flex items-center space-x-4">
             <span className="font-medium text-gray-900">
               {selectedIds.size} selected
             </span>
             <button
               onClick={() => deletePhotos(Array.from(selectedIds))}
-              className="flex items-center space-x-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              className="flex items-center space-x-2 rounded-lg bg-red-500 px-3 py-1.5 text-white hover:bg-red-600"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
               <span>Delete</span>
             </button>
           </div>
@@ -142,46 +148,60 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
       {/* Select All */}
       {photos.length > 0 && (
         <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={selectedIds.size === photos.length && photos.length > 0}
-            onChange={selectAll}
-            className="rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
-          />
-          <label className="text-sm text-gray-600">Select all</label>
+          <div className="relative">
+            <input
+              type="checkbox"
+              checked={selectedIds.size === photos.length && photos.length > 0}
+              onChange={selectAll}
+              className="rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
+            />
+            {selectedIds.size === photos.length && photos.length > 0 && (
+              <Check className="pointer-events-none absolute inset-0 m-auto h-4 w-4 text-white" />
+            )}
+          </div>
+          <label className="text-sm text-gray-600">
+            {selectedIds.size === photos.length && photos.length > 0
+              ? 'Deselect all'
+              : 'Select all'}
+          </label>
         </div>
       )}
 
       {/* Photo Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {photos.map((photo) => (
           <div
             key={photo.id}
-            className={`relative group bg-white rounded-lg border-2 overflow-hidden transition-all ${
+            className={`group relative overflow-hidden rounded-lg border-2 bg-white transition-all ${
               selectedIds.has(photo.id)
                 ? 'border-brand-teal ring-2 ring-brand-teal'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
             {/* Checkbox */}
-            <div className="absolute top-2 left-2 z-10">
+            <div className="absolute left-2 top-2 z-10">
               <input
                 type="checkbox"
                 checked={selectedIds.has(photo.id)}
                 onChange={() => toggleSelect(photo.id)}
-                className="w-5 h-5 rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
+                className="h-5 w-5 rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
               />
+            </div>
+
+            {/* Drag Handle */}
+            <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
+              <GripVertical className="h-5 w-5 cursor-move text-gray-400" />
             </div>
 
             {/* Featured Badge */}
             {photo.is_featured && (
-              <div className="absolute top-2 right-2 z-10 bg-yellow-400 text-white p-1.5 rounded-full">
-                <Star className="w-4 h-4 fill-current" />
+              <div className="absolute right-2 top-2 z-10 rounded-full bg-yellow-400 p-1.5 text-white">
+                <Star className="h-4 w-4 fill-current" />
               </div>
             )}
 
             {/* Image */}
-            <div className="aspect-square bg-gray-100 relative">
+            <div className="relative aspect-square bg-gray-100">
               <Image
                 src={photo.thumbnail_url || photo.original_url}
                 alt={`Portfolio photo: ${photo.category || photo.filename}`}
@@ -193,33 +213,39 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
             </div>
 
             {/* Actions Overlay */}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2 z-10">
+            <div className="absolute inset-0 z-10 flex items-center justify-center space-x-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
               <button
                 onClick={() => toggleFeatured(photo.id, photo.is_featured)}
-                className="p-2 bg-white rounded-full hover:bg-gray-100"
-                title={photo.is_featured ? 'Remove from featured' : 'Mark as featured'}
+                className="rounded-full bg-white p-2 hover:bg-gray-100"
+                title={
+                  photo.is_featured
+                    ? 'Remove from featured'
+                    : 'Mark as featured'
+                }
               >
-                <Star className={`w-5 h-5 ${photo.is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
+                <Star
+                  className={`h-5 w-5 ${photo.is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`}
+                />
               </button>
               <button
                 onClick={() => startEdit(photo)}
-                className="p-2 bg-white rounded-full hover:bg-gray-100"
+                className="rounded-full bg-white p-2 hover:bg-gray-100"
                 title="Edit details"
               >
-                <Edit2 className="w-5 h-5 text-gray-600" />
+                <Edit2 className="h-5 w-5 text-gray-600" />
               </button>
               <button
                 onClick={() => deletePhotos([photo.id])}
-                className="p-2 bg-white rounded-full hover:bg-gray-100"
+                className="rounded-full bg-white p-2 hover:bg-gray-100"
                 title="Delete"
               >
-                <Trash2 className="w-5 h-5 text-red-500" />
+                <Trash2 className="h-5 w-5 text-red-500" />
               </button>
             </div>
 
             {/* Photo Info */}
             <div className="p-2">
-              <p className="text-xs text-gray-600 truncate">{photo.filename}</p>
+              <p className="truncate text-xs text-gray-600">{photo.filename}</p>
               {photo.category && (
                 <p className="text-xs text-gray-500">{photo.category}</p>
               )}
@@ -230,45 +256,49 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
 
       {/* Edit Modal */}
       {editingId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Edit Photo Details</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6">
+            <h3 className="mb-4 text-lg font-semibold">Edit Photo Details</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Category
                 </label>
                 <input
                   type="text"
                   value={editData.category}
-                  onChange={(e) => setEditData({ ...editData, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                  onChange={(e) =>
+                    setEditData({ ...editData, category: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-brand-teal"
                   placeholder="e.g., Wedding, Portrait, Event"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Description
                 </label>
                 <textarea
                   value={editData.description}
-                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                  onChange={(e) =>
+                    setEditData({ ...editData, description: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-brand-teal"
                   rows={3}
                   placeholder="Photo description..."
                 />
               </div>
             </div>
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setEditingId(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                className="rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 Cancel
               </button>
               <button
                 onClick={saveEdit}
-                className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90"
+                className="rounded-lg bg-brand-teal px-4 py-2 text-white hover:bg-brand-teal/90"
               >
                 Save
               </button>

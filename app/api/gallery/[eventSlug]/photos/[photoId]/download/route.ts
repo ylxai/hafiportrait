@@ -76,12 +76,13 @@ export async function GET(
 
     // Track download for analytics
     try {
-      await prisma.photoDownload.create({
+      await prisma.photo_downloads.create({
         data: {
+          id: crypto.randomUUID(),
           photo_id: photo.id,
-          guestId: guestId,
-          ipAddress: clientIP,
-          userAgent: request.headers.get('user-agent') || undefined,
+          guest_id: guestId,
+          ip_address: clientIP,
+          user_agent: request.headers.get('user-agent') || undefined,
         },
       });
       

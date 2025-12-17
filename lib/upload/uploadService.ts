@@ -167,7 +167,9 @@ export async function uploadBatch(
   const results: UploadResult[] = [];
 
   for (let i = 0; i < files.length; i++) {
+    // Fix: Check if files[i] exists before using
     const file = files[i];
+    if (!file) continue;
 
     try {
       const result = await uploadFile(file, event_id, {

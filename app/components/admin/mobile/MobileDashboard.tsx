@@ -4,15 +4,11 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   Calendar,
-  Image,
+  Image as ImageIcon,
   Eye,
-  Download,
   MessageSquare,
-  TrendingUp,
-  Plus,
   Camera,
-  Upload,
-  Users
+  Upload
 } from 'lucide-react'
 
 interface DashboardStats {
@@ -119,6 +115,14 @@ export default function MobileDashboard() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-teal"></div>
+      </div>
+    )
+  }
+
   if (error) {
     return (
       <div className="p-4">
@@ -201,13 +205,7 @@ export default function MobileDashboard() {
                 <p className="text-2xl font-bold text-gray-900">{stats?.totalPhotos || 0}</p>
               </div>
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Image 
-                  className="w-5 h-5 text-purple-600" 
-                  alt="Photos icon"
-                  width={20}
-                  height={20}
-                  src="/icons/photos.svg"
-                />
+                <ImageIcon className="w-5 h-5 text-purple-600" />
               </div>
             </div>
           </div>

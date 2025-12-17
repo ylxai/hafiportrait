@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { X, AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
-import { useAdminToast } from '@/hooks/toast/useAdminToast';
+import { X, AlertTriangle } from 'lucide-react'
+import { useState } from 'react'
+import { useAdminToast } from '@/hooks/toast/useAdminToast'
 
 interface DeleteConfirmationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => Promise<void>;
-  title: string;
-  message: string;
-  photoCount?: number;
-  isPermanent?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => Promise<void>
+  title: string
+  message: string
+  photoCount?: number
+  isPermanent?: boolean
 }
 
 export default function DeleteConfirmationModal({
@@ -23,23 +23,22 @@ export default function DeleteConfirmationModal({
   photoCount = 1,
   isPermanent = false,
 }: DeleteConfirmationModalProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const toast = useAdminToast();
+  const [isDeleting, setIsDeleting] = useState(false)
+  const toast = useAdminToast()
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   const handleConfirm = async () => {
-    setIsDeleting(true);
-    
+    setIsDeleting(true)
+
     // Show loading toast
     const loadingToastId = toast.showLoading(
-      isPermanent ? 'Menghapus permanen...' : 'Memindahkan ke trash...',
-      { description: `${photoCount} foto sedang diproses` }
-    );
+      isPermanent ? 'Menghapus permanen...' : 'Memindahkan ke trash...'
+    )
 
     try {
-      await onConfirm();
-      
+      await onConfirm()
+
       // Update to success toast
       if (isPermanent) {
         toast.updateToast(
@@ -47,37 +46,34 @@ export default function DeleteConfirmationModal({
           'success',
           `${photoCount} foto berhasil dihapus permanen`,
           { description: 'File telah dihapus dari server' }
-        );
+        )
       } else {
         toast.updateToast(
           loadingToastId,
           'success',
           `${photoCount} foto dipindahkan ke Trash`,
           { description: 'Dapat di-restore dalam 30 hari' }
-        );
+        )
       }
-      
-      onClose();
+
+      onClose()
     } catch (error) {
-      console.error('Delete error:', error);
-      
+      console.error('Delete error:', error)
+
       // Update to error toast
-      toast.updateToast(
-        loadingToastId,
-        'error',
-        'Gagal menghapus foto',
-        { description: 'Silakan coba lagi atau hubungi support' }
-      );
+      toast.updateToast(loadingToastId, 'error', 'Gagal menghapus foto', {
+        description: 'Silakan coba lagi atau hubungi support',
+      })
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
-  };
+  }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && !isDeleting) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <div
@@ -88,8 +84,12 @@ export default function DeleteConfirmationModal({
         {/* Header */}
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center">
-            <div className={`mr-3 rounded-full p-2 ${isPermanent ? 'bg-red-100' : 'bg-yellow-100'}`}>
-              <AlertTriangle className={`h-6 w-6 ${isPermanent ? 'text-red-600' : 'text-yellow-600'}`} />
+            <div
+              className={`mr-3 rounded-full p-2 ${isPermanent ? 'bg-red-100' : 'bg-yellow-100'}`}
+            >
+              <AlertTriangle
+                className={`h-6 w-6 ${isPermanent ? 'text-red-600' : 'text-yellow-600'}`}
+              />
             </div>
             <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           </div>
@@ -105,7 +105,7 @@ export default function DeleteConfirmationModal({
         {/* Message */}
         <div className="mb-6">
           <p className="text-gray-700">{message}</p>
-          
+
           {photoCount > 1 && (
             <p className="mt-2 font-semibold text-gray-900">
               {photoCount} photo{photoCount > 1 ? 's' : ''} akan dihapus.
@@ -115,7 +115,8 @@ export default function DeleteConfirmationModal({
           {!isPermanent && (
             <div className="mt-4 rounded-lg bg-blue-50 p-3">
               <p className="text-sm text-blue-800">
-                💡 <strong>Info:</strong> Foto akan dipindahkan ke Trash dan bisa di-restore dalam 30 hari.
+                💡 <strong>Info:</strong> Foto akan dipindahkan ke Trash dan
+                bisa di-restore dalam 30 hari.
               </p>
             </div>
           )}
@@ -123,8 +124,9 @@ export default function DeleteConfirmationModal({
           {isPermanent && (
             <div className="mt-4 rounded-lg bg-red-50 p-3">
               <p className="text-sm text-red-800">
-                ⚠️ <strong>Peringatan:</strong> Ini akan menghapus foto secara permanen beserta semua thumbnails. 
-                Tindakan ini tidak bisa dibatalkan!
+                ⚠️ <strong>Peringatan:</strong> Ini akan menghapus foto secara
+                permanen beserta semua thumbnails. Tindakan ini tidak bisa
+                dibatalkan!
               </p>
             </div>
           )}
@@ -148,10 +150,14 @@ export default function DeleteConfirmationModal({
                 : 'bg-yellow-600 hover:bg-yellow-700'
             }`}
           >
-            {isDeleting ? 'Menghapus...' : isPermanent ? 'Hapus Permanen' : 'Hapus'}
+            {isDeleting
+              ? 'Menghapus...'
+              : isPermanent
+                ? 'Hapus Permanen'
+                : 'Hapus'}
           </button>
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
     // 6. Create form submission in database
     const submission = await prisma.form_submissions.create({
       data: {
-        id: crypto.randomUUID(),
         name: validatedData.name,
         whatsapp: validatedData.whatsapp,
         email: validatedData.email,

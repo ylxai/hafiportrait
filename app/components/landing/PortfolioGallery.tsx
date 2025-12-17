@@ -29,8 +29,9 @@ export default function PortfolioGallery() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
+      (entries) => {
+        const entry = entries[0]
+        if (entry?.isIntersecting) {
           setIsVisible(true)
         }
       },
@@ -280,8 +281,8 @@ export default function PortfolioGallery() {
           {/* Image Container */}
           <div className="relative w-full h-full max-w-7xl max-h-[85vh] mx-auto p-4 md:p-8">
             <Image
-              src={filteredPhotos[currentPhotoIndex].original_url}
-              alt={filteredPhotos[currentPhotoIndex].description || `Portfolio photo ${currentPhotoIndex + 1}`}
+              src={filteredPhotos[currentPhotoIndex]?.original_url || ''}
+              alt={filteredPhotos[currentPhotoIndex]?.description || `Portfolio photo ${currentPhotoIndex + 1}`}
               fill
               className="object-contain"
               sizes="100vw"
@@ -296,13 +297,13 @@ export default function PortfolioGallery() {
                 <p className="text-sm text-white/70 mb-1">
                   {currentPhotoIndex + 1} / {filteredPhotos.length}
                 </p>
-                {filteredPhotos[currentPhotoIndex].description && (
+                {filteredPhotos[currentPhotoIndex]?.description && (
                   <p className="text-base md:text-lg font-medium">
-                    {filteredPhotos[currentPhotoIndex].description}
+                    {filteredPhotos[currentPhotoIndex]?.description}
                   </p>
                 )}
               </div>
-              {filteredPhotos[currentPhotoIndex].is_featured && (
+              {filteredPhotos[currentPhotoIndex]?.is_featured && (
                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
                   <Heart className="w-4 h-4 fill-current text-red-400" />
                   <span className="text-sm font-medium">Featured</span>

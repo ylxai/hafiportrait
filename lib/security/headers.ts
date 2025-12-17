@@ -32,7 +32,7 @@ const DEFAULT_CONFIG: SecurityHeadersConfig = {
  */
 function getCSPHeader(): string {
   const isDevelopment = process.env.NODE_ENV === 'development'
-  
+
   // Development CSP (lebih permissive untuk hot reload, etc)
   if (isDevelopment) {
     return [
@@ -59,7 +59,7 @@ function getCSPHeader(): string {
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "upgrade-insecure-requests",
+    'upgrade-insecure-requests',
   ].join('; ')
 }
 
@@ -132,7 +132,12 @@ export function createSecureResponse(
  * Log security event untuk monitoring
  */
 export interface SecurityEvent {
-  type: 'AUTH_FAILED' | 'RATE_LIMIT' | 'INVALID_TOKEN' | 'UNAUTHORIZED_ACCESS' | 'SUSPICIOUS_ACTIVITY'
+  type:
+    | 'AUTH_FAILED'
+    | 'RATE_LIMIT'
+    | 'INVALID_TOKEN'
+    | 'UNAUTHORIZED_ACCESS'
+    | 'SUSPICIOUS_ACTIVITY'
   identifier: string
   details?: Record<string, any>
   timestamp?: Date
@@ -151,8 +156,10 @@ export function logSecurityEvent(event: SecurityEvent): void {
 
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
+    console.log('🔒 Security Event:', logEntry)
   } else {
     // In production, log dengan proper format untuk monitoring tools
+    console.warn('🔒 Security Event:', logEntry)
   }
 
   // TODO: Integrate dengan monitoring service (Sentry, DataDog, etc)
@@ -163,11 +170,11 @@ export function logSecurityEvent(event: SecurityEvent): void {
  * CORS configuration helper
  */
 export function getCorsHeaders(origin?: string): Record<string, string> {
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean)
-  const isAllowed = origin && (
-    allowedOrigins.includes(origin) ||
-    allowedOrigins.includes('*')
-  )
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .filter(Boolean)
+  const isAllowed =
+    origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*'))
   if (!isAllowed && process.env.NODE_ENV === 'production') {
     return {}
   }
@@ -211,6 +218,7 @@ export function logRequest(request: Request, user_id?: string): void {
 
   // Log in development for debugging
   if (process.env.NODE_ENV === 'development') {
+    console.log('📨 Request:', log)
   }
 
   // TODO: Send to logging service in production

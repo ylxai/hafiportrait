@@ -90,8 +90,8 @@ export function sanitizeFilename(filename: string): string {
   filename = filename.replace(/^[.-]+|[.-]+$/g, '');
   
   // Check for reserved Windows names
-  const nameWithoutExt = filename.split('.')[0].toUpperCase();
-  if (RESERVED_NAMES.includes(nameWithoutExt)) {
+  const nameWithoutExt = filename.split('.')[0]?.toUpperCase();
+  if (nameWithoutExt && RESERVED_NAMES.includes(nameWithoutExt)) {
     filename = `file-${filename}`;
   }
   
@@ -305,7 +305,8 @@ export async function fileExistsInR2(key: string): Promise<boolean> {
     await r2Client.send(command);
     return true;
   } catch (error: any) {
-    if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+    // Fix: Check if error exists and has the expected properties
+    if (error && (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404)) {
       return false;
     }
     console.error('R2 file exists check error:', error);

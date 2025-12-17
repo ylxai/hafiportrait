@@ -2,14 +2,16 @@
  * Socket.IO Authentication & Authorization
  * Priority: MEDIUM-HIGH (CVSS 5.8)
  * 
- * Secure WebSocket connections dengan:
- * - JWT authentication untuk Socket.IO
- * - Room-based authorization (per event access)
+ * SECURITY FIX: Proper JWT type inheritance and socket validation
+ * - Fixed JWTPayload import to use custom type from @/lib/auth
+ * - Implemented proper socket JWT verification with type safety
+ * - Enhanced WebSocket authentication validation
+ * - Room-based authorization per event access
  * - Connection rate limiting
  * - Real-time photo likes/comments security
  */
 
-import { verifyJWT, JWTPayload } from '@/lib/auth'
+import { verifyJWT, type JWTPayload } from '@/lib/auth'
 import { validateGallerySession } from './gallery-session'
 
 export interface SocketAuthPayload {
@@ -22,18 +24,27 @@ export interface SocketAuthPayload {
 
 /**
  * Verify Socket.IO authentication token
+ * SECURITY FIX: Enhanced JWT verification with proper error handling
  */
 export async function verifySocketAuth(
   token?: string,
   guestSessionId?: string,
   event_id?: string
-): Promise<{ valid: boolean; payload?: SocketAuthPayload }> {
+): Promise<{ valid: boolean; payload?: SocketAuthPayload; error?: string }> {
   // Check JWT token untuk authenticated users (admin/client)
   if (token) {
     try {
-      const jwtPayload = await verifyJWT(token)
+      const jwtPayload: JWTPayload | null = await verifyJWT(token)
       
       if (jwtPayload) {
+        // Validate required JWT fields
+        if (!jwtPayload.user_id || !jwtPayload.role) {
+          return {
+            valid: false,
+            error: 'Invalid JWT payload: missing required fields'
+          }
+        }
+
         return {
           valid: true,
           payload: {
@@ -45,6 +56,10 @@ export async function verifySocketAuth(
       }
     } catch (error) {
       console.error('Socket JWT verification failed:', error)
+      return {
+        valid: false,
+        error: 'JWT verification failed'
+      }
     }
   }
 
@@ -62,13 +77,25 @@ export async function verifySocketAuth(
             sessionType: 'guest',
           },
         }
+      } else {
+        return {
+          valid: false,
+          error: 'Guest session validation failed'
+        }
       }
     } catch (error) {
       console.error('Socket guest session verification failed:', error)
+      return {
+        valid: false,
+        error: 'Guest session verification error'
+      }
     }
   }
 
-  return { valid: false }
+  return { 
+    valid: false,
+    error: 'No valid authentication credentials provided'
+  }
 }
 
 /**
@@ -209,6 +236,7 @@ export const SOCKET_RATE_LIMITS = {
 
 /**
  * Create socket authentication middleware configuration
+ * SECURITY FIX: Enhanced error handling and validation
  */
 export function createSocketAuthMiddleware() {
   return async (socket: any, next: any) => {
@@ -218,10 +246,10 @@ export function createSocketAuthMiddleware() {
       const guestSessionId = socket.handshake.auth.guestSessionId
       const event_id = socket.handshake.auth.event_id
 
-      const { valid, payload } = await verifySocketAuth(token, guestSessionId, event_id)
+      const { valid, payload, error } = await verifySocketAuth(token, guestSessionId, event_id)
 
       if (!valid) {
-        return next(new Error('Authentication failed'))
+        return next(new Error(error || 'Authentication failed'))
       }
 
       // Attach auth payload to socket

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause with proper Prisma types
-    const where: Prisma.PhotoWhereInput = {
+    const where: Prisma.photosWhereInput = {
       deleted_at: { not: null },
     };
 
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       filename: photo.filename,
       original_url: photo.original_url,
       thumbnail_url: photo.thumbnail_url,
-      mediumUrl: photo.mediumUrl,
+      mediumUrl: photo.thumbnail_medium_url,
       file_size: photo.file_size,
       width: photo.width,
       height: photo.height,
@@ -84,7 +84,6 @@ export async function GET(request: NextRequest) {
       isDeleted: photo.deleted_at !== null,
       deleted_at: photo.deleted_at?.toISOString() || null,
       exif_data: photo.exif_data as Record<string, unknown> | null,
-      metadata: photo.metadata as Record<string, unknown> | null,
     }));
 
     const response: PhotoListApiResponse = {

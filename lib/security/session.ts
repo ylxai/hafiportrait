@@ -46,7 +46,7 @@ export async function createAccessToken(
   payload: Omit<SessionPayload, 'type'>
 ): Promise<string> {
   const jwtSecret = getJWTSecret()
-  
+
   return new SignJWT({ ...payload, type: 'access' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -60,12 +60,12 @@ export async function createAccessToken(
 export async function createRefreshToken(user_id: string): Promise<string> {
   const jwtSecret = getJWTSecret()
   const tokenId = generateSessionId()
-  
+
   // Create JWT refresh token
-  const token = await new SignJWT({ 
-    user_id, 
+  const token = await new SignJWT({
+    user_id,
     tokenId,
-    type: 'refresh' 
+    type: 'refresh'
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -76,12 +76,12 @@ export async function createRefreshToken(user_id: string): Promise<string> {
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + 30)
 
-  await prisma.refreshToken.create({
+  await prisma.refresh_tokens.create({
     data: {
       id: tokenId,
       token,
       user_id,
-      expiresAt,
+      expires_at: expiresAt,
     }
   })
 
@@ -103,16 +103,16 @@ export async function verifyRefreshToken(
     }
 
     // Check token exists di database dan belum expired
-    const storedToken = await prisma.refreshToken.findUnique({
+    const storedToken = await prisma.refresh_tokens.findUnique({
       where: { id: payload.tokenId as string },
       select: {
         id: true,
         user_id: true,
-        expiresAt: true,
+        expires_at: true,
       }
     })
 
-    if (!storedToken || storedToken.expiresAt < new Date()) {
+    if (!storedToken || storedToken.expires_at < new Date()) {
       return { valid: false }
     }
 
@@ -130,7 +130,7 @@ export async function verifyRefreshToken(
  * Revoke refresh token (logout)
  */
 export async function revokeRefreshToken(tokenId: string): Promise<void> {
-  await prisma.refreshToken.delete({
+  await prisma.refresh_tokens.delete({
     where: { id: tokenId }
   }).catch(() => {
     // Token mungkin sudah tidak ada, ignore error
@@ -141,7 +141,7 @@ export async function revokeRefreshToken(tokenId: string): Promise<void> {
  * Revoke all refresh tokens untuk user (logout dari all devices)
  */
 export async function revokeAllUserTokens(user_id: string): Promise<void> {
-  await prisma.refreshToken.deleteMany({
+  await prisma.refresh_tokens.deleteMany({
     where: { user_id }
   })
 }
@@ -217,9 +217,9 @@ export function extractRefreshToken(request: NextRequest): string | null {
  * Cleanup expired refresh tokens (should run periodically)
  */
 export async function cleanupExpiredTokens(): Promise<number> {
-  const result = await prisma.refreshToken.deleteMany({
+  const result = await prisma.refresh_tokens.deleteMany({
     where: {
-      expiresAt: {
+      expires_at: {
         lt: new Date()
       }
     }

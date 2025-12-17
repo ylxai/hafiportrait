@@ -1,8 +1,15 @@
 'use client'
 
-import Image from 'next/image';
+import Image from 'next/image'
 import { useState, useCallback } from 'react'
-import { Upload, X, Image as ImageIcon, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import {
+  Upload,
+  X,
+  Image as ImageIcon,
+  CheckCircle,
+  XCircle,
+  Loader2,
+} from 'lucide-react'
 
 interface UploadResult {
   filename: string
@@ -18,7 +25,10 @@ interface PortfolioUploaderProps {
   onUploadComplete?: () => void
 }
 
-export default function PortfolioUploader({ category, onUploadComplete }: PortfolioUploaderProps) {
+export default function PortfolioUploader({
+  category,
+  onUploadComplete,
+}: PortfolioUploaderProps) {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadResults, setUploadResults] = useState<UploadResult[]>([])
@@ -40,23 +50,23 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
     e.stopPropagation()
     setDragActive(false)
 
-    const droppedFiles = Array.from(e.dataTransfer.files).filter(
-      file => file.type.startsWith('image/')
+    const droppedFiles = Array.from(e.dataTransfer.files).filter((file) =>
+      file.type.startsWith('image/')
     )
-    setFiles(prev => [...prev, ...droppedFiles])
+    setFiles((prev) => [...prev, ...droppedFiles])
   }, [])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files).filter(
-        file => file.type.startsWith('image/')
+      const selectedFiles = Array.from(e.target.files).filter((file) =>
+        file.type.startsWith('image/')
       )
-      setFiles(prev => [...prev, ...selectedFiles])
+      setFiles((prev) => [...prev, ...selectedFiles])
     }
   }
 
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index))
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleUpload = async () => {
@@ -67,7 +77,7 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
 
     try {
       const formData = new FormData()
-      files.forEach(file => formData.append('files', file))
+      files.forEach((file) => formData.append('files', file))
       if (category) formData.append('category', category)
       if (description) formData.append('description', description)
 
@@ -86,12 +96,12 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
 
       // Clear successful uploads
       if (data.summary.success > 0) {
-        const failedFiles = files.filter((_, index) => 
-          !data.results[index]?.success
+        const failedFiles = files.filter(
+          (_, index) => !data.results[index]?.success
         )
         setFiles(failedFiles)
         setDescription('')
-        
+
         if (onUploadComplete) {
           onUploadComplete()
         }
@@ -108,7 +118,7 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
     <div className="space-y-4">
       {/* Upload Area */}
       <div
-        className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
           dragActive
             ? 'border-brand-teal bg-brand-teal/5'
             : 'border-gray-300 hover:border-brand-teal'
@@ -123,12 +133,12 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
           multiple
           accept="image/*"
           onChange={handleFileSelect}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
           disabled={uploading}
         />
 
-        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-lg font-medium text-gray-900 mb-2">
+        <Upload className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+        <p className="mb-2 text-lg font-medium text-gray-900">
           Drop photos here or click to browse
         </p>
         <p className="text-sm text-gray-500">
@@ -139,7 +149,7 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
       {/* Description Field */}
       {files.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Description (optional)
           </label>
           <textarea
@@ -147,7 +157,7 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add a description for these photos..."
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-brand-teal"
             disabled={uploading}
           />
         </div>
@@ -163,26 +173,26 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="flex items-center space-x-2 rounded-lg bg-brand-teal px-4 py-2 text-white hover:bg-brand-teal/90 disabled:cursor-not-allowed disabled:bg-gray-400"
             >
               {uploading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   <span>Uploading...</span>
                 </>
               ) : (
                 <>
-                  <Upload className="w-4 h-4" />
+                  <Upload className="h-4 w-4" />
                   <span>Upload All</span>
                 </>
               )}
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {files.map((file, index) => (
-              <div key={index} className="relative group">
-                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              <div key={index} className="group relative">
+                <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
                   <Image
                     src={URL.createObjectURL(file)}
                     alt={`Upload preview: ${file.name}`}
@@ -194,11 +204,13 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
                 <button
                   onClick={() => removeFile(index)}
                   disabled={uploading}
-                  className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
+                  className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity disabled:opacity-0 group-hover:opacity-100"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
-                <p className="mt-1 text-xs text-gray-600 truncate">{file.name}</p>
+                <p className="mt-1 truncate text-xs text-gray-600">
+                  {file.name}
+                </p>
                 <p className="text-xs text-gray-500">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
@@ -216,16 +228,19 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
             {uploadResults.map((result, index) => (
               <div
                 key={index}
-                className={`flex items-center justify-between p-3 rounded-lg ${
+                className={`flex items-center justify-between rounded-lg p-3 ${
                   result.success ? 'bg-green-50' : 'bg-red-50'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  {result.success ? (
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                  )}
+                  <div className="flex items-center space-x-1">
+                    <ImageIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                    {result.success ? (
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600" />
+                    ) : (
+                      <XCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
+                    )}
+                  </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                       {result.filename}
@@ -236,13 +251,13 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
                   </div>
                 </div>
                 {result.thumbnail_url && (
-                  <div className="relative w-12 h-12">
+                  <div className="relative h-12 w-12">
                     <Image
                       src={result.thumbnail_url}
                       alt={`Uploaded: ${result.filename}`}
                       fill
                       sizes="48px"
-                      className="object-cover rounded"
+                      className="rounded object-cover"
                     />
                   </div>
                 )}

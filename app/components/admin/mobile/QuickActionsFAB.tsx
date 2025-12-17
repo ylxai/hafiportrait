@@ -7,7 +7,6 @@ import {
   Camera,
   Calendar,
   Upload,
-  Users,
   MessageSquare,
   X
 } from 'lucide-react'

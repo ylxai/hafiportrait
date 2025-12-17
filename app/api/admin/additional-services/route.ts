@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
 
     const service = await prisma.additional_services.create({
       data: {
-        id: crypto.randomUUID(),
         name,
         description: description || null,
         price: parseInt(price),

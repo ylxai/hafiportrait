@@ -3,22 +3,23 @@ import { hashPassword } from '../lib/auth'
 
 const prisma = new PrismaClient()
 
-async function main() {
+async function main(): Promise<void> {
   console.log('🌱 Starting seed...')
 
   // Create admin user - Nandika
   const adminPassword = await hashPassword('Hantu@112233')
-  const admin = await prisma.user.upsert({
+  const admin = await prisma.users.upsert({
     where: { email: 'nandika@hafiportrait.com' },
     update: {
-      passwordHash: adminPassword,
+      password_hash: adminPassword,
       name: 'Nandika',
     },
     create: {
       email: 'nandika@hafiportrait.com',
-      passwordHash: adminPassword,
+      password_hash: adminPassword,
       name: 'Nandika',
       role: 'ADMIN',
+      updated_at: new Date(),
     },
   })
 
@@ -26,14 +27,15 @@ async function main() {
 
   // Create sample client user
   const clientPassword = await hashPassword('client123')
-  const client = await prisma.user.upsert({
+  const client = await prisma.users.upsert({
     where: { email: 'client@example.com' },
     update: {},
     create: {
       email: 'client@example.com',
-      passwordHash: clientPassword,
+      password_hash: clientPassword,
       name: 'John & Jane Doe',
       role: 'CLIENT',
+      updated_at: new Date(),
     },
   })
 

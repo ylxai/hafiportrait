@@ -3,32 +3,32 @@
  * Individual draggable photo item
  */
 
-'use client';
+'use client'
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import Image from 'next/image';
-import { GripVertical, Star, Heart, Eye } from 'lucide-react';
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import Image from 'next/image'
+import { GripVertical, Star, Heart, Eye } from 'lucide-react'
 
 interface Photo {
-  id: string;
-  filename: string;
-  original_url: string;
-  thumbnail_small_url: string | null;
-  thumbnail_medium_url: string | null;
-  thumbnail_large_url: string | null;
-  file_size: number | null;
-  width: number | null;
-  height: number | null;
-  is_featured: boolean;
-  likes_count: number;
-  views_count: number;
+  id: string
+  filename: string
+  original_url: string
+  thumbnail_small_url: string | null
+  thumbnail_medium_url: string | null
+  thumbnail_large_url: string | null
+  file_size: number | null
+  width: number | null
+  height: number | null
+  is_featured: boolean
+  likes_count: number
+  views_count: number
 }
 
 interface SortablePhotoItemProps {
-  photo: Photo;
-  onClick: (photo_id: string) => void;
-  isDragging?: boolean;
+  photo: Photo
+  onClick: (photo_id: string) => void
+  isDragging?: boolean
 }
 
 export default function SortablePhotoItem({
@@ -43,30 +43,32 @@ export default function SortablePhotoItem({
     transform,
     transition,
     isDragging: isSortableDragging,
-  } = useSortable({ id: photo.id });
+  } = useSortable({ id: photo.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isSortableDragging ? 0.5 : 1,
-  };
+  }
 
   const thumbnail_url =
     photo.thumbnail_medium_url ||
     photo.thumbnail_small_url ||
-    photo.original_url;
+    photo.original_url
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100 shadow-sm transition-all hover:shadow-md"
+      className={`group relative aspect-square overflow-hidden rounded-lg bg-gray-100 shadow-sm transition-all hover:shadow-md ${
+        isDragging ? 'scale-105 shadow-lg ring-2 ring-blue-500' : ''
+      }`}
     >
       {/* Drag Handle */}
       <button
         {...attributes}
         {...listeners}
-        className="absolute left-2 top-2 z-10 cursor-grab rounded-lg bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 active:cursor-grabbing"
+        className="absolute left-2 top-2 z-10 cursor-grab rounded-lg bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 active:cursor-grabbing group-hover:opacity-100"
         aria-label="Drag to reorder"
       >
         <GripVertical className="h-4 w-4" />
@@ -95,7 +97,7 @@ export default function SortablePhotoItem({
       </button>
 
       {/* Overlay with Stats */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100 z-10">
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
         <div className="flex items-center gap-3 text-xs text-white">
           <div className="flex items-center gap-1">
             <Heart className="h-3 w-3" />
@@ -106,23 +108,26 @@ export default function SortablePhotoItem({
             <span>{photo.views_count}</span>
           </div>
         </div>
-        <p className="mt-1 truncate text-xs text-white/90" title={photo.filename}>
+        <p
+          className="mt-1 truncate text-xs text-white/90"
+          title={photo.filename}
+        >
           {photo.filename}
         </p>
       </div>
 
       {/* File Size Badge */}
       {photo.file_size && (
-        <div className="absolute left-2 bottom-2 rounded bg-black/50 px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 z-10">
+        <div className="absolute bottom-2 left-2 z-10 rounded bg-black/50 px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
           {formatFileSize(photo.file_size)}
         </div>
       )}
     </div>
-  );
+  )
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }

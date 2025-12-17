@@ -5,10 +5,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Search,
   Bell,
-  Plus,
   ArrowLeft,
   Menu,
-  MoreHorizontal
 } from 'lucide-react'
 import Link from 'next/link'
 

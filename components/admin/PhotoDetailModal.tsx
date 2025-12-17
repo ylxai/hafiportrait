@@ -13,19 +13,14 @@
 
 import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   X,
   ChevronLeft,
   ChevronRight,
-  Download,
-  Trash2,
-  Star,
   ZoomIn,
   ZoomOut,
   Loader2,
 } from 'lucide-react';
-import { format } from 'date-fns';
 import PhotoMetadata from './PhotoMetadata';
 import PhotoActions from './PhotoActions';
 
@@ -68,8 +63,7 @@ export default function PhotoDetailModal({
   onPhotoChange,
   onPhotoUpdate,
 }: PhotoDetailModalProps) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [detailedPhoto, setDetailedPhoto] = useState<Photo | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
@@ -150,13 +144,13 @@ export default function PhotoDetailModal({
   // Touch gestures for mobile
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
+      if (e.touches.length === 1 && e.touches[0]) {
         touchStartRef.current = {
           x: e.touches[0].clientX,
           y: e.touches[0].clientY,
           distance: 0,
         };
-      } else if (e.touches.length === 2) {
+      } else if (e.touches.length === 2 && e.touches[0] && e.touches[1]) {
         const distance = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
           e.touches[0].clientY - e.touches[1].clientY
@@ -172,7 +166,7 @@ export default function PhotoDetailModal({
     const handleTouchMove = (e: TouchEvent) => {
       if (!touchStartRef.current) return;
 
-      if (e.touches.length === 2 && touchStartRef.current.distance > 0) {
+      if (e.touches.length === 2 && e.touches[0] && e.touches[1] && touchStartRef.current.distance > 0) {
         // Pinch to zoom
         const currentDistance = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
@@ -192,6 +186,11 @@ export default function PhotoDetailModal({
       }
 
       const touch = e.changedTouches[0];
+      if (!touch) {
+        touchStartRef.current = null;
+        return;
+      }
+
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
 
@@ -219,6 +218,7 @@ export default function PhotoDetailModal({
         imageElement.removeEventListener('touchend', handleTouchEnd);
       };
     }
+    return undefined;
   }, [zoom, handlePrevious, handleNext]);
 
   // Zoom controls
@@ -233,9 +233,6 @@ export default function PhotoDetailModal({
   const handleResetZoom = () => {
     setZoom(1);
   };
-
-  // Download handler
-  ;
 
   const displayPhoto = detailedPhoto || photo;
   const imageUrl = displayPhoto.original_url || displayPhoto.thumbnail_large_url || '';

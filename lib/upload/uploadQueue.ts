@@ -46,7 +46,7 @@ export interface UploadTask {
 export function calculateRetryDelay(retryCount: number): number {
   const delays = [1000, 2000, 4000, 8000, 16000, 30000]; // ms
   const index = Math.min(retryCount, delays.length - 1);
-  return delays[index];
+  return delays[index] ?? 30000; // Fallback to max delay
 }
 
 /**

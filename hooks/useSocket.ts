@@ -74,7 +74,7 @@ export function useSocket({
     // Mark as mounted
     mountedRef.current = true;
 
-    if (!autoConnect) return;
+    if (!autoConnect) return undefined;
 
     try {
       // Initialize socket connection
@@ -122,7 +122,7 @@ export function useSocket({
         }
       });
 
-      socket.on('reconnect', (attemptNumber) => {
+      socket.on('reconnect', () => {
         if (mountedRef.current) {
           setError(null);
         }
@@ -171,6 +171,7 @@ export function useSocket({
       if (mountedRef.current) {
         setError('Failed to initialize socket connection');
       }
+      return undefined;
     }
   }, [eventSlug, autoConnect, reconnectionAttempts, SOCKET_URL]);
 

@@ -259,10 +259,13 @@ export function validateAndSanitizeInput<T extends z.ZodType>(
     return { success: true, data: validated }
   } catch (error) {
     if (error instanceof z.ZodError) {
+      // Fix: Check if errors array has elements before accessing
       const firstError = error.errors[0]
-      return {
-        success: false,
-        error: `${firstError.path.join('.')}: ${firstError.message}`
+      if (firstError) {
+        return {
+          success: false,
+          error: `${firstError.path.join('.')}: ${firstError.message}`
+        }
       }
     }
     return { success: false, error: 'Validation failed' }

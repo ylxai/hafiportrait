@@ -30,8 +30,8 @@ export interface ActivityLog {
   id: string;
   type: 'like' | 'view' | 'download';
   photo_id: string;
-  photoFilename: string;
-  guestId: string;
+  photo_filename: string;
+  guest_id: string;
   timestamp: Date;
 }
 
@@ -140,19 +140,19 @@ async function getRecentActivity(
   limit: number
 ): Promise<ActivityLog[]> {
   // Get recent likes
-  const recentLikes = await prisma.photoLike.findMany({
+  const recentLikes = await prisma.photo_likes.findMany({
     where: {
-      photo: { event_id },
+      photos: { event_id },
       ...(Object.keys(dateFilter).length > 0 && {
         created_at: dateFilter,
       }),
     },
     select: {
       id: true,
-      guestId: true,
+      guest_id: true,
       photo_id: true,
       created_at: true,
-      photo: {
+      photos: {
         select: {
           filename: true,
         },
@@ -168,8 +168,8 @@ async function getRecentActivity(
     id: like.id,
     type: 'like' as const,
     photo_id: like.photo_id,
-    photoFilename: like.photo.filename,
-    guestId: like.guestId,
+    photo_filename: like.photos.filename,
+    guest_id: like.guest_id,
     timestamp: like.created_at,
   }));
 }
@@ -185,9 +185,9 @@ async function getLikesTrend(
   startDate.setDate(startDate.getDate() - days);
 
   // Get likes grouped by date
-  const likes = await prisma.photoLike.findMany({
+  const likes = await prisma.photo_likes.findMany({
     where: {
-      photo: { event_id },
+      photos: { event_id },
       created_at: {
         gte: startDate,
       },
@@ -199,18 +199,18 @@ async function getLikesTrend(
 
   // Group by date
   const trendMap = new Map<string, number>();
-  
+
   // Initialize all dates with 0
   for (let i = 0; i < days; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = date.toISOString().split('T')[0] as string;
     trendMap.set(dateStr, 0);
   }
 
   // Count likes per date
   likes.forEach((like) => {
-    const dateStr = like.created_at.toISOString().split('T')[0];
+    const dateStr = like.created_at.toISOString().split('T')[0] as string;
     trendMap.set(dateStr, (trendMap.get(dateStr) || 0) + 1);
   });
 
@@ -277,10 +277,10 @@ export async function detectBulkLikePatterns(
   startTime.setMinutes(startTime.getMinutes() - timeWindowMinutes);
 
   // Get recent likes grouped by guest
-  const recentLikes = await prisma.photoLike.groupBy({
-    by: ['guestId'],
+  const recentLikes = await prisma.photo_likes.groupBy({
+    by: ['guest_id'],
     where: {
-      photo: { event_id },
+      photos: { event_id },
       created_at: {
         gte: startTime,
       },
@@ -297,7 +297,7 @@ export async function detectBulkLikePatterns(
     },
   });
 
-  return recentLikes.map((group) => group.guestId);
+  return recentLikes.map((group) => group.guest_id);
 }
 
 /**
@@ -331,7 +331,7 @@ export async function exportEngagementData(
       photo.views_count,
       photo.download_count
     );
-    
+
     csv += `${photo.id},"${photo.filename}",${photo.likes_count},${photo.views_count},${photo.download_count},${engagementScore.toFixed(2)},${photo.created_at.toISOString()}\n`;
   });
 

@@ -17,6 +17,18 @@ export async function GET() {
         name: true,
         slug: true,
         created_at: true,
+        event_date: true,
+        location: true,
+        users: {
+          select: {
+            name: true,
+          }
+        },
+        _count: {
+          select: {
+            photos: true,
+          }
+        },
         photos: {
           take: 1,
           orderBy: {
@@ -36,7 +48,11 @@ export async function GET() {
       name: event.name,
       slug: event.slug,
       date: event.created_at,
-      coverPhoto: event.photos[0]?.thumbnail_url || event.photos[0]?.original_url || null,
+      event_date: event.event_date,
+      location: event.location,
+      clientName: event.users?.name,
+      totalPhotos: event._count.photos,
+      coverPhotoUrl: event.photos[0]?.thumbnail_url || event.photos[0]?.original_url || null,
     }))
 
     return NextResponse.json({

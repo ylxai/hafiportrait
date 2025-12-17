@@ -112,7 +112,16 @@ export function handleZodError(error: any): NextResponse<ValidationErrorResponse
     return validationErrorResponse(validationErrors)
   }
   
-  return errorResponse('Validation failed', 400, 'VALIDATION_ERROR', error) as NextResponse<ValidationErrorResponse>
+  // Fallback to error response with explicit type assertion
+  // Return as validation error response type by creating a new response with correct structure
+  return NextResponse.json({
+    success: false,
+    error: {
+      message: 'Validation failed',
+      code: 'VALIDATION_ERROR' as const,
+      details: [],
+    },
+  }, { status: 400 })
 }
 
 /**

@@ -80,13 +80,15 @@ function checkFileSignature(buffer: Buffer): string | null {
 
   // Check PNG
   const pngSig = FILE_SIGNATURES.png[0];
-  if (pngSig.every((byte, index) => buffer[index] === byte)) {
+  // Fix: Check if pngSig exists before using
+  if (pngSig && pngSig.every((byte, index) => buffer[index] === byte)) {
     return 'image/png';
   }
 
   // Check WebP (RIFF header, then check for WebP)
   const webpSig = FILE_SIGNATURES.webp[0];
-  if (webpSig.every((byte, index) => buffer[index] === byte)) {
+  // Fix: Check if webpSig exists before using
+  if (webpSig && webpSig.every((byte, index) => buffer[index] === byte)) {
     // Check if it's actually WebP (bytes 8-11 should be "WEBP")
     if (buffer.toString('ascii', 8, 12) === 'WEBP') {
       return 'image/webp';
@@ -95,7 +97,8 @@ function checkFileSignature(buffer: Buffer): string | null {
 
   // Check HEIC
   const heicSig = FILE_SIGNATURES.heic[0];
-  if (heicSig.every((byte, index) => buffer[index + 4] === byte)) {
+  // Fix: Check if heicSig exists before using
+  if (heicSig && heicSig.every((byte, index) => buffer[index + 4] === byte)) {
     return 'image/heic';
   }
 

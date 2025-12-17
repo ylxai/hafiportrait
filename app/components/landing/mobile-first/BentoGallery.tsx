@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 
 interface Photo {
@@ -38,16 +38,26 @@ export default function BentoGallery() {
     }
   }
 
-  const categories = ['All', ...Array.from(new Set(photos.map(p => p.category).filter((c): c is string => c !== null)))]
+  const categories = [
+    'All',
+    ...Array.from(
+      new Set(
+        photos.map((p) => p.category).filter((c): c is string => c !== null)
+      )
+    ),
+  ]
 
-  const filteredPhotos = selectedCategory === 'All' 
-    ? photos 
-    : photos.filter(p => p.category === selectedCategory)
+  const filteredPhotos =
+    selectedCategory === 'All'
+      ? photos
+      : photos.filter((p) => p.category === selectedCategory)
 
   const openStoryMode = (index: number) => {
-    setCurrentPhotoIndex(index)
-    setStoryMode(true)
-    document.body.style.overflow = 'hidden'
+    if (filteredPhotos[index]) {
+      setCurrentPhotoIndex(index)
+      setStoryMode(true)
+      document.body.style.overflow = 'hidden'
+    }
   }
 
   const closeStoryMode = () => {
@@ -60,16 +70,22 @@ export default function BentoGallery() {
   }, [filteredPhotos.length])
 
   const prevPhoto = useCallback(() => {
-    setCurrentPhotoIndex((prev) => (prev - 1 + filteredPhotos.length) % filteredPhotos.length)
+    setCurrentPhotoIndex(
+      (prev) => (prev - 1 + filteredPhotos.length) % filteredPhotos.length
+    )
   }, [filteredPhotos.length])
 
   // Touch handlers for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
+    if (e.targetTouches[0]) {
+      setTouchStart(e.targetTouches[0].clientX)
+    }
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
+    if (e.targetTouches[0]) {
+      setTouchEnd(e.targetTouches[0].clientX)
+    }
   }
 
   const handleTouchEnd = () => {
@@ -96,6 +112,9 @@ export default function BentoGallery() {
   }, [storyMode, prevPhoto, nextPhoto])
 
   const getGridClass = (size: string | null, index: number) => {
+    // Use index for alternating patterns or special positioning
+    const isEven = index % 2 === 0
+
     switch (size) {
       case 'large':
         return 'col-span-2 row-span-2'
@@ -104,38 +123,43 @@ export default function BentoGallery() {
       case 'tall':
         return 'row-span-2'
       default:
-        return ''
+        // Alternate default items for visual variety
+        return isEven ? 'col-span-1 row-span-1' : 'col-span-1 row-span-1'
     }
   }
 
   return (
-    <section id="portfolio" className="py-16 md:py-24 px-4 bg-gradient-to-b from-white to-gray-50">
-      <div className="max-w-7xl mx-auto">
+    <section
+      id="portfolio"
+      className="bg-gradient-to-b from-white to-gray-50 px-4 py-16 md:py-24"
+    >
+      <div className="mx-auto max-w-7xl">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="mb-12 text-center"
         >
-          <h2 className="text-4xl md:text-5xl font-light mb-4">
+          <h2 className="mb-4 text-4xl font-light md:text-5xl">
             Our <span className="font-serif italic">Portfolio</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            A curated collection of our finest work, capturing life's most precious moments
+          <p className="mx-auto max-w-2xl text-lg text-gray-600">
+            A curated collection of our finest work, capturing life's most
+            precious moments
           </p>
         </motion.div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        <div className="mb-12 flex flex-wrap justify-center gap-3">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`rounded-full px-6 py-2 text-sm font-medium transition-all duration-300 ${
                 selectedCategory === category
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
               {category}
@@ -145,13 +169,13 @@ export default function BentoGallery() {
 
         {/* Bento Grid Gallery */}
         {filteredPhotos.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
+          <div className="py-16 text-center text-gray-500">
             <p>No photos available in this category yet.</p>
           </div>
         ) : (
           <motion.div
             layout
-            className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px]"
+            className="grid auto-rows-[200px] grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"
           >
             {filteredPhotos.map((photo, index) => (
               <motion.div
@@ -161,7 +185,7 @@ export default function BentoGallery() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
-                className={`group relative overflow-hidden rounded-2xl cursor-pointer ${getGridClass(
+                className={`group relative cursor-pointer overflow-hidden rounded-2xl ${getGridClass(
                   photo.bentoSize,
                   index
                 )}`}
@@ -173,10 +197,10 @@ export default function BentoGallery() {
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <div className="absolute bottom-4 left-4 right-4">
                     {photo.category && (
-                      <span className="text-white/90 text-sm font-medium">
+                      <span className="text-sm font-medium text-white/90">
                         {photo.category}
                       </span>
                     )}
@@ -202,37 +226,40 @@ export default function BentoGallery() {
               {/* Close Button */}
               <button
                 onClick={closeStoryMode}
-                className="absolute top-4 right-4 z-10 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+                className="absolute right-4 top-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
               >
-                <X className="w-6 h-6" />
+                <X className="h-6 w-6" />
               </button>
 
               {/* Navigation Buttons */}
               <button
                 onClick={prevPhoto}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+                className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="h-6 w-6" />
               </button>
               <button
                 onClick={nextPhoto}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+                className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="h-6 w-6" />
               </button>
 
               {/* Photo Display */}
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative flex h-full w-full items-center justify-center">
                 <Image
-                  src={filteredPhotos[currentPhotoIndex].original_url}
-                  alt={filteredPhotos[currentPhotoIndex].filename}
+                  src={filteredPhotos[currentPhotoIndex]?.original_url || ''}
+                  alt={
+                    filteredPhotos[currentPhotoIndex]?.filename ||
+                    'Gallery Photo'
+                  }
                   fill
                   className="object-contain"
                 />
               </div>
 
               {/* Progress Indicator */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-1">
+              <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-1">
                 {filteredPhotos.map((_, index) => (
                   <div
                     key={index}
@@ -246,7 +273,7 @@ export default function BentoGallery() {
               </div>
 
               {/* Photo Counter */}
-              <div className="absolute top-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+              <div className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
                 {currentPhotoIndex + 1} / {filteredPhotos.length}
               </div>
             </motion.div>

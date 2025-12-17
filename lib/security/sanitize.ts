@@ -69,9 +69,8 @@ export function sanitizeObject<T extends Record<string, any>>(
 
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
-      sanitized[key as keyof T] = (
-        options.allowHtml ? sanitizeComment(value) : sanitizeText(value)
-      ) as T[keyof T]
+      const sanitizedValue = options.allowHtml ? sanitizeComment(value) : sanitizeText(value)
+      sanitized[key as keyof T] = sanitizedValue as T[keyof T]
     } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       sanitized[key as keyof T] = sanitizeObject(value, options) as T[keyof T]
     } else {
@@ -103,7 +102,7 @@ export function escapeHtml(input: string): string {
     "'": '&#x27;',
     '/': '&#x2F;',
   }
-  return input.replace(/[&<>"'/]/g, (char) => map[char])
+  return input.replace(/[&<>"'/]/g, (char) => map[char] || char)
 }
 
 /**

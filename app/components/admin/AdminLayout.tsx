@@ -16,8 +16,6 @@ import {
   Home,
   Grid3x3,
   Sliders,
-  FileText,
-  Users,
   ChevronDown,
   ChevronRight,
 } from 'lucide-react'
@@ -102,10 +100,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    
+
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
@@ -163,11 +161,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div key={item.name} className="mb-1">
           <button
             onClick={() => toggleMenu(item.name)}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-              active
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${active
+              ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
           >
             <div className="flex items-center space-x-3">
               <item.icon className="w-5 h-5" />
@@ -181,7 +178,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </button>
           {isExpanded && (
             <div className="ml-4 mt-1 space-y-1">
-              {item.subItems.map(subItem => renderMenuItem(subItem, level + 1))}
+              {item.subItems?.map(subItem => renderMenuItem(subItem, level + 1))}
             </div>
           )}
         </div>
@@ -193,11 +190,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         key={item.name}
         href={item.href || '#'}
         onClick={() => isMobile && setIsSidebarOpen(false)}
-        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all mb-1 ${
-          active
-            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-            : 'text-gray-700 hover:bg-gray-100'
-        } ${level > 0 ? 'text-sm' : ''}`}
+        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all mb-1 ${active
+          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+          : 'text-gray-700 hover:bg-gray-100'
+          } ${level > 0 ? 'text-sm' : ''}`}
       >
         <item.icon className="w-5 h-5" />
         <span className="font-medium">{item.name}</span>
@@ -223,9 +219,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transition-transform duration-300 ${
-          isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transition-transform duration-300 ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}

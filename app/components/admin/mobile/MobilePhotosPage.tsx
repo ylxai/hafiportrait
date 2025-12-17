@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Search, Upload, Filter, Image as ImageIcon } from 'lucide-react'
+import { Search, Upload } from 'lucide-react'
 
 interface Photo {
   id: string

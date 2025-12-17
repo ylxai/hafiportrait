@@ -13,11 +13,6 @@ import {
   isAllowedMimeType,
   FILE_SIZE_LIMITS,
 } from '@/lib/validation/file-validator';
-import {
-  FileValidationError,
-  SecurityError,
-  BatchUploadError,
-} from '@/lib/errors/upload-errors';
 
 /**
  * Upload request validation options

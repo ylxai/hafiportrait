@@ -199,11 +199,11 @@ export async function checkDownloadRateLimit(guestId: string): Promise<{
   resetTime: number;
 }> {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  
-  const download_count = await prisma.photoDownload.count({
+
+  const download_count = await prisma.photo_downloads.count({
     where: {
-      guestId,
-      downloadedAt: {
+      guest_id: guestId,
+      downloaded_at: {
         gte: oneHourAgo,
       },
     },
@@ -227,7 +227,7 @@ export function addRateLimitHeaders(
   result: RateLimitResult
 ): Response {
   const headers = new Headers(response.headers)
-  
+
   headers.set('X-RateLimit-Limit', result.limit.toString())
   headers.set('X-RateLimit-Remaining', result.remaining.toString())
   headers.set('X-RateLimit-Reset', result.reset.toString())

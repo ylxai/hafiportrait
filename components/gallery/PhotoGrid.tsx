@@ -1,147 +1,172 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import PhotoTile from './PhotoTile';
-import PhotoLightbox from './PhotoLightbox';
+import { useState, useEffect, useRef, useCallback } from 'react'
+import PhotoTile from './PhotoTile'
+import PhotoLightbox from './PhotoLightbox'
 
 interface Photo {
-  id: string;
-  filename: string;
-  thumbnail_medium_url: string | null;
-  thumbnail_small_url: string | null;
-  thumbnail_url: string | null;
-  original_url: string;
-  width: number | null;
-  height: number | null;
-  likes_count: number;
-  caption: string | null;
+  id: string
+  filename: string
+  thumbnail_medium_url: string | null
+  thumbnail_small_url: string | null
+  thumbnail_url: string | null
+  original_url: string
+  width: number | null
+  height: number | null
+  likes_count: number
+  caption: string | null
 }
 
 interface PhotoGridProps {
-  event_id: string;
-  eventSlug: string;
-  allowLikes?: boolean;
+  event_id: string
+  eventSlug: string
+  allowLikes?: boolean
 }
 
-export default function PhotoGrid({ event_id, eventSlug, allowLikes = true }: PhotoGridProps) {
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  
-  const observerTarget = useRef<HTMLDivElement>(null);
-  const PHOTOS_PER_PAGE = 50;
+export default function PhotoGrid({
+  event_id,
+  eventSlug,
+  allowLikes = true,
+}: PhotoGridProps) {
+  const [photos, setPhotos] = useState<Photo[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
+    null
+  )
+  const [error, setError] = useState<string | null>(null)
 
-  const fetchPhotos = useCallback(async (pageNum: number) => {
+  const observerTarget = useRef<HTMLDivElement>(null)
+  const PHOTOS_PER_PAGE = 50
+
+  // Track event view analytics
+  const trackEventView = useCallback(async () => {
+    if (!event_id) return
+
     try {
-      const response = await fetch(
-        `/api/gallery/${eventSlug}/photos?page=${pageNum}&limit=${PHOTOS_PER_PAGE}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch photos');
-      }
-
-      const data = await response.json();
-      
-      if (pageNum === 1) {
-        setPhotos(data.photos);
-      } else {
-        setPhotos(prev => [...prev, ...data.photos]);
-      }
-
-      setHasMore(data.hasMore);
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Error fetching photos:', err);
-      setError('Failed to load photos. Please try again.');
-      setIsLoading(false);
+      await fetch(`/api/gallery/events/${event_id}/view`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (error) {
+      // Silently fail analytics tracking
+      console.warn('Failed to track event view:', error)
     }
-  }, [eventSlug]);
+  }, [event_id])
+
+  const fetchPhotos = useCallback(
+    async (pageNum: number) => {
+      try {
+        const response = await fetch(
+          `/api/gallery/${eventSlug}/photos?page=${pageNum}&limit=${PHOTOS_PER_PAGE}`
+        )
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch photos')
+        }
+
+        const data = await response.json()
+
+        if (pageNum === 1) {
+          setPhotos(data.photos)
+        } else {
+          setPhotos((prev) => [...prev, ...data.photos])
+        }
+
+        setHasMore(data.hasMore)
+        setIsLoading(false)
+      } catch (err) {
+        console.error('Error fetching photos:', err)
+        setError('Failed to load photos. Please try again.')
+        setIsLoading(false)
+      }
+    },
+    [eventSlug]
+  )
 
   useEffect(() => {
-    fetchPhotos(1);
-  }, [fetchPhotos]);
+    fetchPhotos(1)
+    trackEventView()
+  }, [fetchPhotos, trackEventView])
 
   // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          fetchPhotos(nextPage);
+        if (entries[0] && entries[0].isIntersecting && hasMore && !isLoading) {
+          const nextPage = page + 1
+          setPage(nextPage)
+          fetchPhotos(nextPage)
         }
       },
       { threshold: 0.1 }
-    );
+    )
 
-    const currentTarget = observerTarget.current;
+    const currentTarget = observerTarget.current
     if (currentTarget) {
-      observer.observe(currentTarget);
+      observer.observe(currentTarget)
     }
 
     return () => {
       if (currentTarget) {
-        observer.unobserve(currentTarget);
+        observer.unobserve(currentTarget)
       }
-    };
-  }, [hasMore, isLoading, page, fetchPhotos]);
+    }
+  }, [hasMore, isLoading, page, fetchPhotos])
 
   const handlePhotoClick = (index: number) => {
-    setSelectedPhotoIndex(index);
-  };
+    setSelectedPhotoIndex(index)
+  }
 
   const handleCloseLightbox = () => {
-    setSelectedPhotoIndex(null);
-  };
+    setSelectedPhotoIndex(null)
+  }
 
   const handleNavigate = (direction: 'prev' | 'next') => {
-    if (selectedPhotoIndex === null) return;
+    if (selectedPhotoIndex === null) return
 
     if (direction === 'prev' && selectedPhotoIndex > 0) {
-      setSelectedPhotoIndex(selectedPhotoIndex - 1);
+      setSelectedPhotoIndex(selectedPhotoIndex - 1)
     } else if (direction === 'next' && selectedPhotoIndex < photos.length - 1) {
-      setSelectedPhotoIndex(selectedPhotoIndex + 1);
+      setSelectedPhotoIndex(selectedPhotoIndex + 1)
     }
-  };
+  }
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
+      <div className="py-12 text-center">
+        <p className="mb-4 text-red-600">{error}</p>
         <button
           onClick={() => {
-            setError(null);
-            setIsLoading(true);
-            fetchPhotos(1);
+            setError(null)
+            setIsLoading(true)
+            fetchPhotos(1)
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           Retry
         </button>
       </div>
-    );
+    )
   }
 
   if (isLoading && photos.length === 0) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className="aspect-square bg-gray-200 rounded-lg animate-pulse"
+            className="aspect-square animate-pulse rounded-lg bg-gray-200"
           />
         ))}
       </div>
-    );
+    )
   }
 
   if (photos.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <svg
           className="mx-auto h-12 w-12 text-gray-400"
           fill="none"
@@ -159,12 +184,12 @@ export default function PhotoGrid({ event_id, eventSlug, allowLikes = true }: Ph
           Belum ada foto tersedia. Cek kembali nanti!
         </p>
       </div>
-    );
+    )
   }
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
         {photos.map((photo, index) => (
           <PhotoTile
             key={photo.id}
@@ -178,7 +203,7 @@ export default function PhotoGrid({ event_id, eventSlug, allowLikes = true }: Ph
 
       {hasMore && (
         <div ref={observerTarget} className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
         </div>
       )}
 
@@ -193,5 +218,5 @@ export default function PhotoGrid({ event_id, eventSlug, allowLikes = true }: Ph
         />
       )}
     </>
-  );
+  )
 }

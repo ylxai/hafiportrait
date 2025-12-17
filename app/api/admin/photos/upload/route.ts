@@ -20,7 +20,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
 import { logger } from '@/lib/logger';
-import { rateLimit, RateLimitPresets } from '@/lib/security/rate-limiter';
 import { asyncHandler, successResponse } from '@/lib/errors/handler';
 import {
   validateBatchUpload,

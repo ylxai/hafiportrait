@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { withCSRFProtection } from '@/lib/security/csrf'
-import { withRateLimit, RateLimitTier, addRateLimitHeaders } from '@/lib/security/rate-limit'
+import { withRateLimit, RateLimitTier } from '@/lib/security/rate-limit'
 import { getUserFromRequest, isAdmin } from '@/lib/auth'
 
 export interface SecurityOptions {

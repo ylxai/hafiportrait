@@ -43,52 +43,63 @@ export default function PackageCard({
   // Get icon for feature based on content
   const getFeatureIcon = (feature: string) => {
     const lowerFeature = feature.toLowerCase()
-    if (lowerFeature.includes('photographer') || lowerFeature.includes('foto')) {
-      return <Camera className="w-4 h-4 text-brand-teal flex-shrink-0" />
+    if (
+      lowerFeature.includes('photographer') ||
+      lowerFeature.includes('foto')
+    ) {
+      return <Camera className="h-4 w-4 flex-shrink-0 text-brand-teal" />
     }
     if (lowerFeature.includes('jam') || lowerFeature.includes('hari')) {
-      return <Clock className="w-4 h-4 text-brand-teal flex-shrink-0" />
+      return <Clock className="h-4 w-4 flex-shrink-0 text-brand-teal" />
     }
     if (lowerFeature.includes('album')) {
-      return <BookOpen className="w-4 h-4 text-brand-teal flex-shrink-0" />
+      return <BookOpen className="h-4 w-4 flex-shrink-0 text-brand-teal" />
     }
     if (lowerFeature.includes('cetak') || lowerFeature.includes('edited')) {
-      return <Image className="w-4 h-4 text-brand-teal flex-shrink-0" aria-label="Print/edited feature" />
+      return (
+        <Image
+          className="h-4 w-4 flex-shrink-0 text-brand-teal"
+          aria-label="Print/edited feature"
+        />
+      )
     }
-    return <span className="text-brand-teal text-sm flex-shrink-0">✓</span>
+    return <span className="flex-shrink-0 text-sm text-brand-teal">✓</span>
   }
 
   return (
     <div
       className={`
-        bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300
+        overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300
         ${isExpanded ? 'ring-2 ring-brand-teal' : 'hover:shadow-lg'}
       `}
     >
       {/* Collapsed Header - Always Visible */}
       <button
         onClick={onToggle}
-        className="w-full p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex w-full cursor-pointer items-center justify-between p-5 transition-colors hover:bg-gray-50"
       >
         <div className="flex-1 text-left">
-          <div className="flex items-center space-x-2 mb-2">
-            <h3 className="text-lg md:text-xl font-bold text-gray-900">
+          <div className="mb-2 flex items-center space-x-2">
+            {categoryIcon && (
+              <div className="text-brand-teal">{categoryIcon}</div>
+            )}
+            <h3 className="text-lg font-bold text-gray-900 md:text-xl">
               {pkg.name}
             </h3>
             {pkg.isBestSeller && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                <Star className="w-3 h-3 mr-1 fill-current" />
+              <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800">
+                <Star className="mr-1 h-3 w-3 fill-current" />
                 Best Seller
               </span>
             )}
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-brand-teal">
+          <div className="text-2xl font-bold text-brand-teal md:text-3xl">
             {formatPrice(pkg.price)}
           </div>
         </div>
         <div className="ml-4">
           <ChevronDown
-            className={`w-6 h-6 text-gray-400 transition-transform duration-300 ${
+            className={`h-6 w-6 text-gray-400 transition-transform duration-300 ${
               isExpanded ? 'rotate-180' : ''
             }`}
           />
@@ -102,10 +113,10 @@ export default function PackageCard({
           ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}
         `}
       >
-        <div className="px-5 pb-5 space-y-4">
+        <div className="space-y-4 px-5 pb-5">
           {/* Description */}
           {pkg.description && (
-            <p className="text-gray-600 text-sm md:text-base italic border-t pt-4">
+            <p className="border-t pt-4 text-sm italic text-gray-600 md:text-base">
               {pkg.description}
             </p>
           )}
@@ -115,7 +126,7 @@ export default function PackageCard({
             {highlightFeatures.map((feature, idx) => (
               <div key={idx} className="flex items-start space-x-3">
                 {getFeatureIcon(feature)}
-                <span className="text-gray-700 text-sm md:text-base leading-relaxed">
+                <span className="text-sm leading-relaxed text-gray-700 md:text-base">
                   {feature}
                 </span>
               </div>
@@ -125,15 +136,15 @@ export default function PackageCard({
           {/* Additional Features (Collapsible) */}
           {remainingFeatures.length > 0 && (
             <details className="group">
-              <summary className="cursor-pointer text-sm text-brand-teal hover:text-brand-teal/80 font-medium flex items-center space-x-1">
+              <summary className="flex cursor-pointer items-center space-x-1 text-sm font-medium text-brand-teal hover:text-brand-teal/80">
                 <span>Detail lengkap</span>
-                <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
               </summary>
-              <div className="mt-3 space-y-2 pl-4 border-l-2 border-gray-200">
+              <div className="mt-3 space-y-2 border-l-2 border-gray-200 pl-4">
                 {remainingFeatures.map((feature, idx) => (
                   <div key={idx} className="flex items-start space-x-2">
-                    <span className="text-brand-teal text-xs">✓</span>
-                    <span className="text-gray-600 text-sm">{feature}</span>
+                    <span className="text-xs text-brand-teal">✓</span>
+                    <span className="text-sm text-gray-600">{feature}</span>
                   </div>
                 ))}
               </div>

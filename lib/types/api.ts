@@ -100,7 +100,7 @@ export interface PhotoData {
   file_size: number | null
   width: number | null
   height: number | null
-  mime_type: string
+  mime_type: string | null
   display_order: number
   event_id: string
   uploadedAt: string
@@ -110,7 +110,6 @@ export interface PhotoData {
   isDeleted: boolean
   deleted_at: string | null
   exif_data: Record<string, unknown> | null
-  metadata: Record<string, unknown> | null
 }
 
 export interface PhotoListData {

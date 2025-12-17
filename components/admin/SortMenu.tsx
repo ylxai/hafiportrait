@@ -3,30 +3,30 @@
  * Auto-sort dropdown with sort options and direction
  */
 
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { 
-  ArrowUpDown, 
-  ArrowUp, 
-  ArrowDown, 
-  Calendar, 
-  FileText, 
+import { useState, useEffect } from 'react'
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
+  FileText,
   HardDrive,
   Camera,
   Check,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface SortMenuProps {
-  onSort: (sortBy: string, direction: 'asc' | 'desc') => void;
-  isLoading?: boolean;
-  currentSort?: string;
+  onSort: (sortBy: string, direction: 'asc' | 'desc') => void
+  isLoading?: boolean
+  currentSort?: string
 }
 
 interface SortOption {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  id: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
 }
 
 const sortOptions: SortOption[] = [
@@ -34,38 +34,47 @@ const sortOptions: SortOption[] = [
   { id: 'fileName', label: 'File Name', icon: FileText },
   { id: 'file_size', label: 'File Size', icon: HardDrive },
   { id: 'dateTaken', label: 'Date Taken (EXIF)', icon: Camera },
-];
+]
 
 export default function SortMenu({
   onSort,
   isLoading = false,
   currentSort = 'order',
 }: SortMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [selectedSort, setSelectedSort] = useState<string>('uploadDate');
-  const [direction, setDirection] = useState<'asc' | 'desc'>('asc');
+  const [isOpen, setIsOpen] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [selectedSort, setSelectedSort] = useState<string>(
+    currentSort || 'uploadDate'
+  )
+  const [direction, setDirection] = useState<'asc' | 'desc'>('asc')
+
+  // Sync selectedSort with currentSort prop
+  useEffect(() => {
+    if (currentSort && currentSort !== selectedSort) {
+      setSelectedSort(currentSort)
+    }
+  }, [currentSort, selectedSort])
 
   const handleSortClick = (sortId: string) => {
-    setSelectedSort(sortId);
-    setShowConfirmation(true);
-    setIsOpen(false);
-  };
+    setSelectedSort(sortId)
+    setShowConfirmation(true)
+    setIsOpen(false)
+  }
 
   const handleConfirmSort = () => {
-    onSort(selectedSort, direction);
-    setShowConfirmation(false);
-  };
+    onSort(selectedSort, direction)
+    setShowConfirmation(false)
+  }
 
   const handleCancelSort = () => {
-    setShowConfirmation(false);
-  };
+    setShowConfirmation(false)
+  }
 
   const toggleDirection = () => {
-    setDirection(direction === 'asc' ? 'desc' : 'asc');
-  };
+    setDirection(direction === 'asc' ? 'desc' : 'asc')
+  }
 
-  const selectedOption = sortOptions.find((opt) => opt.id === selectedSort);
+  const selectedOption = sortOptions.find((opt) => opt.id === selectedSort)
 
   return (
     <>
@@ -92,11 +101,11 @@ export default function SortMenu({
             {/* Menu */}
             <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-gray-200 bg-white shadow-lg">
               <div className="p-2">
-                <div className="mb-2 px-2 py-1 text-xs font-semibold text-gray-500 uppercase">
+                <div className="mb-2 px-2 py-1 text-xs font-semibold uppercase text-gray-500">
                   Sort By
                 </div>
                 {sortOptions.map((option) => {
-                  const Icon = option.icon;
+                  const Icon = option.icon
                   return (
                     <button
                       key={option.id}
@@ -109,12 +118,12 @@ export default function SortMenu({
                         <Check className="h-4 w-4 text-[#54ACBF]" />
                       )}
                     </button>
-                  );
+                  )
                 })}
               </div>
 
               <div className="border-t border-gray-200 p-2">
-                <div className="mb-2 px-2 py-1 text-xs font-semibold text-gray-500 uppercase">
+                <div className="mb-2 px-2 py-1 text-xs font-semibold uppercase text-gray-500">
                   Direction
                 </div>
                 <button
@@ -145,8 +154,8 @@ export default function SortMenu({
             </h3>
             <p className="mt-2 text-sm text-gray-600">
               Reorder all photos by{' '}
-              <span className="font-semibold">{selectedOption.label}</span>{' '}
-              ({direction === 'asc' ? 'Ascending' : 'Descending'})?
+              <span className="font-semibold">{selectedOption.label}</span> (
+              {direction === 'asc' ? 'Ascending' : 'Descending'})?
             </p>
             <p className="mt-2 text-xs text-gray-500">
               This will update the display order for all photos in this event.
@@ -172,5 +181,5 @@ export default function SortMenu({
         </div>
       )}
     </>
-  );
+  )
 }

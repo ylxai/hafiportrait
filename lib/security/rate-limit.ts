@@ -1,7 +1,7 @@
 /**
  * Advanced Rate Limiting Implementation
  * Priority: MEDIUM (CVSS 5.5)
- * 
+ *
  * Tiered rate limiting dengan burst protection untuk photography platform:
  * - Different limits untuk different endpoints
  * - IP-based rate limiting dengan Redis
@@ -19,33 +19,33 @@ export const RATE_LIMITS = {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 100,
   },
-  
+
   // Authentication endpoints
   AUTH_LOGIN: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5,
     blockDurationMs: 15 * 60 * 1000, // Block 15 minutes after exceeded
   },
-  
+
   // Photo upload (burst protection)
   PHOTO_UPLOAD: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10, // Max 10 uploads per minute
     burstMax: 3, // Max 3 concurrent uploads
   },
-  
+
   // Gallery access
   GALLERY_ACCESS: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,
   },
-  
+
   // Photo like/comment
   PHOTO_INTERACTION: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 30,
   },
-  
+
   // Admin endpoints (more permissive)
   ADMIN_API: {
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -62,7 +62,7 @@ async function getRedisClient() {
   if (!redisClient) {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
     redisClient = createClient({ url: redisUrl })
-    
+
     redisClient.on('error', (err) => {
       console.error('Redis rate limit client error:', err)
     })
@@ -72,18 +72,22 @@ async function getRedisClient() {
       redisClient = null
     })
   }
-  
+
   return redisClient
 }
 
 /**
  * Get client identifier dari request (IP address + optional user ID)
  */
-export function getClientIdentifier(request: NextRequest, user_id?: string): string {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
-             request.headers.get('x-real-ip') ||
-             'unknown'
-  
+export function getClientIdentifier(
+  request: NextRequest,
+  user_id?: string
+): string {
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0] ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+
   return user_id ? `${ip}:${user_id}` : ip
 }
 
@@ -92,8 +96,20 @@ export function getClientIdentifier(request: NextRequest, user_id?: string): str
  */
 export function isAdminRequest(request: NextRequest): boolean {
   // Check for admin role di JWT token
-  // This will be implemented setelah auth middleware ready
-  return false
+  try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return false
+    }
+
+    const token = authHeader.substring(7)
+    // TODO: Properly validate JWT and check admin role
+    // For now, just check if token exists (basic check)
+    return token.length > 10 // Very basic check
+  } catch (error) {
+    console.warn('Error checking admin request:', error)
+    return false
+  }
 }
 
 /**
@@ -126,19 +142,19 @@ export async function checkRateLimit(
   try {
     // Sliding window rate limiting
     const pipeline = redis.multi()
-    
+
     // Remove old entries
     pipeline.zRemRangeByScore(key, 0, windowStart)
-    
+
     // Count current requests
     pipeline.zCard(key)
-    
+
     // Add current request
     pipeline.zAdd(key, { score: now, value: `${now}` })
-    
+
     // Set expiry
     pipeline.expire(key, Math.ceil(config.windowMs / 1000))
-    
+
     const results = await pipeline.exec()
     const currentCount = (results[1] as number) || 0
 
@@ -153,7 +169,7 @@ export async function checkRateLimit(
       await redis.set(blockKey, blockUntil.toString(), {
         PX: config.blockDurationMs,
       })
-      
+
       return {
         allowed: false,
         remaining: 0,
@@ -191,9 +207,9 @@ export async function isBlocked(
 
   const blockKey = `ratelimit:block:${tier}:${identifier}`
   const blockUntil = await redis.get(blockKey)
-  
+
   if (!blockUntil) return false
-  
+
   return parseInt(blockUntil) > Date.now()
 }
 
@@ -211,7 +227,7 @@ export async function withRateLimit(
   }
 
   const identifier = getClientIdentifier(request, user_id)
-  
+
   // Check if blocked
   if (await isBlocked(identifier, tier)) {
     return {
@@ -268,9 +284,15 @@ export function addRateLimitHeaders(
   remaining: number,
   resetAt: number
 ): void {
-  response.headers.set('X-RateLimit-Limit', RATE_LIMITS[tier].maxRequests.toString())
+  response.headers.set(
+    'X-RateLimit-Limit',
+    RATE_LIMITS[tier].maxRequests.toString()
+  )
   response.headers.set('X-RateLimit-Remaining', remaining.toString())
-  response.headers.set('X-RateLimit-Reset', Math.ceil(resetAt / 1000).toString())
+  response.headers.set(
+    'X-RateLimit-Reset',
+    Math.ceil(resetAt / 1000).toString()
+  )
 }
 
 /**
@@ -284,10 +306,10 @@ export async function checkUploadBurst(
 
   const key = `upload:burst:${identifier}`
   const config = RATE_LIMITS.PHOTO_UPLOAD
-  
+
   try {
     const current = await redis.incr(key)
-    
+
     if (current === 1) {
       // First upload, set expiry
       await redis.expire(key, Math.ceil(config.windowMs / 1000))

@@ -9,7 +9,7 @@ export async function GET() {
       orderBy: { display_order: 'asc' },
       select: {
         id: true,
-        imageUrl: true,
+        image_url: true,
         thumbnail_url: true,
         title: true,
         subtitle: true,
@@ -17,7 +17,7 @@ export async function GET() {
       }
     })
 
-    const settings = await prisma.slideshowSettings.findFirst()
+    const settings = await prisma.slideshow_settings.findFirst()
 
     return NextResponse.json({
       slides,

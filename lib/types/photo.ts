@@ -3,7 +3,7 @@
  * Single source of truth for all photo-related types
  */
 
-import { Photo as PrismaPhoto, Event } from '@prisma/client'
+import { photos as PrismaPhoto } from '@prisma/client'
 
 /**
  * Base Photo Interface - Core photo properties
@@ -29,6 +29,18 @@ export interface Photo {
 }
 
 /**
+ * Event information subset for photo relations
+ */
+export interface PhotoEventInfo {
+  id: string
+  name: string
+  slug: string
+  eventCode: string
+  date: Date
+  status: string
+}
+
+/**
  * Photo with EXIF Metadata
  */
 export interface PhotoWithMetadata extends Photo {
@@ -51,14 +63,7 @@ export interface PhotoWithMetadata extends Photo {
  * Photo with Event Information
  */
 export interface PhotoWithEvent extends Photo {
-  event: {
-    id: string
-    name: string
-    slug: string
-    eventCode: string
-    date: Date
-    status: string
-  }
+  event: PhotoEventInfo
 }
 
 /**
@@ -151,6 +156,13 @@ export interface PhotoGalleryItem {
  */
 export function hasMetadata(photo: Photo | PhotoWithMetadata): photo is PhotoWithMetadata {
   return 'exif_data' in photo && photo.exif_data !== null
+}
+
+/**
+ * Type guard to check if photo has event info
+ */
+export function hasEventInfo(photo: Photo | PhotoWithEvent): photo is PhotoWithEvent {
+  return 'event' in photo && photo.event !== null
 }
 
 /**

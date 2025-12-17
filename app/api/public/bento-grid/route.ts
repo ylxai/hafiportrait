@@ -5,16 +5,16 @@ export async function GET() {
   // Note: request parameter not needed for this endpoint
   try {
     const photos = await prisma.portfolio_photos.findMany({
-      where: { is_featuredBento: true },
-      orderBy: { bentoPriority: 'desc' },
+      where: { is_featured_bento: true },
+      orderBy: { bento_priority: 'desc' },
       select: {
         id: true,
         filename: true,
         original_url: true,
         thumbnail_url: true,
         category: true,
-        bentoSize: true,
-        bentoPriority: true
+        bento_size: true,
+        bento_priority: true
       },
       take: 12
     })

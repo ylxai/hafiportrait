@@ -13,6 +13,7 @@ interface Event {
   location: string | null
   coverPhotoUrl: string | null
   totalPhotos: number
+  clientName?: string
   isPublic: boolean
 }
 
@@ -26,7 +27,7 @@ export default function FeaturedEvents() {
 
   const fetchFeaturedEvents = async () => {
     try {
-      const response = await fetch('/api/events/public')
+      const response = await fetch('/api/events/active')
       const data = await response.json()
       if (data.success) {
         setEvents(data.events.slice(0, 3)) // Show only 3 featured events
@@ -118,6 +119,12 @@ export default function FeaturedEvents() {
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-brand-teal" />
                       {event.location}
+                    </div>
+                  )}
+                  {event.clientName && (
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-brand-teal" />
+                      {event.clientName}
                     </div>
                   )}
                 </div>

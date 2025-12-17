@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Plus, Calendar, Camera, Eye, Filter } from 'lucide-react'
+import { Search, Plus, Calendar, Camera, Eye } from 'lucide-react'
 
 interface Event {
   id: string
