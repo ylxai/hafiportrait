@@ -13,7 +13,6 @@
 
 import React, { Component, ReactNode, ErrorInfo } from 'react'
 import { logger } from '@/lib/logger'
-import { ApplicationError, ErrorCode, ErrorSeverity } from '@/lib/types/errors'
 
 export interface ErrorBoundaryProps {
   children: ReactNode
@@ -56,27 +55,19 @@ export class BaseErrorBoundary extends Component<
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const { onError, errorContext } = this.props
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    const { onError } = this.props
     const { errorId } = this.state
 
-    // Log error with context
-    const appError: ApplicationError = {
-      code: ErrorCode.INTERNAL_ERROR,
-      message: error.message,
-      severity: ErrorSeverity.HIGH,
-      userMessage: 'An unexpected error occurred',
-      timestamp: new Date().toISOString(),
-      context: {
-        errorId,
-        boundary: errorContext || 'BaseErrorBoundary',
-        componentStack: errorInfo.componentStack,
-        errorStack: error.stack,
-      },
+    // Log error with simple context
+    const context = {
+      errorId,
+      component: 'ErrorBoundary',
+      componentStack: errorInfo.componentStack,
     }
 
     // Log to system
-    logger.error('Error caught by boundary', appError)
+    logger.error('Error caught by boundary', error, context)
 
     // Update state with error info
     this.setState({ errorInfo })

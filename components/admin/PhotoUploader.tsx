@@ -23,7 +23,6 @@ import {
 } from 'lucide-react'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import { showFileValidationError } from '@/lib/toast/toast-utils'
-import { UploadErrorBoundary } from '@/components/error-boundaries'
 
 // Accepted file types - moved outside component to be stable
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']

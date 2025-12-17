@@ -255,3 +255,7 @@ export function isNetworkError(error: unknown): error is NetworkError {
 export function isRateLimitError(error: unknown): error is RateLimitError {
   return typeof error === 'object' && error !== null && 'limit' in error && 'windowMs' in error
 }
+
+// Additional type exports for Error Boundaries
+export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical'
+export type ErrorCode = string
