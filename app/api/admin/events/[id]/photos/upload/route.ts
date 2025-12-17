@@ -36,6 +36,7 @@ import {
   validateImageBuffer,
 } from '@/lib/storage/image-processor';
 import { extractExifData } from '@/lib/utils/exif-extractor';
+import { logger } from '@/lib/logger';
 // import { rateLimit } from '@/lib/security/rate-limiter'; // PRODUCTION: Disabled for wedding uploads
 import { memoryManager } from '@/lib/storage/memory-manager';
 
@@ -185,7 +186,11 @@ export async function POST(
       );
     }
 
-    console.log(`📦 Processing batch: ${files.length} files, ${(batchValidation.totalSize / 1024 / 1024).toFixed(2)}MB total`);
+    logger.info('Processing upload batch', {
+      filesCount: files.length,
+      totalSizeMB: (batchValidation.totalSize / 1024 / 1024).toFixed(2),
+      eventId
+    });
 
     // Get max display order for event to assign new photos
     const maxOrderPhoto = await prisma.photo.findFirst({
@@ -260,7 +265,11 @@ export async function POST(
         }
         */
 
-        console.log(`✓ Security checks passed for ${file.name}`);
+        logger.debug('Security checks passed', {
+          filename: file.name,
+          fileSize: file.size,
+          mimeType: file.type
+        });
 
         // PERFORMANCE: Process with memory control (limits concurrent large files)
         await memoryManager.processWithControl(file.size, async () => {
@@ -273,10 +282,16 @@ export async function POST(
             try {
               exifData = await extractExifData(buffer);
               if (exifData) {
-                console.log(`📷 Extracted EXIF data for ${file.name}`);
+                logger.debug('EXIF data extracted', {
+                  filename: file.name,
+                  exifKeys: Object.keys(exifData).length
+                });
               }
             } catch (exifError) {
-              console.warn(`Could not extract EXIF for ${file.name}:`, exifError);
+              logger.warn('Failed to extract EXIF data', {
+                filename: file.name,
+                error: exifError instanceof Error ? exifError.message : String(exifError)
+              });
               // Continue without EXIF - not a critical error
             }
 
@@ -390,10 +405,19 @@ export async function POST(
                 },
               });
 
-              console.log(`✓ Uploaded photo: ${file.name} -> ${uniqueFilename}${exifData ? ' (with EXIF)' : ''}`);
+              logger.debug('Photo uploaded successfully', {
+                filename: file.name,
+                uniqueFilename,
+                hasExif: !!exifData,
+                storageKey
+              });
             } catch (dbError) {
               // TRANSACTION ROLLBACK: Database insert failed, cleanup R2 files
-              console.error(`❌ Database insert failed for ${file.name}, cleaning up R2 files...`, dbError);
+              logger.error('Database insert failed, cleaning up R2 files', dbError, {
+                component: 'photo-upload',
+                action: 'database_insert',
+                metadata: { filename: file.name, uniqueFilename, storageKey }
+              });
               await cleanupFailedUpload(uploadedKeys);
               throw new Error(`Database error: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
             }
@@ -408,7 +432,11 @@ export async function POST(
         
         // TRANSACTION ROLLBACK: If we have uploaded files, clean them up
         if (uploadedKeys.length > 0) {
-          console.log(`🔄 Rolling back ${uploadedKeys.length} uploaded files for ${file.name}...`);
+          logger.warn('Rolling back uploaded files due to error', {
+            uploadedCount: uploadedKeys.length,
+            failedFilename: file.name,
+            component: 'photo-upload'
+          });
           await cleanupFailedUpload(uploadedKeys);
         }
         
@@ -426,8 +454,13 @@ export async function POST(
     const withExifCount = uploadResults.filter(r => r.success && r.photo?.hasExif).length;
 
     // 8. Log upload activity
-    console.log(`✅ Upload complete for event ${eventId}: ${successCount} success (${withExifCount} with EXIF), ${failCount} failed`);
-    console.log(`📊 Memory status:`, memoryManager.getStatus());
+    logger.info('Upload batch completed', {
+      eventId,
+      successCount,
+      withExifCount,
+      failCount,
+      memoryStatus: memoryManager.getStatus()
+    });
 
     return NextResponse.json({
       success: true,

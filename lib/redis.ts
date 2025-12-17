@@ -1,4 +1,5 @@
 import { createClient } from 'redis'
+import { logger } from './logger'
 
 const globalForRedis = globalThis as unknown as {
   redis: ReturnType<typeof createClient> | undefined
@@ -18,7 +19,7 @@ export const redis =
       reconnectStrategy: (retries) => {
         // Exponential backoff dengan max 3000ms
         if (retries > 10) {
-          console.error('Redis: Max reconnection attempts reached')
+          logger.error('Redis: Max reconnection attempts reached')
           return new Error('Redis: Max reconnection attempts reached')
         }
         return Math.min(retries * 100, 3000)
@@ -32,29 +33,29 @@ if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis
 
 // Error handling
 redis.on('error', (err) => {
-  console.error('Redis Client Error:', err)
+  logger.error('Redis Client Error', err)
 })
 
 redis.on('connect', () => {
-  console.log('Redis: Connected to server')
+  logger.info('Redis connected to server')
 })
 
 redis.on('ready', () => {
-  console.log('Redis: Ready to accept commands')
+  logger.info('Redis ready to accept commands')
 })
 
 redis.on('reconnecting', () => {
-  console.log('Redis: Reconnecting...')
+  logger.warn('Redis reconnecting...')
 })
 
 redis.on('end', () => {
-  console.log('Redis: Connection ended')
+  logger.info('Redis connection ended')
 })
 
 // Connect to Redis
 if (!redis.isOpen) {
   redis.connect().catch((err) => {
-    console.error('Redis connection error:', err)
+    logger.error('Redis connection error', err)
     // Don't crash the application, let it retry
   })
 }
@@ -76,7 +77,7 @@ export async function isRedisHealthy(): Promise<boolean> {
     const response = await redis.ping()
     return response === 'PONG'
   } catch (error) {
-    console.error('Redis health check failed:', error)
+    logger.error('Redis health check failed', error)
     return false
   }
 }

@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 import prisma from '@/lib/prisma'
 import { 
   uploadToR2WithRetry, 
@@ -151,17 +152,27 @@ export async function POST(request: NextRequest) {
 
         // Extract metadata for logging and potential future use
         const metadata = await extractImageMetadata(buffer)
-        console.log(`📏 Image metadata for ${file.name}: ${metadata.width}x${metadata.height}, ${(metadata.fileSize || 0 / 1024).toFixed(0)}KB`)
+        logger.debug('Image metadata extracted', {
+          filename: file.name,
+          dimensions: `${metadata.width}x${metadata.height}`,
+          fileSizeKB: (metadata.fileSize || 0) / 1024
+        });
         
         // Extract EXIF data for logging and potential future storage
         let exifData = null
         try {
           exifData = await extractExifData(buffer)
           if (exifData) {
-            console.log(`📷 EXIF extracted for ${file.name}: ${Object.keys(exifData).length} properties`)
+            logger.debug('EXIF data extracted', {
+              filename: file.name,
+              exifProperties: Object.keys(exifData).length
+            });
           }
         } catch (exifError) {
-          console.warn(`Could not extract EXIF for ${file.name}:`, exifError)
+          logger.warn('Failed to extract EXIF data', {
+            filename: file.name,
+            error: exifError instanceof Error ? exifError.message : String(exifError)
+          });
         }
 
         // Upload original to R2

@@ -19,6 +19,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 import { rateLimit, RateLimitPresets } from '@/lib/security/rate-limiter';
 import { asyncHandler, successResponse } from '@/lib/errors/handler';
 import {
@@ -146,7 +147,11 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   const estimatedMemory = estimateMemoryUsage(fileSizes);
   
   // Log estimates for monitoring
-  console.log(`📊 Upload estimates: ${estimatedTime}s, ${(estimatedMemory / 1024 / 1024).toFixed(2)}MB`);
+  logger.debug('Upload estimates calculated', {
+    estimatedTimeSeconds: estimatedTime,
+    estimatedMemoryMB: (estimatedMemory / 1024 / 1024).toFixed(2),
+    filesCount: fileSizes.length
+  });
   
   // 10. Process uploads (convert Files to Buffers)
   const fileBuffers = await Promise.all(
