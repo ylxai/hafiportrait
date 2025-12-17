@@ -42,7 +42,8 @@ export default function AdminLoginPage() {
       
       // Redirect to dashboard
       router.push('/admin/dashboard')
-    } catch (err) {
+    } catch (error) {
+      console.error('Login error:', error)
       setError('An error occurred. Please try again.')
       toast.generic.networkError()
       setLoading(false)

@@ -76,8 +76,8 @@ export default function EventDetailPage() {
       const data = await response.json()
       setEvent(data.event)
       setLoading(false)
-    } catch (err) {
-      console.error('Error loading event:', err)
+    } catch (error) {
+      console.error('Error loading event:', error)
       setLoading(false)
     }
   }, [eventId])

@@ -37,8 +37,8 @@ export default function AdminEventsPage() {
       const data = await response.json()
       setEvents(data.events || [])
       setLoading(false)
-    } catch (err) {
-      console.error('Error fetching events:', err)
+    } catch (error) {
+      console.error('Error fetching events:', error)
       setLoading(false)
     }
   }, [])
