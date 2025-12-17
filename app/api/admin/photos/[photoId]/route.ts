@@ -13,7 +13,7 @@ export async function GET(
 ) {
   try {
     const { photo_id } = await params;
-    
+
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,22 +22,24 @@ export async function GET(
     const photo = await prisma.photos.findUnique({
       where: { id: photo_id },
       include: {
-        event: {
+
+        // New 'events' relation for direct event data access
+        events: {
           select: {
             id: true,
             name: true,
             slug: true,
             client_id: true,
-          },
+          }
         },
-        uploadedBy: {
+        // New 'uploadedBy' relation mapping
+        users_photos_uploaded_by_idTousers: {
           select: {
-            id: true,
             name: true,
-            email: true,
-          },
+            email: true
+          }
         },
-        deletedByUser: {
+        users_photos_deleted_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -52,11 +54,27 @@ export async function GET(
     }
 
     // Check authorization - FIXED: user.id -> user.user_id
-    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
+    // Only allow access if user is admin or the event belongs to them
+    if (user.role !== 'ADMIN' && photo.events?.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    return NextResponse.json({ photo });
+    // Format response
+    const formattedPhoto = {
+      ...photo,
+      event: photo.events ? {
+        id: photo.events.id,
+        name: photo.events.name,
+        slug: photo.events.slug, // Include slug from the original events relation
+        client_id: photo.events.client_id,
+      } : null,
+      uploadedBy: photo.users_photos_uploaded_by_idTousers ? {
+        name: photo.users_photos_uploaded_by_idTousers.name,
+        email: photo.users_photos_uploaded_by_idTousers.email
+      } : null
+    }
+
+    return NextResponse.json({ photo: formattedPhoto });
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch photo' },
@@ -72,7 +90,7 @@ export async function PATCH(
 ) {
   try {
     const { photo_id } = await params;
-    
+
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -81,7 +99,7 @@ export async function PATCH(
     const photo = await prisma.photos.findUnique({
       where: { id: photo_id },
       include: {
-        event: {
+        events: {
           select: {
             client_id: true,
           },
@@ -94,7 +112,7 @@ export async function PATCH(
     }
 
     // Check authorization - FIXED: user.id -> user.user_id
-    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
+    if (user.role !== 'ADMIN' && photo.events?.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -125,7 +143,7 @@ export async function DELETE(
 ) {
   try {
     const { photo_id } = await params;
-    
+
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -134,7 +152,7 @@ export async function DELETE(
     const photo = await prisma.photos.findUnique({
       where: { id: photo_id },
       include: {
-        event: {
+        events: {
           select: {
             id: true,
             name: true,
@@ -149,7 +167,7 @@ export async function DELETE(
     }
 
     // Check authorization - FIXED: user.id -> user.user_id
-    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
+    if (user.role !== 'ADMIN' && photo.events?.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

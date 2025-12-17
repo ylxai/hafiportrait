@@ -10,25 +10,28 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { timingSeconds, transitionEffect, autoplay } = body
+    const { timing_seconds, transition_effect, autoplay } = body
 
-    let settings = await prisma.slideshowSettings.findFirst()
+    let settings = await prisma.slideshow_settings.findFirst()
 
     if (!settings) {
-      settings = await prisma.slideshowSettings.create({
+      settings = await prisma.slideshow_settings.create({
         data: {
-          timingSeconds: timingSeconds ?? 5,
-          transitionEffect: transitionEffect ?? 'fade',
-          autoplay: autoplay ?? true
+          id: crypto.randomUUID(),
+          timing_seconds: timing_seconds || 5,
+          transition_effect: transition_effect || 'fade',
+          autoplay: autoplay !== undefined ? autoplay : true,
+          updated_at: new Date()
         }
       })
     } else {
-      settings = await prisma.slideshowSettings.update({
+      settings = await prisma.slideshow_settings.update({
         where: { id: settings.id },
         data: {
-          ...(timingSeconds !== undefined && { timingSeconds }),
-          ...(transitionEffect !== undefined && { transitionEffect }),
-          ...(autoplay !== undefined && { autoplay })
+          timing_seconds,
+          transition_effect,
+          autoplay,
+          updated_at: new Date()
         }
       })
     }

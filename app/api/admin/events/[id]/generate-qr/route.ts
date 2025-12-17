@@ -45,7 +45,7 @@ export async function POST(
     await prisma.events.update({
       where: { id: params.id },
       data: {
-        qrCodeUrl: qrCodeDataUrl,
+        qr_code_url: qrCodeDataUrl,
       },
     })
 

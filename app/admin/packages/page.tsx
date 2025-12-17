@@ -20,10 +20,10 @@ interface PackageItem {
   description: string | null
   price: number
   features: string[]
-  isBestSeller: boolean
+  is_best_seller: boolean
   is_active: boolean
   display_order: number
-  categoryId: string
+  category_id: string
   category: PackageCategory
   created_at: string
   updated_at: string
@@ -106,7 +106,7 @@ export default function PackagesPage() {
   }
 
   const toggleBestSeller = async (pkg: PackageItem) => {
-    const newStatus = !pkg.isBestSeller
+    const newStatus = !pkg.is_best_seller
 
     try {
       const response = await fetch('/api/admin/packages', {
@@ -115,7 +115,7 @@ export default function PackagesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: pkg.id,
-          isBestSeller: newStatus,
+          is_best_seller: newStatus,
         }),
       })
 
@@ -224,7 +224,7 @@ export default function PackagesPage() {
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       {pkg.name}
-                      {pkg.isBestSeller && (
+                      {pkg.is_best_seller && (
                         <span className="ml-2 text-yellow-500">⭐</span>
                       )}
                     </h3>
@@ -233,11 +233,10 @@ export default function PackagesPage() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => toggleActive(pkg)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        pkg.is_active
-                          ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}
+                      className={`p-2 rounded-lg transition-colors ${pkg.is_active
+                        ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                        }`}
                       title={pkg.is_active ? 'Active' : 'Inactive'}
                     >
                       {pkg.is_active ? (
@@ -248,12 +247,11 @@ export default function PackagesPage() {
                     </button>
                     <button
                       onClick={() => toggleBestSeller(pkg)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        pkg.isBestSeller
-                          ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                          : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}
-                      title={pkg.isBestSeller ? 'Best Seller' : 'Mark as Best Seller'}
+                      className={`p-2 rounded-lg transition-colors ${pkg.is_best_seller
+                        ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                        }`}
+                      title={pkg.is_best_seller ? 'Best Seller' : 'Mark as Best Seller'}
                     >
                       <Star className="w-4 h-4" />
                     </button>

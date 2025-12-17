@@ -14,7 +14,7 @@ interface PricingPackage {
   currency: string
   description: string | null
   duration: string | null
-  shotCount: number | null
+  shot_count: number | null
   features: string[]
   is_active: boolean
   display_order: number
@@ -191,9 +191,8 @@ export default function PricingPage() {
               {packages.map((pkg) => (
                 <div
                   key={pkg.id}
-                  className={`p-6 hover:bg-gray-50 transition-colors ${
-                    !pkg.is_active ? 'opacity-60' : ''
-                  }`}
+                  className={`p-6 hover:bg-gray-50 transition-colors ${!pkg.is_active ? 'opacity-60' : ''
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -225,9 +224,9 @@ export default function PricingPage() {
                         <p className="text-gray-600 mb-3">{pkg.description}</p>
                       )}
 
-                      {pkg.shotCount && (
+                      {pkg.shot_count && (
                         <p className="text-sm text-gray-600 mb-2">
-                          📸 {pkg.shotCount} photos
+                          📸 {pkg.shot_count} photos
                         </p>
                       )}
 
@@ -325,7 +324,7 @@ function PackageFormModal({ package: pkg, onClose, onSuccess }: PackageFormModal
     currency: pkg?.currency || 'IDR',
     description: pkg?.description || '',
     duration: pkg?.duration || '',
-    shotCount: pkg?.shotCount?.toString() || '',
+    shot_count: pkg?.shot_count?.toString() || '',
     features: pkg?.features || [],
     is_active: pkg?.is_active ?? true,
   })
@@ -358,17 +357,17 @@ function PackageFormModal({ package: pkg, onClose, onSuccess }: PackageFormModal
       const method = pkg ? 'PUT' : 'POST'
       const body = pkg
         ? {
-            action: 'update',
-            updates: {
-              id: pkg.id,
-              ...formData,
-              shotCount: formData.shotCount ? parseInt(formData.shotCount) : null,
-            },
-          }
-        : {
+          action: 'update',
+          updates: {
+            id: pkg.id,
             ...formData,
-            shotCount: formData.shotCount ? parseInt(formData.shotCount) : null,
-          }
+            shot_count: formData.shot_count ? parseInt(formData.shot_count) : null,
+          },
+        }
+        : {
+          ...formData,
+          shot_count: formData.shot_count ? parseInt(formData.shot_count) : null,
+        }
 
       const response = await fetch(url, {
         method,
@@ -473,8 +472,8 @@ function PackageFormModal({ package: pkg, onClose, onSuccess }: PackageFormModal
               </label>
               <input
                 type="number"
-                value={formData.shotCount}
-                onChange={(e) => setFormData({ ...formData, shotCount: e.target.value })}
+                value={formData.shot_count}
+                onChange={(e) => setFormData({ ...formData, shot_count: e.target.value })}
                 placeholder="e.g., 500"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
               />

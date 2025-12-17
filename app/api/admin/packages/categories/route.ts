@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        displayOrder: 'asc',
+        display_order: 'asc',
       },
     })
 
@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         icon: icon || null,
-        displayOrder: display_order || 0,
-        isActive: is_active !== undefined ? is_active : true,
+        display_order: display_order || 0,
+        is_active: is_active !== undefined ? is_active : true,
         updated_at: new Date(),
       },
     })

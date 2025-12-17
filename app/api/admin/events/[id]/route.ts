@@ -28,7 +28,7 @@ export async function GET(
         name: true,
         slug: true,
         access_code: true,
-        qrCodeUrl: true,
+        qr_code_url: true,
         storage_duration_days: true,
         status: true,
         event_date: true,
@@ -37,13 +37,11 @@ export async function GET(
         description: true,
         location: true,
         cover_photo_id: true,
-        coverPhotoUrl: true,
         created_at: true,
         updated_at: true,
-        expiresAt: true,
-        displayStatus: true,
+        expires_at: true,
         client_id: true,
-        client: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -66,7 +64,14 @@ export async function GET(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 
-    return NextResponse.json(event)
+    // Map users relation to client for API compatibility
+    const { users, ...eventData } = event
+    const responseData = {
+      ...eventData,
+      client: users
+    }
+
+    return NextResponse.json(responseData)
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch event' },
@@ -90,17 +95,15 @@ export async function PATCH(
 
     const { id } = await context.params
     const body = await request.json()
-    const { cover_photo_id, coupleName, displayStatus, ...otherFields } = body
+    const { cover_photo_id, coupleName, ...otherFields } = body
 
     const updateData: any = { ...otherFields }
-    
+
     if (cover_photo_id !== undefined) {
       updateData.cover_photo_id = cover_photo_id
     }
-    
-    if (displayStatus !== undefined) {
-      updateData.displayStatus = displayStatus
-    }
+
+
 
     const updatedEvent = await prisma.events.update({
       where: { id },

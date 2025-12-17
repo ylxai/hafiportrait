@@ -14,7 +14,7 @@ export async function DELETE(
 ) {
   try {
     const { photo_id } = await params;
-    
+
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,7 +28,7 @@ export async function DELETE(
     const photo = await prisma.photos.findUnique({
       where: { id: photo_id },
       include: {
-        event: {
+        events: {
           select: {
             id: true,
             name: true,

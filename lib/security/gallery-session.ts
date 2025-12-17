@@ -243,7 +243,7 @@ export async function getSessionStatistics(event_id: string): Promise<{
 }> {
   const now = new Date()
 
-  const [total, active, lastSession] = await Promise.all([
+  const [total, active] = await Promise.all([
     prisma.guest_sessions.count({ where: { event_id } }),
     prisma.guest_sessions.count({
       where: {

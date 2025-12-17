@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { PackagesApiResponse } from '@/lib/types/api';
+
 import { Prisma } from '@prisma/client';
 
 function slugify(text: string): string {
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       currency = 'IDR',
       description,
       duration,
-      shotCount,
+      shot_count,
       features,
       is_active = true,
     } = body;
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         currency,
         description,
         duration,
-        shot_count: shotCount,
+        shot_count,
         features: features || [],
         is_active,
         display_order,

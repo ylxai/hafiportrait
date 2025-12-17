@@ -7,52 +7,60 @@ async function main() {
 
   // 1. Create Categories
   console.log('📦 Creating categories...')
-  
-  const categoryAkad = await prisma.packageCategory.upsert({
+
+  const categoryAkad = await prisma.package_categories.upsert({
     where: { slug: 'akad' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       name: 'Akad',
       slug: 'akad',
       icon: '💍',
-      displayOrder: 1,
-      isActive: true,
+      display_order: 1,
+      is_active: true,
+      updated_at: new Date(),
     },
   })
 
-  const categoryResepsi = await prisma.packageCategory.upsert({
+  const categoryResepsi = await prisma.package_categories.upsert({
     where: { slug: 'resepsi' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       name: 'Resepsi',
       slug: 'resepsi',
       icon: '🎉',
-      displayOrder: 2,
-      isActive: true,
+      display_order: 2,
+      is_active: true,
+      updated_at: new Date(),
     },
   })
 
-  const categoryAkadResepsi = await prisma.packageCategory.upsert({
+  const categoryAkadResepsi = await prisma.package_categories.upsert({
     where: { slug: 'akad-resepsi' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       name: 'Akad + Resepsi',
       slug: 'akad-resepsi',
       icon: '💍🎉',
-      displayOrder: 3,
-      isActive: true,
+      display_order: 3,
+      is_active: true,
+      updated_at: new Date(),
     },
   })
 
-  const categoryDigital = await prisma.packageCategory.upsert({
+  const categoryDigital = await prisma.package_categories.upsert({
     where: { slug: 'digital-only' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       name: 'Digital Only',
       slug: 'digital-only',
       icon: '📸',
-      displayOrder: 4,
-      isActive: true,
+      display_order: 4,
+      is_active: true,
+      updated_at: new Date(),
     },
   })
 
@@ -60,8 +68,8 @@ async function main() {
 
   // 2. Create Packages - AKAD
   console.log('📸 Creating Akad packages...')
-  
-  await prisma.package.upsert({
+
+  await prisma.packages.upsert({
     where: { id: 'sacred-vow' },
     update: {},
     create: {
@@ -69,10 +77,11 @@ async function main() {
       name: 'Sacred Vow',
       description: 'Pilihan tepat untuk akad sederhana & intimate.',
       price: 1300000,
-      categoryId: categoryAkad.id,
-      isBestSeller: false,
-      isActive: true,
-      displayOrder: 1,
+      category_id: categoryAkad.id,
+      is_best_seller: false,
+      is_active: true,
+      display_order: 1,
+      updated_at: new Date(),
       features: [
         '1 Photographer',
         '1 hari kerja',
@@ -84,7 +93,7 @@ async function main() {
     },
   })
 
-  await prisma.package.upsert({
+  await prisma.packages.upsert({
     where: { id: 'pure-promise' },
     update: {},
     create: {
@@ -92,10 +101,11 @@ async function main() {
       name: 'Pure Promise',
       description: 'Paket favorit untuk akad yang lebih lengkap & berkesan.',
       price: 2000000,
-      categoryId: categoryAkad.id,
-      isBestSeller: true,
-      isActive: true,
-      displayOrder: 2,
+      category_id: categoryAkad.id,
+      is_best_seller: true,
+      is_active: true,
+      display_order: 2,
+      updated_at: new Date(),
       features: [
         '1 Photographer & 1 Assistant Photographer',
         '1 hari kerja',
@@ -110,8 +120,8 @@ async function main() {
 
   // 3. Create Packages - RESEPSI
   console.log('🎉 Creating Resepsi packages...')
-  
-  await prisma.package.upsert({
+
+  await prisma.packages.upsert({
     where: { id: 'our-story' },
     update: {},
     create: {
@@ -119,10 +129,11 @@ async function main() {
       name: 'Our Story',
       description: 'Cocok untuk resepsi sederhana dengan dokumentasi inti.',
       price: 1800000,
-      categoryId: categoryResepsi.id,
-      isBestSeller: false,
-      isActive: true,
-      displayOrder: 1,
+      category_id: categoryResepsi.id,
+      is_best_seller: false,
+      is_active: true,
+      display_order: 1,
+      updated_at: new Date(),
       features: [
         '1 Photographer & 1 Assistant Photographer',
         '1 hari kerja',
@@ -135,7 +146,7 @@ async function main() {
     },
   })
 
-  await prisma.package.upsert({
+  await prisma.packages.upsert({
     where: { id: 'euphoria' },
     update: {},
     create: {
@@ -143,10 +154,11 @@ async function main() {
       name: 'Euphoria',
       description: 'Paket paling seimbang untuk resepsi yang ramai & penuh momen.',
       price: 2300000,
-      categoryId: categoryResepsi.id,
-      isBestSeller: true,
-      isActive: true,
-      displayOrder: 2,
+      category_id: categoryResepsi.id,
+      is_best_seller: true,
+      is_active: true,
+      display_order: 2,
+      updated_at: new Date(),
       features: [
         '1 Photographer & 1 Assistant Photographer',
         '1 hari kerja',
@@ -161,8 +173,8 @@ async function main() {
 
   // 4. Create Packages - AKAD + RESEPSI
   console.log('💍🎉 Creating Akad + Resepsi packages...')
-  
-  await prisma.package.upsert({
+
+  await prisma.packages.upsert({
     where: { id: 'the-vow' },
     update: {},
     create: {
@@ -170,10 +182,11 @@ async function main() {
       name: 'The Vow',
       description: 'Praktis untuk dua hari acara dengan dokumentasi menyeluruh.',
       price: 3000000,
-      categoryId: categoryAkadResepsi.id,
-      isBestSeller: false,
-      isActive: true,
-      displayOrder: 1,
+      category_id: categoryAkadResepsi.id,
+      is_best_seller: false,
+      is_active: true,
+      display_order: 1,
+      updated_at: new Date(),
       features: [
         '1 Photographer & 1 Assistant Photographer',
         '2 hari kerja',
@@ -186,7 +199,7 @@ async function main() {
     },
   })
 
-  await prisma.package.upsert({
+  await prisma.packages.upsert({
     where: { id: 'after-the-vow' },
     update: {},
     create: {
@@ -194,10 +207,11 @@ async function main() {
       name: 'After the Vow',
       description: 'Pilihan ideal untuk pasangan yang ingin dokumentasi lebih eksklusif.',
       price: 4000000,
-      categoryId: categoryAkadResepsi.id,
-      isBestSeller: true,
-      isActive: true,
-      displayOrder: 2,
+      category_id: categoryAkadResepsi.id,
+      is_best_seller: true,
+      is_active: true,
+      display_order: 2,
+      updated_at: new Date(),
       features: [
         '1 Photographer & 1 Assistant Photographer',
         '2 hari kerja',
@@ -211,7 +225,7 @@ async function main() {
     },
   })
 
-  await prisma.package.upsert({
+  await prisma.packages.upsert({
     where: { id: 'after-the-vow-signature' },
     update: {},
     create: {
@@ -219,10 +233,11 @@ async function main() {
       name: 'After the Vow — Signature',
       description: 'Paket premium dengan tim dan hasil cetak terbaik.',
       price: 6000000,
-      categoryId: categoryAkadResepsi.id,
-      isBestSeller: false,
-      isActive: true,
-      displayOrder: 3,
+      category_id: categoryAkadResepsi.id,
+      is_best_seller: false,
+      is_active: true,
+      display_order: 3,
+      updated_at: new Date(),
       features: [
         '2 Photographer & 1 Assistant Photographer',
         '2 hari kerja',
@@ -237,8 +252,8 @@ async function main() {
 
   // 5. Create Packages - DIGITAL ONLY
   console.log('📸 Creating Digital Only packages...')
-  
-  await prisma.package.upsert({
+
+  await prisma.packages.upsert({
     where: { id: 'quiet-vows' },
     update: {},
     create: {
@@ -246,10 +261,11 @@ async function main() {
       name: 'Quiet Vows',
       description: 'Pilihan hemat untuk akad atau sesi singkat.',
       price: 1500000,
-      categoryId: categoryDigital.id,
-      isBestSeller: false,
-      isActive: true,
-      displayOrder: 1,
+      category_id: categoryDigital.id,
+      is_best_seller: false,
+      is_active: true,
+      display_order: 1,
+      updated_at: new Date(),
       features: [
         '1 Photographer',
         '6 jam kerja',
@@ -261,7 +277,7 @@ async function main() {
     },
   })
 
-  await prisma.package.upsert({
+  await prisma.packages.upsert({
     where: { id: 'timeless-frame' },
     update: {},
     create: {
@@ -269,10 +285,11 @@ async function main() {
       name: 'Timeless Frame',
       description: 'Paket digital favorit dengan durasi lebih panjang.',
       price: 2400000,
-      categoryId: categoryDigital.id,
-      isBestSeller: true,
-      isActive: true,
-      displayOrder: 2,
+      category_id: categoryDigital.id,
+      is_best_seller: true,
+      is_active: true,
+      display_order: 2,
+      updated_at: new Date(),
       features: [
         '1 Photographer',
         'Sameday (Akad & Resepsi)',
@@ -287,27 +304,28 @@ async function main() {
 
   // 6. Create Additional Services
   console.log('➕ Creating additional services...')
-  
+
   const additionalServices = [
-    { name: 'Extra Hours', price: 200000, displayOrder: 1 },
-    { name: 'Extra Day', price: 1500000, displayOrder: 2 },
-    { name: 'Extra Photographer', price: 1000000, displayOrder: 3 },
-    { name: 'Assistant (Photo Handphone)', price: 300000, displayOrder: 4 },
-    { name: 'Photo Scan Barcode', price: 1500000, displayOrder: 5 },
-    { name: 'Magnetic Album (40 foto)', price: 800000, displayOrder: 6 },
-    { name: 'Sameday Edit (Edit Cepat)', price: 1000000, displayOrder: 7 },
+    { name: 'Extra Hours', price: 200000, display_order: 1 },
+    { name: 'Extra Day', price: 1500000, display_order: 2 },
+    { name: 'Extra Photographer', price: 1000000, display_order: 3 },
+    { name: 'Assistant (Photo Handphone)', price: 300000, display_order: 4 },
+    { name: 'Photo Scan Barcode', price: 1500000, display_order: 5 },
+    { name: 'Magnetic Album (40 foto)', price: 800000, display_order: 6 },
+    { name: 'Sameday Edit (Edit Cepat)', price: 1000000, display_order: 7 },
   ]
 
   for (const service of additionalServices) {
-    await prisma.additionalService.upsert({
+    await prisma.additional_services.upsert({
       where: { id: service.name.toLowerCase().replace(/\s+/g, '-') },
       update: {},
       create: {
         id: service.name.toLowerCase().replace(/\s+/g, '-'),
         name: service.name,
         price: service.price,
-        isActive: true,
-        displayOrder: service.displayOrder,
+        is_active: true,
+        display_order: service.display_order,
+        updated_at: new Date(),
       },
     })
   }

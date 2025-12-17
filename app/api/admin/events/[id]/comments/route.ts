@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: event_id } = await params;
     const { searchParams } = new URL(request.url);
-    
+
     const status = searchParams.get('status') || 'all';
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
@@ -48,15 +48,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       where: whereClause,
       select: {
         id: true,
-        guestName: true,
+        guest_name: true,
         email: true,
         message: true,
         relationship: true,
         status: true,
-        ipAddress: true,
+        ip_address: true,
         created_at: true,
         photo_id: true,
-        photo: {
+        photos: {
           select: {
             filename: true,
             thumbnail_url: true,
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       where: { event_id },
       select: {
         id: true,
-        guestName: true,
+        guest_name: true,
         email: true,
         message: true,
         relationship: true,
@@ -206,7 +206,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Create CSV
     let csv = 'ID,Name,Email,Message,Relationship,Status,Created At\n';
     comments.forEach((comment) => {
-      csv += `${comment.id},"${comment.guestName}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
+      csv += `${comment.id},"${comment.guest_name}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
     });
 
     return new NextResponse(csv, {

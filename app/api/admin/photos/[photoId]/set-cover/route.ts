@@ -17,7 +17,7 @@ export async function POST(
   try {
     const user = await getUserFromRequest(request);
     const { photo_id } = await params;
-    
+
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -26,7 +26,7 @@ export async function POST(
     const photo = await prisma.photos.findUnique({
       where: { id: photo_id },
       include: {
-        event: {
+        events: {
           select: {
             id: true,
             name: true,
@@ -43,7 +43,7 @@ export async function POST(
 
     // Check permissions
     const isAdmin = user.role === 'ADMIN';
-    const isOwner = photo.event.client_id === user.user_id;
+    const isOwner = photo.events?.client_id === user.user_id;
 
     if (!isAdmin && !isOwner) {
       return NextResponse.json(

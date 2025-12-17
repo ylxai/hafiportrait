@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Non-admin users can only see their own event photos
     if (user.role !== 'ADMIN') {
-      where.event = {
+      where.events = {
         client_id: user.user_id, // FIXED: user.id -> user.user_id
       };
     }
@@ -42,14 +42,14 @@ export async function GET(request: NextRequest) {
     const photos = await prisma.photos.findMany({
       where,
       include: {
-        event: {
+        events: {
           select: {
             id: true,
             name: true,
             slug: true,
           },
         },
-        deletedByUser: {
+        users_photos_deleted_by_idTousers: {
           select: {
             id: true,
             name: true,

@@ -134,9 +134,8 @@ export default function CategoriesPage() {
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className={`p-6 hover:bg-gray-50 transition-colors ${
-                    !cat.is_active ? 'opacity-60' : ''
-                  }`}
+                  className={`p-6 hover:bg-gray-50 transition-colors ${!cat.is_active ? 'opacity-60' : ''
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
@@ -251,14 +250,14 @@ function CategoryFormModal({ category: cat, onClose, onSuccess }: CategoryFormMo
       const method = cat ? 'PUT' : 'POST'
       const body = cat
         ? {
-            id: cat.id,
-            ...formData,
-            display_order: parseInt(formData.display_order),
-          }
+          id: cat.id,
+          ...formData,
+          display_order: parseInt(formData.display_order),
+        }
         : {
-            ...formData,
-            display_order: parseInt(formData.display_order),
-          }
+          ...formData,
+          display_order: parseInt(formData.display_order),
+        }
 
       const response = await fetch(url, {
         method,

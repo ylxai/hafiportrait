@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const categoryId = searchParams.get('categoryId')
+    const categoryId = searchParams.get('categoryId') || searchParams.get('category_id')
 
     const packages = await prisma.packages.findMany({
       where: categoryId ? { category_id: categoryId } : {},
@@ -47,10 +47,11 @@ export async function POST(request: NextRequest) {
       description,
       price,
       features,
-      isBestSeller,
+      is_best_seller,
       is_active,
       display_order,
       categoryId,
+      category_id,
     } = body
 
     const package_ = await prisma.packages.create({
@@ -60,10 +61,10 @@ export async function POST(request: NextRequest) {
         description: description || null,
         price: parseInt(price),
         features: features || [],
-        is_best_seller: isBestSeller || false,
+        is_best_seller: is_best_seller || false,
         is_active: is_active !== undefined ? is_active : true,
         display_order: display_order || 0,
-        category_id: categoryId,
+        category_id: category_id || categoryId, // Allow both for backward compat during migration
         updated_at: new Date(),
       },
       include: {
@@ -101,6 +102,12 @@ export async function PUT(request: NextRequest) {
     // Convert price to integer if provided
     if (updates.price) {
       updates.price = parseInt(updates.price)
+    }
+
+    // Map categoryId to category_id if present
+    if (updates.categoryId) {
+      updates.category_id = updates.categoryId
+      delete updates.categoryId
     }
 
     const package_ = await prisma.packages.update({
