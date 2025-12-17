@@ -294,16 +294,36 @@ export default function PortfolioPage() {
                           formData.append('files', file)
                         })
 
-                        const response = await fetch('/api/admin/portfolio', {
+                        console.log('Uploading files:', Array.from(files).map(f => f.name))
+                        
+                        const response = await fetch('/api/admin/portfolio/upload', {
                           method: 'POST',
                           credentials: 'include',
                           body: formData,
                         })
+                        
+                        console.log('Upload response status:', response.status)
+                        const responseText = await response.text()
+                        console.log('Raw upload response:', responseText)
+                        
+                        if (!response.ok) {
+                          throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
+                        }
+                        
+                        const data = JSON.parse(responseText)
 
-                        if (!response.ok) throw new Error('Upload failed')
-
-                        toast.updateToast(loadingId, 'success', `${files.length} foto portfolio berhasil diupload!`)
-                        handleUploadComplete()
+                        const successCount = data.summary?.success || 0
+                        const failedCount = data.summary?.failed || 0
+                        
+                        if (successCount > 0) {
+                          toast.updateToast(loadingId, 'success', `${successCount} foto portfolio berhasil diupload!`)
+                          if (failedCount > 0) {
+                            toast.showError(`${failedCount} foto gagal diupload`)
+                          }
+                          handleUploadComplete()
+                        } else {
+                          throw new Error(`All uploads failed: ${failedCount} files`)
+                        }
                       } catch (error) {
                         console.error('Upload error:', error)
                         toast.updateToast(loadingId, 'error', 'Gagal upload photos')
