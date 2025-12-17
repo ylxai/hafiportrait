@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const photos = await prisma.portfolioPhoto.findMany({
-      orderBy: { displayOrder: 'desc' }
+    const photos = await prisma.portfolio_photos.findMany({
+      orderBy: { display_order: 'desc' }
     })
 
     return NextResponse.json({ photos })

@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
     const where = status && status !== 'all' ? { status } : {}
 
     const [submissions, total] = await Promise.all([
-      prisma.formSubmission.findMany({
+      prisma.form_submissions.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { created_at: 'desc' },
         skip,
         take: limit
       }),
-      prisma.formSubmission.count({ where })
+      prisma.form_submissions.count({ where })
     ])
 
     return NextResponse.json({

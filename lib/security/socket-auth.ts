@@ -13,10 +13,10 @@ import { verifyJWT, JWTPayload } from '@/lib/auth'
 import { validateGallerySession } from './gallery-session'
 
 export interface SocketAuthPayload {
-  userId?: string
+  user_id?: string
   role?: string
   guestToken?: string
-  eventId?: string
+  event_id?: string
   sessionType: 'authenticated' | 'guest' | 'admin'
 }
 
@@ -26,7 +26,7 @@ export interface SocketAuthPayload {
 export async function verifySocketAuth(
   token?: string,
   guestSessionId?: string,
-  eventId?: string
+  event_id?: string
 ): Promise<{ valid: boolean; payload?: SocketAuthPayload }> {
   // Check JWT token untuk authenticated users (admin/client)
   if (token) {
@@ -37,7 +37,7 @@ export async function verifySocketAuth(
         return {
           valid: true,
           payload: {
-            userId: jwtPayload.userId,
+            user_id: jwtPayload.user_id,
             role: jwtPayload.role,
             sessionType: jwtPayload.role === 'ADMIN' ? 'admin' : 'authenticated',
           },
@@ -49,16 +49,16 @@ export async function verifySocketAuth(
   }
 
   // Check guest session untuk gallery access
-  if (guestSessionId && eventId) {
+  if (guestSessionId && event_id) {
     try {
-      const sessionValidation = await validateGallerySession(guestSessionId, eventId)
+      const sessionValidation = await validateGallerySession(guestSessionId, event_id)
       
       if (sessionValidation.valid) {
         return {
           valid: true,
           payload: {
             guestToken: sessionValidation.guestToken,
-            eventId,
+            event_id,
             sessionType: 'guest',
           },
         }
@@ -76,7 +76,7 @@ export async function verifySocketAuth(
  */
 export function canAccessEventRoom(
   auth: SocketAuthPayload,
-  eventId: string
+  event_id: string
 ): boolean {
   // Admin dapat access semua events
   if (auth.sessionType === 'admin') {
@@ -84,14 +84,14 @@ export function canAccessEventRoom(
   }
 
   // Authenticated users (photographers) dapat access events mereka
-  if (auth.sessionType === 'authenticated' && auth.userId) {
+  if (auth.sessionType === 'authenticated' && auth.user_id) {
     // TODO: Verify user owns the event (check di database)
     return true
   }
 
   // Guest hanya dapat access event yang sesuai session mereka
   if (auth.sessionType === 'guest') {
-    return auth.eventId === eventId
+    return auth.event_id === event_id
   }
 
   return false
@@ -102,7 +102,7 @@ export function canAccessEventRoom(
  */
 export function canInteractWithPhoto(
   auth: SocketAuthPayload,
-  eventId: string
+  event_id: string
 ): boolean {
   // All authenticated users dapat interact
   if (auth.sessionType === 'authenticated' || auth.sessionType === 'admin') {
@@ -110,7 +110,7 @@ export function canInteractWithPhoto(
   }
 
   // Guest dapat interact jika di event yang benar
-  if (auth.sessionType === 'guest' && auth.eventId === eventId) {
+  if (auth.sessionType === 'guest' && auth.event_id === event_id) {
     return true
   }
 
@@ -131,8 +131,8 @@ export function getSocketRateLimitKey(
   socketId: string,
   auth: SocketAuthPayload
 ): string {
-  if (auth.userId) {
-    return `socket:user:${auth.userId}`
+  if (auth.user_id) {
+    return `socket:user:${auth.user_id}`
   }
   if (auth.guestToken) {
     return `socket:guest:${auth.guestToken}`
@@ -216,9 +216,9 @@ export function createSocketAuthMiddleware() {
       const token = socket.handshake.auth.token || 
                    socket.handshake.headers.authorization?.replace('Bearer ', '')
       const guestSessionId = socket.handshake.auth.guestSessionId
-      const eventId = socket.handshake.auth.eventId
+      const event_id = socket.handshake.auth.event_id
 
-      const { valid, payload } = await verifySocketAuth(token, guestSessionId, eventId)
+      const { valid, payload } = await verifySocketAuth(token, guestSessionId, event_id)
 
       if (!valid) {
         return next(new Error('Authentication failed'))
@@ -226,7 +226,7 @@ export function createSocketAuthMiddleware() {
 
       // Attach auth payload to socket
       socket.auth = payload
-      socket.userId = payload?.userId
+      socket.user_id = payload?.user_id
       socket.guestToken = payload?.guestToken
       socket.sessionType = payload?.sessionType
 

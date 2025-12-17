@@ -10,8 +10,8 @@ interface PageProps {
 
 export default async function UploadPersistentPage({ params }: PageProps) {
   const { id } = await params;
-  
-  const event = await prisma.event.findUnique({
+
+  const event = await prisma.events.findUnique({
     where: { id },
     select: {
       id: true,
@@ -28,7 +28,7 @@ export default async function UploadPersistentPage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <PhotoUploaderPersistent
-          eventId={event.id}
+          event_id={event.id}
           eventName={event.name}
           onUploadComplete={(results) => {
             // Refresh page atau update UI setelah upload

@@ -9,16 +9,16 @@ import Image from 'next/image'
 interface PortfolioPhoto {
   id: string
   imageUrl: string
-  thumbnailUrl: string | null
+  thumbnail_url: string | null
   title: string | null
   description: string | null
   category: string | null
-  displayOrder: number
-  isActive: boolean
+  display_order: number
+  is_active: boolean
   filename: string
-  originalUrl: string
-  isFeatured: boolean
-  createdAt: string
+  original_url: string
+  is_featured: boolean
+  created_at: string
 }
 
 export default function PortfolioPage() {
@@ -60,8 +60,8 @@ export default function PortfolioPage() {
     const loadingToastId = toast.showLoading(`Menghapus ${selectedPhotos.length} foto...`)
 
     try {
-      const deletePromises = selectedPhotos.map((photoId) =>
-        fetch(`/api/admin/portfolio/${photoId}`, {
+      const deletePromises = selectedPhotos.map((photo_id) =>
+        fetch(`/api/admin/portfolio/${photo_id}`, {
           method: 'DELETE',
           credentials: 'include',
         })
@@ -82,13 +82,13 @@ export default function PortfolioPage() {
     }
   }
 
-  const handleToggleActive = async (photoId: string, isActive: boolean) => {
+  const handleToggleActive = async (photo_id: string, is_active: boolean) => {
     try {
-      const response = await fetch(`/api/admin/portfolio/${photoId}`, {
+      const response = await fetch(`/api/admin/portfolio/${photo_id}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !isActive }),
+        body: JSON.stringify({ is_active: !is_active }),
       })
 
       if (!response.ok) throw new Error('Update failed')
@@ -101,11 +101,11 @@ export default function PortfolioPage() {
     }
   }
 
-  const handleSelectPhoto = (photoId: string) => {
+  const handleSelectPhoto = (photo_id: string) => {
     setSelectedPhotos((prev) =>
-      prev.includes(photoId)
-        ? prev.filter((id) => id !== photoId)
-        : [...prev, photoId]
+      prev.includes(photo_id)
+        ? prev.filter((id) => id !== photo_id)
+        : [...prev, photo_id]
     )
   }
 
@@ -157,7 +157,7 @@ export default function PortfolioPage() {
               <div>
                 <p className="text-sm text-gray-600">Active Photos</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {photos.filter((p) => p.isActive).length}
+                  {photos.filter((p) => p.is_active).length}
                 </p>
               </div>
               <Eye className="w-8 h-8 text-green-600" />
@@ -204,7 +204,7 @@ export default function PortfolioPage() {
                 onClick={() => handleSelectPhoto(photo.id)}
               >
                 <Image
-                  src={photo.thumbnailUrl || photo.imageUrl}
+                  src={photo.thumbnail_url || photo.imageUrl}
                   alt={photo.title || 'Portfolio photo'}
                   fill
                   className="object-cover"
@@ -224,7 +224,7 @@ export default function PortfolioPage() {
                 </div>
 
                 {/* Active Badge */}
-                {photo.isActive && (
+                {photo.is_active && (
                   <div className="absolute top-2 right-2">
                     <span className="px-2 py-1 bg-green-500 text-white text-xs rounded">
                       Active
@@ -244,11 +244,11 @@ export default function PortfolioPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleToggleActive(photo.id, photo.isActive)
+                          handleToggleActive(photo.id, photo.is_active)
                         }}
                         className="text-xs text-white hover:text-brand-teal"
                       >
-                        {photo.isActive ? 'Deactivate' : 'Activate'}
+                        {photo.is_active ? 'Deactivate' : 'Activate'}
                       </button>
                     </div>
                   </div>

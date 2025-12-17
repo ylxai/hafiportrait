@@ -16,10 +16,10 @@ interface PricingPackage {
   duration: string | null
   shotCount: number | null
   features: string[]
-  isActive: boolean
-  displayOrder: number
-  createdAt: string
-  updatedAt: string
+  is_active: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
 }
 
 export default function PricingPage() {
@@ -72,7 +72,7 @@ export default function PricingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update',
-          updates: { id: pkg.id, isActive: !pkg.isActive },
+          updates: { id: pkg.id, is_active: !pkg.is_active },
         }),
       })
 
@@ -133,7 +133,7 @@ export default function PricingPage() {
               <div>
                 <p className="text-sm text-gray-600">Active</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {packages.filter(p => p.isActive).length}
+                  {packages.filter(p => p.is_active).length}
                 </p>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function PricingPage() {
                 <div
                   key={pkg.id}
                   className={`p-6 hover:bg-gray-50 transition-colors ${
-                    !pkg.isActive ? 'opacity-60' : ''
+                    !pkg.is_active ? 'opacity-60' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -204,7 +204,7 @@ export default function PricingPage() {
                         <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
                           {pkg.category}
                         </span>
-                        {!pkg.isActive && (
+                        {!pkg.is_active && (
                           <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded">
                             Inactive
                           </span>
@@ -247,9 +247,9 @@ export default function PricingPage() {
                       <button
                         onClick={() => toggleActive(pkg)}
                         className="p-2 hover:bg-gray-200 rounded-lg"
-                        title={pkg.isActive ? 'Deactivate' : 'Activate'}
+                        title={pkg.is_active ? 'Deactivate' : 'Activate'}
                       >
-                        {pkg.isActive ? (
+                        {pkg.is_active ? (
                           <Eye className="w-5 h-5 text-green-600" />
                         ) : (
                           <EyeOff className="w-5 h-5 text-gray-400" />
@@ -327,7 +327,7 @@ function PackageFormModal({ package: pkg, onClose, onSuccess }: PackageFormModal
     duration: pkg?.duration || '',
     shotCount: pkg?.shotCount?.toString() || '',
     features: pkg?.features || [],
-    isActive: pkg?.isActive ?? true,
+    is_active: pkg?.is_active ?? true,
   })
   const [featureInput, setFeatureInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -536,8 +536,8 @@ function PackageFormModal({ package: pkg, onClose, onSuccess }: PackageFormModal
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                   className="rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
                 />
                 <span className="text-sm text-gray-700">Show on public pricing page</span>

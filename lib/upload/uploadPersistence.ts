@@ -29,16 +29,16 @@ export interface UploadFileState {
 
 export interface UploadSession {
   sessionId: string;
-  eventId: string;
+  event_id: string;
   files: UploadFileState[];
-  createdAt: number;
-  updatedAt: number;
+  created_at: number;
+  updated_at: number;
   status: 'pending' | 'active' | 'paused' | 'completed';
 }
 
 export interface UploadHistory {
   sessionId: string;
-  eventId: string;
+  event_id: string;
   completedAt: number;
   fileCount: number;
   totalSize: number;
@@ -127,7 +127,7 @@ export function saveUploadState(session: UploadSession): boolean {
 
   try {
     // Update timestamp
-    session.updatedAt = Date.now();
+    session.updated_at = Date.now();
 
     // Compress before saving
     const compressed = compressUploadState(session);
@@ -182,7 +182,7 @@ export function loadUploadState(): UploadSession | null {
     const session: UploadSession = JSON.parse(data);
 
     // Validate session structure
-    if (!session.sessionId || !session.eventId || !Array.isArray(session.files)) {
+    if (!session.sessionId || !session.event_id || !Array.isArray(session.files)) {
       clearUploadState();
       return null;
     }
@@ -240,7 +240,7 @@ export function updateFileState(
   return {
     ...session,
     files: updatedFiles,
-    updatedAt: Date.now(),
+    updated_at: Date.now(),
   };
 }
 
@@ -251,7 +251,7 @@ export function removeFileFromSession(session: UploadSession, fileId: string): U
   return {
     ...session,
     files: session.files.filter(file => file.id !== fileId),
-    updatedAt: Date.now(),
+    updated_at: Date.now(),
   };
 }
 
@@ -275,7 +275,7 @@ export function saveUploadHistory(session: UploadSession): void {
 
     const newEntry: UploadHistory = {
       sessionId: session.sessionId,
-      eventId: session.eventId,
+      event_id: session.event_id,
       completedAt: Date.now(),
       fileCount: completedFiles.length,
       totalSize,
@@ -349,7 +349,7 @@ export function cleanupOldSessions(): void {
     // Check current session age
     const session = loadUploadState();
     if (session) {
-      const sessionAge = Date.now() - session.createdAt;
+      const sessionAge = Date.now() - session.created_at;
       const maxSessionAge = 7 * 24 * 60 * 60 * 1000; // 7 days
 
       if (sessionAge > maxSessionAge && session.status === 'completed') {
@@ -376,13 +376,13 @@ export function cleanupOldSessions(): void {
 /**
  * Initialize upload session
  */
-export function createUploadSession(eventId: string, files: UploadFileState[]): UploadSession {
+export function createUploadSession(event_id: string, files: UploadFileState[]): UploadSession {
   return {
     sessionId: generateSessionId(),
-    eventId,
+    event_id,
     files,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    created_at: Date.now(),
+    updated_at: Date.now(),
     status: 'pending',
   };
 }

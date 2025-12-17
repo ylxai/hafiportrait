@@ -3,8 +3,9 @@
  * /admin/events/[id]/photos/upload
  */
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getUserFromRequest } from '@/lib/auth';
+import { verifyJWT } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import PhotoUploader from '@/components/admin/PhotoUploader';
 import Link from 'next/link';
@@ -15,24 +16,32 @@ interface PageProps {
 }
 
 export default async function PhotoUploadPage({ params }: PageProps) {
-  const { id: eventId } = await params;
+  const { id: event_id } = await params;
 
   // Verify authentication
-  const user = await getUserFromRequest(null);
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth-token');
+
+  if (!token) {
+    redirect('/admin/login');
+  }
+
+  const user = await verifyJWT(token.value);
+
   if (!user || user.role !== 'ADMIN') {
     redirect('/admin/login');
   }
 
   // Fetch event
-  const event = await prisma.event.findUnique({
-    where: { id: eventId },
+  const event = await prisma.events.findUnique({
+    where: { id: event_id },
     select: {
       id: true,
       name: true,
       slug: true,
       status: true,
-      clientId: true,
-      client: {
+      client_id: true,
+      users: {
         select: {
           name: true,
           email: true,
@@ -47,7 +56,7 @@ export default async function PhotoUploadPage({ params }: PageProps) {
 
   // Check permissions
   const isAdmin = user.role === 'ADMIN';
-  const isOwner = event.clientId === user.id;
+  const isOwner = event.client_id === user.id;
 
   if (!isAdmin && !isOwner) {
     redirect('/admin/events');
@@ -66,7 +75,7 @@ export default async function PhotoUploadPage({ params }: PageProps) {
             Events
           </Link>
           <ChevronRight className="h-4 w-4" />
-          <Link href={`/admin/events/${eventId}`} className="hover:text-gray-900">
+          <Link href={`/admin/events/${event_id}`} className="hover:text-gray-900">
             {event.name}
           </Link>
           <ChevronRight className="h-4 w-4" />
@@ -75,7 +84,7 @@ export default async function PhotoUploadPage({ params }: PageProps) {
 
         {/* Back Button */}
         <Link
-          href={`/admin/events/${eventId}/photos`}
+          href={`/admin/events/${event_id}/photos`}
           className="mb-6 inline-flex items-center text-sm font-medium text-[#54ACBF] hover:text-[#54ACBF]/80"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -85,10 +94,13 @@ export default async function PhotoUploadPage({ params }: PageProps) {
         {/* Main Content */}
         <div className="rounded-lg bg-white p-8 shadow-sm">
           <PhotoUploader
-            eventId={eventId}
+            event_id={event_id}
             eventName={event.name}
             onUploadComplete={() => {
               // Redirect to photo management page after upload
+              // This is handled by the client component or we can add a router.push here if we made this a client component, 
+              // but this is a server component rendering a client component.
+              // The PhotoUploader should handle redirection or UI feedback.
             }}
           />
         </div>

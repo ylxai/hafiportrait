@@ -46,10 +46,10 @@ export class MemoryManager {
    * Limits concurrent operations to prevent memory exhaustion
    */
   async processWithControl<T>(
-    fileSize: number,
+    file_size: number,
     operation: () => Promise<T>
   ): Promise<T> {
-    const isLargeFile = fileSize > this.LARGE_FILE_THRESHOLD;
+    const isLargeFile = file_size > this.LARGE_FILE_THRESHOLD;
     const maxAllowed = isLargeFile ? this.MAX_LARGE_CONCURRENT : this.MAX_CONCURRENT;
 
     // Wait if too many operations are active
@@ -70,8 +70,8 @@ export class MemoryManager {
    * Large files are limited to MAX_LARGE_CONCURRENT concurrent operations
    * Small files can have up to MAX_CONCURRENT operations
    */
-  isLargeFile(fileSize: number): boolean {
-    return fileSize > this.LARGE_FILE_THRESHOLD;
+  isLargeFile(file_size: number): boolean {
+    return file_size > this.LARGE_FILE_THRESHOLD;
   }
 
   /**

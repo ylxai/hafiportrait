@@ -8,34 +8,34 @@ export async function GET(request: NextRequest) {
     const categorySlug = searchParams.get('category')
 
     // Fetch categories with packages
-    const categories = await prisma.packageCategory.findMany({
+    const categories = await prisma.package_categories.findMany({
       where: {
-        isActive: true,
+        is_active: true,
       },
       include: {
         packages: {
           where: {
-            isActive: true,
+            is_active: true,
             ...(categorySlug ? { category: { slug: categorySlug } } : {}),
           },
           orderBy: [
-            { displayOrder: 'asc' },
-            { createdAt: 'desc' },
+            { display_order: 'asc' },
+            { created_at: 'desc' },
           ],
         },
       },
       orderBy: {
-        displayOrder: 'asc',
+        display_order: 'asc',
       },
     })
 
     // Fetch additional services
-    const additionalServices = await prisma.additionalService.findMany({
+    const additionalServices = await prisma.additional_services.findMany({
       where: {
-        isActive: true,
+        is_active: true,
       },
       orderBy: {
-        displayOrder: 'asc',
+        display_order: 'asc',
       },
     })
 

@@ -11,28 +11,28 @@ import { Photo as PrismaPhoto, Event } from '@prisma/client'
 export interface Photo {
   id: string
   filename: string
-  originalUrl: string
-  thumbnailUrl: string | null
-  thumbnailSmallUrl: string | null
-  thumbnailMediumUrl: string | null
-  thumbnailLargeUrl: string | null
-  fileSize: number | null
-  mimeType: string | null
+  original_url: string
+  thumbnail_url: string | null
+  thumbnail_small_url: string | null
+  thumbnail_medium_url: string | null
+  thumbnail_large_url: string | null
+  file_size: number | null
+  mime_type: string | null
   width: number | null
   height: number | null
-  displayOrder: number
+  display_order: number
   caption: string | null
-  deletedAt: Date | null
-  eventId: string
-  createdAt: Date
-  updatedAt: Date
+  deleted_at: Date | null
+  event_id: string
+  created_at: Date
+  updated_at: Date
 }
 
 /**
  * Photo with EXIF Metadata
  */
 export interface PhotoWithMetadata extends Photo {
-  exifData: {
+  exif_data: {
     make?: string
     model?: string
     exposureTime?: string
@@ -66,26 +66,26 @@ export interface PhotoWithEvent extends Photo {
  */
 export interface PhotoUpload {
   filename: string
-  originalUrl: string
-  thumbnailUrl?: string
-  thumbnailSmallUrl?: string
-  thumbnailMediumUrl?: string
-  thumbnailLargeUrl?: string
-  fileSize: number
-  mimeType: string
+  original_url: string
+  thumbnail_url?: string
+  thumbnail_small_url?: string
+  thumbnail_medium_url?: string
+  thumbnail_large_url?: string
+  file_size: number
+  mime_type: string
   width?: number
   height?: number
   caption?: string
-  displayOrder?: number
-  exifData?: Record<string, any>
-  eventId: string
+  display_order?: number
+  exif_data?: Record<string, any>
+  event_id: string
 }
 
 /**
  * Photo Analytics Interface - Engagement data
  */
 export interface PhotoAnalytics {
-  photoId: string
+  photo_id: string
   views: number
   likes: number
   comments: number
@@ -119,9 +119,9 @@ export interface PhotoWithAnalytics extends Photo {
 export interface PhotoListItem {
   id: string
   filename: string
-  thumbnailUrl: string | null
-  thumbnailMediumUrl: string | null
-  displayOrder: number
+  thumbnail_url: string | null
+  thumbnail_medium_url: string | null
+  display_order: number
   likes: number
   comments: number
   views: number
@@ -132,12 +132,12 @@ export interface PhotoListItem {
  */
 export interface PhotoGalleryItem {
   id: string
-  thumbnailUrl: string | null
-  thumbnailMediumUrl: string | null
-  thumbnailLargeUrl: string | null
-  originalUrl: string
+  thumbnail_url: string | null
+  thumbnail_medium_url: string | null
+  thumbnail_large_url: string | null
+  original_url: string
   caption: string | null
-  displayOrder: number
+  display_order: number
   width: number | null
   height: number | null
   likes: number
@@ -150,7 +150,7 @@ export interface PhotoGalleryItem {
  * Type guard to check if photo has metadata
  */
 export function hasMetadata(photo: Photo | PhotoWithMetadata): photo is PhotoWithMetadata {
-  return 'exifData' in photo && photo.exifData !== null
+  return 'exif_data' in photo && photo.exif_data !== null
 }
 
 /**
@@ -167,20 +167,20 @@ export function toPrismaPhoto(photo: PrismaPhoto): Photo {
   return {
     id: photo.id,
     filename: photo.filename,
-    originalUrl: photo.originalUrl,
-    thumbnailUrl: photo.thumbnailUrl,
-    thumbnailSmallUrl: photo.thumbnailSmallUrl,
-    thumbnailMediumUrl: photo.thumbnailMediumUrl,
-    thumbnailLargeUrl: photo.thumbnailLargeUrl,
-    fileSize: photo.fileSize,
-    mimeType: photo.mimeType,
+    original_url: photo.original_url,
+    thumbnail_url: photo.thumbnail_url,
+    thumbnail_small_url: photo.thumbnail_small_url,
+    thumbnail_medium_url: photo.thumbnail_medium_url,
+    thumbnail_large_url: photo.thumbnail_large_url,
+    file_size: photo.file_size,
+    mime_type: photo.mime_type,
     width: photo.width,
     height: photo.height,
-    displayOrder: photo.displayOrder,
+    display_order: photo.display_order,
     caption: photo.caption,
-    deletedAt: photo.deletedAt,
-    eventId: photo.eventId,
-    createdAt: photo.createdAt,
-    updatedAt: photo.updatedAt,
+    deleted_at: photo.deleted_at,
+    event_id: photo.event_id,
+    created_at: photo.created_at,
+    updated_at: photo.updated_at,
   }
 }

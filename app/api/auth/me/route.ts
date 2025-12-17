@@ -14,15 +14,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Get fresh user data from database
-    const userData = await prisma.user.findUnique({
-      where: { id: user.userId },
+    const userData = await prisma.users.findUnique({
+      where: { id: user.user_id },
       select: {
         id: true,
         username: true,
         email: true,
         name: true,
         role: true,
-        createdAt: true,
+        created_at: true,
       },
     })
 

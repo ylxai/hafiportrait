@@ -29,8 +29,8 @@ interface RecentEvent {
   name: string
   slug: string
   status: string
-  eventDate: string | null
-  createdAt: string
+  event_date: string | null
+  created_at: string
   _count: {
     photos: number
   }
@@ -245,7 +245,7 @@ export default function MobileDashboard() {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 truncate">{event.name}</h3>
                     <p className="text-sm text-gray-500">
-                      {event.eventDate ? new Date(event.eventDate).toLocaleDateString() : 'No date'}
+                      {event.event_date ? new Date(event.event_date).toLocaleDateString() : 'No date'}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">

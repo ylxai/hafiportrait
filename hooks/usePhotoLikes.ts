@@ -13,14 +13,14 @@ import {
 
 interface UsePhotoLikesOptions {
   eventSlug: string;
-  photoId: string;
+  photo_id: string;
   initialLikesCount: number;
   onLikeChange?: (liked: boolean, newCount: number) => void;
 }
 
 interface UsePhotoLikesReturn {
   isLiked: boolean;
-  likesCount: number;
+  likes_count: number;
   isLoading: boolean;
   toggleLike: () => Promise<void>;
   isProcessing: boolean;
@@ -28,22 +28,22 @@ interface UsePhotoLikesReturn {
 
 export function usePhotoLikes({
   eventSlug,
-  photoId,
+  photo_id,
   initialLikesCount,
   onLikeChange,
 }: UsePhotoLikesOptions): UsePhotoLikesReturn {
   const { guestId, isLoading: guestIdLoading } = useGuestIdentifier();
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(initialLikesCount);
+  const [likes_count, setLikesCount] = useState(initialLikesCount);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Initialize liked state from localStorage
   useEffect(() => {
     if (guestIdLoading) return;
     
-    const liked = checkIsPhotoLiked(photoId);
+    const liked = checkIsPhotoLiked(photo_id);
     setIsLiked(liked);
-  }, [photoId, guestIdLoading]);
+  }, [photo_id, guestIdLoading]);
 
   // Update likes count when prop changes (real-time updates)
   useEffect(() => {
@@ -57,16 +57,16 @@ export function usePhotoLikes({
 
     // Optimistic UI update
     const newIsLiked = !isLiked;
-    const newLikesCount = newIsLiked ? likesCount + 1 : likesCount - 1;
+    const newLikesCount = newIsLiked ? likes_count + 1 : likes_count - 1;
     
     setIsLiked(newIsLiked);
     setLikesCount(newLikesCount);
 
     // Update localStorage
     if (newIsLiked) {
-      addLikedPhoto(photoId);
+      addLikedPhoto(photo_id);
     } else {
-      removeLikedPhoto(photoId);
+      removeLikedPhoto(photo_id);
     }
 
     // Notify parent component
@@ -74,7 +74,7 @@ export function usePhotoLikes({
 
     try {
       // Make API call
-      const endpoint = `/api/gallery/${eventSlug}/photos/${photoId}/like`;
+      const endpoint = `/api/gallery/${eventSlug}/photos/${photo_id}/like`;
       const method = newIsLiked ? 'POST' : 'DELETE';
 
       const response = await fetch(endpoint, {
@@ -92,30 +92,30 @@ export function usePhotoLikes({
       const data = await response.json();
       
       // Update with server's authoritative count
-      setLikesCount(data.likesCount);
+      setLikesCount(data.likes_count);
     } catch (error) {
       console.error('Error toggling like:', error);
       
       // Revert optimistic update on error
       setIsLiked(!newIsLiked);
-      setLikesCount(likesCount);
+      setLikesCount(likes_count);
       
       // Revert localStorage
       if (newIsLiked) {
-        removeLikedPhoto(photoId);
+        removeLikedPhoto(photo_id);
       } else {
-        addLikedPhoto(photoId);
+        addLikedPhoto(photo_id);
       }
 
-      onLikeChange?.(!newIsLiked, likesCount);
+      onLikeChange?.(!newIsLiked, likes_count);
     } finally {
       setIsProcessing(false);
     }
-  }, [isLiked, likesCount, photoId, eventSlug, guestId, isProcessing, onLikeChange]);
+  }, [isLiked, likes_count, photo_id, eventSlug, guestId, isProcessing, onLikeChange]);
 
   return {
     isLiked,
-    likesCount,
+    likes_count,
     isLoading: guestIdLoading,
     toggleLike,
     isProcessing,

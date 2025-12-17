@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
     const { slides } = body
 
     await prisma.$transaction(
-      slides.map((slide: { id: string; displayOrder: number }) =>
-        prisma.heroSlideshow.update({
+      slides.map((slide: { id: string; display_order: number }) =>
+        prisma.hero_slideshow.update({
           where: { id: slide.id },
-          data: { displayOrder: slide.displayOrder }
+          data: { display_order: slide.display_order }
         })
       )
     )

@@ -31,9 +31,9 @@ export async function cleanupDeletedPhotos(daysOld: number = 30): Promise<Cleanu
     cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
     // Find photos to cleanup (soft-deleted > daysOld)
-    const photosToCleanup = await prisma.photo.findMany({
+    const photosToCleanup = await prisma.photos.findMany({
       where: {
-        deletedAt: {
+        deleted_at: {
           not: null,
           lte: cutoffDate,
         },
@@ -41,13 +41,13 @@ export async function cleanupDeletedPhotos(daysOld: number = 30): Promise<Cleanu
       select: {
         id: true,
         filename: true,
-        originalUrl: true,
-        thumbnailUrl: true,
-        thumbnailSmallUrl: true,
-        thumbnailMediumUrl: true,
-        thumbnailLargeUrl: true,
-        fileSize: true,
-        deletedAt: true,
+        original_url: true,
+        thumbnail_url: true,
+        thumbnail_small_url: true,
+        thumbnail_medium_url: true,
+        thumbnail_large_url: true,
+        file_size: true,
+        deleted_at: true,
       },
       take: 50, // Process in batches of 50
     });
@@ -57,11 +57,11 @@ export async function cleanupDeletedPhotos(daysOld: number = 30): Promise<Cleanu
       try {
         // Delete all storage files
         const filesToDelete = [
-          photo.originalUrl,
-          photo.thumbnailSmallUrl,
-          photo.thumbnailMediumUrl,
-          photo.thumbnailLargeUrl,
-          photo.thumbnailUrl,
+          photo.original_url,
+          photo.thumbnail_small_url,
+          photo.thumbnail_medium_url,
+          photo.thumbnail_large_url,
+          photo.thumbnail_url,
         ].filter(Boolean) as string[];
 
         let photoStorageFreed = 0;
@@ -77,14 +77,14 @@ export async function cleanupDeletedPhotos(daysOld: number = 30): Promise<Cleanu
           }
         }
 
-        // Track storage freed (use fileSize for original, estimate thumbnails)
-        if (photo.fileSize) {
-          photoStorageFreed = photo.fileSize;
+        // Track storage freed (use file_size for original, estimate thumbnails)
+        if (photo.file_size) {
+          photoStorageFreed = photo.file_size;
           stats.storageFreed += photoStorageFreed;
         }
 
         // Delete database record permanently
-        await prisma.photo.delete({
+        await prisma.photos.delete({
           where: { id: photo.id },
         });
 
@@ -112,14 +112,14 @@ export async function getTrashStats() {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const [totalDeleted, oldDeleted] = await Promise.all([
-      prisma.photo.count({
+      prisma.photos.count({
         where: {
-          deletedAt: { not: null },
+          deleted_at: { not: null },
         },
       }),
-      prisma.photo.count({
+      prisma.photos.count({
         where: {
-          deletedAt: {
+          deleted_at: {
             not: null,
             lte: thirtyDaysAgo,
           },

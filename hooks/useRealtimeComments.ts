@@ -13,10 +13,10 @@ import { useSocket } from './useSocket';
 
 interface Comment {
   id: string;
-  guestName: string;
+  guest_name: string;
   message: string;
-  photoId?: string;
-  createdAt: string;
+  photo_id?: string;
+  created_at: string;
 }
 
 interface UseRealtimeCommentsOptions {

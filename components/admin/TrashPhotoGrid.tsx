@@ -10,9 +10,9 @@ import DeleteConfirmationModal from './DeleteConfirmationModal';
 interface Photo {
   id: string;
   filename: string;
-  thumbnailMediumUrl: string | null;
-  thumbnailSmallUrl: string | null;
-  deletedAt: Date | null;
+  thumbnail_medium_url: string | null;
+  thumbnail_small_url: string | null;
+  deleted_at: Date | null;
   event: {
     id: string;
     name: string;
@@ -34,12 +34,12 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
   const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleRestore = async (photoId: string) => {
+  const handleRestore = async (photo_id: string) => {
     if (isProcessing) return;
     
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/admin/photos/${photoId}/restore`, {
+      const response = await fetch(`/api/admin/photos/${photo_id}/restore`, {
         method: 'POST',
       });
 
@@ -57,12 +57,12 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
     }
   };
 
-  const handlePermanentDelete = async (photoId: string) => {
+  const handlePermanentDelete = async (photo_id: string) => {
     if (isProcessing) return;
     
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/admin/photos/${photoId}/permanent`, {
+      const response = await fetch(`/api/admin/photos/${photo_id}/permanent`, {
         method: 'DELETE',
       });
 
@@ -80,8 +80,8 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
     }
   };
 
-  const openDeleteModal = (photoId: string) => {
-    setPhotoToDelete(photoId);
+  const openDeleteModal = (photo_id: string) => {
+    setPhotoToDelete(photo_id);
     setDeleteModalOpen(true);
   };
 
@@ -91,10 +91,10 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
     }
   };
 
-  const calculateDaysInTrash = (deletedAt: Date | null): number => {
-    if (!deletedAt) return 0;
+  const calculateDaysInTrash = (deleted_at: Date | null): number => {
+    if (!deleted_at) return 0;
     const now = new Date();
-    const deleted = new Date(deletedAt);
+    const deleted = new Date(deleted_at);
     const diffTime = Math.abs(now.getTime() - deleted.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
@@ -111,7 +111,7 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
     <>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {photos.map((photo) => {
-          const daysInTrash = calculateDaysInTrash(photo.deletedAt);
+          const daysInTrash = calculateDaysInTrash(photo.deleted_at);
           const daysRemaining = Math.max(0, 30 - daysInTrash);
           const isExpired = daysInTrash >= 30;
 
@@ -123,7 +123,7 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
               {/* Photo Thumbnail */}
               <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
                 <Image
-                  src={photo.thumbnailMediumUrl || photo.thumbnailSmallUrl || '/placeholder.jpg'}
+                  src={photo.thumbnail_medium_url || photo.thumbnail_small_url || '/placeholder.jpg'}
                   alt={photo.filename}
                   fill
                   className="object-cover opacity-75"
@@ -145,9 +145,9 @@ export default function TrashPhotoGrid({ photos, isAdmin }: TrashPhotoGridProps)
                   {photo.event.name}
                 </p>
                 
-                {photo.deletedAt && (
+                {photo.deleted_at && (
                   <p className="mt-1 text-xs text-gray-500">
-                    Dihapus: {format(new Date(photo.deletedAt), 'dd MMM yyyy', { locale: localeId })}
+                    Dihapus: {format(new Date(photo.deleted_at), 'dd MMM yyyy', { locale: localeId })}
                   </p>
                 )}
                 

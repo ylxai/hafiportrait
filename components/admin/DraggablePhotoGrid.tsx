@@ -32,21 +32,21 @@ import SortMenu from './SortMenu';
 interface Photo {
   id: string;
   filename: string;
-  originalUrl: string;
-  thumbnailSmallUrl: string | null;
-  thumbnailMediumUrl: string | null;
-  thumbnailLargeUrl: string | null;
-  fileSize: number | null;
+  original_url: string;
+  thumbnail_small_url: string | null;
+  thumbnail_medium_url: string | null;
+  thumbnail_large_url: string | null;
+  file_size: number | null;
   width: number | null;
   height: number | null;
-  mimeType: string | null;
+  mime_type: string | null;
   caption: string | null;
-  isFeatured: boolean;
-  likesCount: number;
-  viewsCount: number;
-  downloadCount: number;
-  createdAt: Date;
-  displayOrder: number;
+  is_featured: boolean;
+  likes_count: number;
+  views_count: number;
+  download_count: number;
+  created_at: Date;
+  display_order: number;
   event: {
     id: string;
     name: string;
@@ -55,7 +55,7 @@ interface Photo {
 
 interface DraggablePhotoGridProps {
   photos: Photo[];
-  eventId: string;
+  event_id: string;
   currentSort?: string;
   currentFilter?: string;
   currentSearch?: string;
@@ -63,7 +63,7 @@ interface DraggablePhotoGridProps {
 
 export default function DraggablePhotoGrid({
   photos: initialPhotos,
-  eventId,
+  event_id,
   currentSort = 'order',
   currentFilter,
   currentSearch,
@@ -120,7 +120,7 @@ export default function DraggablePhotoGrid({
       // Update display order values
       const photosWithNewOrder = reorderedPhotos.map((photo, index) => ({
         ...photo,
-        displayOrder: index + 1,
+        display_order: index + 1,
       }));
 
       setPhotos(photosWithNewOrder);
@@ -130,7 +130,7 @@ export default function DraggablePhotoGrid({
       try {
         // Call API to persist the reorder
         const response = await fetch(
-          `/api/admin/events/${eventId}/photos/reorder`,
+          `/api/admin/events/${event_id}/photos/reorder`,
           {
             method: 'PATCH',
             headers: {
@@ -138,8 +138,8 @@ export default function DraggablePhotoGrid({
             },
             body: JSON.stringify({
               photoOrders: photosWithNewOrder.map((photo) => ({
-                photoId: photo.id,
-                displayOrder: photo.displayOrder,
+                photo_id: photo.id,
+                display_order: photo.display_order,
               })),
             }),
           }
@@ -162,7 +162,7 @@ export default function DraggablePhotoGrid({
         setIsReordering(false);
       }
     },
-    [photos, eventId, previousOrder]
+    [photos, event_id, previousOrder]
   );
 
   // Handle undo
@@ -174,7 +174,7 @@ export default function DraggablePhotoGrid({
 
     try {
       const response = await fetch(
-        `/api/admin/events/${eventId}/photos/reorder`,
+        `/api/admin/events/${event_id}/photos/reorder`,
         {
           method: 'PATCH',
           headers: {
@@ -182,8 +182,8 @@ export default function DraggablePhotoGrid({
           },
           body: JSON.stringify({
             photoOrders: previousOrder.map((photo) => ({
-              photoId: photo.id,
-              displayOrder: photo.displayOrder,
+              photo_id: photo.id,
+              display_order: photo.display_order,
             })),
           }),
         }
@@ -201,7 +201,7 @@ export default function DraggablePhotoGrid({
     } finally {
       setIsReordering(false);
     }
-  }, [previousOrder, eventId]);
+  }, [previousOrder, event_id]);
 
   // Handle auto-sort
   const handleAutoSort = useCallback(
@@ -211,7 +211,7 @@ export default function DraggablePhotoGrid({
 
       try {
         const response = await fetch(
-          `/api/admin/events/${eventId}/photos/auto-sort`,
+          `/api/admin/events/${event_id}/photos/auto-sort`,
           {
             method: 'POST',
             headers: {
@@ -237,7 +237,7 @@ export default function DraggablePhotoGrid({
         setIsReordering(false);
       }
     },
-    [photos, eventId, previousOrder]
+    [photos, event_id, previousOrder]
   );
 
   // Filter photos by search term (client-side filtering) - memoized for performance
@@ -251,8 +251,8 @@ export default function DraggablePhotoGrid({
   }, [photos, searchTerm]);
 
   // Handle photo click
-  const handlePhotoClick = useCallback((photoId: string) => {
-    const index = filteredPhotos.findIndex(p => p.id === photoId);
+  const handlePhotoClick = useCallback((photo_id: string) => {
+    const index = filteredPhotos.findIndex(p => p.id === photo_id);
     setSelectedPhotoIndex(index);
   }, [filteredPhotos]);
 
@@ -368,7 +368,7 @@ export default function DraggablePhotoGrid({
             {activePhoto && (
               <div className="relative aspect-square overflow-hidden rounded-lg bg-white shadow-2xl">
                 <Image
-                  src={activePhoto.thumbnailMediumUrl || activePhoto.originalUrl}
+                  src={activePhoto.thumbnail_medium_url || activePhoto.original_url}
                   alt={`Photo: ${activePhoto.filename}`}
                   fill
                   sizes="300px"

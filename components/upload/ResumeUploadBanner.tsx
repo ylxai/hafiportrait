@@ -49,7 +49,7 @@ export function ResumeUploadBanner({ session, onResume, onCancel }: ResumeUpload
   const overallProgress = totalSize > 0 ? Math.floor((uploadedSize / totalSize) * 100) : 0;
 
   // Format last updated time
-  const lastUpdatedText = formatDistanceToNow(session.updatedAt, {
+  const lastUpdatedText = formatDistanceToNow(session.updated_at, {
     addSuffix: true,
     locale: idLocale,
   });

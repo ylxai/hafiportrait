@@ -84,7 +84,7 @@ export default async function EventAccessPage({ params, searchParams }: PageProp
     <GuestAccessForm
       eventSlug={eventSlug}
       eventName={event.name}
-      eventDate={event.event_date?.toISOString() || null}
+      event_date={event.event_date?.toISOString() || null}
       coverPhotoUrl={coverPhotoUrl}
     />
   );

@@ -174,7 +174,7 @@ export interface ThumbnailResult {
   url: string;
   width: number;
   height: number;
-  fileSize: number;
+  file_size: number;
 }
 
 /**
@@ -195,7 +195,7 @@ export async function extractImageMetadata(buffer: Buffer): Promise<ImageMetadat
     const metadata = await image.metadata();
     
     // Extract EXIF data if available
-    let exifData: ImageMetadata['exif'] = undefined;
+    let exif_data: ImageMetadata['exif'] = undefined;
     
     if (metadata.exif) {
       try {
@@ -211,7 +211,7 @@ export async function extractImageMetadata(buffer: Buffer): Promise<ImageMetadat
       size: buffer.length,
       hasAlpha: metadata.hasAlpha || false,
       orientation: metadata.orientation,
-      exif: exifData,
+      exif: exif_data,
     };
   } catch (error) {
     console.error('Error extracting image metadata:', error);
@@ -277,7 +277,7 @@ export async function generateThumbnail(
  * Generate all thumbnail sizes for an image (OPTIMIZED - Parallel Processing)
  * 
  * @param buffer - Original image buffer
- * @param eventId - Event ID for storage path
+ * @param event_id - Event ID for storage path
  * @param baseFilename - Base filename (without extension)
  * @param formats - Formats to generate (default: ['jpeg', 'webp'])
  * @param onProgress - Progress callback
@@ -285,7 +285,7 @@ export async function generateThumbnail(
  */
 export async function generateThumbnails(
   buffer: Buffer,
-  eventId: string,
+  event_id: string,
   baseFilename: string,
   formats: ImageFormat[] = ['jpeg', 'webp'],
   onProgress?: (progress: { size: ThumbnailSize; format: ImageFormat; done: boolean }) => void
@@ -331,7 +331,7 @@ export async function generateThumbnails(
 
           // Upload to R2
           const filename = `${baseFilename}.${format}`;
-          const storageKey = buildPhotoStorageKey(eventId, filename, 'thumbnails', size);
+          const storageKey = buildPhotoStorageKey(event_id, filename, 'thumbnails', size);
           
           const uploadResult = await uploadToR2(
             convertedBuffer,
@@ -346,7 +346,7 @@ export async function generateThumbnails(
               url: uploadResult.url,
               width,
               height,
-              fileSize: convertedBuffer.length,
+              file_size: convertedBuffer.length,
             };
             
             onProgress?.({ size, format, done: true });
@@ -383,14 +383,14 @@ export async function generateThumbnails(
  * Generate thumbnails with retry logic
  * 
  * @param buffer - Original image buffer
- * @param eventId - Event ID
+ * @param event_id - Event ID
  * @param baseFilename - Base filename
  * @param maxRetries - Maximum retry attempts per thumbnail
  * @returns Generation results
  */
 export async function generateThumbnailsWithRetry(
   buffer: Buffer,
-  eventId: string,
+  event_id: string,
   baseFilename: string,
   maxRetries: number = 3
 ): Promise<{
@@ -398,7 +398,7 @@ export async function generateThumbnailsWithRetry(
   thumbnails: Record<ThumbnailSize, Record<ImageFormat, ThumbnailResult | null>>;
   errors: string[];
 }> {
-  let lastResult = await generateThumbnails(buffer, eventId, baseFilename);
+  let lastResult = await generateThumbnails(buffer, event_id, baseFilename);
   
   // Retry failed thumbnails
   for (let attempt = 1; attempt < maxRetries && !lastResult.success; attempt++) {
@@ -407,7 +407,7 @@ export async function generateThumbnailsWithRetry(
     // Wait before retrying
     await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
     
-    lastResult = await generateThumbnails(buffer, eventId, baseFilename);
+    lastResult = await generateThumbnails(buffer, event_id, baseFilename);
   }
   
   return lastResult;

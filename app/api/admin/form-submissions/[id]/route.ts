@@ -16,7 +16,7 @@ export async function PATCH(
     const body = await request.json()
     const { status, notes } = body
 
-    const submission = await prisma.formSubmission.update({
+    const submission = await prisma.form_submissions.update({
       where: { id },
       data: {
         ...(status !== undefined && { status }),

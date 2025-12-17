@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const bentoPhotos = await prisma.portfolioPhoto.findMany({
-      where: { isFeaturedBento: true },
-      orderBy: { bentoPriority: 'desc' }
+    const bentoPhotos = await prisma.portfolio_photos.findMany({
+      where: { is_featured_bento: true },
+      orderBy: { bento_priority: 'desc' }
     })
 
     return NextResponse.json(bentoPhotos)
@@ -28,14 +28,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { photoId, bentoSize, bentoPriority } = body
+    const { photo_id, bentoSize, bentoPriority } = body
 
-    const photo = await prisma.portfolioPhoto.update({
-      where: { id: photoId },
+    const photo = await prisma.portfolio_photos.update({
+      where: { id: photo_id },
       data: {
-        isFeaturedBento: true,
-        bentoSize: bentoSize || 'medium',
-        bentoPriority: bentoPriority || 0
+        is_featured_bento: true,
+        bento_size: bentoSize || 'medium',
+        bento_priority: bentoPriority || 0
       }
     })
 

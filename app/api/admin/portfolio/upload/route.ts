@@ -9,16 +9,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import prisma from '@/lib/prisma'
-import { 
-  uploadToR2WithRetry, 
-  generateUniqueFilename, 
+import {
+  uploadToR2WithRetry,
+  generateUniqueFilename,
   buildPhotoStorageKey,
   verifyFileType,
   MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES,
 } from '@/lib/storage/r2'
-import { 
-  extractImageMetadata, 
+import {
+  extractImageMetadata,
   generateThumbnailsWithRetry,
   validateImageBuffer,
 } from '@/lib/storage/image-processor'
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     if (files.length > MAX_FILES_PER_REQUEST) {
       return NextResponse.json(
-        { 
+        {
           error: `Too many files. Maximum ${MAX_FILES_PER_REQUEST} files per request`,
         },
         { status: 400 }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     const batchValidation = memoryManager.validateBatchSize(files)
     if (!batchValidation.valid) {
       return NextResponse.json(
-        { 
+        {
           error: batchValidation.error,
           totalSizeMB: (batchValidation.totalSize / 1024 / 1024).toFixed(2),
         },
@@ -88,11 +88,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Get max display order
-    const maxOrderPhoto = await prisma.portfolioPhoto.findFirst({
-      orderBy: { displayOrder: 'desc' },
-      select: { displayOrder: true },
+    const maxOrderPhoto = await prisma.portfolio_photos.findFirst({
+      orderBy: { display_order: 'desc' },
+      select: { display_order: true },
     })
-    let displayOrder = (maxOrderPhoto?.displayOrder ?? -1) + 1
+    let display_order = (maxOrderPhoto?.display_order ?? -1) + 1
 
     // 5. Process files
     const uploadResults = []
@@ -155,17 +155,17 @@ export async function POST(request: NextRequest) {
         logger.debug('Image metadata extracted', {
           filename: file.name,
           dimensions: `${metadata.width}x${metadata.height}`,
-          fileSizeKB: (metadata.fileSize || 0) / 1024
+          file_sizeKB: (metadata.size || 0) / 1024
         });
-        
+
         // Extract EXIF data for logging and potential future storage
-        let exifData = null
+        let exif_data = null
         try {
-          exifData = await extractExifData(buffer)
-          if (exifData) {
+          exif_data = await extractExifData(buffer)
+          if (exif_data) {
             logger.debug('EXIF data extracted', {
               filename: file.name,
-              exifProperties: Object.keys(exifData).length
+              exifProperties: Object.keys(exif_data).length
             });
           }
         } catch (exifError) {
@@ -187,32 +187,34 @@ export async function POST(request: NextRequest) {
         )
 
         // Get the medium thumbnail URL (WebP format preferred)
-        let thumbnailUrl = uploadResult.url
+        let thumbnail_url = uploadResult.url
         if (thumbnailResult.success && thumbnailResult.thumbnails.medium?.webp?.url) {
-          thumbnailUrl = thumbnailResult.thumbnails.medium.webp.url
+          thumbnail_url = thumbnailResult.thumbnails.medium.webp.url
         } else if (thumbnailResult.thumbnails.medium?.jpeg?.url) {
-          thumbnailUrl = thumbnailResult.thumbnails.medium.jpeg.url
+          thumbnail_url = thumbnailResult.thumbnails.medium.jpeg.url
         }
 
         // Create portfolio photo record
-        const portfolioPhoto = await prisma.portfolioPhoto.create({
+        const portfolioPhoto = await prisma.portfolio_photos.create({
           data: {
+            id: crypto.randomUUID(),
             filename: file.name,
-            originalUrl: uploadResult.url,
-            thumbnailUrl: thumbnailUrl,
-            displayOrder: displayOrder++,
-            isFeatured: false,
+            original_url: uploadResult.url,
+            thumbnail_url: thumbnail_url,
+            display_order: display_order++,
+            is_featured: false,
             category: category || null,
             description: description || null,
+            updated_at: new Date(),
           },
         })
 
         uploadResults.push({
           filename: file.name,
           success: true,
-          photoId: portfolioPhoto.id,
+          photo_id: portfolioPhoto.id,
           url: uploadResult.url,
-          thumbnailUrl: thumbnailUrl,
+          thumbnail_url: thumbnail_url,
         })
       } catch (error: any) {
         console.error(`❌ Failed to upload ${file.name}:`, error)

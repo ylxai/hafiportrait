@@ -9,7 +9,7 @@ interface Event {
   id: string
   name: string
   slug: string
-  eventDate: string | null
+  event_date: string | null
   location: string | null
   coverPhotoUrl: string | null
   totalPhotos: number
@@ -104,10 +104,10 @@ export default function FeaturedEvents() {
                 </h3>
 
                 <div className="space-y-2 text-sm text-slate-600 mb-4">
-                  {event.eventDate && (
+                  {event.event_date && (
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-brand-teal" />
-                      {new Date(event.eventDate).toLocaleDateString('id-ID', {
+                      {new Date(event.event_date).toLocaleDateString('id-ID', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

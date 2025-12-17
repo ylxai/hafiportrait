@@ -14,7 +14,7 @@ interface FormSubmission {
   message: string | null
   status: string
   notes: string | null
-  createdAt: string
+  created_at: string
 }
 
 export default function FormSubmissionsPage() {
@@ -242,7 +242,7 @@ export default function FormSubmissionsPage() {
 
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Clock className="w-3 h-3" />
-                        {new Date(submission.createdAt).toLocaleString('id-ID')}
+                        {new Date(submission.created_at).toLocaleString('id-ID')}
                       </div>
                     </div>
 

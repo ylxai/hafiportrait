@@ -334,31 +334,18 @@ model slideshow_settings {
 }
 
 model users {
-  id                                  String           @id
-  email                               String           @unique
+  id                                  String   @id
+  email                               String   @unique
   password_hash                       String
   name                                String
-  role                                UserRole         @default(CLIENT)
-  created_at                          DateTime         @default(now())
+  role                                UserRole @default(CLIENT)
+  created_at                          DateTime @default(now())
   updated_at                          DateTime
-  username                            String?          @unique
+  username                            String?  @unique
   events                              events[]
-  photos_photos_deleted_by_idTousers  photos[]         @relation("photos_deleted_by_idTousers")
-  photos_photos_uploaded_by_idTousers photos[]         @relation("photos_uploaded_by_idTousers")
+  photos_photos_deleted_by_idTousers  photos[] @relation("photos_deleted_by_idTousers")
+  photos_photos_uploaded_by_idTousers photos[] @relation("photos_uploaded_by_idTousers")
   refreshTokens                       refresh_tokens[]
-}
-
-model refresh_tokens {
-  id         String   @id @default(cuid())
-  token      String   @unique
-  user_id    String
-  expires_at DateTime
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@index([expires_at])
 }
 
 enum EventStatus {
@@ -370,4 +357,18 @@ enum EventStatus {
 enum UserRole {
   ADMIN
   CLIENT
+}
+
+model refresh_tokens {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  user_id    String
+  expires_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
 }

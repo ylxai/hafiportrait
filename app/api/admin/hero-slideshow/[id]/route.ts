@@ -14,15 +14,15 @@ export async function PATCH(
 
     const { id } = await context.params
     const body = await request.json()
-    const { title, subtitle, isActive, displayOrder } = body
+    const { title, subtitle, is_active, display_order } = body
 
-    const slide = await prisma.heroSlideshow.update({
+    const slide = await prisma.hero_slideshow.update({
       where: { id },
       data: {
         ...(title !== undefined && { title }),
         ...(subtitle !== undefined && { subtitle }),
-        ...(isActive !== undefined && { isActive }),
-        ...(displayOrder !== undefined && { displayOrder })
+        ...(is_active !== undefined && { is_active }),
+        ...(display_order !== undefined && { display_order })
       }
     })
 
@@ -44,7 +44,7 @@ export async function DELETE(
 
     const { id } = await context.params
 
-    await prisma.heroSlideshow.delete({
+    await prisma.hero_slideshow.delete({
       where: { id }
     })
 

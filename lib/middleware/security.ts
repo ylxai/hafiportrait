@@ -84,7 +84,7 @@ export async function withSecurity(
     const rateLimitResult = await withRateLimit(
       request,
       rateLimit,
-      user?.userId
+      user?.user_id
     )
     if (!rateLimitResult.allowed) {
       return {

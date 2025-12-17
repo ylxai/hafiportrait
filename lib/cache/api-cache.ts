@@ -155,8 +155,8 @@ export const CacheKeys = {
   
   event: (id: string) => `event:${id}`,
   
-  photos: (eventId: string, filters?: Record<string, any>) =>
-    `photos:${eventId}:${filters ? JSON.stringify(filters) : 'all'}`,
+  photos: (event_id: string, filters?: Record<string, any>) =>
+    `photos:${event_id}:${filters ? JSON.stringify(filters) : 'all'}`,
   
   photo: (id: string) => `photo:${id}`,
   
@@ -214,7 +214,7 @@ export const invalidateCache = {
     apiCache.delete(CacheKeys.event(id));
     apiCache.invalidatePattern(`^photos:${id}:`);
   },
-  photos: (eventId: string) => apiCache.invalidatePattern(`^photos:${eventId}:`),
+  photos: (event_id: string) => apiCache.invalidatePattern(`^photos:${event_id}:`),
   photo: (id: string) => apiCache.delete(CacheKeys.photo(id)),
   packages: () => apiCache.delete(CacheKeys.packages()),
   portfolio: () => apiCache.delete(CacheKeys.portfolio()),

@@ -28,14 +28,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Get total count
-    const total = await prisma.contactMessage.count({ where })
+    const total = await prisma.contact_messages.count({ where })
 
     // Get messages with pagination
-    const messages = await prisma.contactMessage.findMany({
+    const messages = await prisma.contact_messages.findMany({
       where,
       take: limit,
       skip: (page - 1) * limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
     })
 
     return NextResponse.json({

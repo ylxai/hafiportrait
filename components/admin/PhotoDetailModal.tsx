@@ -32,19 +32,19 @@ import PhotoActions from './PhotoActions';
 interface Photo {
   id: string;
   filename: string;
-  originalUrl: string;
-  thumbnailLargeUrl: string | null;
-  fileSize: number | null;
+  original_url: string;
+  thumbnail_large_url: string | null;
+  file_size: number | null;
   width: number | null;
   height: number | null;
-  mimeType: string | null;
+  mime_type: string | null;
   caption: string | null;
-  isFeatured: boolean;
-  likesCount: number;
-  viewsCount: number;
-  downloadCount: number;
-  createdAt: Date;
-  exifData?: any;
+  is_featured: boolean;
+  likes_count: number;
+  views_count: number;
+  download_count: number;
+  created_at: Date;
+  exif_data?: any;
   event: {
     id: string;
     name: string;
@@ -238,7 +238,7 @@ export default function PhotoDetailModal({
   ;
 
   const displayPhoto = detailedPhoto || photo;
-  const imageUrl = displayPhoto.originalUrl || displayPhoto.thumbnailLargeUrl || '';
+  const imageUrl = displayPhoto.original_url || displayPhoto.thumbnail_large_url || '';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95">

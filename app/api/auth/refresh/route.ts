@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     // Verify refresh token
     const verification = await verifyRefreshToken(refreshToken)
 
-    if (!verification.valid || !verification.userId) {
+    if (!verification.valid || !verification.user_id) {
       return NextResponse.json(
         { error: 'Invalid or expired refresh token' },
         { status: 401 }
@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user data
-    const user = await prisma.user.findUnique({
-      where: { id: verification.userId },
+    const user = await prisma.users.findUnique({
+      where: { id: verification.user_id },
       select: {
         id: true,
         username: true,
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Create new tokens
     const newAccessToken = await createAccessToken({
-      userId: user.id,
+      user_id: user.id,
       username: user.username || user.email,
       email: user.email,
       role: user.role,

@@ -30,7 +30,7 @@ interface UploadFile {
 }
 
 interface PhotoUploaderProps {
-  eventId: string;
+  event_id: string;
   eventName: string;
   onUploadComplete?: (results: any) => void;
   maxFiles?: number;
@@ -38,7 +38,7 @@ interface PhotoUploaderProps {
 }
 
 export default function PhotoUploader({
-  eventId,
+  event_id,
   eventName,
   onUploadComplete,
   maxFiles = 500,
@@ -211,7 +211,7 @@ export default function PhotoUploader({
           const formData = new FormData();
           formData.append('files', uploadFile.file);
 
-          const response = await fetch(`/api/admin/events/${eventId}/photos/upload`, {
+          const response = await fetch(`/api/admin/events/${event_id}/photos/upload`, {
             method: 'POST',
             body: formData,
             credentials: 'include',
@@ -307,7 +307,7 @@ export default function PhotoUploader({
     setTimeout(() => {
       setFiles((prev) => prev.filter((f) => f.status !== 'success'));
     }, 3000);
-  }, [files, eventId, eventName, onUploadComplete, toast]);
+  }, [files, event_id, eventName, onUploadComplete, toast]);
 
   const pendingCount = files.filter((f) => f.status === 'pending').length;
   const errorCount = files.filter((f) => f.status === 'error').length;

@@ -10,13 +10,13 @@ import { createAdapter } from '@socket.io/redis-adapter'
 import { createClient } from 'redis'
 
 export type ServerToClientEvents = {
-  'like:added': (data: { photoId: string; likesCount: number }) => void
-  'like:removed': (data: { photoId: string; likesCount: number }) => void
+  'like:added': (data: { photo_id: string; likes_count: number }) => void
+  'like:removed': (data: { photo_id: string; likes_count: number }) => void
   'comment:added': (data: { comment: any }) => void
   'guest:joined': (data: { guestCount: number }) => void
   'guest:left': (data: { guestCount: number }) => void
   'photo:upload:progress': (data: {
-    photoId: string
+    photo_id: string
     progress: number
     filename: string
   }) => void
@@ -128,11 +128,11 @@ export function getSocketServer(): SocketIOServer | null {
  */
 export function broadcastLikeAdded(
   eventSlug: string,
-  photoId: string,
-  likesCount: number
+  photo_id: string,
+  likes_count: number
 ) {
   if (!io) return
-  io.to(`event:${eventSlug}`).emit('like:added', { photoId, likesCount })
+  io.to(`event:${eventSlug}`).emit('like:added', { photo_id, likes_count })
 }
 
 /**
@@ -140,11 +140,11 @@ export function broadcastLikeAdded(
  */
 export function broadcastLikeRemoved(
   eventSlug: string,
-  photoId: string,
-  likesCount: number
+  photo_id: string,
+  likes_count: number
 ) {
   if (!io) return
-  io.to(`event:${eventSlug}`).emit('like:removed', { photoId, likesCount })
+  io.to(`event:${eventSlug}`).emit('like:removed', { photo_id, likes_count })
 }
 
 /**
@@ -160,13 +160,13 @@ export function broadcastCommentAdded(eventSlug: string, comment: any) {
  */
 export function broadcastPhotoUploadProgress(
   eventSlug: string,
-  photoId: string,
+  photo_id: string,
   progress: number,
   filename: string
 ) {
   if (!io) return
   io.to(`event:${eventSlug}`).emit('photo:upload:progress', {
-    photoId,
+    photo_id,
     progress,
     filename,
   })

@@ -14,7 +14,7 @@ export async function GET(
     const sort = searchParams.get('sort') || 'newest';
 
     // Find event
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { slug: eventSlug },
       select: { id: true, status: true },
     });
@@ -36,46 +36,46 @@ export async function GET(
     }
 
     // Build order by clause
-    let orderBy: any = { displayOrder: 'asc' };
+    let orderBy: any = { display_order: 'asc' };
     if (sort === 'newest') {
-      orderBy = { createdAt: 'desc' };
+      orderBy = { created_at: 'desc' };
     } else if (sort === 'oldest') {
-      orderBy = { createdAt: 'asc' };
+      orderBy = { created_at: 'asc' };
     } else if (sort === 'most_liked') {
-      orderBy = { likesCount: 'desc' };
+      orderBy = { likes_count: 'desc' };
     }
 
     // Fetch photos with pagination
     const skip = (page - 1) * limit;
     const [photos, totalCount] = await Promise.all([
-      prisma.photo.findMany({
+      prisma.photos.findMany({
         where: {
-          eventId: event.id,
-          deletedAt: null,
+          event_id: event.id,
+          deleted_at: null,
         },
         select: {
           id: true,
           filename: true,
-          originalUrl: true,
-          thumbnailUrl: true,
-          thumbnailSmallUrl: true,
-          thumbnailMediumUrl: true,
-          thumbnailLargeUrl: true,
+          original_url: true,
+          thumbnail_url: true,
+          thumbnail_small_url: true,
+          thumbnail_medium_url: true,
+          thumbnail_large_url: true,
           width: true,
           height: true,
-          likesCount: true,
+          likes_count: true,
           caption: true,
-          displayOrder: true,
-          createdAt: true,
+          display_order: true,
+          created_at: true,
         },
         orderBy,
         skip,
         take: limit,
       }),
-      prisma.photo.count({
+      prisma.photos.count({
         where: {
-          eventId: event.id,
-          deletedAt: null,
+          event_id: event.id,
+          deleted_at: null,
         },
       }),
     ]);

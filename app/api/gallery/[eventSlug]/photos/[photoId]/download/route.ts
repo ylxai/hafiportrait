@@ -5,13 +5,13 @@ import { checkRateLimit } from '@/lib/security/rate-limiter';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ eventSlug: string; photoId: string }> }
+  { params }: { params: Promise<{ eventSlug: string; photo_id: string }> }
 ) {
   try {
-    const { eventSlug, photoId } = await params;
+    const { eventSlug, photo_id } = await params;
 
     // Find event
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { slug: eventSlug },
       select: { id: true, status: true },
     });
@@ -55,14 +55,14 @@ export async function GET(
     }
 
     // Find photo
-    const photo = await prisma.photo.findUnique({
+    const photo = await prisma.photos.findUnique({
       where: { 
-        id: photoId,
-        eventId: event.id,
+        id: photo_id,
+        event_id: event.id,
       },
       select: {
         id: true,
-        originalUrl: true,
+        original_url: true,
         filename: true,
       },
     });
@@ -78,7 +78,7 @@ export async function GET(
     try {
       await prisma.photoDownload.create({
         data: {
-          photoId: photo.id,
+          photo_id: photo.id,
           guestId: guestId,
           ipAddress: clientIP,
           userAgent: request.headers.get('user-agent') || undefined,
@@ -86,9 +86,9 @@ export async function GET(
       });
       
       // Update download count
-      await prisma.photo.update({
+      await prisma.photos.update({
         where: { id: photo.id },
-        data: { downloadCount: { increment: 1 } },
+        data: { download_count: { increment: 1 } },
       });
     } catch (trackingError) {
       // Log error but don't fail the download
@@ -98,7 +98,7 @@ export async function GET(
     // Return photo URL for client-side download
     return NextResponse.json({
       success: true,
-      downloadUrl: photo.originalUrl,
+      downloadUrl: photo.original_url,
       filename: photo.filename,
     });
 

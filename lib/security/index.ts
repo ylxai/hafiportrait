@@ -75,7 +75,7 @@ export {
   phoneSchema,
   urlSchema,
   slugSchema,
-  accessCodeSchema,
+  access_codeSchema,
   sanitizedTextSchema,
   richTextSchema,
   loginSchema,

@@ -6,22 +6,22 @@
 /**
  * Format EXIF data for display
  * This function can be used in client components
- * @param exifData EXIF data object
+ * @param exif_data EXIF data object
  * @returns Formatted string
  */
-export function formatExifForDisplay(exifData: any): Record<string, string> {
+export function formatExifForDisplay(exif_data: any): Record<string, string> {
   const formatted: Record<string, string> = {};
 
-  if (!exifData) return formatted;
+  if (!exif_data) return formatted;
 
-  if (exifData.make) formatted['Camera Make'] = exifData.make;
-  if (exifData.model) formatted['Camera Model'] = exifData.model;
-  if (exifData.iso) formatted['ISO'] = exifData.iso.toString();
-  if (exifData.aperture) formatted['Aperture'] = exifData.aperture;
-  if (exifData.shutterSpeed) formatted['Shutter Speed'] = exifData.shutterSpeed;
-  if (exifData.focalLength) formatted['Focal Length'] = exifData.focalLength;
-  if (exifData.dateTimeOriginal) formatted['Date Taken'] = exifData.dateTimeOriginal;
-  if (exifData.software) formatted['Software'] = exifData.software;
+  if (exif_data.make) formatted['Camera Make'] = exif_data.make;
+  if (exif_data.model) formatted['Camera Model'] = exif_data.model;
+  if (exif_data.iso) formatted['ISO'] = exif_data.iso.toString();
+  if (exif_data.aperture) formatted['Aperture'] = exif_data.aperture;
+  if (exif_data.shutterSpeed) formatted['Shutter Speed'] = exif_data.shutterSpeed;
+  if (exif_data.focalLength) formatted['Focal Length'] = exif_data.focalLength;
+  if (exif_data.dateTimeOriginal) formatted['Date Taken'] = exif_data.dateTimeOriginal;
+  if (exif_data.software) formatted['Software'] = exif_data.software;
 
   return formatted;
 }

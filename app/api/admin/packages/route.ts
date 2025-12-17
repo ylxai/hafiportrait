@@ -13,14 +13,14 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const categoryId = searchParams.get('categoryId')
 
-    const packages = await prisma.package.findMany({
-      where: categoryId ? { categoryId } : {},
+    const packages = await prisma.packages.findMany({
+      where: categoryId ? { category_id: categoryId } : {},
       include: {
-        category: true,
+        package_categories: true,
       },
       orderBy: [
-        { displayOrder: 'asc' },
-        { createdAt: 'desc' },
+        { display_order: 'asc' },
+        { created_at: 'desc' },
       ],
     })
 
@@ -48,24 +48,26 @@ export async function POST(request: NextRequest) {
       price,
       features,
       isBestSeller,
-      isActive,
-      displayOrder,
+      is_active,
+      display_order,
       categoryId,
     } = body
 
-    const package_ = await prisma.package.create({
+    const package_ = await prisma.packages.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         description: description || null,
         price: parseInt(price),
         features: features || [],
-        isBestSeller: isBestSeller || false,
-        isActive: isActive !== undefined ? isActive : true,
-        displayOrder: displayOrder || 0,
-        categoryId,
+        is_best_seller: isBestSeller || false,
+        is_active: is_active !== undefined ? is_active : true,
+        display_order: display_order || 0,
+        category_id: categoryId,
+        updated_at: new Date(),
       },
       include: {
-        category: true,
+        package_categories: true,
       },
     })
 
@@ -101,11 +103,11 @@ export async function PUT(request: NextRequest) {
       updates.price = parseInt(updates.price)
     }
 
-    const package_ = await prisma.package.update({
+    const package_ = await prisma.packages.update({
       where: { id },
       data: updates,
       include: {
-        category: true,
+        package_categories: true,
       },
     })
 
@@ -136,7 +138,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    await prisma.package.delete({
+    await prisma.packages.delete({
       where: { id },
     })
 

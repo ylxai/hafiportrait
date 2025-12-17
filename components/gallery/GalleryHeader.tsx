@@ -2,14 +2,14 @@
 
 interface GalleryHeaderProps {
   eventName: string;
-  eventDate?: Date | null;
+  event_date?: Date | null;
   location?: string | null;
   photoCount: number;
 }
 
 export default function GalleryHeader({
   eventName,
-  eventDate,
+  event_date,
   location,
   photoCount,
 }: GalleryHeaderProps) {
@@ -33,12 +33,12 @@ export default function GalleryHeader({
               {eventName}
             </h1>
             <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-gray-600">
-              {eventDate && (
+              {event_date && (
                 <span className="flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {formatDate(eventDate)}
+                  {formatDate(event_date)}
                 </span>
               )}
               {location && (

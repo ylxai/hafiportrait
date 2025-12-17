@@ -22,7 +22,7 @@ const RETRY_DELAY_MS = 1000;
 export interface UploadResult {
   success: boolean;
   filename: string;
-  photoId?: string;
+  photo_id?: string;
   url?: string;
   error?: string;
   metadata?: {
@@ -34,10 +34,10 @@ export interface UploadResult {
 }
 
 export interface UploadOptions {
-  eventId: string;
-  userId: string;
+  event_id: string;
+  user_id: string;
   caption?: string;
-  isFeatured?: boolean;
+  is_featured?: boolean;
   progressCallback?: (filename: string, progress: number) => void;
 }
 
@@ -61,24 +61,24 @@ async function withRetry<T>(
   context?: string
 ): Promise<T> {
   let lastError: Error | undefined;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       if (!isRetryableError(error)) {
         throw error;
       }
-      
+
       if (attempt < maxRetries) {
         const delay = RETRY_DELAY_MS * attempt;
         await sleep(delay);
       }
     }
   }
-  
+
   throw new StorageError(
     `Failed after ${maxRetries} retries: ${lastError?.message}`,
     false,
@@ -89,7 +89,7 @@ async function withRetry<T>(
 async function processImageData(buffer: Buffer): Promise<ProcessedImageData> {
   const metadata = await extractImageMetadata(buffer);
   const optimized = await optimizeImage(buffer, 'jpeg');
-  
+
   return {
     optimized,
     metadata: {
@@ -104,11 +104,11 @@ async function processImageData(buffer: Buffer): Promise<ProcessedImageData> {
 export async function processSingleUpload(
   buffer: Buffer,
   filename: string,
-  mimeType: string,
+  mime_type: string,
   options: UploadOptions
 ): Promise<UploadResult> {
   const sanitizedFilename = sanitizeFilename(filename);
-  
+
   try {
     // 1. Extract metadata
     let metadata;
@@ -145,13 +145,13 @@ export async function processSingleUpload(
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
     const extension = sanitizedFilename.substring(sanitizedFilename.lastIndexOf('.'));
-    const storageKey = `events/${options.eventId}/photos/${timestamp}-${randomStr}${extension}`;
+    const storageKey = `events/${options.event_id}/photos/${timestamp}-${randomStr}${extension}`;
 
     // 4. Upload to R2
     try {
       await withRetry(
         () =>
-          uploadToR2(processedData.optimized, storageKey, mimeType, false),
+          uploadToR2(processedData.optimized, storageKey, mime_type, false),
         MAX_RETRIES,
         `upload-${sanitizedFilename}`
       );
@@ -169,18 +169,20 @@ export async function processSingleUpload(
     // 6. Save to database
     let photo;
     try {
-      photo = await prisma.photo.create({
+      photo = await prisma.photos.create({
         data: {
-          eventId: options.eventId,
-          uploadedById: options.userId,
+          id: crypto.randomUUID(),
+          event_id: options.event_id,
+          uploaded_by_id: options.user_id,
           filename: sanitizedFilename,
-          originalUrl: publicUrl,
+          original_url: publicUrl,
           width: metadata.width,
           height: metadata.height,
-          fileSize: buffer.length,
-          mimeType,
+          file_size: buffer.length,
+          mime_type,
           caption: options.caption,
-          isFeatured: options.isFeatured || false,
+          is_featured: options.is_featured || false,
+          updated_at: new Date(),
         },
       });
     } catch (error) {
@@ -197,7 +199,7 @@ export async function processSingleUpload(
     return {
       success: true,
       filename: sanitizedFilename,
-      photoId: photo.id,
+      photo_id: photo.id,
       url: publicUrl,
       metadata: {
         width: metadata.width,
@@ -216,7 +218,7 @@ export async function processSingleUpload(
 }
 
 export async function processParallelUploads(
-  files: Array<{ buffer: Buffer; filename: string; mimeType: string }>,
+  files: Array<{ buffer: Buffer; filename: string; mime_type: string }>,
   options: UploadOptions
 ): Promise<UploadResult[]> {
   const results: UploadResult[] = [];
@@ -226,17 +228,17 @@ export async function processParallelUploads(
   while (queue.length > 0 || inProgress.size > 0) {
     while (queue.length > 0 && inProgress.size < MAX_CONCURRENT_UPLOADS) {
       const file = queue.shift()!;
-      
+
       const uploadPromise = processSingleUpload(
         file.buffer,
         file.filename,
-        file.mimeType,
+        file.mime_type,
         options
       ).then((result) => {
         inProgress.delete(uploadPromise);
         return result;
       });
-      
+
       inProgress.add(uploadPromise);
     }
 
@@ -252,26 +254,26 @@ export async function processParallelUploads(
 export async function processChunkedUpload(
   buffer: Buffer,
   filename: string,
-  mimeType: string,
+  mime_type: string,
   options: UploadOptions
 ): Promise<UploadResult> {
   const sanitizedFilename = sanitizeFilename(filename);
-  
+
   if (buffer.length <= CHUNK_SIZE) {
-    return processSingleUpload(buffer, filename, mimeType, options);
+    return processSingleUpload(buffer, filename, mime_type, options);
   }
 
   try {
     options.progressCallback?.(sanitizedFilename, 25);
-    
-    const result = await processSingleUpload(buffer, filename, mimeType, {
+
+    const result = await processSingleUpload(buffer, filename, mime_type, {
       ...options,
       progressCallback: (fname, progress) => {
         const scaledProgress = 25 + (progress * 0.75);
         options.progressCallback?.(fname, scaledProgress);
       },
     });
-    
+
     return result;
   } catch (error) {
     return {
@@ -283,7 +285,7 @@ export async function processChunkedUpload(
 }
 
 export async function processBatchUpload(
-  files: Array<{ buffer: Buffer; filename: string; mimeType: string }>,
+  files: Array<{ buffer: Buffer; filename: string; mime_type: string }>,
   options: UploadOptions
 ): Promise<UploadResult[]> {
   const largeFiles = files.filter((f) => f.buffer.length > CHUNK_SIZE);
@@ -300,7 +302,7 @@ export async function processBatchUpload(
     const result = await processChunkedUpload(
       file.buffer,
       file.filename,
-      file.mimeType,
+      file.mime_type,
       options
     );
     results.push(result);

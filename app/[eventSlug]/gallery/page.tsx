@@ -67,13 +67,13 @@ export default async function GalleryPage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50">
       <GalleryHeader
         eventName={event.name}
-        eventDate={event.event_date}
+        event_date={event.event_date}
         location={event.location}
         photoCount={photoCount}
       />
       
       <main className="container mx-auto px-4 py-6">
-        <PhotoGrid eventId={event.id} eventSlug={event.slug} />
+        <PhotoGrid event_id={event.id} eventSlug={event.slug} />
       </main>
     </div>
   );

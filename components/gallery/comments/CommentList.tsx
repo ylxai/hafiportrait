@@ -21,8 +21,8 @@ export default function CommentList({ comments, isLoading }: CommentListProps) {
   // Memoize expensive sorting operation to avoid re-sorting on every render
   const sortedComments = useMemo(() => {
     return [...comments].sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
   }, [comments, sortOrder]);
@@ -84,7 +84,7 @@ export default function CommentList({ comments, isLoading }: CommentListProps) {
             guestName={comment.guestName}
             message={comment.message}
             relationship={comment.relationship}
-            createdAt={comment.createdAt}
+            created_at={comment.created_at}
           />
         ))}
       </div>

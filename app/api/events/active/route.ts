@@ -4,27 +4,27 @@ import prisma from '@/lib/prisma'
 // GET - Public endpoint to fetch active events
 export async function GET() {
   try {
-    const activeEvents = await prisma.event.findMany({
+    const activeEvents = await prisma.events.findMany({
       where: {
         status: 'ACTIVE',
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
       take: 6,
       select: {
         id: true,
         name: true,
         slug: true,
-        createdAt: true,
+        created_at: true,
         photos: {
           take: 1,
           orderBy: {
-            displayOrder: 'asc',
+            display_order: 'asc',
           },
           select: {
-            thumbnailUrl: true,
-            originalUrl: true,
+            thumbnail_url: true,
+            original_url: true,
           },
         },
       },
@@ -35,8 +35,8 @@ export async function GET() {
       id: event.id,
       name: event.name,
       slug: event.slug,
-      date: event.createdAt,
-      coverPhoto: event.photos[0]?.thumbnailUrl || event.photos[0]?.originalUrl || null,
+      date: event.created_at,
+      coverPhoto: event.photos[0]?.thumbnail_url || event.photos[0]?.original_url || null,
     }))
 
     return NextResponse.json({

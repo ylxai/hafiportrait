@@ -7,9 +7,9 @@ import { Upload, X, Image as ImageIcon, CheckCircle, XCircle, Loader2 } from 'lu
 interface UploadResult {
   filename: string
   success: boolean
-  photoId?: string
+  photo_id?: string
   url?: string
-  thumbnailUrl?: string
+  thumbnail_url?: string
   error?: string
 }
 
@@ -235,10 +235,10 @@ export default function PortfolioUploader({ category, onUploadComplete }: Portfo
                     )}
                   </div>
                 </div>
-                {result.thumbnailUrl && (
+                {result.thumbnail_url && (
                   <div className="relative w-12 h-12">
                     <Image
-                      src={result.thumbnailUrl}
+                      src={result.thumbnail_url}
                       alt={`Uploaded: ${result.filename}`}
                       fill
                       sizes="48px"

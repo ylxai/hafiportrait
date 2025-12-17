@@ -9,7 +9,7 @@ export async function POST(
   try {
     const { eventSlug } = await params;
     const body = await request.json();
-    const { accessCode, password } = body;
+    const { access_code, password } = body;
     
     // TODO: Implement password protection for events
     // if (event.requirePasswordAccess && password !== event.accessPassword) {
@@ -32,7 +32,7 @@ export async function POST(
     }
 
     // Validate input
-    if (!accessCode || typeof accessCode !== 'string') {
+    if (!access_code || typeof access_code !== 'string') {
       return NextResponse.json(
         { error: 'Access code is required' },
         { status: 400 }
@@ -40,7 +40,7 @@ export async function POST(
     }
 
     // Validate access code format (6 alphanumeric characters)
-    const cleanCode = accessCode.trim().toUpperCase();
+    const cleanCode = access_code.trim().toUpperCase();
     if (!/^[A-Z0-9]{6}$/.test(cleanCode)) {
       return NextResponse.json(
         { error: 'Access code must be 6 alphanumeric characters' },
@@ -74,7 +74,7 @@ export async function POST(
         id: result.event!.id,
         name: result.event!.name,
         slug: result.event!.slug,
-        eventDate: result.event!.eventDate,
+        event_date: result.event!.event_date,
         location: result.event!.location,
         description: result.event!.description,
       },

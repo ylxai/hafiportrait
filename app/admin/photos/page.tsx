@@ -10,12 +10,12 @@ import { Upload, Image as ImageIcon, Search, Filter, Grid3x3, List } from 'lucid
 interface Photo {
   id: string
   filename: string
-  originalName: string
-  url: string
-  thumbnailUrl?: string
-  eventId: string | null
-  isPublic: boolean
-  createdAt: string
+  original_url: string
+  thumbnail_small_url: string | null
+  thumbnail_medium_url: string | null
+  event_id: string
+  is_featured: boolean
+  created_at: string
   event?: {
     id: string
     name: string
@@ -140,8 +140,8 @@ export default function AdminPhotosPage() {
                 className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <Image
-                  src={photo.thumbnailUrl || photo.url}
-                  alt={photo.originalName}
+                  src={photo.thumbnail_medium_url || photo.thumbnail_small_url || photo.original_url}
+                  alt={photo.filename}
                   fill
                   className="object-cover"
                   loading="lazy"
@@ -150,7 +150,7 @@ export default function AdminPhotosPage() {
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <p className="text-white text-xs font-medium truncate">
-                    {photo.originalName}
+                    {photo.filename}
                   </p>
                   {photo.event && (
                     <p className="text-white/80 text-xs truncate">

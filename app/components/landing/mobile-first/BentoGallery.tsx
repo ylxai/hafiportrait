@@ -8,8 +8,8 @@ import Image from 'next/image'
 interface Photo {
   id: string
   filename: string
-  originalUrl: string
-  thumbnailUrl: string
+  original_url: string
+  thumbnail_url: string
   category: string | null
   bentoSize: string | null
 }
@@ -168,7 +168,7 @@ export default function BentoGallery() {
                 onClick={() => openStoryMode(index)}
               >
                 <Image
-                  src={photo.thumbnailUrl}
+                  src={photo.thumbnail_url}
                   alt={photo.filename}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -224,7 +224,7 @@ export default function BentoGallery() {
               {/* Photo Display */}
               <div className="relative w-full h-full flex items-center justify-center">
                 <Image
-                  src={filteredPhotos[currentPhotoIndex].originalUrl}
+                  src={filteredPhotos[currentPhotoIndex].original_url}
                   alt={filteredPhotos[currentPhotoIndex].filename}
                   fill
                   className="object-contain"

@@ -18,7 +18,7 @@ export interface UploadProgress {
 
 export interface UploadResult {
   success: boolean;
-  photoId?: string;
+  photo_id?: string;
   url?: string;
   error?: string;
   checksum?: string;
@@ -29,7 +29,7 @@ export interface UploadResult {
  */
 export async function uploadFile(
   file: File,
-  eventId: string,
+  event_id: string,
   options: {
     onProgress?: (progress: UploadProgress) => void;
     signal?: AbortSignal;
@@ -54,7 +54,7 @@ export async function uploadFile(
 
     // Upload with progress tracking
     const result = await uploadWithProgress(
-      `/api/admin/events/${eventId}/photos/upload`,
+      `/api/admin/events/${event_id}/photos/upload`,
       formData,
       {
         onProgress,
@@ -157,7 +157,7 @@ function uploadWithProgress(
  */
 export async function uploadBatch(
   files: File[],
-  eventId: string,
+  event_id: string,
   options: {
     onProgress?: (fileIndex: number, progress: UploadProgress) => void;
     onFileComplete?: (fileIndex: number, result: UploadResult) => void;
@@ -170,7 +170,7 @@ export async function uploadBatch(
     const file = files[i];
 
     try {
-      const result = await uploadFile(file, eventId, {
+      const result = await uploadFile(file, event_id, {
         onProgress: (progress) => {
           if (options.onProgress) {
             options.onProgress(i, progress);

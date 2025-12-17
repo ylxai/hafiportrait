@@ -11,13 +11,13 @@ import { Prisma } from '@prisma/client'
 const createEventSchema = z.object({
   name: z.string().min(1).max(100),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
-  clientEmail: z.string().email(),
-  clientPhone: z.string().optional(),
-  eventDate: z.string().optional(),
+  client_email: z.string().email(),
+  client_phone: z.string().optional(),
+  event_date: z.string().optional(),
   description: z.string().max(500).optional(),
   location: z.string().optional(),
   coupleName: z.string().max(200).optional(),
-  storageDurationDays: z.number().min(30).max(365).default(30),
+  storage_duration_days: z.number().min(30).max(365).default(30),
   autoGenerateAccessCode: z.boolean().default(true),
 })
 
@@ -37,12 +37,12 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const search = searchParams.get('search') || ''
     const status = searchParams.get('status') || 'all'
-    const sortBy = searchParams.get('sortBy') || 'createdAt'
+    const sortBy = searchParams.get('sortBy') || 'created_at'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
 
     // Build where clause with proper Prisma types
-    const where: Prisma.EventWhereInput = {}
-    
+    const where: Prisma.eventsWhereInput = {}
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -55,10 +55,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Get total count
-    const total = await prisma.event.count({ where })
+    const total = await prisma.events.count({ where })
 
     // Get events with pagination
-    const events = await prisma.event.findMany({
+    const events = await prisma.events.findMany({
       where,
       take: limit,
       skip: (page - 1) * limit,
@@ -68,12 +68,12 @@ export async function GET(request: NextRequest) {
         name: true,
         slug: true,
         status: true,
-        eventDate: true,
+        event_date: true,
         location: true,
-        accessCode: true,
-        qrCodeUrl: true,
-        createdAt: true,
-        updatedAt: true,
+        access_code: true,
+        qr_code_url: true,
+        created_at: true,
+        updated_at: true,
         _count: {
           select: {
             photos: true,
@@ -88,17 +88,17 @@ export async function GET(request: NextRequest) {
       id: event.id,
       name: event.name,
       description: null, // Not selected in this query
-      date: event.eventDate?.toISOString() || event.createdAt.toISOString(),
+      date: event.event_date?.toISOString() || event.created_at.toISOString(),
       slug: event.slug,
-      accessCode: event.accessCode,
-      isActive: event.status === 'ACTIVE',
-      coverPhotoId: null, // TODO: Add cover photo logic
+      access_code: event.access_code,
+      is_active: event.status === 'ACTIVE',
+      cover_photo_id: null, // TODO: Add cover photo logic
       coverPhotoUrl: null,
       photosCount: event._count.photos,
-      viewsCount: 0, // TODO: Implement analytics
+      views_count: 0, // TODO: Implement analytics
       downloadsCount: 0, // TODO: Implement analytics
-      createdAt: event.createdAt.toISOString(),
-      updatedAt: event.updatedAt.toISOString(),
+      created_at: event.created_at.toISOString(),
+      updated_at: event.updated_at.toISOString(),
     }))
 
     const response: EventListApiResponse = {
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createEventSchema.parse(body)
 
     // Check if slug is unique
-    const existingEvent = await prisma.event.findUnique({
+    const existingEvent = await prisma.events.findUnique({
       where: { slug: validatedData.slug },
     })
 
@@ -149,56 +149,58 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate access code
-    let accessCode = generateAccessCode()
-    
+    let access_code = generateAccessCode()
+
     // Ensure access code is unique
-    let existingCode = await prisma.event.findUnique({
-      where: { accessCode },
+    let existingCode = await prisma.events.findUnique({
+      where: { access_code },
     })
-    
+
     while (existingCode) {
-      accessCode = generateAccessCode()
-      existingCode = await prisma.event.findUnique({
-        where: { accessCode },
+      access_code = generateAccessCode()
+      existingCode = await prisma.events.findUnique({
+        where: { access_code },
       })
     }
 
     // Calculate expiration date
     let expiresAt = null
-    if (validatedData.eventDate) {
-      const eventDate = new Date(validatedData.eventDate)
+    if (validatedData.event_date) {
+      const event_date = new Date(validatedData.event_date)
       expiresAt = new Date(
-        eventDate.getTime() +
-          validatedData.storageDurationDays * 24 * 60 * 60 * 1000
+        event_date.getTime() +
+        validatedData.storage_duration_days * 24 * 60 * 60 * 1000
       )
     }
 
     // Create event
-    const event = await prisma.event.create({
+    const event = await prisma.events.create({
       data: {
+        id: crypto.randomUUID(),
         name: validatedData.name,
         slug: validatedData.slug,
-        accessCode,
-        clientEmail: validatedData.clientEmail,
-        clientPhone: validatedData.clientPhone,
-        eventDate: validatedData.eventDate
-          ? new Date(validatedData.eventDate)
+        access_code,
+        client_email: validatedData.client_email,
+        client_phone: validatedData.client_phone,
+        event_date: validatedData.event_date
+          ? new Date(validatedData.event_date)
           : null,
         description: validatedData.description,
         location: validatedData.location,
-        storageDurationDays: validatedData.storageDurationDays,
-        expiresAt,
+        storage_duration_days: validatedData.storage_duration_days,
+        expires_at: expiresAt,
         status: 'DRAFT',
-        clientId: user.userId,
+        client_id: user.user_id,
+        updated_at: new Date(),
       },
       select: {
         id: true,
         name: true,
         slug: true,
-        accessCode: true,
+        access_code: true,
         status: true,
-        eventDate: true,
-        createdAt: true,
+        event_date: true,
+        created_at: true,
       },
     })
 
@@ -207,17 +209,17 @@ export async function POST(request: NextRequest) {
       id: event.id,
       name: event.name,
       description: null,
-      date: event.eventDate?.toISOString() || event.createdAt.toISOString(),
+      date: event.event_date?.toISOString() || event.created_at.toISOString(),
       slug: event.slug,
-      accessCode: event.accessCode,
-      isActive: event.status === 'ACTIVE',
-      coverPhotoId: null,
+      access_code: event.access_code,
+      is_active: event.status === 'ACTIVE',
+      cover_photo_id: null,
       coverPhotoUrl: null,
       photosCount: 0,
-      viewsCount: 0,
+      views_count: 0,
       downloadsCount: 0,
-      createdAt: event.createdAt.toISOString(),
-      updatedAt: event.createdAt.toISOString(),
+      created_at: event.created_at.toISOString(),
+      updated_at: event.created_at.toISOString(),
     }
 
     const response: EventApiResponse = {

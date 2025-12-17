@@ -7,13 +7,13 @@ import LikeButton from './LikeButton';
 interface Photo {
   id: string;
   filename: string;
-  thumbnailMediumUrl: string | null;
-  thumbnailSmallUrl: string | null;
-  thumbnailUrl: string | null;
-  originalUrl: string;
+  thumbnail_medium_url: string | null;
+  thumbnail_small_url: string | null;
+  thumbnail_url: string | null;
+  original_url: string;
   width: number | null;
   height: number | null;
-  likesCount: number;
+  likes_count: number;
   caption: string | null;
 }
 
@@ -38,7 +38,7 @@ export default function PhotoLightbox({
   const [showControls, setShowControls] = useState(true);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [localLikesCount, setLocalLikesCount] = useState(photos[currentIndex].likesCount);
+  const [localLikesCount, setLocalLikesCount] = useState(photos[currentIndex].likes_count);
 
   const currentPhoto = photos[currentIndex];
   const hasPrev = currentIndex > 0;
@@ -46,8 +46,8 @@ export default function PhotoLightbox({
 
   // Update local likes count when photo changes
   useEffect(() => {
-    setLocalLikesCount(currentPhoto.likesCount);
-  }, [currentPhoto.likesCount, currentIndex]);
+    setLocalLikesCount(currentPhoto.likes_count);
+  }, [currentPhoto.likes_count, currentIndex]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -164,7 +164,7 @@ export default function PhotoLightbox({
       >
         <div className="relative w-full h-full">
           <Image
-            src={currentPhoto.originalUrl}
+            src={currentPhoto.original_url}
             alt={`Full size photography image: ${currentPhoto.caption || currentPhoto.filename}`}
             fill
             sizes="100vw"
@@ -198,7 +198,7 @@ export default function PhotoLightbox({
             {allowLikes && (
               <div className="mx-4">
                 <LikeButton
-                  photoId={currentPhoto.id}
+                  photo_id={currentPhoto.id}
                   eventSlug={eventSlug}
                   initialLikesCount={localLikesCount}
                   onLikeChange={handleLikeChange}

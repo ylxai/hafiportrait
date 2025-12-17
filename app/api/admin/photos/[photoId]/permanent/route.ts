@@ -4,7 +4,7 @@ import { getUserFromRequest } from '@/lib/auth';
 import { del } from '@vercel/blob';
 
 interface RouteParams {
-  params: Promise<{ photoId: string }>;
+  params: Promise<{ photo_id: string }>;
 }
 
 // DELETE - Permanently delete photo (hard delete)
@@ -13,7 +13,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { photoId } = await params;
+    const { photo_id } = await params;
     
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -25,8 +25,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    const photo = await prisma.photos.findUnique({
+      where: { id: photo_id },
       include: {
         event: {
           select: {
@@ -43,11 +43,11 @@ export async function DELETE(
 
     // Storage cleanup - delete all files
     const filesToDelete = [
-      photo.originalUrl,
-      photo.thumbnailSmallUrl,
-      photo.thumbnailMediumUrl,
-      photo.thumbnailLargeUrl,
-      photo.thumbnailUrl, // Legacy field
+      photo.original_url,
+      photo.thumbnail_small_url,
+      photo.thumbnail_medium_url,
+      photo.thumbnail_large_url,
+      photo.thumbnail_url, // Legacy field
     ].filter(Boolean) as string[];
 
     let deletedFiles = 0;
@@ -66,11 +66,11 @@ export async function DELETE(
     }
 
     // Delete database record permanently
-    await prisma.photo.delete({
-      where: { id: photoId },
+    await prisma.photos.delete({
+      where: { id: photo_id },
     });
 
-    // Log audit trail - FIXED: user.id -> user.userId
+    // Log audit trail - FIXED: user.id -> user.user_id
     return NextResponse.json({
       success: true,
       message: 'Photo permanently deleted',

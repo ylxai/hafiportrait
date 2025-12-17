@@ -21,11 +21,11 @@ export const GALLERY_SESSION_CONFIG = {
 export interface GallerySession {
   id: string
   sessionId: string
-  eventId: string
+  event_id: string
   guestToken: string
   ipAddress?: string
   userAgent?: string
-  createdAt: Date
+  created_at: Date
   expiresAt: Date
   lastAccessAt: Date
 }
@@ -57,34 +57,35 @@ export function hashSessionId(sessionId: string): string {
  * Create new gallery session untuk event access
  */
 export async function createGallerySession(
-  eventId: string,
+  event_id: string,
   request?: NextRequest,
   expiryHours?: number
 ): Promise<{ sessionId: string; guestToken: string }> {
   const sessionId = generateSecureToken()
   const guestToken = generateGuestToken()
-  
+
   // Calculate expiry time
   const expiry = expiryHours || GALLERY_SESSION_CONFIG.defaultExpiryHours
   const expiresAt = new Date()
   expiresAt.setHours(expiresAt.getHours() + Math.min(expiry, GALLERY_SESSION_CONFIG.maxExpiryHours))
 
   // Extract request metadata
-  const ipAddress = request?.headers.get('x-forwarded-for') || 
-                    request?.headers.get('x-real-ip') || 
-                    'unknown'
+  const ipAddress = request?.headers.get('x-forwarded-for') ||
+    request?.headers.get('x-real-ip') ||
+    'unknown'
   const userAgent = request?.headers.get('user-agent') || 'unknown'
 
   // Store session di database
-  await prisma.guestSession.create({
+  await prisma.guest_sessions.create({
     data: {
-      sessionId: hashSessionId(sessionId),
-      eventId,
-      guestToken,
-      ipAddress,
-      userAgent,
-      expiresAt,
-      lastAccessAt: new Date(),
+      id: crypto.randomUUID(),
+      session_id: hashSessionId(sessionId),
+      event_id,
+      guest_token: guestToken,
+      ip_address: ipAddress || null,
+      user_agent: userAgent || null,
+      expires_at: expiresAt,
+      last_access_at: new Date(),
     }
   })
 
@@ -96,16 +97,16 @@ export async function createGallerySession(
  */
 export async function validateGallerySession(
   sessionId: string,
-  eventId: string
+  event_id: string
 ): Promise<{ valid: boolean; guestToken?: string; session?: GallerySession }> {
   try {
     const hashedSessionId = hashSessionId(sessionId)
-    
-    const session = await prisma.guestSession.findFirst({
+
+    const session = await prisma.guest_sessions.findFirst({
       where: {
-        sessionId: hashedSessionId,
-        eventId,
-        expiresAt: {
+        session_id: hashedSessionId,
+        event_id,
+        expires_at: {
           gt: new Date()
         }
       }
@@ -116,15 +117,23 @@ export async function validateGallerySession(
     }
 
     // Update last access time
-    await prisma.guestSession.update({
+    await prisma.guest_sessions.update({
       where: { id: session.id },
-      data: { lastAccessAt: new Date() }
+      data: { last_access_at: new Date() }
     })
 
     return {
       valid: true,
-      guestToken: session.guestToken,
-      session: session as GallerySession
+      guestToken: session.guest_token, // Keep guestToken as camelCase for return type
+      session: {
+        ...session,
+        sessionId: session.session_id,
+        guestToken: session.guest_token,
+        ipAddress: session.ip_address || undefined,
+        userAgent: session.user_agent || undefined,
+        expiresAt: session.expires_at,
+        lastAccessAt: session.last_access_at,
+      } as GallerySession // Cast to original interface
     }
   } catch (error) {
     console.error('Gallery session validation error:', error)
@@ -137,9 +146,9 @@ export async function validateGallerySession(
  */
 export async function invalidateGallerySession(sessionId: string): Promise<void> {
   const hashedSessionId = hashSessionId(sessionId)
-  
-  await prisma.guestSession.delete({
-    where: { sessionId: hashedSessionId }
+
+  await prisma.guest_sessions.delete({
+    where: { session_id: hashedSessionId }
   }).catch(() => {
     // Session mungkin sudah tidak ada
   })
@@ -148,27 +157,27 @@ export async function invalidateGallerySession(sessionId: string): Promise<void>
 /**
  * Invalidate all sessions untuk event (event archived)
  */
-export async function invalidateEventSessions(eventId: string): Promise<number> {
-  const result = await prisma.guestSession.deleteMany({
-    where: { eventId }
+export async function invalidateEventSessions(event_id: string): Promise<number> {
+  const result = await prisma.guest_sessions.deleteMany({
+    where: { event_id }
   })
-  
+
   return result.count
 }
 
 /**
  * Get active sessions untuk event (monitoring)
  */
-export async function getActiveEventSessions(eventId: string): Promise<number> {
-  const count = await prisma.guestSession.count({
+export async function getActiveEventSessions(event_id: string): Promise<number> {
+  const count = await prisma.guest_sessions.count({
     where: {
-      eventId,
-      expiresAt: {
+      event_id,
+      expires_at: {
         gt: new Date()
       }
     }
   })
-  
+
   return count
 }
 
@@ -176,14 +185,14 @@ export async function getActiveEventSessions(eventId: string): Promise<number> {
  * Cleanup expired gallery sessions
  */
 export async function cleanupExpiredGallerySessions(): Promise<number> {
-  const result = await prisma.guestSession.deleteMany({
+  const result = await prisma.guest_sessions.deleteMany({
     where: {
-      expiresAt: {
+      expires_at: {
         lt: new Date()
       }
     }
   })
-  
+
   return result.count
 }
 
@@ -199,11 +208,11 @@ export async function extendGallerySession(
     const newExpiresAt = new Date()
     newExpiresAt.setHours(newExpiresAt.getHours() + additionalHours)
 
-    await prisma.guestSession.update({
-      where: { sessionId: hashedSessionId },
-      data: { 
-        expiresAt: newExpiresAt,
-        lastAccessAt: new Date()
+    await prisma.guest_sessions.update({
+      where: { session_id: hashedSessionId },
+      data: {
+        expires_at: newExpiresAt,
+        last_access_at: new Date()
       }
     })
 
@@ -226,26 +235,26 @@ export function extractGallerySession(
 /**
  * Get session statistics untuk monitoring
  */
-export async function getSessionStatistics(eventId: string): Promise<{
+export async function getSessionStatistics(event_id: string): Promise<{
   total: number
   active: number
   expired: number
   lastAccess?: Date
 }> {
   const now = new Date()
-  
+
   const [total, active, lastSession] = await Promise.all([
-    prisma.guestSession.count({ where: { eventId } }),
-    prisma.guestSession.count({
+    prisma.guest_sessions.count({ where: { event_id } }),
+    prisma.guest_sessions.count({
       where: {
-        eventId,
-        expiresAt: { gt: now }
+        event_id,
+        expires_at: { gt: now }
       }
     }),
-    prisma.guestSession.findFirst({
-      where: { eventId },
-      orderBy: { lastAccessAt: 'desc' },
-      select: { lastAccessAt: true }
+    prisma.guest_sessions.findFirst({
+      where: { event_id },
+      orderBy: { last_access_at: 'desc' },
+      select: { last_access_at: true }
     })
   ])
 
@@ -253,6 +262,5 @@ export async function getSessionStatistics(eventId: string): Promise<{
     total,
     active,
     expired: total - active,
-    lastAccess: lastSession?.lastAccessAt
   }
 }

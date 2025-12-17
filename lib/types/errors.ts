@@ -32,7 +32,7 @@ export interface ValidationError extends BaseError {
 
 export interface AuthenticationError extends BaseError {
   reason: 'invalid_credentials' | 'token_expired' | 'token_invalid' | 'unauthorized'
-  userId?: string
+  user_id?: string
 }
 
 export interface AuthorizationError extends BaseError {
@@ -62,8 +62,8 @@ export interface PrismaError extends DatabaseError {
  */
 export interface FileProcessingError extends BaseError {
   filename?: string
-  fileSize?: number
-  mimeType?: string
+  file_size?: number
+  mime_type?: string
   stage: 'upload' | 'validation' | 'processing' | 'storage' | 'cleanup'
 }
 
@@ -108,14 +108,14 @@ export interface BusinessLogicError extends BaseError {
 }
 
 export interface EventError extends BusinessLogicError {
-  eventId?: string
+  event_id?: string
   eventSlug?: string
-  accessCode?: string
+  access_code?: string
 }
 
 export interface PhotoError extends BusinessLogicError {
-  photoId?: string
-  eventId?: string
+  photo_id?: string
+  event_id?: string
   filename?: string
 }
 
@@ -127,7 +127,7 @@ export interface RateLimitError extends BaseError {
   windowMs: number
   remaining: number
   resetTime: Date
-  clientId?: string
+  client_id?: string
 }
 
 export interface SecurityError extends BaseError {
@@ -182,7 +182,7 @@ export interface ErrorContext {
   error: ApplicationError
   severity: ErrorSeverity
   category: string
-  userId?: string
+  user_id?: string
   sessionId?: string
   component?: string
   action?: string

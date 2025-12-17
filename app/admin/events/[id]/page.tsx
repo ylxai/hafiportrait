@@ -21,15 +21,15 @@ interface Event {
   name: string
   slug: string
   status: string
-  accessCode: string
-  qrCodeUrl: string | null
-  clientEmail: string | null
-  clientPhone: string | null
-  eventDate: string | null
+  access_code: string
+  qr_code_url: string | null
+  client_email: string | null
+  client_phone: string | null
+  event_date: string | null
   description: string | null
   location: string | null
-  storageDurationDays: number
-  createdAt: string
+  storage_duration_days: number
+  created_at: string
   _count: {
     photos: number
     comments: number
@@ -40,18 +40,18 @@ interface EventUpdateFormData {
   name?: string
   slug?: string
   status?: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'
-  clientEmail?: string
-  clientPhone?: string
-  eventDate?: string
+  client_email?: string
+  client_phone?: string
+  event_date?: string
   description?: string
   location?: string
-  storageDurationDays?: number
+  storage_duration_days?: number
 }
 
 export default function EventDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const eventId = params.id as string
+  const event_id = params.id as string
 
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
@@ -65,7 +65,7 @@ export default function EventDetailPage() {
 
   const fetchEvent = useCallback(async () => {
     try {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${event_id}`, {
         credentials: 'include',
       })
 
@@ -80,7 +80,7 @@ export default function EventDetailPage() {
       console.error('Error loading event:', error)
       setLoading(false)
     }
-  }, [eventId])
+  }, [event_id])
 
   useEffect(() => {
     fetchEvent()
@@ -88,7 +88,7 @@ export default function EventDetailPage() {
 
   const handleUpdate = async (formData: EventUpdateFormData) => {
     try {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${event_id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default function EventDetailPage() {
     try {
       setGeneratingQR(true)
       const response = await fetch(
-        `/api/admin/events/${eventId}/generate-qr`,
+        `/api/admin/events/${event_id}/generate-qr`,
         {
           method: 'POST',
           credentials: 'include', // 🔑 FIXED: Use cookies instead of localStorage
@@ -153,7 +153,7 @@ export default function EventDetailPage() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${event_id}`, {
         method: 'DELETE',
         credentials: 'include', // 🔑 FIXED: Use cookies instead of localStorage
       })
@@ -188,10 +188,10 @@ export default function EventDetailPage() {
   }
 
   const downloadQRCode = () => {
-    if (!event?.qrCodeUrl) return
+    if (!event?.qr_code_url) return
 
     const link = document.createElement('a')
-    link.href = event.qrCodeUrl
+    link.href = event.qr_code_url
     link.download = `${event.slug}-qr-code.png`
     link.click()
   }
@@ -241,7 +241,7 @@ export default function EventDetailPage() {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
   const galleryUrl = `${baseUrl}/${event.slug}`
-  const galleryUrlWithCode = `${galleryUrl}?code=${event.accessCode}`
+  const galleryUrlWithCode = `${galleryUrl}?code=${event.access_code}`
 
   return (
     <AdminLayout>
@@ -262,7 +262,7 @@ export default function EventDetailPage() {
               </span>
             </div>
             <p className="text-gray-600">
-              Created {new Date(event.createdAt).toLocaleDateString()}
+              Created {new Date(event.created_at).toLocaleDateString()}
             </p>
           </div>
 
@@ -277,7 +277,7 @@ export default function EventDetailPage() {
               <span>View Gallery</span>
             </a>
             <a
-              href={`/admin/events/${eventId}/photos`}
+              href={`/admin/events/${event_id}/photos`}
               className="inline-flex items-center px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors space-x-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,14 +335,14 @@ export default function EventDetailPage() {
               initialData={{
                 name: event.name,
                 slug: event.slug,
-                clientEmail: event.clientEmail || '',
-                clientPhone: event.clientPhone || '',
-                eventDate: event.eventDate
-                  ? new Date(event.eventDate).toISOString().split('T')[0]
+                client_email: event.client_email || '',
+                client_phone: event.client_phone || '',
+                event_date: event.event_date
+                  ? new Date(event.event_date).toISOString().split('T')[0]
                   : '',
                 description: event.description || '',
                 location: event.location || '',
-                storageDurationDays: event.storageDurationDays,
+                storage_duration_days: event.storage_duration_days,
               }}
               isEdit={true}
             />
@@ -374,11 +374,11 @@ export default function EventDetailPage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-semibold mb-4">Event Details</h3>
                 <div className="space-y-3">
-                  {event.eventDate && (
+                  {event.event_date && (
                     <div>
                       <p className="text-sm text-gray-600">Event Date</p>
                       <p className="text-gray-900">
-                        {new Date(event.eventDate).toLocaleDateString('en-US', {
+                        {new Date(event.event_date).toLocaleDateString('en-US', {
                           weekday: 'long',
                           year: 'numeric',
                           month: 'long',
@@ -405,21 +405,21 @@ export default function EventDetailPage() {
                   <div>
                     <p className="text-sm text-gray-600">Storage Duration</p>
                     <p className="text-gray-900">
-                      {event.storageDurationDays} days
+                      {event.storage_duration_days} days
                     </p>
                   </div>
 
-                  {event.clientEmail && (
+                  {event.client_email && (
                     <div>
                       <p className="text-sm text-gray-600">Client Email</p>
-                      <p className="text-gray-900">{event.clientEmail}</p>
+                      <p className="text-gray-900">{event.client_email}</p>
                     </div>
                   )}
 
-                  {event.clientPhone && (
+                  {event.client_phone && (
                     <div>
                       <p className="text-sm text-gray-600">Client Phone</p>
-                      <p className="text-gray-900">{event.clientPhone}</p>
+                      <p className="text-gray-900">{event.client_phone}</p>
                     </div>
                   )}
                 </div>
@@ -457,12 +457,12 @@ export default function EventDetailPage() {
                     <div className="flex items-center space-x-2">
                       <input
                         type="text"
-                        value={event.accessCode}
+                        value={event.access_code}
                         readOnly
                         className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded text-lg font-bold tracking-wider text-center"
                       />
                       <button
-                        onClick={() => copyToClipboard(event.accessCode)}
+                        onClick={() => copyToClipboard(event.access_code)}
                         className="p-2 text-gray-600 hover:text-brand-teal transition-colors"
                         title="Copy Code"
                       >
@@ -498,12 +498,12 @@ export default function EventDetailPage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-semibold mb-4">QR Code</h3>
 
-                {event.qrCodeUrl ? (
+                {event.qr_code_url ? (
                   <div className="space-y-4">
                     <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
                       <div className="relative w-full aspect-square">
                         <Image
-                          src={event.qrCodeUrl}
+                          src={event.qr_code_url}
                           alt={`QR Code for ${event.name} event`}
                           fill
                           sizes="400px"

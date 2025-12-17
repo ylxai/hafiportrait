@@ -25,15 +25,15 @@ import { formatExifForDisplay } from '@/lib/utils/exif-formatter';
 interface Photo {
   id: string;
   filename: string;
-  fileSize: number | null;
+  file_size: number | null;
   width: number | null;
   height: number | null;
-  mimeType: string | null;
-  createdAt: Date;
-  likesCount: number;
-  viewsCount: number;
-  downloadCount: number;
-  exifData?: any;
+  mime_type: string | null;
+  created_at: Date;
+  likes_count: number;
+  views_count: number;
+  download_count: number;
+  exif_data?: any;
 }
 
 interface PhotoMetadataProps {
@@ -54,8 +54,8 @@ export default function PhotoMetadata({ photo, isLoading }: PhotoMetadataProps) 
     return `${width} × ${height} px`;
   };
 
-  const formatMimeType = (mimeType: string | null): string => {
-    if (!mimeType) return 'Unknown';
+  const formatMimeType = (mime_type: string | null): string => {
+    if (!mime_type) return 'Unknown';
     const formats: Record<string, string> = {
       'image/jpeg': 'JPEG',
       'image/jpg': 'JPEG',
@@ -63,10 +63,10 @@ export default function PhotoMetadata({ photo, isLoading }: PhotoMetadataProps) 
       'image/webp': 'WebP',
       'image/gif': 'GIF',
     };
-    return formats[mimeType.toLowerCase()] || mimeType.split('/')[1]?.toUpperCase() || 'Unknown';
+    return formats[mime_type.toLowerCase()] || mime_type.split('/')[1]?.toUpperCase() || 'Unknown';
   };
 
-  const exifDisplay = photo.exifData ? formatExifForDisplay(photo.exifData) : {};
+  const exifDisplay = photo.exif_data ? formatExifForDisplay(photo.exif_data) : {};
   const hasExif = Object.keys(exifDisplay).length > 0;
 
   return (
@@ -88,13 +88,13 @@ export default function PhotoMetadata({ photo, isLoading }: PhotoMetadataProps) 
           <MetadataRow
             icon={<Calendar className="h-4 w-4" />}
             label="Upload Date"
-            value={format(new Date(photo.createdAt), 'PPpp')}
+            value={format(new Date(photo.created_at), 'PPpp')}
           />
           
           <MetadataRow
             icon={<HardDrive className="h-4 w-4" />}
             label="File Size"
-            value={formatFileSize(photo.fileSize)}
+            value={formatFileSize(photo.file_size)}
           />
           
           <MetadataRow
@@ -106,7 +106,7 @@ export default function PhotoMetadata({ photo, isLoading }: PhotoMetadataProps) 
           <MetadataRow
             icon={<FileImage className="h-4 w-4" />}
             label="Format"
-            value={formatMimeType(photo.mimeType)}
+            value={formatMimeType(photo.mime_type)}
           />
         </div>
       </div>
@@ -152,21 +152,21 @@ export default function PhotoMetadata({ photo, isLoading }: PhotoMetadataProps) 
           <StatCard
             icon={<Eye className="h-5 w-5" />}
             label="Views"
-            value={photo.viewsCount}
+            value={photo.views_count}
             color="blue"
           />
           
           <StatCard
             icon={<Download className="h-5 w-5" />}
             label="Downloads"
-            value={photo.downloadCount}
+            value={photo.download_count}
             color="green"
           />
           
           <StatCard
             icon={<Heart className="h-5 w-5" />}
             label="Likes"
-            value={photo.likesCount}
+            value={photo.likes_count}
             color="red"
           />
         </div>

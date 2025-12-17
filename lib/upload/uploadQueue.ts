@@ -419,7 +419,7 @@ export class UploadQueue {
   /**
    * Check if queue is active
    */
-  isActive(): boolean {
+  is_active(): boolean {
     return this.status === 'uploading' && !this.isPaused;
   }
 

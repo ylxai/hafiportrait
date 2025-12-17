@@ -7,13 +7,13 @@ import { Star, Trash2, Edit2, GripVertical, Check } from 'lucide-react'
 interface PortfolioPhoto {
   id: string
   filename: string
-  originalUrl: string
-  thumbnailUrl: string
-  displayOrder: number
-  isFeatured: boolean
+  original_url: string
+  thumbnail_url: string
+  display_order: number
+  is_featured: boolean
   category: string | null
   description: string | null
-  createdAt: string
+  created_at: string
 }
 
 interface PortfolioGridProps {
@@ -44,7 +44,7 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
     }
   }
 
-  const toggleFeatured = async (photoId: string, currentFeatured: boolean) => {
+  const toggleFeatured = async (photo_id: string, currentFeatured: boolean) => {
     try {
       const response = await fetch('/api/admin/portfolio', {
         method: 'PUT',
@@ -52,7 +52,7 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update',
-          updates: { id: photoId, isFeatured: !currentFeatured },
+          updates: { id: photo_id, is_featured: !currentFeatured },
         }),
       })
 
@@ -174,7 +174,7 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
             </div>
 
             {/* Featured Badge */}
-            {photo.isFeatured && (
+            {photo.is_featured && (
               <div className="absolute top-2 right-2 z-10 bg-yellow-400 text-white p-1.5 rounded-full">
                 <Star className="w-4 h-4 fill-current" />
               </div>
@@ -183,7 +183,7 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
             {/* Image */}
             <div className="aspect-square bg-gray-100 relative">
               <Image
-                src={photo.thumbnailUrl || photo.originalUrl}
+                src={photo.thumbnail_url || photo.original_url}
                 alt={`Portfolio photo: ${photo.category || photo.filename}`}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -195,11 +195,11 @@ export default function PortfolioGrid({ photos, onUpdate }: PortfolioGridProps) 
             {/* Actions Overlay */}
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2 z-10">
               <button
-                onClick={() => toggleFeatured(photo.id, photo.isFeatured)}
+                onClick={() => toggleFeatured(photo.id, photo.is_featured)}
                 className="p-2 bg-white rounded-full hover:bg-gray-100"
-                title={photo.isFeatured ? 'Remove from featured' : 'Mark as featured'}
+                title={photo.is_featured ? 'Remove from featured' : 'Mark as featured'}
               >
-                <Star className={`w-5 h-5 ${photo.isFeatured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
+                <Star className={`w-5 h-5 ${photo.is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
               </button>
               <button
                 onClick={() => startEdit(photo)}

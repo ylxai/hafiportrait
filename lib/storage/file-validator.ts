@@ -56,8 +56,8 @@ export interface FileValidationResult {
 /**
  * Validate file MIME type
  */
-export function isValidMimeType(mimeType: string): boolean {
-  return ALLOWED_IMAGE_TYPES.includes(mimeType as any);
+export function isValidMimeType(mime_type: string): boolean {
+  return ALLOWED_IMAGE_TYPES.includes(mime_type as any);
 }
 
 /**
@@ -109,15 +109,15 @@ function checkFileSignature(buffer: Buffer): string | null {
 export async function validateImageFile(
   buffer: Buffer,
   declaredMimeType: string,
-  fileSize: number
+  file_size: number
 ): Promise<FileValidationResult> {
   const warnings: string[] = [];
 
   // 1. Validate file size
-  if (!isValidFileSize(fileSize)) {
+  if (!isValidFileSize(file_size)) {
     return {
       valid: false,
-      error: `File size ${(fileSize / 1024 / 1024).toFixed(2)}MB exceeds maximum ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+      error: `File size ${(file_size / 1024 / 1024).toFixed(2)}MB exceeds maximum ${MAX_FILE_SIZE / 1024 / 1024}MB`,
     };
   }
 
@@ -260,7 +260,7 @@ export function generateSecureFilename(originalFilename: string): string {
  */
 export function validateFileMetadata(
   filename: string,
-  mimeType: string,
+  mime_type: string,
   size: number
 ): FileValidationResult {
   // Validate filename
@@ -273,10 +273,10 @@ export function validateFileMetadata(
   }
 
   // Validate MIME type
-  if (!isValidMimeType(mimeType)) {
+  if (!isValidMimeType(mime_type)) {
     return {
       valid: false,
-      error: `Invalid file type: ${mimeType}. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`,
+      error: `Invalid file type: ${mime_type}. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`,
     };
   }
 

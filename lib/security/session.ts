@@ -24,7 +24,7 @@ export const SESSION_CONFIG = {
 } as const
 
 export interface SessionPayload {
-  userId: string
+  user_id: string
   username: string
   email?: string
   role: string
@@ -57,13 +57,13 @@ export async function createAccessToken(
 /**
  * Create refresh token dan store di database
  */
-export async function createRefreshToken(userId: string): Promise<string> {
+export async function createRefreshToken(user_id: string): Promise<string> {
   const jwtSecret = getJWTSecret()
   const tokenId = generateSessionId()
   
   // Create JWT refresh token
   const token = await new SignJWT({ 
-    userId, 
+    user_id, 
     tokenId,
     type: 'refresh' 
   })
@@ -80,7 +80,7 @@ export async function createRefreshToken(userId: string): Promise<string> {
     data: {
       id: tokenId,
       token,
-      userId,
+      user_id,
       expiresAt,
     }
   })
@@ -93,7 +93,7 @@ export async function createRefreshToken(userId: string): Promise<string> {
  */
 export async function verifyRefreshToken(
   token: string
-): Promise<{ valid: boolean; userId?: string; tokenId?: string }> {
+): Promise<{ valid: boolean; user_id?: string; tokenId?: string }> {
   try {
     const jwtSecret = getJWTSecret()
     const { payload } = await jwtVerify(token, jwtSecret)
@@ -107,7 +107,7 @@ export async function verifyRefreshToken(
       where: { id: payload.tokenId as string },
       select: {
         id: true,
-        userId: true,
+        user_id: true,
         expiresAt: true,
       }
     })
@@ -118,7 +118,7 @@ export async function verifyRefreshToken(
 
     return {
       valid: true,
-      userId: storedToken.userId,
+      user_id: storedToken.user_id,
       tokenId: storedToken.id,
     }
   } catch (error) {
@@ -140,9 +140,9 @@ export async function revokeRefreshToken(tokenId: string): Promise<void> {
 /**
  * Revoke all refresh tokens untuk user (logout dari all devices)
  */
-export async function revokeAllUserTokens(userId: string): Promise<void> {
+export async function revokeAllUserTokens(user_id: string): Promise<void> {
   await prisma.refreshToken.deleteMany({
-    where: { userId }
+    where: { user_id }
   })
 }
 

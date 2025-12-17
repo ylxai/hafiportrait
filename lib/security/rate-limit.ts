@@ -79,12 +79,12 @@ async function getRedisClient() {
 /**
  * Get client identifier dari request (IP address + optional user ID)
  */
-export function getClientIdentifier(request: NextRequest, userId?: string): string {
+export function getClientIdentifier(request: NextRequest, user_id?: string): string {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
              request.headers.get('x-real-ip') ||
              'unknown'
   
-  return userId ? `${ip}:${userId}` : ip
+  return user_id ? `${ip}:${user_id}` : ip
 }
 
 /**
@@ -203,14 +203,14 @@ export async function isBlocked(
 export async function withRateLimit(
   request: NextRequest,
   tier: RateLimitTier,
-  userId?: string
+  user_id?: string
 ): Promise<{ allowed: boolean; response?: NextResponse }> {
   // Admin exemption
   if (isAdminRequest(request) && tier !== 'AUTH_LOGIN') {
     return { allowed: true }
   }
 
-  const identifier = getClientIdentifier(request, userId)
+  const identifier = getClientIdentifier(request, user_id)
   
   // Check if blocked
   if (await isBlocked(identifier, tier)) {

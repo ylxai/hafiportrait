@@ -86,8 +86,8 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   }
 
   // 5. Extract and validate event ID
-  const eventId = formData.get('eventId') as string;
-  if (!eventId || typeof eventId !== 'string') {
+  const event_id = formData.get('event_id') as string;
+  if (!event_id || typeof event_id !== 'string') {
     throw new FileValidationError('Event ID is required');
   }
 
@@ -104,7 +104,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   const sanitizedMetadata = validateAndSanitizeMetadata(metadata);
 
   // 7. Extract files from form data
-  const files: Array<{ file: File; filename: string; mimeType: string }> = [];
+  const files: Array<{ file: File; filename: string; mime_type: string }> = [];
   
   for (const [key, value] of formData.entries()) {
     if (key.startsWith('file') && value instanceof File) {
@@ -115,7 +115,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
       files.push({
         file: value,
         filename: value.name,
-        mimeType: value.type,
+        mime_type: value.type,
       });
     }
   }
@@ -140,17 +140,17 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   }
 
   // 9. Check memory and time estimates
-  const fileSizes = validationResult.files.map((f) => ({
+  const file_sizes = validationResult.files.map((f) => ({
     size: f.metadata?.size || 0,
   }));
-  const estimatedTime = estimateUploadTime(fileSizes);
-  const estimatedMemory = estimateMemoryUsage(fileSizes);
+  const estimatedTime = estimateUploadTime(file_sizes);
+  const estimatedMemory = estimateMemoryUsage(file_sizes);
   
   // Log estimates for monitoring
   logger.debug('Upload estimates calculated', {
     estimatedTimeSeconds: estimatedTime,
     estimatedMemoryMB: (estimatedMemory / 1024 / 1024).toFixed(2),
-    filesCount: fileSizes.length
+    filesCount: file_sizes.length
   });
   
   // 10. Process uploads (convert Files to Buffers)
@@ -158,16 +158,16 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     files.map(async (f) => ({
       buffer: Buffer.from(await f.file.arrayBuffer()),
       filename: f.filename,
-      mimeType: f.mimeType,
+      mime_type: f.mime_type,
     }))
   );
 
   // 11. Upload files with parallel processing and retry logic
   const uploadResults = await processBatchUpload(fileBuffers, {
-    eventId,
-    userId: user.userId,
+    event_id,
+    user_id: user.user_id,
     caption: sanitizedMetadata.caption,
-    isFeatured: false,
+    is_featured: false,
   });
 
   // 12. Categorize results
@@ -182,7 +182,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     results: uploadResults.map((r) => ({
       filename: r.filename,
       success: r.success,
-      ...(r.photoId && { photoId: r.photoId }),
+      ...(r.photo_id && { photo_id: r.photo_id }),
       ...(r.url && { url: r.url }),
       ...(r.metadata && { metadata: r.metadata }),
       ...(r.error && { error: r.error }),

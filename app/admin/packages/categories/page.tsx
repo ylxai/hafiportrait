@@ -10,8 +10,8 @@ interface PackageCategory {
   name: string
   slug: string
   icon: string | null
-  displayOrder: number
-  isActive: boolean
+  display_order: number
+  is_active: boolean
   _count?: {
     packages: number
   }
@@ -70,7 +70,7 @@ export default function CategoriesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: cat.id,
-          isActive: !cat.isActive,
+          is_active: !cat.is_active,
         }),
       })
 
@@ -135,7 +135,7 @@ export default function CategoriesPage() {
                 <div
                   key={cat.id}
                   className={`p-6 hover:bg-gray-50 transition-colors ${
-                    !cat.isActive ? 'opacity-60' : ''
+                    !cat.is_active ? 'opacity-60' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -144,14 +144,14 @@ export default function CategoriesPage() {
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
                           <span>{cat.name}</span>
-                          {!cat.isActive && (
+                          {!cat.is_active && (
                             <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded">
                               Tidak Aktif
                             </span>
                           )}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          Slug: {cat.slug} • Order: {cat.displayOrder}
+                          Slug: {cat.slug} • Order: {cat.display_order}
                           {cat._count && ` • ${cat._count.packages} paket`}
                         </p>
                       </div>
@@ -161,9 +161,9 @@ export default function CategoriesPage() {
                       <button
                         onClick={() => toggleActive(cat)}
                         className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                        title={cat.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                        title={cat.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                       >
-                        {cat.isActive ? (
+                        {cat.is_active ? (
                           <Eye className="w-5 h-5" />
                         ) : (
                           <EyeOff className="w-5 h-5" />
@@ -222,8 +222,8 @@ function CategoryFormModal({ category: cat, onClose, onSuccess }: CategoryFormMo
     name: cat?.name || '',
     slug: cat?.slug || '',
     icon: cat?.icon || '📦',
-    displayOrder: cat?.displayOrder?.toString() || '0',
-    isActive: cat?.isActive !== undefined ? cat.isActive : true,
+    display_order: cat?.display_order?.toString() || '0',
+    is_active: cat?.is_active !== undefined ? cat.is_active : true,
   })
   const [submitting, setSubmitting] = useState(false)
 
@@ -253,11 +253,11 @@ function CategoryFormModal({ category: cat, onClose, onSuccess }: CategoryFormMo
         ? {
             id: cat.id,
             ...formData,
-            displayOrder: parseInt(formData.displayOrder),
+            display_order: parseInt(formData.display_order),
           }
         : {
             ...formData,
-            displayOrder: parseInt(formData.displayOrder),
+            display_order: parseInt(formData.display_order),
           }
 
       const response = await fetch(url, {
@@ -346,8 +346,8 @@ function CategoryFormModal({ category: cat, onClose, onSuccess }: CategoryFormMo
             </label>
             <input
               type="number"
-              value={formData.displayOrder}
-              onChange={(e) => setFormData({ ...formData, displayOrder: e.target.value })}
+              value={formData.display_order}
+              onChange={(e) => setFormData({ ...formData, display_order: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
             />
           </div>
@@ -356,8 +356,8 @@ function CategoryFormModal({ category: cat, onClose, onSuccess }: CategoryFormMo
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 className="rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
               />
               <span className="text-sm text-gray-700">Tampilkan di halaman publik</span>

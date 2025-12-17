@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 
 interface RouteParams {
-  params: Promise<{ photoId: string }>;
+  params: Promise<{ photo_id: string }>;
 }
 
 // GET - Get photo details
@@ -12,22 +12,22 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { photoId } = await params;
+    const { photo_id } = await params;
     
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    const photo = await prisma.photos.findUnique({
+      where: { id: photo_id },
       include: {
         event: {
           select: {
             id: true,
             name: true,
             slug: true,
-            clientId: true,
+            client_id: true,
           },
         },
         uploadedBy: {
@@ -51,8 +51,8 @@ export async function GET(
       return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
 
-    // Check authorization - FIXED: user.id -> user.userId
-    if (user.role !== 'ADMIN' && photo.event.clientId !== user.userId) {
+    // Check authorization - FIXED: user.id -> user.user_id
+    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -65,25 +65,25 @@ export async function GET(
   }
 }
 
-// PATCH - Update photo details (caption, isFeatured, etc.)
+// PATCH - Update photo details (caption, is_featured, etc.)
 export async function PATCH(
   request: NextRequest,
   { params }: RouteParams
 ) {
   try {
-    const { photoId } = await params;
+    const { photo_id } = await params;
     
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    const photo = await prisma.photos.findUnique({
+      where: { id: photo_id },
       include: {
         event: {
           select: {
-            clientId: true,
+            client_id: true,
           },
         },
       },
@@ -93,19 +93,19 @@ export async function PATCH(
       return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
 
-    // Check authorization - FIXED: user.id -> user.userId
-    if (user.role !== 'ADMIN' && photo.event.clientId !== user.userId) {
+    // Check authorization - FIXED: user.id -> user.user_id
+    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
-    const { caption, isFeatured } = body;
+    const { caption, is_featured } = body;
 
-    const updatedPhoto = await prisma.photo.update({
-      where: { id: photoId },
+    const updatedPhoto = await prisma.photos.update({
+      where: { id: photo_id },
       data: {
         ...(caption !== undefined && { caption }),
-        ...(isFeatured !== undefined && { isFeatured }),
+        ...(is_featured !== undefined && { is_featured }),
       },
     });
 
@@ -124,21 +124,21 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { photoId } = await params;
+    const { photo_id } = await params;
     
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    const photo = await prisma.photos.findUnique({
+      where: { id: photo_id },
       include: {
         event: {
           select: {
             id: true,
             name: true,
-            clientId: true,
+            client_id: true,
           },
         },
       },
@@ -148,29 +148,29 @@ export async function DELETE(
       return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
 
-    // Check authorization - FIXED: user.id -> user.userId
-    if (user.role !== 'ADMIN' && photo.event.clientId !== user.userId) {
+    // Check authorization - FIXED: user.id -> user.user_id
+    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Check if already deleted
-    if (photo.deletedAt) {
+    if (photo.deleted_at) {
       return NextResponse.json(
         { error: 'Photo is already deleted' },
         { status: 400 }
       );
     }
 
-    // Soft delete - set deletedAt timestamp and deletedBy - FIXED: user.id -> user.userId
-    const deletedPhoto = await prisma.photo.update({
-      where: { id: photoId },
+    // Soft delete - set deleted_at timestamp and deletedBy - FIXED: user.id -> user.user_id
+    const deletedPhoto = await prisma.photos.update({
+      where: { id: photo_id },
       data: {
-        deletedAt: new Date(),
-        deletedById: user.userId,
+        deleted_at: new Date(),
+        deleted_by_id: user.user_id,
       },
     });
 
-    // Log audit trail - FIXED: user.id -> user.userId
+    // Log audit trail - FIXED: user.id -> user.user_id
 
     return NextResponse.json({
       success: true,

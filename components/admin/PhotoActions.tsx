@@ -27,7 +27,7 @@ import DeleteConfirmationModal from './DeleteConfirmationModal';
 interface Photo {
   id: string;
   caption: string | null;
-  isFeatured: boolean;
+  is_featured: boolean;
   event: {
     id: string;
     name: string;
@@ -49,7 +49,7 @@ export default function PhotoActions({
 }: PhotoActionsProps) {
   const router = useRouter();
   const [caption, setCaption] = useState(photo.caption || '');
-  const [isFeatured, setIsFeatured] = useState(photo.isFeatured);
+  const [is_featured, setIsFeatured] = useState(photo.is_featured);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [isSettingCover, setIsSettingCover] = useState(false);
@@ -104,7 +104,7 @@ export default function PhotoActions({
   // Toggle featured status
   const handleToggleFeatured = async () => {
     try {
-      const newFeaturedStatus = !isFeatured;
+      const newFeaturedStatus = !is_featured;
       setIsFeatured(newFeaturedStatus);
 
       const response = await fetch(`/api/admin/photos/${photo.id}`, {
@@ -112,7 +112,7 @@ export default function PhotoActions({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ isFeatured: newFeaturedStatus }),
+        body: JSON.stringify({ is_featured: newFeaturedStatus }),
       });
 
       const data = await response.json();
@@ -126,7 +126,7 @@ export default function PhotoActions({
       }
     } catch (error) {
       console.error('Error toggling featured:', error);
-      setIsFeatured(!isFeatured);
+      setIsFeatured(!is_featured);
       alert('Failed to update featured status');
     }
   };
@@ -252,7 +252,7 @@ export default function PhotoActions({
           <div className="flex items-center">
             <Star
               className={`mr-3 h-5 w-5 ${
-                isFeatured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'
+                is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'
               }`}
             />
             <div>
@@ -264,12 +264,12 @@ export default function PhotoActions({
           <button
             onClick={handleToggleFeatured}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isFeatured ? 'bg-[#54ACBF]' : 'bg-gray-200'
+              is_featured ? 'bg-[#54ACBF]' : 'bg-gray-200'
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isFeatured ? 'translate-x-6' : 'translate-x-1'
+                is_featured ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
           </button>

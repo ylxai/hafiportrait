@@ -19,9 +19,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { 
-  uploadToR2WithRetry, 
-  generateUniqueFilename, 
+import {
+  uploadToR2WithRetry,
+  generateUniqueFilename,
   buildPhotoStorageKey,
   isValidImageType,
   isValidFileSize,
@@ -30,8 +30,8 @@ import {
   MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES,
 } from '@/lib/storage/r2';
-import { 
-  extractImageMetadata, 
+import {
+  extractImageMetadata,
   generateThumbnailsWithRetry,
   validateImageBuffer,
 } from '@/lib/storage/image-processor';
@@ -51,7 +51,7 @@ interface ExifData {
   Make?: string
   Model?: string
   Software?: string
-  
+
   // Image settings
   ISOSpeedRatings?: number
   FNumber?: number
@@ -59,22 +59,22 @@ interface ExifData {
   FocalLength?: number
   Flash?: string
   WhiteBalance?: string
-  
+
   // Image dimensions
   ImageWidth?: number
   ImageHeight?: number
   Orientation?: number
-  
+
   // Date/time information
   DateTime?: string
   DateTimeOriginal?: string
   DateTimeDigitized?: string
-  
+
   // GPS information
   GPSLatitude?: number
   GPSLongitude?: number
   GPSAltitude?: number
-  
+
   // Additional metadata
   [key: string]: string | number | boolean | undefined
 }
@@ -96,9 +96,9 @@ export async function POST(
       );
     }
 
-    const userId = user.userId;
-    const { id: eventId } = await params;
-    
+    const user_id = user.user_id;
+    const { id: event_id } = await params;
+
     // 2. PRODUCTION: Rate limiting DISABLED untuk wedding photo uploads
     // Wedding photographers need to upload many photos quickly
     // Rate limiting can be re-enabled later if abuse is detected
@@ -118,9 +118,9 @@ export async function POST(
     */
 
     // 3. Verify event exists and user has access
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
-      select: { id: true, clientId: true, name: true, status: true },
+    const event = await prisma.events.findUnique({
+      where: { id: event_id },
+      select: { id: true, client_id: true, name: true, status: true },
     });
 
     if (!event) {
@@ -131,8 +131,8 @@ export async function POST(
     }
 
     // Check ownership (admin or event owner)
-    const currentUser = await prisma.user.findUnique({
-      where: { id: userId },
+    const currentUser = await prisma.users.findUnique({
+      where: { id: user_id },
       select: { role: true, id: true },
     });
 
@@ -144,7 +144,7 @@ export async function POST(
     }
 
     const isAdmin = user.role === 'ADMIN';
-    const isOwner = event.clientId === userId;
+    const isOwner = event.client_id === user_id;
 
     if (!isAdmin && !isOwner) {
       return NextResponse.json(
@@ -166,7 +166,7 @@ export async function POST(
 
     if (files.length > MAX_FILES_PER_REQUEST) {
       return NextResponse.json(
-        { 
+        {
           error: `Too many files. Maximum ${MAX_FILES_PER_REQUEST} files per request`,
           maxFiles: MAX_FILES_PER_REQUEST,
         },
@@ -178,7 +178,7 @@ export async function POST(
     const batchValidation = memoryManager.validateBatchSize(files);
     if (!batchValidation.valid) {
       return NextResponse.json(
-        { 
+        {
           error: batchValidation.error,
           totalSizeMB: (batchValidation.totalSize / 1024 / 1024).toFixed(2),
         },
@@ -189,19 +189,19 @@ export async function POST(
     logger.info('Processing upload batch', {
       filesCount: files.length,
       totalSizeMB: (batchValidation.totalSize / 1024 / 1024).toFixed(2),
-      eventId
+      event_id
     });
 
     // Get max display order for event to assign new photos
-    const maxOrderPhoto = await prisma.photo.findFirst({
-      where: { 
-        eventId: eventId,
-        deletedAt: null,
+    const maxOrderPhoto = await prisma.photos.findFirst({
+      where: {
+        event_id: event_id,
+        deleted_at: null,
       },
-      orderBy: { displayOrder: 'desc' },
-      select: { displayOrder: true },
+      orderBy: { display_order: 'desc' },
+      select: { display_order: true },
     });
-    let nextDisplayOrder = (maxOrderPhoto?.displayOrder || 0) + 1;
+    let nextDisplayOrder = (maxOrderPhoto?.display_order || 0) + 1;
 
     // 6. Process and upload files with transaction-like rollback
     const uploadResults: Array<{
@@ -214,7 +214,7 @@ export async function POST(
     for (const file of files) {
       // Track all uploaded files for this photo (for rollback)
       const uploadedKeys: string[] = [];
-      
+
       try {
         // SECURITY: Validate file type
         if (!isValidImageType(file.type)) {
@@ -267,8 +267,8 @@ export async function POST(
 
         logger.debug('Security checks passed', {
           filename: file.name,
-          fileSize: file.size,
-          mimeType: file.type
+          file_size: file.size,
+          mime_type: file.type
         });
 
         // PERFORMANCE: Process with memory control (limits concurrent large files)
@@ -278,13 +278,13 @@ export async function POST(
             const metadata = await extractImageMetadata(buffer);
 
             // NEW: Extract EXIF data (optional, don't fail if it errors)
-            let exifData = null;
+            let exif_data = null;
             try {
-              exifData = await extractExifData(buffer);
-              if (exifData) {
+              exif_data = await extractExifData(buffer);
+              if (exif_data) {
                 logger.debug('EXIF data extracted', {
                   filename: file.name,
-                  exifKeys: Object.keys(exifData).length
+                  exifKeys: Object.keys(exif_data).length
                 });
               }
             } catch (exifError) {
@@ -300,7 +300,7 @@ export async function POST(
             const baseFilename = uniqueFilename.replace(/\.[^/.]+$/, ''); // Remove extension
 
             // Upload original to R2 (MIME verification disabled for speed)
-            const originalKey = buildPhotoStorageKey(eventId, uniqueFilename, 'originals');
+            const originalKey = buildPhotoStorageKey(event_id, uniqueFilename, 'originals');
             const uploadResult = await uploadToR2WithRetry(buffer, originalKey, file.type, 3, false);
 
             if (!uploadResult.success) {
@@ -313,7 +313,7 @@ export async function POST(
             // PERFORMANCE: Generate thumbnails (now optimized with parallel processing)
             const thumbnailsResult = await generateThumbnailsWithRetry(
               buffer,
-              eventId,
+              event_id,
               baseFilename
             );
 
@@ -341,42 +341,44 @@ export async function POST(
             uploadedKeys.push(...thumbnailKeys.filter(k => k));
 
             // Get thumbnail URLs (prefer WebP, fallback to JPEG)
-            const thumbnailSmallUrl = 
-              thumbnailsResult.thumbnails.small.webp?.url || 
-              thumbnailsResult.thumbnails.small.jpeg?.url || 
+            const thumbnail_small_url =
+              thumbnailsResult.thumbnails.small.webp?.url ||
+              thumbnailsResult.thumbnails.small.jpeg?.url ||
               null;
-            
-            const thumbnailMediumUrl = 
-              thumbnailsResult.thumbnails.medium.webp?.url || 
-              thumbnailsResult.thumbnails.medium.jpeg?.url || 
+
+            const thumbnail_medium_url =
+              thumbnailsResult.thumbnails.medium.webp?.url ||
+              thumbnailsResult.thumbnails.medium.jpeg?.url ||
               null;
-            
-            const thumbnailLargeUrl = 
-              thumbnailsResult.thumbnails.large.webp?.url || 
-              thumbnailsResult.thumbnails.large.jpeg?.url || 
+
+            const thumbnail_large_url =
+              thumbnailsResult.thumbnails.large.webp?.url ||
+              thumbnailsResult.thumbnails.large.jpeg?.url ||
               null;
 
             // TRANSACTION: Create database record (if this fails, we cleanup R2 files)
             try {
-              const photo = await prisma.photo.create({
+              const photo = await prisma.photos.create({
                 data: {
+                  id: crypto.randomUUID(),
                   filename: uniqueFilename,
-                  originalUrl: uploadResult.url,
-                  thumbnailUrl: thumbnailMediumUrl, // Legacy field for compatibility
-                  thumbnailSmallUrl,
-                  thumbnailMediumUrl,
-                  thumbnailLargeUrl,
-                  fileSize: file.size,
-                  mimeType: file.type,
+                  original_url: uploadResult.url,
+                  thumbnail_url: thumbnail_medium_url, // Legacy field
+                  thumbnail_small_url: thumbnail_small_url,
+                  thumbnail_medium_url: thumbnail_medium_url,
+                  thumbnail_large_url: thumbnail_large_url,
+                  file_size: file.size,
+                  mime_type: file.type,
                   width: metadata.width,
                   height: metadata.height,
-                  exifData: exifData as ExifData | null, // Store EXIF data with proper typing
-                  eventId: eventId,
-                  uploadedById: userId,
-                  displayOrder: nextDisplayOrder++,
+                  exif_data: exif_data as any,
+                  event_id: event_id,
+                  uploaded_by_id: user_id,
+                  display_order: nextDisplayOrder++,
+                  updated_at: new Date(),
                 },
                 include: {
-                  event: {
+                  events: {
                     select: {
                       id: true,
                       name: true,
@@ -392,31 +394,31 @@ export async function POST(
                 photo: {
                   id: photo.id,
                   filename: photo.filename,
-                  originalUrl: photo.originalUrl,
-                  thumbnailSmallUrl: photo.thumbnailSmallUrl,
-                  thumbnailMediumUrl: photo.thumbnailMediumUrl,
-                  thumbnailLargeUrl: photo.thumbnailLargeUrl,
+                  original_url: photo.original_url,
+                  thumbnail_small_url: photo.thumbnail_small_url,
+                  thumbnail_medium_url: photo.thumbnail_medium_url,
+                  thumbnail_large_url: photo.thumbnail_large_url,
                   width: photo.width,
                   height: photo.height,
-                  fileSize: photo.fileSize,
-                  mimeType: photo.mimeType,
-                  createdAt: photo.createdAt,
-                  hasExif: exifData !== null,
+                  file_size: photo.file_size,
+                  mime_type: photo.mime_type,
+                  created_at: photo.created_at,
+                  hasExif: exif_data !== null,
                 },
               });
 
               logger.debug('Photo uploaded successfully', {
                 filename: file.name,
                 uniqueFilename,
-                hasExif: !!exifData,
-                storageKey
+                hasExif: !!exif_data,
+                storageKey: originalKey
               });
             } catch (dbError) {
               // TRANSACTION ROLLBACK: Database insert failed, cleanup R2 files
               logger.error('Database insert failed, cleaning up R2 files', dbError, {
                 component: 'photo-upload',
                 action: 'database_insert',
-                metadata: { filename: file.name, uniqueFilename, storageKey }
+                metadata: { filename: file.name, uniqueFilename, storageKey: originalKey }
               });
               await cleanupFailedUpload(uploadedKeys);
               throw new Error(`Database error: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
@@ -429,7 +431,7 @@ export async function POST(
 
       } catch (error) {
         console.error(`Error processing file ${file.name}:`, error);
-        
+
         // TRANSACTION ROLLBACK: If we have uploaded files, clean them up
         if (uploadedKeys.length > 0) {
           logger.warn('Rolling back uploaded files due to error', {
@@ -439,7 +441,7 @@ export async function POST(
           });
           await cleanupFailedUpload(uploadedKeys);
         }
-        
+
         uploadResults.push({
           originalName: file.name,
           success: false,
@@ -455,7 +457,7 @@ export async function POST(
 
     // 8. Log upload activity
     logger.info('Upload batch completed', {
-      eventId,
+      event_id,
       successCount,
       withExifCount,
       failCount,
@@ -481,7 +483,7 @@ export async function POST(
   } catch (error) {
     console.error('Photo upload error:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error during photo upload',
         details: error instanceof Error ? error.message : 'Unknown error',
       },

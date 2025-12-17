@@ -23,15 +23,15 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id: eventId } = await params;
+    const { id: event_id } = await params;
     const { searchParams } = new URL(request.url);
     
     const action = searchParams.get('action');
     const limit = parseInt(searchParams.get('limit') || '10');
 
     // Verify event exists
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
+    const event = await prisma.events.findUnique({
+      where: { id: event_id },
       select: { id: true },
     });
 
@@ -42,25 +42,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Handle different actions
     switch (action) {
       case 'export':
-        const csvData = await exportEngagementData(eventId);
+        const csvData = await exportEngagementData(event_id);
         return new NextResponse(csvData, {
           headers: {
             'Content-Type': 'text/csv',
-            'Content-Disposition': `attachment; filename="engagement-${eventId}.csv"`,
+            'Content-Disposition': `attachment; filename="engagement-${event_id}.csv"`,
           },
         });
 
       case 'top-photos':
-        const topPhotos = await getTopLikedPhotos(eventId, limit);
+        const topPhotos = await getTopLikedPhotos(event_id, limit);
         return NextResponse.json({ topPhotos });
 
       case 'detect-abuse':
-        const suspiciousGuests = await detectBulkLikePatterns(eventId);
+        const suspiciousGuests = await detectBulkLikePatterns(event_id);
         return NextResponse.json({ suspiciousGuests });
 
       default:
         // Get comprehensive analytics
-        const analytics = await getEventEngagementAnalytics(eventId, {
+        const analytics = await getEventEngagementAnalytics(event_id, {
           limit,
         });
         return NextResponse.json(analytics);

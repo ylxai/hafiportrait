@@ -8,15 +8,15 @@ interface NavItemProps {
   icon: React.ReactNode
   label: string
   onClick: () => void
-  isActive: boolean
+  is_active: boolean
 }
 
-function NavItem({ icon, label, onClick, isActive }: NavItemProps) {
+function NavItem({ icon, label, onClick, is_active }: NavItemProps) {
   return (
     <button
       onClick={onClick}
       className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 transition-all duration-300 ${
-        isActive ? 'text-rose-500' : 'text-gray-600'
+        is_active ? 'text-rose-500' : 'text-gray-600'
       }`}
     >
       <motion.div
@@ -24,14 +24,14 @@ function NavItem({ icon, label, onClick, isActive }: NavItemProps) {
         className="relative"
       >
         {icon}
-        {isActive && (
+        {is_active && (
           <motion.div
             layoutId="activeIndicator"
             className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-rose-500 rounded-full"
           />
         )}
       </motion.div>
-      <span className={`text-xs font-medium ${isActive ? 'font-semibold' : ''}`}>
+      <span className={`text-xs font-medium ${is_active ? 'font-semibold' : ''}`}>
         {label}
       </span>
     </button>
@@ -101,25 +101,25 @@ export default function BottomNavigation() {
           icon={<Camera className="w-5 h-5" />}
           label="Portfolio"
           onClick={() => scrollToSection('portfolio')}
-          isActive={activeSection === 'portfolio'}
+          is_active={activeSection === 'portfolio'}
         />
         <NavItem
           icon={<Tag className="w-5 h-5" />}
           label="Pricing"
           onClick={() => scrollToSection('pricing')}
-          isActive={activeSection === 'pricing'}
+          is_active={activeSection === 'pricing'}
         />
         <NavItem
           icon={<Calendar className="w-5 h-5" />}
           label="Events"
           onClick={() => scrollToSection('events')}
-          isActive={activeSection === 'events'}
+          is_active={activeSection === 'events'}
         />
         <NavItem
           icon={<Phone className="w-5 h-5" />}
           label="Contact"
           onClick={() => scrollToSection('contact')}
-          isActive={activeSection === 'contact'}
+          is_active={activeSection === 'contact'}
         />
       </div>
     </motion.nav>

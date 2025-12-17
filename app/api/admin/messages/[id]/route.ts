@@ -19,7 +19,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const message = await prisma.contactMessage.findUnique({
+    const message = await prisma.contact_messages.findUnique({
       where: { id: params.id },
     })
 
@@ -52,7 +52,7 @@ export async function PATCH(
     const body = await request.json()
     const { status } = body
 
-    const message = await prisma.contactMessage.update({
+    const message = await prisma.contact_messages.update({
       where: { id: params.id },
       data: { status },
     })

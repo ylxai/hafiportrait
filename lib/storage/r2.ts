@@ -127,22 +127,22 @@ export function generateUniqueFilename(originalFilename: string): string {
  * Build storage key path for photos
  */
 export function buildPhotoStorageKey(
-  eventId: string,
+  event_id: string,
   filename: string,
   folder: 'originals' | 'thumbnails' = 'originals',
   size?: 'small' | 'medium' | 'large'
 ): string {
   if (folder === 'thumbnails' && size) {
-    return `events/${eventId}/photos/thumbnails/${size}/${filename}`;
+    return `events/${event_id}/photos/thumbnails/${size}/${filename}`;
   }
-  return `events/${eventId}/photos/${folder}/${filename}`;
+  return `events/${event_id}/photos/${folder}/${filename}`;
 }
 
 /**
  * Validate MIME type
  */
-export function isValidImageType(mimeType: string): boolean {
-  return ALLOWED_MIME_TYPES.includes(mimeType as AllowedMimeType);
+export function isValidImageType(mime_type: string): boolean {
+  return ALLOWED_MIME_TYPES.includes(mime_type as AllowedMimeType);
 }
 
 /**
@@ -157,23 +157,23 @@ export function isValidFileSize(size: number): boolean {
  * 
  * @param file - File buffer to upload
  * @param key - Storage key (path) for the file
- * @param mimeType - Expected MIME type
+ * @param mime_type - Expected MIME type
  * @param verifyMimeType - Whether to verify MIME type matches content (default: false for faster uploads)
  * @returns Upload result with URL or error
  */
 export async function uploadToR2(
   file: Buffer,
   key: string,
-  mimeType: string,
+  mime_type: string,
   verifyMimeType: boolean = false
 ): Promise<{ success: boolean; url: string; error?: string }> {
   try {
     // Validate MIME type
-    if (!isValidImageType(mimeType)) {
+    if (!isValidImageType(mime_type)) {
       return {
         success: false,
         url: '',
-        error: `Invalid MIME type: ${mimeType}. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}`,
+        error: `Invalid MIME type: ${mime_type}. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}`,
       };
     }
 
@@ -188,7 +188,7 @@ export async function uploadToR2(
 
     // Verify MIME type matches actual content (security check) - DISABLED BY DEFAULT
     if (verifyMimeType) {
-      const mimeVerification = await verifyFileType(file, mimeType);
+      const mimeVerification = await verifyFileType(file, mime_type);
       if (!mimeVerification.valid) {
         return {
           success: false,
@@ -202,7 +202,7 @@ export async function uploadToR2(
       Bucket: BUCKET_NAME,
       Key: key,
       Body: file,
-      ContentType: mimeType,
+      ContentType: mime_type,
       CacheControl: 'public, max-age=31536000, immutable',
     });
 
@@ -226,14 +226,14 @@ export async function uploadToR2(
 export async function uploadToR2WithRetry(
   file: Buffer,
   key: string,
-  mimeType: string,
+  mime_type: string,
   maxRetries: number = 3,
   verifyMimeType: boolean = false
 ): Promise<{ success: boolean; url: string; error?: string }> {
   let lastError: string | undefined;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const result = await uploadToR2(file, key, mimeType, verifyMimeType);
+    const result = await uploadToR2(file, key, mime_type, verifyMimeType);
     
     if (result.success) {
       if (attempt > 1) {

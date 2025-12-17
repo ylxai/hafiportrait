@@ -10,13 +10,13 @@ import { useGuestIdentifier } from '@/hooks/useGuestIdentifier';
 
 interface CommentFormProps {
   eventSlug: string;
-  photoId?: string;
+  photo_id?: string;
   onCommentSubmitted?: (comment: any) => void;
 }
 
 export default function CommentForm({
   eventSlug,
-  photoId,
+  photo_id,
   onCommentSubmitted,
 }: CommentFormProps) {
   const { guestId } = useGuestIdentifier();
@@ -56,7 +56,7 @@ export default function CommentForm({
           message: message.trim(),
           relationship: relationship || undefined,
           guestId,
-          photoId: photoId || undefined,
+          photo_id: photo_id || undefined,
           honeypot,
         }),
       });

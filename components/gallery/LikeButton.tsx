@@ -9,7 +9,7 @@ import { useState, memo } from 'react';
 import { usePhotoLikes } from '@/hooks/usePhotoLikes';
 
 interface LikeButtonProps {
-  photoId: string;
+  photo_id: string;
   eventSlug: string;
   initialLikesCount: number;
   onLikeChange?: (liked: boolean, newCount: number) => void;
@@ -20,7 +20,7 @@ interface LikeButtonProps {
 }
 
 function LikeButton({
-  photoId,
+  photo_id,
   eventSlug,
   initialLikesCount,
   onLikeChange,
@@ -29,9 +29,9 @@ function LikeButton({
   className = '',
   disabled = false,
 }: LikeButtonProps) {
-  const { isLiked, likesCount, toggleLike, isProcessing } = usePhotoLikes({
+  const { isLiked, likes_count, toggleLike, isProcessing } = usePhotoLikes({
     eventSlug,
-    photoId,
+    photo_id,
     initialLikesCount,
     onLikeChange,
   });
@@ -101,9 +101,9 @@ function LikeButton({
       </svg>
 
       {/* Like Count */}
-      {showCount && likesCount > 0 && (
+      {showCount && likes_count > 0 && (
         <span className={`font-medium ${sizes.text} ${isLiked ? 'text-red-500' : 'text-gray-600'}`}>
-          {likesCount}
+          {likes_count}
         </span>
       )}
     </button>
@@ -113,7 +113,7 @@ function LikeButton({
 // Memoize to prevent re-renders when props haven't changed
 export default memo(LikeButton, (prevProps, nextProps) => {
   return (
-    prevProps.photoId === nextProps.photoId &&
+    prevProps.photo_id === nextProps.photo_id &&
     prevProps.eventSlug === nextProps.eventSlug &&
     prevProps.initialLikesCount === nextProps.initialLikesCount &&
     prevProps.size === nextProps.size &&

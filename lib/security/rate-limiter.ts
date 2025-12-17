@@ -200,7 +200,7 @@ export async function checkDownloadRateLimit(guestId: string): Promise<{
 }> {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   
-  const downloadCount = await prisma.photoDownload.count({
+  const download_count = await prisma.photoDownload.count({
     where: {
       guestId,
       downloadedAt: {
@@ -210,11 +210,11 @@ export async function checkDownloadRateLimit(guestId: string): Promise<{
   });
 
   const maxDownloads = RateLimitPresets.GALLERY_DOWNLOAD.maxRequests;
-  const allowed = downloadCount < maxDownloads;
+  const allowed = download_count < maxDownloads;
 
   return {
     allowed,
-    remaining: Math.max(0, maxDownloads - downloadCount),
+    remaining: Math.max(0, maxDownloads - download_count),
     resetTime: Date.now() + 60 * 60 * 1000,
   };
 }

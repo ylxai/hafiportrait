@@ -7,20 +7,20 @@ import { useState, useEffect, useCallback } from 'react';
 
 export interface Comment {
   id: string;
-  guestName: string;
+  guest_name: string;
   message: string;
   relationship?: string;
-  createdAt: string;
-  photoId?: string;
+  created_at: string;
+  photo_id?: string;
 }
 
 interface UseCommentsOptions {
   eventSlug: string;
-  photoId?: string;
+  photo_id?: string;
   autoLoad?: boolean;
 }
 
-export function useComments({ eventSlug, photoId, autoLoad = true }: UseCommentsOptions) {
+export function useComments({ eventSlug, photo_id, autoLoad = true }: UseCommentsOptions) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function useComments({ eventSlug, photoId, autoLoad = true }: UseComments
 
     try {
       const url = new URL(`/api/gallery/${eventSlug}/comments`, window.location.origin);
-      if (photoId) url.searchParams.set('photoId', photoId);
+      if (photo_id) url.searchParams.set('photo_id', photo_id);
 
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -49,7 +49,7 @@ export function useComments({ eventSlug, photoId, autoLoad = true }: UseComments
     } finally {
       setIsLoading(false);
     }
-  }, [eventSlug, photoId]);
+  }, [eventSlug, photo_id]);
 
   const addComment = useCallback((comment: Comment) => {
     setComments((prev) => [comment, ...prev]);

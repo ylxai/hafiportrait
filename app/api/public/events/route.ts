@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     // Fetch active events with cover photos
-    const events = await prisma.event.findMany({
+    const events = await prisma.events.findMany({
       where: {
         status: 'ACTIVE'
       },
@@ -12,19 +12,19 @@ export async function GET() {
         id: true,
         slug: true,
         name: true,
-        eventDate: true,
-        createdAt: true,
+        event_date: true,
+        created_at: true,
         photos: {
           where: {
-            deletedAt: null
+            deleted_at: null
           },
           select: {
             id: true,
-            thumbnailLargeUrl: true,
-            originalUrl: true
+            thumbnail_large_url: true,
+            original_url: true
           },
           orderBy: {
-            displayOrder: 'asc'
+            display_order: 'asc'
           },
           take: 1
         },
@@ -32,26 +32,26 @@ export async function GET() {
           select: {
             photos: {
               where: {
-                deletedAt: null
+                deleted_at: null
               }
             }
           }
         }
       },
       orderBy: {
-        eventDate: 'desc'
+        event_date: 'desc'
       },
       take: 10
     })
 
     // Transform data for the frontend
     const transformedEvents = events.map(event => {
-      // Get cover photo - use first photo if no coverPhotoId
+      // Get cover photo - use first photo if no cover_photo_id
       const coverPhoto = event.photos[0]
 
       // Determine if event is live (within 7 days of event date)
-      const isLive = event.eventDate 
-        ? new Date().getTime() - new Date(event.eventDate).getTime() <= 7 * 24 * 60 * 60 * 1000
+      const isLive = event.event_date 
+        ? new Date().getTime() - new Date(event.event_date).getTime() <= 7 * 24 * 60 * 60 * 1000
         : false
 
       return {
@@ -59,10 +59,10 @@ export async function GET() {
         slug: event.slug,
         name: event.name,
         coupleName: event.name,
-        eventDate: event.eventDate || event.createdAt,
+        event_date: event.event_date || event.created_at,
         status: isLive ? 'LIVE' : 'COMPLETED',
         coverPhotoUrl: coverPhoto 
-          ? (coverPhoto.thumbnailLargeUrl || coverPhoto.originalUrl)
+          ? (coverPhoto.thumbnail_large_url || coverPhoto.original_url)
           : 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200',
         photoCount: event._count.photos
       }

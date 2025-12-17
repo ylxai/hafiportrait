@@ -10,9 +10,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const services = await prisma.additionalService.findMany({
+    const services = await prisma.additional_services.findMany({
       orderBy: {
-        displayOrder: 'asc',
+        display_order: 'asc',
       },
     })
 
@@ -34,15 +34,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description, price, isActive, displayOrder } = body
+    const { name, description, price, is_active, display_order } = body
 
-    const service = await prisma.additionalService.create({
+    const service = await prisma.additional_services.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         description: description || null,
         price: parseInt(price),
-        isActive: isActive !== undefined ? isActive : true,
-        displayOrder: displayOrder || 0,
+        is_active: is_active !== undefined ? is_active : true,
+        display_order: display_order || 0,
+        updated_at: new Date(),
       },
     })
 
@@ -78,7 +80,7 @@ export async function PUT(request: NextRequest) {
       updates.price = parseInt(updates.price)
     }
 
-    const service = await prisma.additionalService.update({
+    const service = await prisma.additional_services.update({
       where: { id },
       data: updates,
     })
@@ -110,7 +112,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    await prisma.additionalService.delete({
+    await prisma.additional_services.delete({
       where: { id },
     })
 

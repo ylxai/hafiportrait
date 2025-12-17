@@ -9,7 +9,7 @@ interface Event {
   name: string
   slug: string
   status: string
-  eventDate: string | null
+  event_date: string | null
   _count: {
     photos: number
   }
@@ -132,10 +132,10 @@ export default function MobileEventsPage() {
                 }`}>
                   {event.status}
                 </span>
-                {event.eventDate && (
+                {event.event_date && (
                   <span className="text-xs text-gray-600 flex items-center">
                     <Calendar className="w-3 h-3 mr-1" />
-                    {new Date(event.eventDate).toLocaleDateString('id-ID')}
+                    {new Date(event.event_date).toLocaleDateString('id-ID')}
                   </span>
                 )}
               </div>

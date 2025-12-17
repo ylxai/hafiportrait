@@ -14,15 +14,17 @@ export async function PATCH(
 
     const { id } = await context.params
     const body = await request.json()
-    const { bentoSize, bentoPriority, isFeaturedBento } = body
+    const { bentoSize, bentoPriority, is_featured_bento } = body
 
-    const photo = await prisma.portfolioPhoto.update({
+    // Convert property names for Prisma
+    const updateData: any = {}
+    if (bentoSize !== undefined) updateData.bento_size = bentoSize
+    if (bentoPriority !== undefined) updateData.bento_priority = bentoPriority
+    if (is_featured_bento !== undefined) updateData.is_featured_bento = is_featured_bento
+
+    const photo = await prisma.portfolio_photos.update({
       where: { id },
-      data: {
-        ...(bentoSize !== undefined && { bentoSize }),
-        ...(bentoPriority !== undefined && { bentoPriority }),
-        ...(isFeaturedBento !== undefined && { isFeaturedBento })
-      }
+      data: updateData
     })
 
     return NextResponse.json(photo)
@@ -43,9 +45,9 @@ export async function DELETE(
 
     const { id } = await context.params
 
-    await prisma.portfolioPhoto.update({
+    await prisma.portfolio_photos.update({
       where: { id },
-      data: { isFeaturedBento: false }
+      data: { is_featured_bento: false }
     })
 
     return NextResponse.json({ success: true })

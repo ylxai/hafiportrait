@@ -31,21 +31,21 @@ import PhotoDetailModal from './PhotoDetailModal';
 interface Photo {
   id: string;
   filename: string;
-  originalUrl: string;
-  thumbnailMediumUrl: string | null;
-  thumbnailSmallUrl: string | null;
-  thumbnailLargeUrl: string | null;
-  fileSize: number | null;
+  original_url: string;
+  thumbnail_medium_url: string | null;
+  thumbnail_small_url: string | null;
+  thumbnail_large_url: string | null;
+  file_size: number | null;
   width: number | null;
   height: number | null;
-  mimeType: string | null;
+  mime_type: string | null;
   caption: string | null;
-  isFeatured: boolean;
-  likesCount: number;
-  viewsCount: number;
-  downloadCount: number;
-  createdAt: Date;
-  displayOrder: number;
+  is_featured: boolean;
+  likes_count: number;
+  views_count: number;
+  download_count: number;
+  created_at: Date;
+  display_order: number;
   event: {
     id: string;
     name: string;
@@ -54,7 +54,7 @@ interface Photo {
 
 interface PhotoGridProps {
   photos: Photo[];
-  eventId: string;
+  event_id: string;
   currentSort?: string;
   currentFilter?: string;
   currentSearch?: string;
@@ -62,7 +62,7 @@ interface PhotoGridProps {
 
 export default function PhotoGrid({
   photos,
-  eventId,
+  event_id,
   currentSort = 'date-desc',
   currentFilter,
   currentSearch,
@@ -76,12 +76,12 @@ export default function PhotoGrid({
   /**
    * Toggle photo selection
    */
-  const toggleSelection = (photoId: string) => {
+  const toggleSelection = (photo_id: string) => {
     const newSelected = new Set(selectedPhotos);
-    if (newSelected.has(photoId)) {
-      newSelected.delete(photoId);
+    if (newSelected.has(photo_id)) {
+      newSelected.delete(photo_id);
     } else {
-      newSelected.add(photoId);
+      newSelected.add(photo_id);
     }
     setSelectedPhotos(newSelected);
   };
@@ -105,7 +105,7 @@ export default function PhotoGrid({
     params.set('sort', sort);
     if (currentFilter) params.set('filter', currentFilter);
     if (currentSearch) params.set('search', currentSearch);
-    router.push(`/admin/events/${eventId}/photos?${params.toString()}`);
+    router.push(`/admin/events/${event_id}/photos?${params.toString()}`);
   };
 
   /**
@@ -116,7 +116,7 @@ export default function PhotoGrid({
     params.set('sort', currentSort);
     if (filter !== 'all') params.set('filter', filter);
     if (currentSearch) params.set('search', currentSearch);
-    router.push(`/admin/events/${eventId}/photos?${params.toString()}`);
+    router.push(`/admin/events/${event_id}/photos?${params.toString()}`);
   };
 
   /**
@@ -128,7 +128,7 @@ export default function PhotoGrid({
     params.set('sort', currentSort);
     if (currentFilter) params.set('filter', currentFilter);
     if (searchQuery) params.set('search', searchQuery);
-    router.push(`/admin/events/${eventId}/photos?${params.toString()}`);
+    router.push(`/admin/events/${event_id}/photos?${params.toString()}`);
   };
 
   /**
@@ -145,8 +145,8 @@ export default function PhotoGrid({
 
     try {
       // Delete selected photos
-      const deletePromises = Array.from(selectedPhotos).map(photoId =>
-        fetch(`/api/admin/photos/${photoId}`, {
+      const deletePromises = Array.from(selectedPhotos).map(photo_id =>
+        fetch(`/api/admin/photos/${photo_id}`, {
           method: 'DELETE',
         })
       );
@@ -317,7 +317,7 @@ export default function PhotoGrid({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {photos.map((photo, index) => {
             const isSelected = selectedPhotos.has(photo.id);
-            const thumbnailUrl = photo.thumbnailMediumUrl || photo.thumbnailSmallUrl;
+            const thumbnail_url = photo.thumbnail_medium_url || photo.thumbnail_small_url;
 
             return (
               <div
@@ -336,9 +336,9 @@ export default function PhotoGrid({
                 }}
               >
                 {/* Photo */}
-                {thumbnailUrl ? (
+                {thumbnail_url ? (
                   <Image
-                    src={thumbnailUrl}
+                    src={thumbnail_url}
                     alt={`Photo: ${photo.filename}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -363,7 +363,7 @@ export default function PhotoGrid({
                 )}
 
                 {/* Featured Badge */}
-                {photo.isFeatured && (
+                {photo.is_featured && (
                   <div className="absolute top-2 right-2 z-10">
                     <div className="rounded-full bg-yellow-500 p-1.5">
                       <Star className="h-3 w-3 text-white" fill="white" />
@@ -377,13 +377,13 @@ export default function PhotoGrid({
                     {photo.filename}
                   </p>
                   <div className="flex items-center justify-between text-xs text-white/80">
-                    <span>{formatFileSize(photo.fileSize)}</span>
+                    <span>{formatFileSize(photo.file_size)}</span>
                     {photo.width && photo.height && (
                       <span>{photo.width} × {photo.height}</span>
                     )}
                   </div>
                   <p className="text-xs text-white/60">
-                    {format(new Date(photo.createdAt), 'MMM d, yyyy')}
+                    {format(new Date(photo.created_at), 'MMM d, yyyy')}
                   </p>
                 </div>
               </div>

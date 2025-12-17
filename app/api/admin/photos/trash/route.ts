@@ -15,31 +15,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
-    const eventId = searchParams.get('eventId');
+    const event_id = searchParams.get('event_id');
     const skip = (page - 1) * limit;
 
     // Build where clause with proper Prisma types
     const where: Prisma.PhotoWhereInput = {
-      deletedAt: { not: null },
+      deleted_at: { not: null },
     };
 
     // Filter by event if specified
-    if (eventId) {
-      where.eventId = eventId;
+    if (event_id) {
+      where.event_id = event_id;
     }
 
     // Non-admin users can only see their own event photos
     if (user.role !== 'ADMIN') {
       where.event = {
-        clientId: user.userId, // FIXED: user.id -> user.userId
+        client_id: user.user_id, // FIXED: user.id -> user.user_id
       };
     }
 
     // Get total count for pagination
-    const total = await prisma.photo.count({ where });
+    const total = await prisma.photos.count({ where });
 
     // Fetch deleted photos with pagination
-    const photos = await prisma.photo.findMany({
+    const photos = await prisma.photos.findMany({
       where,
       include: {
         event: {
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        deletedAt: 'desc',
+        deleted_at: 'desc',
       },
       skip,
       take: limit,
@@ -68,22 +68,22 @@ export async function GET(request: NextRequest) {
     const transformedPhotos = photos.map(photo => ({
       id: photo.id,
       filename: photo.filename,
-      originalUrl: photo.originalUrl,
-      thumbnailUrl: photo.thumbnailUrl,
+      original_url: photo.original_url,
+      thumbnail_url: photo.thumbnail_url,
       mediumUrl: photo.mediumUrl,
-      fileSize: photo.fileSize,
+      file_size: photo.file_size,
       width: photo.width,
       height: photo.height,
-      mimeType: photo.mimeType,
-      displayOrder: photo.displayOrder,
-      eventId: photo.eventId,
-      uploadedAt: photo.createdAt.toISOString(),
-      updatedAt: photo.updatedAt.toISOString(),
-      likesCount: photo.likesCount || 0,
-      downloadCount: photo.downloadCount || 0,
-      isDeleted: photo.deletedAt !== null,
-      deletedAt: photo.deletedAt?.toISOString() || null,
-      exifData: photo.exifData as Record<string, unknown> | null,
+      mime_type: photo.mime_type,
+      display_order: photo.display_order,
+      event_id: photo.event_id,
+      uploadedAt: photo.created_at.toISOString(),
+      updated_at: photo.updated_at.toISOString(),
+      likes_count: photo.likes_count || 0,
+      download_count: photo.download_count || 0,
+      isDeleted: photo.deleted_at !== null,
+      deleted_at: photo.deleted_at?.toISOString() || null,
+      exif_data: photo.exif_data as Record<string, unknown> | null,
       metadata: photo.metadata as Record<string, unknown> | null,
     }));
 

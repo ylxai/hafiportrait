@@ -19,7 +19,7 @@ interface UseSocketOptions {
 }
 
 interface PhotoUploadProgress {
-  photoId: string;
+  photo_id: string;
   progress: number;
   filename: string;
   timestamp: string;
@@ -31,13 +31,13 @@ interface PhotoUploadComplete {
 }
 
 interface PhotoLike {
-  photoId: string;
+  photo_id: string;
   likeCount: number;
   timestamp: string;
 }
 
 interface PhotoComment {
-  photoId: string;
+  photo_id: string;
   comment: any;
   timestamp: string;
 }

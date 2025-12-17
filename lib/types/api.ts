@@ -68,15 +68,15 @@ export interface EventData {
   description: string | null
   date: string
   slug: string
-  accessCode: string
-  isActive: boolean
-  coverPhotoId: string | null
+  access_code: string
+  is_active: boolean
+  cover_photo_id: string | null
   coverPhotoUrl: string | null
   photosCount: number
-  viewsCount: number
+  views_count: number
   downloadsCount: number
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }
 
 export interface EventListData {
@@ -94,22 +94,22 @@ export type EventListApiResponse = ApiResponse<EventListData>
 export interface PhotoData {
   id: string
   filename: string
-  originalUrl: string
-  thumbnailUrl: string | null
+  original_url: string
+  thumbnail_url: string | null
   mediumUrl: string | null
-  fileSize: number | null
+  file_size: number | null
   width: number | null
   height: number | null
-  mimeType: string
-  displayOrder: number
-  eventId: string
+  mime_type: string
+  display_order: number
+  event_id: string
   uploadedAt: string
-  updatedAt: string
-  likesCount: number
-  downloadCount: number
+  updated_at: string
+  likes_count: number
+  download_count: number
   isDeleted: boolean
-  deletedAt: string | null
-  exifData: Record<string, unknown> | null
+  deleted_at: string | null
+  exif_data: Record<string, unknown> | null
   metadata: Record<string, unknown> | null
 }
 
@@ -143,16 +143,16 @@ export interface PackageData {
   price: number
   features: string[]
   isBestSeller: boolean
-  isActive: boolean
-  displayOrder: number
+  is_active: boolean
+  display_order: number
   categoryId: string
   category: {
     id: string
     name: string
     slug: string
   }
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }
 
 export interface PackageCategoryData {
@@ -160,7 +160,7 @@ export interface PackageCategoryData {
   name: string
   slug: string
   description: string | null
-  isActive: boolean
+  is_active: boolean
   packages: PackageData[]
 }
 
@@ -185,7 +185,7 @@ export interface UserData {
   username: string
   email: string
   role: 'ADMIN' | 'CLIENT'
-  createdAt: string
+  created_at: string
   lastLoginAt: string | null
 }
 
@@ -216,8 +216,8 @@ export interface RecentEventData {
   name: string
   date: string
   photosCount: number
-  viewsCount: number
-  isActive: boolean
+  views_count: number
+  is_active: boolean
 }
 
 export interface DashboardData {
@@ -241,7 +241,7 @@ export interface FormSubmissionData {
   status: 'PENDING' | 'CONTACTED' | 'CONVERTED' | 'CLOSED'
   notes: string | null
   submittedAt: string
-  updatedAt: string
+  updated_at: string
 }
 
 export type FormSubmissionApiResponse = ApiResponse<FormSubmissionData>
@@ -257,8 +257,8 @@ export interface ContactMessageData {
   phone: string | null
   message: string
   status: 'UNREAD' | 'READ' | 'REPLIED' | 'ARCHIVED'
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }
 
 export type ContactMessageApiResponse = ApiResponse<ContactMessageData>

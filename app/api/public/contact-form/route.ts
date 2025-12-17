@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Parse and validate request body
     const body = await request.json();
-    
+
     // 3. Validate with Zod schema (includes sanitization)
     const validatedData = contactFormSchema.parse(body);
 
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     ];
 
     const messageContent = validatedData.message || '';
-    const hasSuspiciousContent = suspiciousPatterns.some(pattern => 
+    const hasSuspiciousContent = suspiciousPatterns.some(pattern =>
       pattern.test(messageContent)
     );
 
@@ -61,30 +61,32 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Get client metadata for tracking
-    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                      request.headers.get('x-real-ip') || 
-                      'unknown';
-    
+    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+
     // Log submission for monitoring (IP tracking for security)
     console.log(`📝 Contact form submission from ${ipAddress}: ${validatedData.name} <${validatedData.email}>`);
 
     // 6. Create form submission in database
-    const submission = await prisma.formSubmission.create({
+    const submission = await prisma.form_submissions.create({
       data: {
+        id: crypto.randomUUID(),
         name: validatedData.name,
         whatsapp: validatedData.whatsapp,
         email: validatedData.email,
-        packageInterest: validatedData.package || null,
-        weddingDate: validatedData.date || null,
+        package_interest: validatedData.package || null,
+        wedding_date: validatedData.date || null,
         message: validatedData.message || null,
         status: hasSuspiciousContent ? 'pending' : 'new',
         notes: hasSuspiciousContent ? 'Flagged for review - suspicious content' : null,
+        updated_at: new Date(),
       },
       select: {
         id: true,
         name: true,
         email: true,
-        createdAt: true,
+        created_at: true,
         status: true,
       },
     });

@@ -9,10 +9,10 @@ interface AdditionalService {
   name: string
   description: string | null
   price: number
-  isActive: boolean
-  displayOrder: number
-  createdAt: string
-  updatedAt: string
+  is_active: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
 }
 
 export default function AdditionalServicesPage() {
@@ -68,7 +68,7 @@ export default function AdditionalServicesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: svc.id,
-          isActive: !svc.isActive,
+          is_active: !svc.is_active,
         }),
       })
 
@@ -133,7 +133,7 @@ export default function AdditionalServicesPage() {
               <div>
                 <p className="text-sm text-gray-600">Aktif</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {services.filter(s => s.isActive).length}
+                  {services.filter(s => s.is_active).length}
                 </p>
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function AdditionalServicesPage() {
                 <div
                   key={svc.id}
                   className={`p-6 hover:bg-gray-50 transition-colors ${
-                    !svc.isActive ? 'opacity-60' : ''
+                    !svc.is_active ? 'opacity-60' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -171,7 +171,7 @@ export default function AdditionalServicesPage() {
                         <h3 className="text-lg font-semibold text-gray-900">
                           {svc.name}
                         </h3>
-                        {!svc.isActive && (
+                        {!svc.is_active && (
                           <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded">
                             Tidak Aktif
                           </span>
@@ -193,9 +193,9 @@ export default function AdditionalServicesPage() {
                       <button
                         onClick={() => toggleActive(svc)}
                         className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                        title={svc.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                        title={svc.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                       >
-                        {svc.isActive ? (
+                        {svc.is_active ? (
                           <Eye className="w-5 h-5" />
                         ) : (
                           <EyeOff className="w-5 h-5" />
@@ -254,8 +254,8 @@ function ServiceFormModal({ service: svc, onClose, onSuccess }: ServiceFormModal
     name: svc?.name || '',
     description: svc?.description || '',
     price: svc?.price?.toString() || '',
-    isActive: svc?.isActive !== undefined ? svc.isActive : true,
-    displayOrder: svc?.displayOrder?.toString() || '0',
+    is_active: svc?.is_active !== undefined ? svc.is_active : true,
+    display_order: svc?.display_order?.toString() || '0',
   })
   const [submitting, setSubmitting] = useState(false)
 
@@ -271,12 +271,12 @@ function ServiceFormModal({ service: svc, onClose, onSuccess }: ServiceFormModal
             id: svc.id,
             ...formData,
             price: parseInt(formData.price),
-            displayOrder: parseInt(formData.displayOrder),
+            display_order: parseInt(formData.display_order),
           }
         : {
             ...formData,
             price: parseInt(formData.price),
-            displayOrder: parseInt(formData.displayOrder),
+            display_order: parseInt(formData.display_order),
           }
 
       const response = await fetch(url, {
@@ -363,8 +363,8 @@ function ServiceFormModal({ service: svc, onClose, onSuccess }: ServiceFormModal
             </label>
             <input
               type="number"
-              value={formData.displayOrder}
-              onChange={(e) => setFormData({ ...formData, displayOrder: e.target.value })}
+              value={formData.display_order}
+              onChange={(e) => setFormData({ ...formData, display_order: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
             />
           </div>
@@ -373,8 +373,8 @@ function ServiceFormModal({ service: svc, onClose, onSuccess }: ServiceFormModal
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                 className="rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
               />
               <span className="text-sm text-gray-700">Tampilkan di halaman publik</span>

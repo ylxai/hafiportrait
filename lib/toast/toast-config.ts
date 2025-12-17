@@ -97,8 +97,8 @@ export const TOAST_MESSAGES = {
     updateSuccess: (name: string) => `Paket "${name}" berhasil diupdate`,
     deleteSuccess: (name: string) => `Paket "${name}" berhasil dihapus`,
     deleteError: 'Gagal menghapus paket',
-    toggleActiveSuccess: (name: string, isActive: boolean) => 
-      `Paket "${name}" ${isActive ? 'diaktifkan' : 'dinonaktifkan'}`,
+    toggleActiveSuccess: (name: string, is_active: boolean) => 
+      `Paket "${name}" ${is_active ? 'diaktifkan' : 'dinonaktifkan'}`,
     toggleBestSellerSuccess: (name: string, isBest: boolean) => 
       `${isBest ? '⭐' : ''} "${name}" ${isBest ? 'ditandai sebagai Best Seller' : 'Best Seller dihapus'}`,
   },

@@ -173,13 +173,13 @@ export function useEventsCache(filters?: Record<string, any>) {
 /**
  * Hook for photos API with caching
  */
-export function usePhotosCache(eventId: string, filters?: Record<string, any>) {
+export function usePhotosCache(event_id: string, filters?: Record<string, any>) {
   const queryParams = filters ? new URLSearchParams(filters).toString() : '';
-  const url = `/api/admin/events/${eventId}/photos${queryParams ? `?${queryParams}` : ''}`;
+  const url = `/api/admin/events/${event_id}/photos${queryParams ? `?${queryParams}` : ''}`;
   
   return useApiCache(url, {
     ttl: CacheTTL.SHORT, // Photos change more frequently
-    cacheKey: `photos:${eventId}:${JSON.stringify(filters || {})}`,
+    cacheKey: `photos:${event_id}:${JSON.stringify(filters || {})}`,
     onSuccess: (data) => {
       // Pre-cache individual photos
       if (data.photos) {
@@ -230,7 +230,7 @@ export function useHeroSlideshowCache() {
 export const cacheInvalidation = {
   events: () => invalidateCache.events(),
   event: (id: string) => invalidateCache.event(id),
-  photos: (eventId: string) => invalidateCache.photos(eventId),
+  photos: (event_id: string) => invalidateCache.photos(event_id),
   packages: () => invalidateCache.packages(),
   dashboard: () => invalidateCache.dashboard(),
   all: () => invalidateCache.all(),

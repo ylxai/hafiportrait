@@ -18,7 +18,7 @@ export type SecurityEventType =
 
 export interface SecurityEvent {
   type: SecurityEventType
-  userId?: string
+  user_id?: string
   ipAddress?: string
   userAgent?: string
   details?: Record<string, any>
@@ -45,7 +45,7 @@ export async function logSecurityEvent(event: SecurityEvent): Promise<void> {
     console.error('[SECURITY ALERT]', {
       timestamp,
       type: event.type,
-      userId: event.userId,
+      user_id: event.user_id,
       ip: event.ipAddress,
       details: event.details,
     })

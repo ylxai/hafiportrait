@@ -4,16 +4,16 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   // Note: request parameter not needed for this endpoint
   try {
-    const slides = await prisma.heroSlideshow.findMany({
-      where: { isActive: true },
-      orderBy: { displayOrder: 'asc' },
+    const slides = await prisma.hero_slideshow.findMany({
+      where: { is_active: true },
+      orderBy: { display_order: 'asc' },
       select: {
         id: true,
         imageUrl: true,
-        thumbnailUrl: true,
+        thumbnail_url: true,
         title: true,
         subtitle: true,
-        displayOrder: true
+        display_order: true
       }
     })
 

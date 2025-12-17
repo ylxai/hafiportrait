@@ -8,13 +8,13 @@ import { useAdminToast } from '@/hooks/toast/useAdminToast'
 interface EventFormData {
   name: string
   slug: string
-  clientEmail: string
-  clientPhone: string
-  eventDate: string
+  client_email: string
+  client_phone: string
+  event_date: string
   description: string
   location: string
-  coupleName: string
-  storageDurationDays: number
+  couple_name: string
+  storage_duration_days: number
   autoGenerateAccessCode: boolean
 }
 

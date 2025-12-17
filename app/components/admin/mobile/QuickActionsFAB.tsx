@@ -39,8 +39,8 @@ export default function QuickActionsFAB() {
         onClick: () => {
           // Check if we're in an event context
           if (pathname.includes('/admin/events/') && pathname.match(/\/admin\/events\/[^/]+$/)) {
-            const eventId = pathname.split('/').pop()
-            router.push(`/admin/events/${eventId}/photos/upload`)
+            const event_id = pathname.split('/').pop()
+            router.push(`/admin/events/${event_id}/photos/upload`)
           } else {
             router.push('/admin/photos')
           }

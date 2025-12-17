@@ -13,21 +13,21 @@ import { GripVertical, Star, Heart, Eye } from 'lucide-react';
 interface Photo {
   id: string;
   filename: string;
-  originalUrl: string;
-  thumbnailSmallUrl: string | null;
-  thumbnailMediumUrl: string | null;
-  thumbnailLargeUrl: string | null;
-  fileSize: number | null;
+  original_url: string;
+  thumbnail_small_url: string | null;
+  thumbnail_medium_url: string | null;
+  thumbnail_large_url: string | null;
+  file_size: number | null;
   width: number | null;
   height: number | null;
-  isFeatured: boolean;
-  likesCount: number;
-  viewsCount: number;
+  is_featured: boolean;
+  likes_count: number;
+  views_count: number;
 }
 
 interface SortablePhotoItemProps {
   photo: Photo;
-  onClick: (photoId: string) => void;
+  onClick: (photo_id: string) => void;
   isDragging?: boolean;
 }
 
@@ -51,10 +51,10 @@ export default function SortablePhotoItem({
     opacity: isSortableDragging ? 0.5 : 1,
   };
 
-  const thumbnailUrl =
-    photo.thumbnailMediumUrl ||
-    photo.thumbnailSmallUrl ||
-    photo.originalUrl;
+  const thumbnail_url =
+    photo.thumbnail_medium_url ||
+    photo.thumbnail_small_url ||
+    photo.original_url;
 
   return (
     <div
@@ -73,7 +73,7 @@ export default function SortablePhotoItem({
       </button>
 
       {/* Featured Badge */}
-      {photo.isFeatured && (
+      {photo.is_featured && (
         <div className="absolute right-2 top-2 z-10 rounded-full bg-yellow-500 p-1.5 shadow-md">
           <Star className="h-3 w-3 fill-white text-white" />
         </div>
@@ -85,7 +85,7 @@ export default function SortablePhotoItem({
         className="h-full w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#54ACBF] focus:ring-offset-2"
       >
         <Image
-          src={thumbnailUrl}
+          src={thumbnail_url}
           alt={`Admin photo: ${photo.filename}`}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -99,11 +99,11 @@ export default function SortablePhotoItem({
         <div className="flex items-center gap-3 text-xs text-white">
           <div className="flex items-center gap-1">
             <Heart className="h-3 w-3" />
-            <span>{photo.likesCount}</span>
+            <span>{photo.likes_count}</span>
           </div>
           <div className="flex items-center gap-1">
             <Eye className="h-3 w-3" />
-            <span>{photo.viewsCount}</span>
+            <span>{photo.views_count}</span>
           </div>
         </div>
         <p className="mt-1 truncate text-xs text-white/90" title={photo.filename}>
@@ -112,9 +112,9 @@ export default function SortablePhotoItem({
       </div>
 
       {/* File Size Badge */}
-      {photo.fileSize && (
+      {photo.file_size && (
         <div className="absolute left-2 bottom-2 rounded bg-black/50 px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 z-10">
-          {formatFileSize(photo.fileSize)}
+          {formatFileSize(photo.file_size)}
         </div>
       )}
     </div>

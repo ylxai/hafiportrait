@@ -11,11 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const slides = await prisma.heroSlideshow.findMany({
-      orderBy: { displayOrder: 'asc' }
+    const slides = await prisma.hero_slideshow.findMany({
+      orderBy: { display_order: 'asc' }
     })
 
-    const settings = await prisma.slideshowSettings.findFirst()
+    const settings = await prisma.slideshow_settings.findFirst()
 
     return NextResponse.json({ slides, settings })
   } catch (error) {
@@ -63,25 +63,27 @@ export async function POST(request: NextRequest) {
       thumbnailFilename,
       file.type || 'image/jpeg'
     )
-    
+
     if (!thumbnailUpload.success) {
       return NextResponse.json({ error: thumbnailUpload.error || 'Thumbnail upload failed' }, { status: 500 })
     }
 
     // Get next display order
-    const lastSlide = await prisma.heroSlideshow.findFirst({
-      orderBy: { displayOrder: 'desc' }
+    const lastSlide = await prisma.hero_slideshow.findFirst({
+      orderBy: { display_order: 'desc' }
     })
-    const nextOrder = (lastSlide?.displayOrder ?? -1) + 1
+    const nextOrder = (lastSlide?.display_order ?? -1) + 1
 
-    const slide = await prisma.heroSlideshow.create({
+    const slide = await prisma.hero_slideshow.create({
       data: {
-        imageUrl: uploadResult.url,
-        thumbnailUrl: thumbnailUpload.url,
+        id: crypto.randomUUID(),
+        image_url: uploadResult.url,
+        thumbnail_url: thumbnailUpload.url,
         title: title || null,
         subtitle: subtitle || null,
-        displayOrder: nextOrder,
-        isActive: true
+        display_order: nextOrder,
+        is_active: true,
+        updated_at: new Date(),
       }
     })
 

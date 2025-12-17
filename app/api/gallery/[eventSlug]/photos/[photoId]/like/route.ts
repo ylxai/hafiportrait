@@ -11,7 +11,7 @@ import { checkRateLimit, RateLimitPresets, getClientIdentifier } from '@/lib/sec
 interface RouteParams {
   params: Promise<{
     eventSlug: string;
-    photoId: string;
+    photo_id: string;
   }>;
 }
 
@@ -20,7 +20,7 @@ interface RouteParams {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
-    const { eventSlug, photoId } = await params;
+    const { eventSlug, photo_id } = await params;
     const body = await request.json();
     const { guestId } = body;
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Find event
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { slug: eventSlug },
       select: { 
         id: true, 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Check if likes are enabled
     const settings = await prisma.eventSettings.findUnique({
-      where: { eventId: event.id },
+      where: { event_id: event.id },
       select: { allowGuestLikes: true },
     });
 
@@ -85,14 +85,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Verify photo exists and belongs to event
-    const photo = await prisma.photo.findFirst({
+    const photo = await prisma.photos.findFirst({
       where: {
-        id: photoId,
-        eventId: event.id,
+        id: photo_id,
+        event_id: event.id,
       },
       select: {
         id: true,
-        likesCount: true,
+        likes_count: true,
       },
     });
 
@@ -107,28 +107,28 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
       await prisma.photoLike.create({
         data: {
-          photoId: photoId,
+          photo_id: photo_id,
           guestId: guestId,
         },
       });
 
       // Increment like count
-      const updatedPhoto = await prisma.photo.update({
-        where: { id: photoId },
+      const updatedPhoto = await prisma.photos.update({
+        where: { id: photo_id },
         data: {
-          likesCount: {
+          likes_count: {
             increment: 1,
           },
         },
         select: {
-          likesCount: true,
+          likes_count: true,
         },
       });
 
       return NextResponse.json({
         success: true,
         liked: true,
-        likesCount: updatedPhoto.likesCount,
+        likes_count: updatedPhoto.likes_count,
       });
     } catch (error: any) {
       // Handle duplicate like (unique constraint violation)
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
           success: true,
           liked: true,
-          likesCount: photo.likesCount,
+          likes_count: photo.likes_count,
           message: 'Photo already liked',
         });
       }
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { eventSlug, photoId } = await params;
+    const { eventSlug, photo_id } = await params;
     const body = await request.json();
     const { guestId } = body;
 
@@ -169,7 +169,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Find event
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { slug: eventSlug },
       select: { 
         id: true, 
@@ -194,14 +194,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Verify photo exists and belongs to event
-    const photo = await prisma.photo.findFirst({
+    const photo = await prisma.photos.findFirst({
       where: {
-        id: photoId,
-        eventId: event.id,
+        id: photo_id,
+        event_id: event.id,
       },
       select: {
         id: true,
-        likesCount: true,
+        likes_count: true,
       },
     });
 
@@ -215,29 +215,29 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Delete like
     const deletedLike = await prisma.photoLike.deleteMany({
       where: {
-        photoId: photoId,
+        photo_id: photo_id,
         guestId: guestId,
       },
     });
 
     // Decrement like count if like was actually deleted
     if (deletedLike.count > 0) {
-      const updatedPhoto = await prisma.photo.update({
-        where: { id: photoId },
+      const updatedPhoto = await prisma.photos.update({
+        where: { id: photo_id },
         data: {
-          likesCount: {
+          likes_count: {
             decrement: 1,
           },
         },
         select: {
-          likesCount: true,
+          likes_count: true,
         },
       });
 
       return NextResponse.json({
         success: true,
         liked: false,
-        likesCount: Math.max(0, updatedPhoto.likesCount), // Ensure non-negative
+        likes_count: Math.max(0, updatedPhoto.likes_count), // Ensure non-negative
       });
     }
 
@@ -245,7 +245,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({
       success: true,
       liked: false,
-      likesCount: photo.likesCount,
+      likes_count: photo.likes_count,
       message: 'Photo was not liked',
     });
   } catch (error) {

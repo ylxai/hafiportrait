@@ -27,16 +27,18 @@ export async function POST(request: Request) {
     }
 
     // Save to database
-    const contactMessage = await prisma.contactMessage.create({
+    const contactMessage = await prisma.contact_messages.create({
       data: {
         name: sanitizedData.name,
         email: sanitizedData.email,
         phone: sanitizedData.phone,
         message: sanitizedData.message,
         status: 'new',
+        id: crypto.randomUUID(),
+        updated_at: new Date(),
       },
     })
-    
+
     return NextResponse.json(
       {
         success: true,

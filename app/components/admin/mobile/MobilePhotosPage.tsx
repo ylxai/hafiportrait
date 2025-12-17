@@ -8,7 +8,7 @@ import { Search, Upload, Filter, Image as ImageIcon } from 'lucide-react'
 interface Photo {
   id: string
   filename: string
-  thumbnailUrl: string
+  thumbnail_url: string
   event: {
     name: string
   }
@@ -80,7 +80,7 @@ export default function MobilePhotosPage() {
             className="aspect-square rounded-lg overflow-hidden cursor-pointer"
           >
             <Image
-              src={photo.thumbnailUrl}
+              src={photo.thumbnail_url}
               alt={`Photo: ${photo.filename}`}
               width={300}
               height={300}

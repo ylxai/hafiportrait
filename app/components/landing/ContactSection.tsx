@@ -8,7 +8,7 @@ export default function ContactSection() {
     name: '',
     email: '',
     phone: '',
-    eventDate: '',
+    event_date: '',
     message: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -78,7 +78,7 @@ export default function ContactSection() {
 
       if (response.ok) {
         setSubmitStatus('success')
-        setFormData({ name: '', email: '', phone: '', eventDate: '', message: '' })
+        setFormData({ name: '', email: '', phone: '', event_date: '', message: '' })
         setErrors({})
       } else {
         setSubmitStatus('error')
@@ -209,14 +209,14 @@ export default function ContactSection() {
 
                 {/* Event Date */}
                 <div>
-                  <label htmlFor="eventDate" className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label htmlFor="event_date" className="block text-sm font-semibold text-slate-700 mb-2">
                     Event Date (Optional)
                   </label>
                   <input
                     type="date"
-                    id="eventDate"
-                    name="eventDate"
-                    value={formData.eventDate}
+                    id="event_date"
+                    name="event_date"
+                    value={formData.event_date}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors"
                   />

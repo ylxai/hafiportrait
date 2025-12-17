@@ -53,7 +53,7 @@ export function getServerSocket(): Socket | null {
  */
 export function broadcastPhotoUploadProgress(data: {
   eventSlug: string;
-  photoId: string;
+  photo_id: string;
   progress: number;
   filename: string;
 }) {
@@ -81,7 +81,7 @@ export function broadcastPhotoUploadComplete(data: {
  */
 export function broadcastPhotoLike(data: {
   eventSlug: string;
-  photoId: string;
+  photo_id: string;
   likeCount: number;
 }) {
   const socket = getServerSocket();
@@ -95,7 +95,7 @@ export function broadcastPhotoLike(data: {
  */
 export function broadcastPhotoComment(data: {
   eventSlug: string;
-  photoId: string;
+  photo_id: string;
   comment: any;
 }) {
   const socket = getServerSocket();

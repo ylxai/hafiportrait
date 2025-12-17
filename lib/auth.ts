@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import { getJWTSecret, securityConfig } from './config/security'
 
 export interface JWTPayload {
-  userId: string
+  user_id: string
   email: string
   role: string
   iat?: number
@@ -51,7 +51,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
     const { payload } = await jwtVerify(token, jwtSecret)
     
     // Validate required fields
-    if (!payload.userId || !payload.email || !payload.role) {
+    if (!payload.user_id || !payload.email || !payload.role) {
       return null
     }
     

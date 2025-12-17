@@ -12,7 +12,7 @@ import { uploadFile } from './uploadService';
  * Create upload queue with real upload implementation
  */
 export function createIntegratedUploadQueue(
-  eventId: string,
+  event_id: string,
   options: UploadOptions = {}
 ): UploadQueue {
   // We'll use the base UploadQueue since performUpload is just a placeholder
@@ -24,10 +24,10 @@ export function createIntegratedUploadQueue(
  * For now, export as alias
  */
 export class IntegratedUploadQueue extends UploadQueue {
-  private eventId: string;
+  private event_id: string;
 
-  constructor(eventId: string, options: UploadOptions = {}) {
+  constructor(event_id: string, options: UploadOptions = {}) {
     super(options);
-    this.eventId = eventId;
+    this.event_id = event_id;
   }
 }

@@ -7,10 +7,10 @@ import { X, ChevronLeft, ChevronRight, Loader2, Heart, Eye, Filter } from 'lucid
 interface PortfolioPhoto {
   id: string
   filename: string
-  originalUrl: string
-  thumbnailUrl: string
-  displayOrder: number
-  isFeatured: boolean
+  original_url: string
+  thumbnail_url: string
+  display_order: number
+  is_featured: boolean
   category: string | null
   description: string | null
 }
@@ -199,7 +199,7 @@ export default function PortfolioGallery() {
                   onClick={() => openLightbox(index)}
                 >
                   <Image
-                    src={photo.thumbnailUrl}
+                    src={photo.thumbnail_url}
                     alt={photo.description || `Portfolio photo ${index + 1}`}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -213,7 +213,7 @@ export default function PortfolioGallery() {
                         <Eye className="w-4 h-4" />
                         View
                       </span>
-                      {photo.isFeatured && (
+                      {photo.is_featured && (
                         <span className="flex items-center gap-1">
                           <Heart className="w-4 h-4 fill-current text-red-400" />
                           Featured
@@ -223,7 +223,7 @@ export default function PortfolioGallery() {
                   </div>
 
                   {/* Featured Badge */}
-                  {photo.isFeatured && (
+                  {photo.is_featured && (
                     <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-sm">
                       ⭐ Featured
                     </div>
@@ -280,7 +280,7 @@ export default function PortfolioGallery() {
           {/* Image Container */}
           <div className="relative w-full h-full max-w-7xl max-h-[85vh] mx-auto p-4 md:p-8">
             <Image
-              src={filteredPhotos[currentPhotoIndex].originalUrl}
+              src={filteredPhotos[currentPhotoIndex].original_url}
               alt={filteredPhotos[currentPhotoIndex].description || `Portfolio photo ${currentPhotoIndex + 1}`}
               fill
               className="object-contain"
@@ -302,7 +302,7 @@ export default function PortfolioGallery() {
                   </p>
                 )}
               </div>
-              {filteredPhotos[currentPhotoIndex].isFeatured && (
+              {filteredPhotos[currentPhotoIndex].is_featured && (
                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
                   <Heart className="w-4 h-4 fill-current text-red-400" />
                   <span className="text-sm font-medium">Featured</span>

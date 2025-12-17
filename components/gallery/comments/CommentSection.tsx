@@ -13,19 +13,19 @@ import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 interface CommentSectionProps {
   eventSlug: string;
-  photoId?: string;
+  photo_id?: string;
   allowComments?: boolean;
 }
 
 export default function CommentSection({
   eventSlug,
-  photoId,
+  photo_id,
   allowComments = true,
 }: CommentSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const { comments, isLoading, totalCount, addComment } = useComments({
     eventSlug,
-    photoId,
+    photo_id,
     autoLoad: true,
   });
 
@@ -80,7 +80,7 @@ export default function CommentSection({
           </div>
           <CommentForm
             eventSlug={eventSlug}
-            photoId={photoId}
+            photo_id={photo_id}
             onCommentSubmitted={handleCommentSubmitted}
           />
         </div>

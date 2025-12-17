@@ -7,23 +7,23 @@ import PhotoLightbox from './PhotoLightbox';
 interface Photo {
   id: string;
   filename: string;
-  thumbnailMediumUrl: string | null;
-  thumbnailSmallUrl: string | null;
-  thumbnailUrl: string | null;
-  originalUrl: string;
+  thumbnail_medium_url: string | null;
+  thumbnail_small_url: string | null;
+  thumbnail_url: string | null;
+  original_url: string;
   width: number | null;
   height: number | null;
-  likesCount: number;
+  likes_count: number;
   caption: string | null;
 }
 
 interface PhotoGridProps {
-  eventId: string;
+  event_id: string;
   eventSlug: string;
   allowLikes?: boolean;
 }
 
-export default function PhotoGrid({ eventId, eventSlug, allowLikes = true }: PhotoGridProps) {
+export default function PhotoGrid({ event_id, eventSlug, allowLikes = true }: PhotoGridProps) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);

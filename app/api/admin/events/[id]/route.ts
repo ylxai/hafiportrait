@@ -21,28 +21,28 @@ export async function GET(
 
     const { id } = await context.params
 
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { id },
       select: {
         id: true,
         name: true,
         slug: true,
-        accessCode: true,
+        access_code: true,
         qrCodeUrl: true,
-        storageDurationDays: true,
+        storage_duration_days: true,
         status: true,
-        eventDate: true,
-        clientEmail: true,
-        clientPhone: true,
+        event_date: true,
+        client_email: true,
+        client_phone: true,
         description: true,
         location: true,
-        coverPhotoId: true,
+        cover_photo_id: true,
         coverPhotoUrl: true,
-        createdAt: true,
-        updatedAt: true,
+        created_at: true,
+        updated_at: true,
         expiresAt: true,
         displayStatus: true,
-        clientId: true,
+        client_id: true,
         client: {
           select: {
             id: true,
@@ -54,7 +54,7 @@ export async function GET(
           select: {
             photos: {
               where: {
-                deletedAt: null
+                deleted_at: null
               }
             }
           }
@@ -90,19 +90,19 @@ export async function PATCH(
 
     const { id } = await context.params
     const body = await request.json()
-    const { coverPhotoId, coupleName, displayStatus, ...otherFields } = body
+    const { cover_photo_id, coupleName, displayStatus, ...otherFields } = body
 
     const updateData: any = { ...otherFields }
     
-    if (coverPhotoId !== undefined) {
-      updateData.coverPhotoId = coverPhotoId
+    if (cover_photo_id !== undefined) {
+      updateData.cover_photo_id = cover_photo_id
     }
     
     if (displayStatus !== undefined) {
       updateData.displayStatus = displayStatus
     }
 
-    const updatedEvent = await prisma.event.update({
+    const updatedEvent = await prisma.events.update({
       where: { id },
       data: updateData
     })
@@ -131,7 +131,7 @@ export async function DELETE(
 
     const { id } = await context.params
 
-    await prisma.event.delete({
+    await prisma.events.delete({
       where: { id }
     })
 

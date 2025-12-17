@@ -17,7 +17,7 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id: eventId } = await params;
+    const { id: event_id } = await params;
     const { searchParams } = new URL(request.url);
     
     const status = searchParams.get('status') || 'all';
@@ -25,8 +25,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Verify event exists
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
+    const event = await prisma.events.findUnique({
+      where: { id: event_id },
       select: { id: true },
     });
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Build where clause
     const whereClause: any = {
-      eventId,
+      event_id,
     };
 
     if (status !== 'all') {
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Fetch comments
-    const comments = await prisma.comment.findMany({
+    const comments = await prisma.comments.findMany({
       where: whereClause,
       select: {
         id: true,
@@ -54,17 +54,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         relationship: true,
         status: true,
         ipAddress: true,
-        createdAt: true,
-        photoId: true,
+        created_at: true,
+        photo_id: true,
         photo: {
           select: {
             filename: true,
-            thumbnailUrl: true,
+            thumbnail_url: true,
           },
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
       take: limit,
       skip: offset,
@@ -72,10 +72,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Get counts by status
     const [totalCount, pendingCount, approvedCount, rejectedCount] = await Promise.all([
-      prisma.comment.count({ where: { eventId } }),
-      prisma.comment.count({ where: { eventId, status: 'pending' } }),
-      prisma.comment.count({ where: { eventId, status: 'approved' } }),
-      prisma.comment.count({ where: { eventId, status: 'rejected' } }),
+      prisma.comments.count({ where: { event_id } }),
+      prisma.comments.count({ where: { event_id, status: 'pending' } }),
+      prisma.comments.count({ where: { event_id, status: 'approved' } }),
+      prisma.comments.count({ where: { event_id, status: 'rejected' } }),
     ]);
 
     return NextResponse.json({
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id: eventId } = await params;
+    const { id: event_id } = await params;
     const body = await request.json();
     const { commentIds, action } = body;
 
@@ -118,8 +118,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     // Verify event exists
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
+    const event = await prisma.events.findUnique({
+      where: { id: event_id },
       select: { id: true },
     });
 
@@ -129,18 +129,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Perform action
     if (action === 'delete') {
-      await prisma.comment.deleteMany({
+      await prisma.comments.deleteMany({
         where: {
           id: { in: commentIds },
-          eventId,
+          event_id,
         },
       });
     } else {
       const newStatus = action === 'approve' ? 'approved' : 'rejected';
-      await prisma.comment.updateMany({
+      await prisma.comments.updateMany({
         where: {
           id: { in: commentIds },
-          eventId,
+          event_id,
         },
         data: {
           status: newStatus,
@@ -165,7 +165,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id: eventId } = await params;
+    const { id: event_id } = await params;
     const body = await request.json();
     const { action } = body;
 
@@ -177,8 +177,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Verify event exists
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
+    const event = await prisma.events.findUnique({
+      where: { id: event_id },
       select: { id: true, name: true },
     });
 
@@ -187,8 +187,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Fetch all comments
-    const comments = await prisma.comment.findMany({
-      where: { eventId },
+    const comments = await prisma.comments.findMany({
+      where: { event_id },
       select: {
         id: true,
         guestName: true,
@@ -196,17 +196,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         message: true,
         relationship: true,
         status: true,
-        createdAt: true,
+        created_at: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     });
 
     // Create CSV
     let csv = 'ID,Name,Email,Message,Relationship,Status,Created At\n';
     comments.forEach((comment) => {
-      csv += `${comment.id},"${comment.guestName}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.createdAt.toISOString()}"\n`;
+      csv += `${comment.id},"${comment.guestName}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
     });
 
     return new NextResponse(csv, {

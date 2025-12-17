@@ -156,7 +156,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
             const Icon = item.icon
             const hasSubItems = item.subItems && item.subItems.length > 0
             const isExpanded = expandedItems.has(item.name)
-            const isActive = item.href ? isItemActive(item.href) : false
+            const is_active = item.href ? isItemActive(item.href) : false
             const isParentActive = hasSubItems && item.subItems.some(sub => isItemActive(sub.href))
 
             if (hasSubItems) {
@@ -217,7 +217,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
                   }
                 }}
                 className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all ${
-                  isActive
+                  is_active
                     ? 'bg-brand-teal/10 text-brand-teal'
                     : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
                 }`}

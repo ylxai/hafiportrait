@@ -18,12 +18,12 @@ export const eventBasicSelect = {
   name: true,
   slug: true,
   status: true,
-  eventDate: true,
+  event_date: true,
   location: true,
-  accessCode: true,
+  access_code: true,
   coverPhotoUrl: true,
-  createdAt: true,
-  updatedAt: true,
+  created_at: true,
+  updated_at: true,
 } satisfies Prisma.EventSelect;
 
 /**
@@ -32,7 +32,7 @@ export const eventBasicSelect = {
 export const eventWithCountsInclude = {
   _count: {
     select: {
-      photos: { where: { deletedAt: null } },
+      photos: { where: { deleted_at: null } },
       comments: true,
       guestSessions: true,
     },
@@ -45,18 +45,18 @@ export const eventWithCountsInclude = {
 export const photoListSelect = {
   id: true,
   filename: true,
-  thumbnailSmallUrl: true,
-  thumbnailMediumUrl: true,
-  thumbnailLargeUrl: true,
+  thumbnail_small_url: true,
+  thumbnail_medium_url: true,
+  thumbnail_large_url: true,
   width: true,
   height: true,
-  fileSize: true,
-  likesCount: true,
-  viewsCount: true,
-  downloadCount: true,
-  isFeatured: true,
-  displayOrder: true,
-  createdAt: true,
+  file_size: true,
+  likes_count: true,
+  views_count: true,
+  download_count: true,
+  is_featured: true,
+  display_order: true,
+  created_at: true,
   caption: true,
 } satisfies Prisma.PhotoSelect;
 
@@ -66,24 +66,24 @@ export const photoListSelect = {
 export const photoDetailSelect = {
   id: true,
   filename: true,
-  originalUrl: true,
-  thumbnailSmallUrl: true,
-  thumbnailMediumUrl: true,
-  thumbnailLargeUrl: true,
+  original_url: true,
+  thumbnail_small_url: true,
+  thumbnail_medium_url: true,
+  thumbnail_large_url: true,
   width: true,
   height: true,
-  fileSize: true,
-  mimeType: true,
-  likesCount: true,
-  viewsCount: true,
-  downloadCount: true,
-  isFeatured: true,
-  displayOrder: true,
+  file_size: true,
+  mime_type: true,
+  likes_count: true,
+  views_count: true,
+  download_count: true,
+  is_featured: true,
+  display_order: true,
   caption: true,
-  exifData: true,
-  createdAt: true,
-  updatedAt: true,
-  eventId: true,
+  exif_data: true,
+  created_at: true,
+  updated_at: true,
+  event_id: true,
 } satisfies Prisma.PhotoSelect;
 
 /**
@@ -95,8 +95,8 @@ export const commentSelect = {
   message: true,
   relationship: true,
   status: true,
-  createdAt: true,
-  photoId: true,
+  created_at: true,
+  photo_id: true,
 } satisfies Prisma.CommentSelect;
 
 /**
@@ -108,12 +108,12 @@ export const commentWithPhotoSelect = {
   message: true,
   relationship: true,
   status: true,
-  createdAt: true,
+  created_at: true,
   photo: {
     select: {
       id: true,
       filename: true,
-      thumbnailSmallUrl: true,
+      thumbnail_small_url: true,
     },
   },
 } satisfies Prisma.CommentSelect;
@@ -135,7 +135,7 @@ export function buildEventQuery(options: {
     page = 1,
     limit = 20,
     where = {},
-    orderBy = { createdAt: 'desc' },
+    orderBy = { created_at: 'desc' },
   } = options;
 
   const query: Prisma.EventFindManyArgs = {
@@ -165,23 +165,23 @@ export function buildEventQuery(options: {
  * Photo query helper: Get photos with optimized queries
  */
 export function buildPhotoQuery(options: {
-  eventId: string;
+  event_id: string;
   includeDeleted?: boolean;
   page?: number;
   limit?: number;
   orderBy?: Prisma.PhotoOrderByWithRelationInput;
 }) {
   const {
-    eventId,
+    event_id,
     includeDeleted = false,
     page = 1,
     limit = 50,
-    orderBy = { displayOrder: 'asc' },
+    orderBy = { display_order: 'asc' },
   } = options;
 
   const where: Prisma.PhotoWhereInput = {
-    eventId,
-    ...(includeDeleted ? {} : { deletedAt: null }),
+    event_id,
+    ...(includeDeleted ? {} : { deleted_at: null }),
   };
 
   const query: Prisma.PhotoFindManyArgs = {
@@ -199,16 +199,16 @@ export function buildPhotoQuery(options: {
  * Comment query helper: Get comments with optimized queries
  */
 export function buildCommentQuery(options: {
-  eventId?: string;
-  photoId?: string;
+  event_id?: string;
+  photo_id?: string;
   status?: string;
   page?: number;
   limit?: number;
   includePhoto?: boolean;
 }) {
   const {
-    eventId,
-    photoId,
+    event_id,
+    photo_id,
     status = 'approved',
     page = 1,
     limit = 50,
@@ -216,14 +216,14 @@ export function buildCommentQuery(options: {
   } = options;
 
   const where: Prisma.CommentWhereInput = {
-    ...(eventId && { eventId }),
-    ...(photoId && { photoId }),
+    ...(event_id && { event_id }),
+    ...(photo_id && { photo_id }),
     status,
   };
 
   const query: Prisma.CommentFindManyArgs = {
     where,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { created_at: 'desc' },
     take: limit,
     skip: (page - 1) * limit,
     select: includePhoto ? commentWithPhotoSelect : commentSelect,

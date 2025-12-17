@@ -41,7 +41,7 @@ export const slugSchema = z
   .max(100)
   .toLowerCase()
 
-export const accessCodeSchema = z
+export const access_codeSchema = z
   .string()
   .regex(/^[A-Z0-9]{6}$/, 'Access code must be 6 uppercase alphanumeric characters')
 
@@ -84,19 +84,19 @@ export const registerSchema = z.object({
 
 export const createEventSchema = z.object({
   name: z.string().min(3).max(200).trim(),
-  eventDate: z.string().datetime().optional(),
-  clientEmail: emailSchema.optional(),
-  clientPhone: phoneSchema.optional(),
+  event_date: z.string().datetime().optional(),
+  client_email: emailSchema.optional(),
+  client_phone: phoneSchema.optional(),
   description: richTextSchema.optional(),
   location: z.string().max(200).trim().optional(),
-  storageDurationDays: z.number().int().min(1).max(365).default(30),
+  storage_duration_days: z.number().int().min(1).max(365).default(30),
   coupleName: z.string().max(200).trim().optional(),
 })
 
 export const updateEventSchema = createEventSchema.partial()
 
 export const accessEventSchema = z.object({
-  accessCode: accessCodeSchema,
+  access_code: access_codeSchema,
 })
 
 // ============================================
@@ -105,24 +105,24 @@ export const accessEventSchema = z.object({
 
 export const uploadPhotoSchema = z.object({
   filename: z.string().min(1).max(255),
-  mimeType: z.enum([
+  mime_type: z.enum([
     'image/jpeg',
     'image/jpg',
     'image/png',
     'image/webp',
     'image/heic'
   ]),
-  fileSize: z.number().int().min(1).max(50 * 1024 * 1024), // Max 50MB
+  file_size: z.number().int().min(1).max(50 * 1024 * 1024), // Max 50MB
 })
 
 export const updatePhotoSchema = z.object({
   caption: sanitizedTextSchema.optional(),
-  displayOrder: z.number().int().min(0).optional(),
-  isFeatured: z.boolean().optional(),
+  display_order: z.number().int().min(0).optional(),
+  is_featured: z.boolean().optional(),
 })
 
 export const likePhotoSchema = z.object({
-  photoId: z.string().cuid(),
+  photo_id: z.string().cuid(),
   guestId: z.string().min(1).max(100),
 })
 
@@ -135,7 +135,7 @@ export const createCommentSchema = z.object({
   email: emailSchema.optional(),
   message: sanitizedTextSchema,
   relationship: z.string().max(50).trim().optional(),
-  photoId: z.string().cuid().optional(),
+  photo_id: z.string().cuid().optional(),
 })
 
 export const moderateCommentSchema = z.object({
@@ -173,7 +173,7 @@ export const createPackageSchema = z.object({
   features: z.array(z.string()).default([]),
   isBestSeller: z.boolean().default(false),
   categoryId: z.string().cuid(),
-  displayOrder: z.number().int().min(0).default(0),
+  display_order: z.number().int().min(0).default(0),
 })
 
 export const updatePackageSchema = createPackageSchema.partial()
@@ -182,9 +182,9 @@ export const createPortfolioPhotoSchema = z.object({
   filename: z.string().min(1).max(255),
   category: z.string().max(50).optional(),
   description: sanitizedTextSchema.optional(),
-  displayOrder: z.number().int().min(0).default(0),
-  isFeatured: z.boolean().default(false),
-  isFeaturedBento: z.boolean().default(false),
+  display_order: z.number().int().min(0).default(0),
+  is_featured: z.boolean().default(false),
+  is_featuredBento: z.boolean().default(false),
   bentoSize: z.enum(['small', 'medium', 'large']).optional(),
 })
 

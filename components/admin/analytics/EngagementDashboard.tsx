@@ -19,13 +19,13 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 interface EngagementDashboardProps {
-  eventId: string;
+  event_id: string;
   eventSlug: string;
   initialData: EventEngagementSummary;
 }
 
 export default function EngagementDashboard({
-  eventId,
+  event_id,
   eventSlug,
   initialData,
 }: EngagementDashboardProps) {
@@ -36,7 +36,7 @@ export default function EngagementDashboard({
     setIsExporting(true);
     try {
       const response = await fetch(
-        `/api/admin/events/${eventId}/analytics?action=export`
+        `/api/admin/events/${event_id}/analytics?action=export`
       );
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -199,12 +199,12 @@ export default function EngagementDashboard({
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {data.mostLikedPhotos.map((photo) => (
-                  <tr key={photo.photoId} className="hover:bg-gray-50">
+                  <tr key={photo.photo_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      {photo.thumbnailUrl ? (
+                      {photo.thumbnail_url ? (
                         <div className="relative h-12 w-12">
                           <Image
-                            src={photo.thumbnailUrl}
+                            src={photo.thumbnail_url}
                             alt={`Top photo: ${photo.filename}`}
                             fill
                             sizes="48px"
@@ -221,13 +221,13 @@ export default function EngagementDashboard({
                       <div className="max-w-xs truncate">{photo.filename}</div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm font-medium text-red-600">
-                      {photo.likesCount}
+                      {photo.likes_count}
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-600">
-                      {photo.viewsCount}
+                      {photo.views_count}
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-600">
-                      {photo.downloadCount}
+                      {photo.download_count}
                     </td>
                     <td className="px-4 py-3 text-center text-sm font-medium text-purple-600">
                       {photo.engagementScore.toFixed(1)}

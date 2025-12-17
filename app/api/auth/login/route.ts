@@ -41,7 +41,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   const { username, password } = validation.data
 
   // Find user by username
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { username },
     select: {
       id: true,
@@ -70,7 +70,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     logSecurityEvent({
       type: 'AUTH_FAILED',
       identifier: username,
-      details: { reason: 'invalid_password', userId: user.id },
+      details: { reason: 'invalid_password', user_id: user.id },
     })
 
     throw new AuthenticationError('Invalid username or password')
@@ -78,7 +78,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
 
   // Generate JWT token with username
   const token = await signJWT({
-    userId: user.id,
+    user_id: user.id,
     username: user.username || '',
     role: user.role,
   })

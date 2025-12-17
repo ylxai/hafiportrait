@@ -6,13 +6,13 @@
 import prisma from '@/lib/prisma';
 
 export interface PhotoEngagementStats {
-  photoId: string;
+  photo_id: string;
   filename: string;
-  likesCount: number;
-  viewsCount: number;
-  downloadCount: number;
+  likes_count: number;
+  views_count: number;
+  download_count: number;
   engagementScore: number;
-  thumbnailUrl?: string;
+  thumbnail_url?: string;
 }
 
 export interface EventEngagementSummary {
@@ -29,7 +29,7 @@ export interface EventEngagementSummary {
 export interface ActivityLog {
   id: string;
   type: 'like' | 'view' | 'download';
-  photoId: string;
+  photo_id: string;
   photoFilename: string;
   guestId: string;
   timestamp: Date;
@@ -46,7 +46,7 @@ export interface TrendData {
  * Get engagement analytics for an event
  */
 export async function getEventEngagementAnalytics(
-  eventId: string,
+  event_id: string,
   options: {
     startDate?: Date;
     endDate?: Date;
@@ -62,25 +62,25 @@ export async function getEventEngagementAnalytics(
   };
 
   // Get all photos for the event
-  const photos = await prisma.photo.findMany({
-    where: { eventId },
+  const photos = await prisma.photos.findMany({
+    where: { event_id },
     select: {
       id: true,
       filename: true,
-      likesCount: true,
-      viewsCount: true,
-      downloadCount: true,
-      thumbnailUrl: true,
+      likes_count: true,
+      views_count: true,
+      download_count: true,
+      thumbnail_url: true,
     },
     orderBy: {
-      likesCount: 'desc',
+      likes_count: 'desc',
     },
   });
 
   // Calculate totals
-  const totalLikes = photos.reduce((sum, p) => sum + p.likesCount, 0);
-  const totalViews = photos.reduce((sum, p) => sum + p.viewsCount, 0);
-  const totalDownloads = photos.reduce((sum, p) => sum + p.downloadCount, 0);
+  const totalLikes = photos.reduce((sum, p) => sum + p.likes_count, 0);
+  const totalViews = photos.reduce((sum, p) => sum + p.views_count, 0);
+  const totalDownloads = photos.reduce((sum, p) => sum + p.download_count, 0);
   const totalPhotos = photos.length;
   const averageLikesPerPhoto = totalPhotos > 0 ? totalLikes / totalPhotos : 0;
 
@@ -88,24 +88,24 @@ export async function getEventEngagementAnalytics(
   const mostLikedPhotos: PhotoEngagementStats[] = photos
     .slice(0, limit)
     .map((photo) => ({
-      photoId: photo.id,
+      photo_id: photo.id,
       filename: photo.filename,
-      likesCount: photo.likesCount,
-      viewsCount: photo.viewsCount,
-      downloadCount: photo.downloadCount,
+      likes_count: photo.likes_count,
+      views_count: photo.views_count,
+      download_count: photo.download_count,
       engagementScore: calculateEngagementScore(
-        photo.likesCount,
-        photo.viewsCount,
-        photo.downloadCount
+        photo.likes_count,
+        photo.views_count,
+        photo.download_count
       ),
-      thumbnailUrl: photo.thumbnailUrl || undefined,
+      thumbnail_url: photo.thumbnail_url || undefined,
     }));
 
   // Get recent activity
-  const recentActivity = await getRecentActivity(eventId, dateFilter, limit);
+  const recentActivity = await getRecentActivity(event_id, dateFilter, limit);
 
   // Get likes trend (last 7 days)
-  const likesTrend = await getLikesTrend(eventId, 7);
+  const likesTrend = await getLikesTrend(event_id, 7);
 
   return {
     totalLikes,
@@ -135,23 +135,23 @@ function calculateEngagementScore(
  * Get recent activity logs
  */
 async function getRecentActivity(
-  eventId: string,
+  event_id: string,
   dateFilter: any,
   limit: number
 ): Promise<ActivityLog[]> {
   // Get recent likes
   const recentLikes = await prisma.photoLike.findMany({
     where: {
-      photo: { eventId },
+      photo: { event_id },
       ...(Object.keys(dateFilter).length > 0 && {
-        createdAt: dateFilter,
+        created_at: dateFilter,
       }),
     },
     select: {
       id: true,
       guestId: true,
-      photoId: true,
-      createdAt: true,
+      photo_id: true,
+      created_at: true,
       photo: {
         select: {
           filename: true,
@@ -159,7 +159,7 @@ async function getRecentActivity(
       },
     },
     orderBy: {
-      createdAt: 'desc',
+      created_at: 'desc',
     },
     take: limit,
   });
@@ -167,10 +167,10 @@ async function getRecentActivity(
   return recentLikes.map((like) => ({
     id: like.id,
     type: 'like' as const,
-    photoId: like.photoId,
+    photo_id: like.photo_id,
     photoFilename: like.photo.filename,
     guestId: like.guestId,
-    timestamp: like.createdAt,
+    timestamp: like.created_at,
   }));
 }
 
@@ -178,7 +178,7 @@ async function getRecentActivity(
  * Get likes trend data for the last N days
  */
 async function getLikesTrend(
-  eventId: string,
+  event_id: string,
   days: number
 ): Promise<TrendData[]> {
   const startDate = new Date();
@@ -187,13 +187,13 @@ async function getLikesTrend(
   // Get likes grouped by date
   const likes = await prisma.photoLike.findMany({
     where: {
-      photo: { eventId },
-      createdAt: {
+      photo: { event_id },
+      created_at: {
         gte: startDate,
       },
     },
     select: {
-      createdAt: true,
+      created_at: true,
     },
   });
 
@@ -210,7 +210,7 @@ async function getLikesTrend(
 
   // Count likes per date
   likes.forEach((like) => {
-    const dateStr = like.createdAt.toISOString().split('T')[0];
+    const dateStr = like.created_at.toISOString().split('T')[0];
     trendMap.set(dateStr, (trendMap.get(dateStr) || 0) + 1);
   });
 
@@ -231,37 +231,37 @@ async function getLikesTrend(
  * Get top liked photos for an event
  */
 export async function getTopLikedPhotos(
-  eventId: string,
+  event_id: string,
   limit: number = 10
 ): Promise<PhotoEngagementStats[]> {
-  const photos = await prisma.photo.findMany({
-    where: { eventId },
+  const photos = await prisma.photos.findMany({
+    where: { event_id },
     select: {
       id: true,
       filename: true,
-      likesCount: true,
-      viewsCount: true,
-      downloadCount: true,
-      thumbnailUrl: true,
+      likes_count: true,
+      views_count: true,
+      download_count: true,
+      thumbnail_url: true,
     },
     orderBy: {
-      likesCount: 'desc',
+      likes_count: 'desc',
     },
     take: limit,
   });
 
   return photos.map((photo) => ({
-    photoId: photo.id,
+    photo_id: photo.id,
     filename: photo.filename,
-    likesCount: photo.likesCount,
-    viewsCount: photo.viewsCount,
-    downloadCount: photo.downloadCount,
+    likes_count: photo.likes_count,
+    views_count: photo.views_count,
+    download_count: photo.download_count,
     engagementScore: calculateEngagementScore(
-      photo.likesCount,
-      photo.viewsCount,
-      photo.downloadCount
+      photo.likes_count,
+      photo.views_count,
+      photo.download_count
     ),
-    thumbnailUrl: photo.thumbnailUrl || undefined,
+    thumbnail_url: photo.thumbnail_url || undefined,
   }));
 }
 
@@ -269,7 +269,7 @@ export async function getTopLikedPhotos(
  * Detect bulk like patterns (potential abuse)
  */
 export async function detectBulkLikePatterns(
-  eventId: string,
+  event_id: string,
   timeWindowMinutes: number = 10,
   threshold: number = 50
 ): Promise<string[]> {
@@ -280,8 +280,8 @@ export async function detectBulkLikePatterns(
   const recentLikes = await prisma.photoLike.groupBy({
     by: ['guestId'],
     where: {
-      photo: { eventId },
-      createdAt: {
+      photo: { event_id },
+      created_at: {
         gte: startTime,
       },
     },
@@ -304,20 +304,20 @@ export async function detectBulkLikePatterns(
  * Export engagement data as CSV
  */
 export async function exportEngagementData(
-  eventId: string
+  event_id: string
 ): Promise<string> {
-  const photos = await prisma.photo.findMany({
-    where: { eventId },
+  const photos = await prisma.photos.findMany({
+    where: { event_id },
     select: {
       id: true,
       filename: true,
-      likesCount: true,
-      viewsCount: true,
-      downloadCount: true,
-      createdAt: true,
+      likes_count: true,
+      views_count: true,
+      download_count: true,
+      created_at: true,
     },
     orderBy: {
-      likesCount: 'desc',
+      likes_count: 'desc',
     },
   });
 
@@ -327,12 +327,12 @@ export async function exportEngagementData(
   // Add data rows
   photos.forEach((photo) => {
     const engagementScore = calculateEngagementScore(
-      photo.likesCount,
-      photo.viewsCount,
-      photo.downloadCount
+      photo.likes_count,
+      photo.views_count,
+      photo.download_count
     );
     
-    csv += `${photo.id},"${photo.filename}",${photo.likesCount},${photo.viewsCount},${photo.downloadCount},${engagementScore.toFixed(2)},${photo.createdAt.toISOString()}\n`;
+    csv += `${photo.id},"${photo.filename}",${photo.likes_count},${photo.views_count},${photo.download_count},${engagementScore.toFixed(2)},${photo.created_at.toISOString()}\n`;
   });
 
   return csv;

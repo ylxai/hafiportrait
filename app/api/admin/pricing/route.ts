@@ -35,13 +35,13 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const activeOnly = searchParams.get('active') === 'true';
 
-    const where: Prisma.PricingPackageWhereInput = {};
+    const where: Prisma.pricing_packagesWhereInput = {};
     if (category) where.category = category;
-    if (activeOnly) where.isActive = true;
+    if (activeOnly) where.is_active = true;
 
-    const packages = await prisma.pricingPackage.findMany({
+    const packages = await prisma.pricing_packages.findMany({
       where,
-      orderBy: { displayOrder: 'asc' },
+      orderBy: { display_order: 'asc' },
     });
 
     return NextResponse.json({ packages });
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       duration,
       shotCount,
       features,
-      isActive = true,
+      is_active = true,
     } = body;
 
     // Validate required fields
@@ -87,31 +87,32 @@ export async function POST(request: NextRequest) {
 
     // Generate unique slug
     let slug = slugify(name);
-    let slugExists = await prisma.pricingPackage.findUnique({
+    let slugExists = await prisma.pricing_packages.findUnique({
       where: { slug },
     });
-    
+
     let counter = 1;
     while (slugExists) {
       slug = `${slugify(name)}-${counter}`;
-      slugExists = await prisma.pricingPackage.findUnique({
+      slugExists = await prisma.pricing_packages.findUnique({
         where: { slug },
       });
       counter++;
     }
 
     // Get max display order
-    const maxOrder = await prisma.pricingPackage.findFirst({
+    const maxOrder = await prisma.pricing_packages.findFirst({
       where: { category },
-      orderBy: { displayOrder: 'desc' },
-      select: { displayOrder: true },
+      orderBy: { display_order: 'desc' },
+      select: { display_order: true },
     });
 
-    const displayOrder = (maxOrder?.displayOrder ?? -1) + 1;
+    const display_order = (maxOrder?.display_order ?? -1) + 1;
 
     // Create package
-    const package_ = await prisma.pricingPackage.create({
+    const package_ = await prisma.pricing_packages.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         slug,
         category,
@@ -119,10 +120,11 @@ export async function POST(request: NextRequest) {
         currency,
         description,
         duration,
-        shotCount,
+        shot_count: shotCount,
         features: features || [],
-        isActive,
-        displayOrder,
+        is_active,
+        display_order,
+        updated_at: new Date(),
       },
     });
 
@@ -155,9 +157,9 @@ export async function PUT(request: NextRequest) {
     if (action === 'reorder' && Array.isArray(packageIds)) {
       // Bulk reorder packages
       const updatePromises = packageIds.map((packageId, index) =>
-        prisma.pricingPackage.update({
+        prisma.pricing_packages.update({
           where: { id: packageId },
-          data: { displayOrder: index },
+          data: { display_order: index },
         })
       );
       await Promise.all(updatePromises);
@@ -171,30 +173,30 @@ export async function PUT(request: NextRequest) {
     if (action === 'update' && updates) {
       // Single package update
       const { id, name, ...data } = updates;
-      
+
       // If name changed, regenerate slug
       let updateData: any = data;
       if (name) {
         updateData.name = name;
-        
-        const existingPackage = await prisma.pricingPackage.findUnique({
+
+        const existingPackage = await prisma.pricing_packages.findUnique({
           where: { id },
         });
 
         if (existingPackage && existingPackage.name !== name) {
           let newSlug = slugify(name);
-          let slugExists = await prisma.pricingPackage.findFirst({
-            where: { 
+          let slugExists = await prisma.pricing_packages.findFirst({
+            where: {
               slug: newSlug,
               NOT: { id },
             },
           });
-          
+
           let counter = 1;
           while (slugExists) {
             newSlug = `${slugify(name)}-${counter}`;
-            slugExists = await prisma.pricingPackage.findFirst({
-              where: { 
+            slugExists = await prisma.pricing_packages.findFirst({
+              where: {
                 slug: newSlug,
                 NOT: { id },
               },
@@ -205,7 +207,7 @@ export async function PUT(request: NextRequest) {
         }
       }
 
-      const package_ = await prisma.pricingPackage.update({
+      const package_ = await prisma.pricing_packages.update({
         where: { id },
         data: updateData,
       });
@@ -249,7 +251,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.pricingPackage.delete({
+    await prisma.pricing_packages.delete({
       where: { id: packageId },
     });
 

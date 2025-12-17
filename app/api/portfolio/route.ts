@@ -4,17 +4,17 @@ import prisma from '@/lib/prisma'
 // GET - Public endpoint to fetch portfolio photos
 export async function GET() {
   try {
-    const portfolioPhotos = await prisma.portfolioPhoto.findMany({
+    const portfolioPhotos = await prisma.portfolio_photos.findMany({
       orderBy: {
-        displayOrder: 'asc',
+        display_order: 'asc',
       },
       select: {
         id: true,
         filename: true,
-        originalUrl: true,
-        thumbnailUrl: true,
-        displayOrder: true,
-        isFeatured: true,
+        original_url: true,
+        thumbnail_url: true,
+        display_order: true,
+        is_featured: true,
         category: true,
         description: true,
       },

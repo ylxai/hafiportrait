@@ -31,7 +31,7 @@ import { ResumeUploadBanner } from '@/components/upload/ResumeUploadBanner';
 import { UploadHistoryPanel } from '@/components/upload/UploadHistoryPanel';
 
 interface PhotoUploaderPersistentProps {
-  eventId: string;
+  event_id: string;
   eventName: string;
   onUploadComplete?: (results: any) => void;
   maxFiles?: number;
@@ -39,7 +39,7 @@ interface PhotoUploaderPersistentProps {
 }
 
 export default function PhotoUploaderPersistent({
-  eventId,
+  event_id,
   eventName,
   onUploadComplete,
   maxFiles = 500,
@@ -61,12 +61,12 @@ export default function PhotoUploaderPersistent({
   useEffect(() => {
     const existingSession = loadUploadState();
     
-    if (existingSession && existingSession.eventId === eventId && hasPendingUploads(existingSession)) {
+    if (existingSession && existingSession.event_id === event_id && hasPendingUploads(existingSession)) {
       setPendingSession(existingSession);
-    } else if (existingSession && existingSession.eventId === eventId) {
+    } else if (existingSession && existingSession.event_id === event_id) {
       clearUploadState();
     }
-  }, [eventId]);
+  }, [event_id]);
 
   // Handle upload completion
   const handleUploadComplete = useCallback(() => {
@@ -90,7 +90,7 @@ export default function PhotoUploaderPersistent({
   useEffect(() => {
     if (!session) return;
 
-    const queue = new IntegratedUploadQueue(eventId, {
+    const queue = new IntegratedUploadQueue(event_id, {
       maxConcurrent: 3,
       maxRetries: 10,
       onProgress: (fileId, progress, uploadedBytes) => {
@@ -125,7 +125,7 @@ export default function PhotoUploaderPersistent({
     return () => {
       queue.destroy();
     };
-  }, [session, eventId, handleUploadComplete]);
+  }, [session, event_id, handleUploadComplete]);
 
   // Save session to localStorage
   useEffect(() => {
@@ -195,13 +195,13 @@ export default function PhotoUploaderPersistent({
       setSession({
         ...session,
         files: [...session.files, ...uploadFileStates],
-        updatedAt: Date.now(),
+        updated_at: Date.now(),
       });
     } else {
-      const newSession = createUploadSession(eventId, uploadFileStates);
+      const newSession = createUploadSession(event_id, uploadFileStates);
       setSession(newSession);
     }
-  }, [session, eventId, maxFiles, validateFile]);
+  }, [session, event_id, maxFiles, validateFile]);
 
   const resumePendingSession = useCallback(() => {
     if (!pendingSession) return;
@@ -285,7 +285,7 @@ export default function PhotoUploaderPersistent({
       setSession({
         ...session,
         files: remainingFiles,
-        updatedAt: Date.now(),
+        updated_at: Date.now(),
       });
     }
   }, [session]);
@@ -323,7 +323,7 @@ export default function PhotoUploaderPersistent({
     setSession({
       ...session,
       files: updatedFiles,
-      updatedAt: Date.now(),
+      updated_at: Date.now(),
     });
   }, [session]);
 

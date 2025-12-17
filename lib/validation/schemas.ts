@@ -37,20 +37,20 @@ export const createEventSchema = z.object({
     .min(3)
     .max(100)
     .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
-  accessCode: z
+  access_code: z
     .string()
     .min(6, 'Access code must be at least 6 characters')
     .max(20)
     .regex(/^[A-Z0-9]+$/, 'Access code can only contain uppercase letters and numbers'),
-  storageDurationDays: z
+  storage_duration_days: z
     .number()
     .int()
     .min(1, 'Storage duration must be at least 1 day')
     .max(365, 'Storage duration cannot exceed 365 days')
     .default(30),
-  eventDate: z.string().datetime().optional().nullable(),
-  clientEmail: z.string().email().optional().nullable(),
-  clientPhone: z.string().max(20).optional().nullable(),
+  event_date: z.string().datetime().optional().nullable(),
+  client_email: z.string().email().optional().nullable(),
+  client_phone: z.string().max(20).optional().nullable(),
   description: z.string().max(5000).optional().nullable(),
   location: z.string().max(500).optional().nullable(),
 })

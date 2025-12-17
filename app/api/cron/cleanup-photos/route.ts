@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const photosToDelete = await prisma.photo.findMany({
+    const photosToDelete = await prisma.photos.findMany({
       where: {
-        deletedAt: {
+        deleted_at: {
           lte: thirtyDaysAgo,
           not: null,
         },
@@ -39,11 +39,11 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         filename: true,
-        originalUrl: true,
-        thumbnailSmallUrl: true,
-        thumbnailMediumUrl: true,
-        thumbnailLargeUrl: true,
-        deletedAt: true,
+        original_url: true,
+        thumbnail_small_url: true,
+        thumbnail_medium_url: true,
+        thumbnail_large_url: true,
+        deleted_at: true,
       },
     });
     const results = {
@@ -60,17 +60,17 @@ export async function GET(request: NextRequest) {
         // Delete from R2 storage
         const keysToDelete: string[] = [];
         
-        if (photo.originalUrl) {
-          const key = extractKeyFromUrl(photo.originalUrl); if (key) keysToDelete.push(key);
+        if (photo.original_url) {
+          const key = extractKeyFromUrl(photo.original_url); if (key) keysToDelete.push(key);
         }
-        if (photo.thumbnailSmallUrl) {
-          const key = extractKeyFromUrl(photo.thumbnailSmallUrl); if (key) keysToDelete.push(key);
+        if (photo.thumbnail_small_url) {
+          const key = extractKeyFromUrl(photo.thumbnail_small_url); if (key) keysToDelete.push(key);
         }
-        if (photo.thumbnailMediumUrl) {
-          const key = extractKeyFromUrl(photo.thumbnailMediumUrl); if (key) keysToDelete.push(key);
+        if (photo.thumbnail_medium_url) {
+          const key = extractKeyFromUrl(photo.thumbnail_medium_url); if (key) keysToDelete.push(key);
         }
-        if (photo.thumbnailLargeUrl) {
-          const key = extractKeyFromUrl(photo.thumbnailLargeUrl); if (key) keysToDelete.push(key);
+        if (photo.thumbnail_large_url) {
+          const key = extractKeyFromUrl(photo.thumbnail_large_url); if (key) keysToDelete.push(key);
         }
 
         // Delete files from R2
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
         results.storageFailed += failedDeletes;
 
         // Permanently delete from database
-        await prisma.photo.delete({
+        await prisma.photos.delete({
           where: { id: photo.id },
         });
 

@@ -7,13 +7,13 @@ import { Calendar, Loader2 } from 'lucide-react'
 interface EventFormData {
   name: string
   slug: string
-  clientEmail: string
-  clientPhone: string
-  eventDate: string
+  client_email: string
+  client_phone: string
+  event_date: string
   description: string
   location: string
-  coupleName: string
-  storageDurationDays: number
+  couple_name: string
+  storage_duration_days: number
   autoGenerateAccessCode: boolean
 }
 
@@ -31,13 +31,13 @@ export default function EventForm({
   const [formData, setFormData] = useState<EventFormData>({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
-    clientEmail: initialData?.clientEmail || '',
-    clientPhone: initialData?.clientPhone || '',
-    eventDate: initialData?.eventDate || '',
+    client_email: initialData?.client_email || '',
+    client_phone: initialData?.client_phone || '',
+    event_date: initialData?.event_date || '',
     description: initialData?.description || '',
     location: initialData?.location || '',
-    coupleName: initialData?.coupleName || '',
-    storageDurationDays: initialData?.storageDurationDays || 30,
+    couple_name: initialData?.couple_name || '',
+    storage_duration_days: initialData?.storage_duration_days || 30,
     autoGenerateAccessCode: true,
   })
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
@@ -101,18 +101,18 @@ export default function EventForm({
       newErrors.slug = 'Slug must contain only lowercase letters, numbers, and hyphens'
     }
 
-    if (!formData.clientEmail.trim()) {
-      newErrors.clientEmail = 'Client email is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.clientEmail)) {
-      newErrors.clientEmail = 'Invalid email format'
+    if (!formData.client_email.trim()) {
+      newErrors.client_email = 'Client email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.client_email)) {
+      newErrors.client_email = 'Invalid email format'
     }
 
     if (formData.description && formData.description.length > 500) {
       newErrors.description = 'Description must be less than 500 characters'
     }
 
-    if (formData.storageDurationDays < 30 || formData.storageDurationDays > 365) {
-      newErrors.storageDurationDays = 'Storage duration must be between 30 and 365 days'
+    if (formData.storage_duration_days < 30 || formData.storage_duration_days > 365) {
+      newErrors.storage_duration_days = 'Storage duration must be between 30 and 365 days'
     }
 
     setErrors(newErrors)
@@ -192,35 +192,35 @@ export default function EventForm({
 
       {/* Client Email */}
       <div>
-        <label htmlFor="clientEmail" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="client_email" className="block text-sm font-medium text-gray-700 mb-2">
           Client Email <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
-          id="clientEmail"
-          name="clientEmail"
-          value={formData.clientEmail}
+          id="client_email"
+          name="client_email"
+          value={formData.client_email}
           onChange={handleChange}
           placeholder="client@example.com"
           className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent ${
-            errors.clientEmail ? 'border-red-500' : 'border-gray-300'
+            errors.client_email ? 'border-red-500' : 'border-gray-300'
           }`}
         />
-        {errors.clientEmail && (
-          <p className="mt-1 text-sm text-red-500">{errors.clientEmail}</p>
+        {errors.client_email && (
+          <p className="mt-1 text-sm text-red-500">{errors.client_email}</p>
         )}
       </div>
 
       {/* Client Phone */}
       <div>
-        <label htmlFor="clientPhone" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="client_phone" className="block text-sm font-medium text-gray-700 mb-2">
           Client Phone
         </label>
         <input
           type="tel"
-          id="clientPhone"
-          name="clientPhone"
-          value={formData.clientPhone}
+          id="client_phone"
+          name="client_phone"
+          value={formData.client_phone}
           onChange={handleChange}
           placeholder="+62895-7005-03193"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
@@ -229,35 +229,35 @@ export default function EventForm({
 
       {/* Couple Name */}
       <div>
-        <label htmlFor="coupleName" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="couple_name" className="block text-sm font-medium text-gray-700 mb-2">
           Couple Name
         </label>
         <input
           type="text"
-          id="coupleName"
-          name="coupleName"
-          value={formData.coupleName}
+          id="couple_name"
+          name="couple_name"
+          value={formData.couple_name}
           onChange={handleChange}
           placeholder="Sarah & John"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
           maxLength={200}
         />
         <p className="mt-1 text-xs text-gray-500">
-          {formData.coupleName.length}/200 characters
+          {formData.couple_name.length}/200 characters
         </p>
       </div>
 
       {/* Event Date */}
       <div>
-        <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="event_date" className="block text-sm font-medium text-gray-700 mb-2">
           Event Date
         </label>
         <div className="relative">
           <input
             type="date"
-            id="eventDate"
-            name="eventDate"
-            value={formData.eventDate}
+            id="event_date"
+            name="event_date"
+            value={formData.event_date}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
           />
@@ -308,26 +308,26 @@ export default function EventForm({
 
       {/* Storage Duration */}
       <div>
-        <label htmlFor="storageDurationDays" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="storage_duration_days" className="block text-sm font-medium text-gray-700 mb-2">
           Storage Duration (days)
         </label>
         <input
           type="number"
-          id="storageDurationDays"
-          name="storageDurationDays"
-          value={formData.storageDurationDays}
+          id="storage_duration_days"
+          name="storage_duration_days"
+          value={formData.storage_duration_days}
           onChange={handleChange}
           min={30}
           max={365}
           className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent ${
-            errors.storageDurationDays ? 'border-red-500' : 'border-gray-300'
+            errors.storage_duration_days ? 'border-red-500' : 'border-gray-300'
           }`}
         />
-        {errors.storageDurationDays && (
-          <p className="mt-1 text-sm text-red-500">{errors.storageDurationDays}</p>
+        {errors.storage_duration_days && (
+          <p className="mt-1 text-sm text-red-500">{errors.storage_duration_days}</p>
         )}
         <p className="mt-1 text-xs text-gray-500">
-          Photos will be stored for {formData.storageDurationDays} days after event date
+          Photos will be stored for {formData.storage_duration_days} days after event date
         </p>
       </div>
 

@@ -12,8 +12,8 @@ interface Event {
   name: string
   slug: string
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
-  eventDate: string | null
-  createdAt: string
+  event_date: string | null
+  created_at: string
   _count: {
     photos: number
   }
@@ -47,7 +47,7 @@ export default function AdminEventsPage() {
     fetchEvents()
   }, [fetchEvents])
 
-  const deleteEvent = async (eventId: string, eventName: string, photoCount: number) => {
+  const deleteEvent = async (event_id: string, eventName: string, photoCount: number) => {
     if (!confirm(`Hapus event "${eventName}"? ${photoCount} foto akan ikut terhapus.`)) {
       return
     }
@@ -55,7 +55,7 @@ export default function AdminEventsPage() {
     const loadingToastId = toast.showLoading(`Menghapus event "${eventName}"...`)
 
     try {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${event_id}`, {
         method: 'DELETE',
         credentials: 'include',
       })
@@ -67,7 +67,7 @@ export default function AdminEventsPage() {
       toast.updateToast(loadingToastId, 'success', `Event "${eventName}" berhasil dihapus!`, {
         description: `${photoCount} foto telah dihapus`
       })
-      
+
       fetchEvents()
     } catch (error) {
       console.error('Failed to delete event:', error)

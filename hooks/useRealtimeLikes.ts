@@ -13,8 +13,8 @@ import { useSocket } from './useSocket';
 
 interface UseRealtimeLikesOptions {
   eventSlug: string;
-  onLikeAdded?: (photoId: string, likesCount: number) => void;
-  onLikeRemoved?: (photoId: string, likesCount: number) => void;
+  onLikeAdded?: (photo_id: string, likes_count: number) => void;
+  onLikeRemoved?: (photo_id: string, likes_count: number) => void;
 }
 
 export function useRealtimeLikes({
@@ -41,19 +41,19 @@ export function useRealtimeLikes({
     if (!socket || !isConnected) return;
 
     // Listen for like added
-    const handleLikeAdded = ({ photoId, likesCount }: { photoId: string; likesCount: number }) => {
+    const handleLikeAdded = ({ photo_id, likes_count }: { photo_id: string; likes_count: number }) => {
       if (!mountedRef.current) return;
       
-      setLikesUpdates((prev) => ({ ...prev, [photoId]: likesCount }));
-      onLikeAddedRef.current?.(photoId, likesCount);
+      setLikesUpdates((prev) => ({ ...prev, [photo_id]: likes_count }));
+      onLikeAddedRef.current?.(photo_id, likes_count);
     };
 
     // Listen for like removed
-    const handleLikeRemoved = ({ photoId, likesCount }: { photoId: string; likesCount: number }) => {
+    const handleLikeRemoved = ({ photo_id, likes_count }: { photo_id: string; likes_count: number }) => {
       if (!mountedRef.current) return;
       
-      setLikesUpdates((prev) => ({ ...prev, [photoId]: likesCount }));
-      onLikeRemovedRef.current?.(photoId, likesCount);
+      setLikesUpdates((prev) => ({ ...prev, [photo_id]: likes_count }));
+      onLikeRemovedRef.current?.(photo_id, likes_count);
     };
 
     socket.on('like:added', handleLikeAdded);

@@ -10,22 +10,22 @@ import Image from 'next/image'
 interface Photo {
   id: string
   filename: string
-  thumbnailLargeUrl: string | null
-  originalUrl: string
+  thumbnail_large_url: string | null
+  original_url: string
 }
 
 interface Event {
   id: string
   name: string
   coupleName: string | null
-  coverPhotoId: string | null
+  cover_photo_id: string | null
   displayStatus: string | null
 }
 
 export default function EventCoverPhotoPage() {
   const params = useParams()
   const router = useRouter()
-  const eventId = params.id as string
+  const event_id = params.id as string
 
   const [event, setEvent] = useState<Event | null>(null)
   const [photos, setPhotos] = useState<Photo[]>([])
@@ -38,17 +38,17 @@ export default function EventCoverPhotoPage() {
   const fetchEventData = useCallback(async () => {
     try {
       // Fetch event details
-      const eventRes = await fetch(`/api/admin/events/${eventId}`)
+      const eventRes = await fetch(`/api/admin/events/${event_id}`)
       if (eventRes.ok) {
         const eventData = await eventRes.json()
         setEvent(eventData)
         setCoupleName(eventData.coupleName || eventData.name)
         setDisplayStatus(eventData.displayStatus || 'COMPLETED')
-        setSelectedPhotoId(eventData.coverPhotoId)
+        setSelectedPhotoId(eventData.cover_photo_id)
       }
 
       // Fetch photos
-      const photosRes = await fetch(`/api/admin/events/${eventId}/photos`)
+      const photosRes = await fetch(`/api/admin/events/${event_id}/photos`)
       if (photosRes.ok) {
         const photosData = await photosRes.json()
         setPhotos(photosData.photos || [])
@@ -58,7 +58,7 @@ export default function EventCoverPhotoPage() {
     } finally {
       setLoading(false)
     }
-  }, [eventId])
+  }, [event_id])
 
   useEffect(() => {
     fetchEventData()
@@ -72,11 +72,11 @@ export default function EventCoverPhotoPage() {
 
     setSaving(true)
     try {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${event_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          coverPhotoId: selectedPhotoId,
+          cover_photo_id: selectedPhotoId,
           coupleName: coupleName,
           displayStatus: displayStatus
         })
@@ -84,7 +84,7 @@ export default function EventCoverPhotoPage() {
 
       if (response.ok) {
         alert('Cover photo and settings updated successfully!')
-        router.push(`/admin/events/${eventId}`)
+        router.push(`/admin/events/${event_id}`)
       } else {
         alert('Failed to update settings')
       }
@@ -113,7 +113,7 @@ export default function EventCoverPhotoPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
-              href={`/admin/events/${eventId}`}
+              href={`/admin/events/${event_id}`}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -185,7 +185,7 @@ export default function EventCoverPhotoPage() {
               <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">No photos uploaded yet</p>
               <Link
-                href={`/admin/events/${eventId}/photos/upload`}
+                href={`/admin/events/${event_id}/photos/upload`}
                 className="inline-flex items-center gap-2 px-6 py-2 bg-brand-cyan text-white rounded-lg hover:bg-brand-cyan/90 transition-colors"
               >
                 <Upload className="w-4 h-4" />
@@ -205,7 +205,7 @@ export default function EventCoverPhotoPage() {
                   }`}
                 >
                   <Image
-                    src={photo.thumbnailLargeUrl || photo.originalUrl}
+                    src={photo.thumbnail_large_url || photo.original_url}
                     alt={photo.filename}
                     fill
                     className="object-cover"

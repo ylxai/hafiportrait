@@ -14,11 +14,11 @@ interface PageProps {
 }
 
 export default async function CommentModerationPage({ params }: PageProps) {
-  const { id: eventId } = await params;
+  const { id: event_id } = await params;
 
   // Verify event exists
   const event = await prisma.events.findUnique({
-    where: { id: eventId },
+    where: { id: event_id },
     select: {
       id: true,
       name: true,
@@ -33,29 +33,29 @@ export default async function CommentModerationPage({ params }: PageProps) {
   // Get initial comments data
   const [comments, totalCount, pendingCount] = await Promise.all([
     prisma.comments.findMany({
-      where: { event_id: eventId },
+      where: { event_id: event_id },
       select: {
         id: true,
-        guestName: true,
+        guest_name: true,
         email: true,
         message: true,
         relationship: true,
         status: true,
-        createdAt: true,
-        photo: {
+        created_at: true,
+        photos: {
           select: {
             filename: true,
-            thumbnailUrl: true,
+            thumbnail_url: true,
           },
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
       take: 50,
     }),
-    prisma.comments.count({ where: { event_id: eventId } }),
-    prisma.comments.count({ where: { event_id: eventId, status: 'pending' } }),
+    prisma.comments.count({ where: { event_id: event_id } }),
+    prisma.comments.count({ where: { event_id: event_id, status: 'pending' } }),
   ]);
 
   return (
@@ -71,7 +71,7 @@ export default async function CommentModerationPage({ params }: PageProps) {
               <p className="mt-2 text-gray-600">{event.name}</p>
             </div>
             <a
-              href={`/admin/events/${eventId}`}
+              href={`/admin/events/${event_id}`}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               ← Back to Event
@@ -99,7 +99,7 @@ export default async function CommentModerationPage({ params }: PageProps) {
 
         {/* Moderation Table */}
         <CommentModerationTable
-          eventId={eventId}
+          event_id={event_id}
           initialComments={comments}
           initialTotalCount={totalCount}
           initialPendingCount={pendingCount}

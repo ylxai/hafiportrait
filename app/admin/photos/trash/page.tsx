@@ -14,14 +14,14 @@ import { ChevronRight, Trash2 } from 'lucide-react';
 interface PageProps {
   searchParams: Promise<{
     page?: string;
-    eventId?: string;
+    event_id?: string;
   }>;
 }
 
 export default async function TrashPage({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const page = parseInt(resolvedSearchParams.page || '1');
-  const eventId = resolvedSearchParams.eventId;
+  const event_id = resolvedSearchParams.event_id;
 
   // Verify authentication
   const cookieStore = await cookies();
@@ -36,8 +36,8 @@ export default async function TrashPage({ searchParams }: PageProps) {
     redirect('/admin/login');
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId },
+  const user = await prisma.users.findUnique({
+    where: { id: decoded.user_id },
     select: { role: true, id: true },
   });
 
@@ -49,18 +49,18 @@ export default async function TrashPage({ searchParams }: PageProps) {
 
   // Build where clause for deleted photos
   const where: any = {
-    deletedAt: { not: null },
+    deleted_at: { not: null },
   };
 
   // Filter by event if specified
-  if (eventId) {
-    where.eventId = eventId;
+  if (event_id) {
+    where.event_id = event_id;
   }
 
   // Non-admin users can only see their own event photos
   if (!isAdmin) {
-    where.event = {
-      clientId: decoded.userId,
+    where.events = {
+      client_id: decoded.user_id,
     };
   }
 
@@ -69,17 +69,17 @@ export default async function TrashPage({ searchParams }: PageProps) {
   const skip = (page - 1) * limit;
 
   const [photos, totalCount] = await Promise.all([
-    prisma.photo.findMany({
+    prisma.photos.findMany({
       where,
       include: {
-        event: {
+        events: {
           select: {
             id: true,
             name: true,
             slug: true,
           },
         },
-        deletedByUser: {
+        users_photos_deleted_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -88,22 +88,22 @@ export default async function TrashPage({ searchParams }: PageProps) {
         },
       },
       orderBy: {
-        deletedAt: 'desc',
+        deleted_at: 'desc',
       },
       skip,
       take: limit,
     }),
-    prisma.photo.count({ where }),
+    prisma.photos.count({ where }),
   ]);
 
   // Calculate how many photos are ready for permanent deletion (> 30 days old)
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
-  const readyForCleanupCount = await prisma.photo.count({
+
+  const readyForCleanupCount = await prisma.photos.count({
     where: {
       ...where,
-      deletedAt: {
+      deleted_at: {
         not: null,
         lte: thirtyDaysAgo,
       },
@@ -111,8 +111,8 @@ export default async function TrashPage({ searchParams }: PageProps) {
   });
 
   // Get list of events for filter dropdown
-  const events = await prisma.event.findMany({
-    where: isAdmin ? {} : { clientId: decoded.userId },
+  const events = await prisma.events.findMany({
+    where: isAdmin ? {} : { client_id: decoded.user_id },
     select: {
       id: true,
       name: true,
@@ -120,7 +120,7 @@ export default async function TrashPage({ searchParams }: PageProps) {
         select: {
           photos: {
             where: {
-              deletedAt: { not: null },
+              deleted_at: { not: null },
             },
           },
         },
@@ -130,6 +130,23 @@ export default async function TrashPage({ searchParams }: PageProps) {
   });
 
   const totalPages = Math.ceil(totalCount / limit);
+
+  // Map to frontend interface
+  const formattedPhotos = photos.map(photo => ({
+    id: photo.id,
+    filename: photo.filename,
+    thumbnail_medium_url: photo.thumbnail_medium_url,
+    thumbnail_small_url: photo.thumbnail_small_url,
+    deleted_at: photo.deleted_at,
+    event: {
+      id: photo.events ? photo.events.id : 'unknown',
+      name: photo.events ? photo.events.name : 'Unknown Event',
+    },
+    deletedByUser: photo.users_photos_deleted_by_idTousers ? {
+      name: photo.users_photos_deleted_by_idTousers.name,
+      email: photo.users_photos_deleted_by_idTousers.email,
+    } : null,
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -158,7 +175,7 @@ export default async function TrashPage({ searchParams }: PageProps) {
           {/* Info Banner */}
           <div className="mt-4 rounded-lg bg-blue-50 p-4">
             <p className="text-sm text-blue-800">
-              💡 Foto di trash akan dihapus secara otomatis setelah 30 hari. 
+              💡 Foto di trash akan dihapus secara otomatis setelah 30 hari.
               Anda bisa me-restore foto sebelum waktu tersebut.
             </p>
           </div>
@@ -172,11 +189,11 @@ export default async function TrashPage({ searchParams }: PageProps) {
             </label>
             <select
               id="eventFilter"
-              value={eventId || ''}
+              value={event_id || ''}
               onChange={(e) => {
                 const newEventId = e.target.value;
-                const url = newEventId 
-                  ? `/admin/photos/trash?eventId=${newEventId}`
+                const url = newEventId
+                  ? `/admin/photos/trash?event_id=${newEventId}`
                   : '/admin/photos/trash';
                 window.location.href = url;
               }}
@@ -193,29 +210,29 @@ export default async function TrashPage({ searchParams }: PageProps) {
         )}
 
         {/* Photos Grid */}
-        {photos.length > 0 ? (
+        {formattedPhotos.length > 0 ? (
           <>
-            <TrashPhotoGrid photos={photos} isAdmin={isAdmin} />
-            
+            <TrashPhotoGrid photos={formattedPhotos} isAdmin={isAdmin} />
+
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8 flex items-center justify-center gap-2">
                 {page > 1 && (
                   <Link
-                    href={`/admin/photos/trash?page=${page - 1}${eventId ? `&eventId=${eventId}` : ''}`}
+                    href={`/admin/photos/trash?page=${page - 1}${event_id ? `&event_id=${event_id}` : ''}`}
                     className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Previous
                   </Link>
                 )}
-                
+
                 <span className="px-4 py-2 text-sm text-gray-700">
                   Page {page} of {totalPages}
                 </span>
-                
+
                 {page < totalPages && (
                   <Link
-                    href={`/admin/photos/trash?page=${page + 1}${eventId ? `&eventId=${eventId}` : ''}`}
+                    href={`/admin/photos/trash?page=${page + 1}${event_id ? `&event_id=${event_id}` : ''}`}
                     className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Next

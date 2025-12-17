@@ -101,18 +101,18 @@ export interface FileValidationOptions {
  * Validate file MIME type
  */
 export function validateMimeType(
-  mimeType: string,
+  mime_type: string,
   allowedTypes: string[] = [...ALLOWED_MIME_TYPES]
 ): ValidationResult {
   // Normalize MIME type
-  const normalized = mimeType.toLowerCase().trim();
+  const normalized = mime_type.toLowerCase().trim();
   
   // Check if MIME type is in allowed list
   if (!allowedTypes.includes(normalized) && !allowedTypes.includes(normalized.replace('image/jpg', 'image/jpeg'))) {
     return {
       valid: false,
-      error: `Invalid MIME type: ${mimeType}. Allowed: ${allowedTypes.join(', ')}`,
-      details: { mimeType, allowedTypes },
+      error: `Invalid MIME type: ${mime_type}. Allowed: ${allowedTypes.join(', ')}`,
+      details: { mime_type, allowedTypes },
     };
   }
 
@@ -123,29 +123,29 @@ export function validateMimeType(
  * Validate file size
  */
 export function validateFileSize(
-  fileSize: number,
+  file_size: number,
   options?: { minSize?: number; maxSize?: number }
 ): ValidationResult {
   const minSize = options?.minSize ?? FILE_SIZE_LIMITS.MIN_FILE_SIZE;
   const maxSize = options?.maxSize ?? FILE_SIZE_LIMITS.MAX_FILE_SIZE;
 
-  if (fileSize < minSize) {
+  if (file_size < minSize) {
     return {
       valid: false,
-      error: `File too small. Minimum size: ${(minSize / 1024).toFixed(0)}KB, Actual: ${(fileSize / 1024).toFixed(2)}KB`,
-      details: { fileSize },
+      error: `File too small. Minimum size: ${(minSize / 1024).toFixed(0)}KB, Actual: ${(file_size / 1024).toFixed(2)}KB`,
+      details: { file_size },
     };
   }
 
-  if (fileSize > maxSize) {
+  if (file_size > maxSize) {
     return {
       valid: false,
-      error: `File too large. Maximum size: ${(maxSize / 1024 / 1024).toFixed(0)}MB, Actual: ${(fileSize / 1024 / 1024).toFixed(2)}MB`,
-      details: { fileSize },
+      error: `File too large. Maximum size: ${(maxSize / 1024 / 1024).toFixed(0)}MB, Actual: ${(file_size / 1024 / 1024).toFixed(2)}MB`,
+      details: { file_size },
     };
   }
 
-  return { valid: true, details: { fileSize } };
+  return { valid: true, details: { file_size } };
 }
 
 /**
@@ -161,7 +161,7 @@ export function validateBatchSize(
     return {
       valid: false,
       error: `Batch too large. Maximum batch size: ${(maxBatchSize / 1024 / 1024 / 1024).toFixed(1)}GB, Actual: ${(totalSize / 1024 / 1024 / 1024).toFixed(2)}GB`,
-      details: { fileSize: totalSize },
+      details: { file_size: totalSize },
     };
   }
 
@@ -173,9 +173,9 @@ export function validateBatchSize(
  */
 export function validateMagicBytes(
   buffer: Buffer,
-  mimeType: string
+  mime_type: string
 ): ValidationResult {
-  const magicBytes = IMAGE_MAGIC_BYTES[mimeType];
+  const magicBytes = IMAGE_MAGIC_BYTES[mime_type];
   
   if (!magicBytes) {
     // No magic bytes defined for this type, skip validation
@@ -187,13 +187,13 @@ export function validateMagicBytes(
     if (buffer.length < magic.length) return false;
     
     // For WEBP, check RIFF at start and WEBP later
-    if (mimeType === 'image/webp') {
+    if (mime_type === 'image/webp') {
       return buffer.subarray(0, 4).equals(magic) && 
              buffer.subarray(8, 12).toString('ascii') === 'WEBP';
     }
     
     // For HEIC, check ftyp box signature
-    if (mimeType === 'image/heic' || mimeType === 'image/heif') {
+    if (mime_type === 'image/heic' || mime_type === 'image/heif') {
       // HEIC files start with ftyp box at offset 4
       return buffer.subarray(4, 8).toString('ascii').startsWith('ftyp');
     }
@@ -204,8 +204,8 @@ export function validateMagicBytes(
   if (!hasValidMagicBytes) {
     return {
       valid: false,
-      error: `Invalid file format. Magic bytes do not match MIME type: ${mimeType}`,
-      details: { mimeType },
+      error: `Invalid file format. Magic bytes do not match MIME type: ${mime_type}`,
+      details: { mime_type },
     };
   }
 
@@ -268,7 +268,7 @@ export async function validateFile(
   buffer: Buffer,
   metadata: {
     filename: string;
-    mimeType: string;
+    mime_type: string;
     size: number;
     checksum?: string;
   },
@@ -290,17 +290,17 @@ export async function validateFile(
   }
 
   // 2. Validate MIME type
-  const mimeValidation = validateMimeType(metadata.mimeType, allowedTypes);
+  const mimeValidation = validateMimeType(metadata.mime_type, allowedTypes);
   if (!mimeValidation.valid) {
     return mimeValidation;
   }
 
   // 3. Check magic bytes (optional but recommended)
   if (checkMagicBytes) {
-    const magicBytesValidation = validateMagicBytes(buffer, metadata.mimeType);
+    const magicBytesValidation = validateMagicBytes(buffer, metadata.mime_type);
     if (!magicBytesValidation.valid) {
       // Don't fail for HEIC/HEIF - magic bytes detection might be unreliable
-      if (metadata.mimeType !== 'image/heic' && metadata.mimeType !== 'image/heif') {
+      if (metadata.mime_type !== 'image/heic' && metadata.mime_type !== 'image/heif') {
         return magicBytesValidation;
       }
     }
@@ -327,8 +327,8 @@ export async function validateFile(
     valid: true,
     details: {
       filename: metadata.filename,
-      mimeType: metadata.mimeType,
-      fileSize: sizeValidation.details?.fileSize,
+      mime_type: metadata.mime_type,
+      file_size: sizeValidation.details?.file_size,
     },
   };
 }
@@ -394,7 +394,7 @@ export function sanitizeFilename(filename: string): string {
 /**
  * Check if MIME type is allowed (helper function)
  */
-export function isAllowedMimeType(mimeType: string, allowedTypes: string[] = [...ALLOWED_MIME_TYPES]): boolean {
-  const normalized = mimeType.toLowerCase().trim();
+export function isAllowedMimeType(mime_type: string, allowedTypes: string[] = [...ALLOWED_MIME_TYPES]): boolean {
+  const normalized = mime_type.toLowerCase().trim();
   return allowedTypes.includes(normalized) || allowedTypes.includes(normalized.replace('image/jpg', 'image/jpeg'));
 }

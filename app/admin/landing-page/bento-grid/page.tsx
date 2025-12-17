@@ -8,10 +8,10 @@ import Image from 'next/image'
 interface PortfolioPhoto {
   id: string
   filename: string
-  originalUrl: string
-  thumbnailUrl: string
+  original_url: string
+  thumbnail_url: string
   category: string | null
-  isFeaturedBento: boolean
+  is_featuredBento: boolean
   bentoSize: string | null
   bentoPriority: number | null
 }
@@ -48,11 +48,11 @@ export default function BentoGridPage() {
     }
   }
 
-  const handleToggleBento = async (photoId: string, currentState: boolean) => {
+  const handleToggleBento = async (photo_id: string, currentState: boolean) => {
     try {
       if (currentState) {
         // Remove from bento grid
-        await fetch(`/api/admin/bento-grid/${photoId}`, {
+        await fetch(`/api/admin/bento-grid/${photo_id}`, {
           method: 'DELETE',
           credentials: 'include'
         })
@@ -63,7 +63,7 @@ export default function BentoGridPage() {
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            photoId,
+            photo_id,
             bentoSize: 'medium',
             bentoPriority: 0
           })
@@ -76,9 +76,9 @@ export default function BentoGridPage() {
     }
   }
 
-  const handleUpdateSize = async (photoId: string, size: string) => {
+  const handleUpdateSize = async (photo_id: string, size: string) => {
     try {
-      await fetch(`/api/admin/bento-grid/${photoId}`, {
+      await fetch(`/api/admin/bento-grid/${photo_id}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -159,7 +159,7 @@ export default function BentoGridPage() {
                 <div key={photo.id} className="relative group">
                   <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                     <Image
-                      src={photo.thumbnailUrl}
+                      src={photo.thumbnail_url}
                       alt={photo.filename}
                       fill
                       className="object-cover"
@@ -206,29 +206,29 @@ export default function BentoGridPage() {
           ) : (
             <div className="p-4 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-3">
               {allPhotos.map((photo) => {
-                const isFeatured = bentoPhotos.some((p) => p.id === photo.id)
+                const is_featured = bentoPhotos.some((p) => p.id === photo.id)
                 return (
                   <button
                     key={photo.id}
-                    onClick={() => handleToggleBento(photo.id, isFeatured)}
+                    onClick={() => handleToggleBento(photo.id, is_featured)}
                     className={`relative aspect-square bg-gray-100 rounded-lg overflow-hidden group ${
-                      isFeatured ? 'ring-2 ring-purple-500' : ''
+                      is_featured ? 'ring-2 ring-purple-500' : ''
                     }`}
                   >
                     <Image
-                      src={photo.thumbnailUrl}
+                      src={photo.thumbnail_url}
                       alt={photo.filename}
                       fill
                       className="object-cover"
                     />
                     <div
                       className={`absolute inset-0 transition-opacity ${
-                        isFeatured
+                        is_featured
                           ? 'bg-purple-500/30'
                           : 'bg-black/20 opacity-0 group-hover:opacity-100'
                       }`}
                     >
-                      {isFeatured && (
+                      {is_featured && (
                         <div className="absolute top-1 right-1">
                           <Star className="w-4 h-4 text-white fill-white" />
                         </div>

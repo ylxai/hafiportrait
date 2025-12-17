@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const categories = await prisma.packageCategory.findMany({
+    const categories = await prisma.package_categories.findMany({
       include: {
         _count: {
           select: { packages: true },
@@ -39,15 +39,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, slug, icon, displayOrder, isActive } = body
+    const { name, slug, icon, display_order, is_active } = body
 
-    const category = await prisma.packageCategory.create({
+    const category = await prisma.package_categories.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         slug,
         icon: icon || null,
-        displayOrder: displayOrder || 0,
-        isActive: isActive !== undefined ? isActive : true,
+        displayOrder: display_order || 0,
+        isActive: is_active !== undefined ? is_active : true,
+        updated_at: new Date(),
       },
     })
 
@@ -78,7 +80,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const category = await prisma.packageCategory.update({
+    const category = await prisma.package_categories.update({
       where: { id },
       data: updates,
     })
@@ -110,7 +112,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    await prisma.packageCategory.delete({
+    await prisma.package_categories.delete({
       where: { id },
     })
 

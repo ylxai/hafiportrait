@@ -189,13 +189,13 @@ export interface RequestLog {
   ip: string
   userAgent: string
   timestamp: string
-  userId?: string
+  user_id?: string
 }
 
 /**
  * Log request untuk monitoring
  */
-export function logRequest(request: Request, userId?: string): void {
+export function logRequest(request: Request, user_id?: string): void {
   const forwardedFor = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
   const ip = realIp || forwardedFor?.split(',')[0] || 'unknown'
@@ -206,7 +206,7 @@ export function logRequest(request: Request, userId?: string): void {
     ip,
     userAgent: request.headers.get('user-agent') || 'unknown',
     timestamp: new Date().toISOString(),
-    ...(userId && { userId }),
+    ...(user_id && { user_id }),
   }
 
   // Log in development for debugging

@@ -14,14 +14,14 @@ interface HeroImage {
   imageUrl: string
   title: string | null
   subtitle: string | null
-  displayOrder: number
-  isActive: boolean
+  display_order: number
+  is_active: boolean
 }
 
 interface SortableItemProps {
   image: HeroImage
   onDelete: (id: string) => void
-  onToggleActive: (id: string, isActive: boolean) => void
+  onToggleActive: (id: string, is_active: boolean) => void
 }
 
 function SortableItem({ image, onDelete, onToggleActive }: SortableItemProps) {
@@ -50,14 +50,14 @@ function SortableItem({ image, onDelete, onToggleActive }: SortableItemProps) {
 
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => onToggleActive(image.id, !image.isActive)}
+            onClick={() => onToggleActive(image.id, !image.is_active)}
             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              image.isActive
+              image.is_active
                 ? 'bg-green-100 text-green-700 hover:bg-green-200'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {image.isActive ? 'Active' : 'Inactive'}
+            {image.is_active ? 'Active' : 'Inactive'}
           </button>
           <button
             onClick={() => onDelete(image.id)}
@@ -149,13 +149,13 @@ export default function HeroSlideshowPage() {
     }
   }
 
-  const handleToggleActive = async (id: string, isActive: boolean) => {
+  const handleToggleActive = async (id: string, is_active: boolean) => {
     try {
       const response = await fetch(`/api/admin/hero-slideshow/${id}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive }),
+        body: JSON.stringify({ is_active }),
       })
 
       if (!response.ok) throw new Error('Update failed')

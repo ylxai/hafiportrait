@@ -17,27 +17,27 @@ import {
 
 interface Comment {
   id: string;
-  guestName: string;
+  guest_name: string;
   email: string | null;
   message: string;
   relationship: string | null;
   status: string;
-  createdAt: Date;
-  photo: {
+  created_at: Date;
+  photos: {
     filename: string;
-    thumbnailUrl: string | null;
+    thumbnail_url: string | null;
   } | null;
 }
 
 interface CommentModerationTableProps {
-  eventId: string;
+  event_id: string;
   initialComments: Comment[];
   initialTotalCount: number;
   initialPendingCount: number;
 }
 
 export default function CommentModerationTable({
-  eventId,
+  event_id,
   initialComments,
   initialTotalCount,
   initialPendingCount,
@@ -53,7 +53,7 @@ export default function CommentModerationTable({
     const matchesStatus = filterStatus === 'all' || comment.status === filterStatus;
     const matchesSearch =
       searchQuery === '' ||
-      comment.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      comment.guest_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       comment.message.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
@@ -89,7 +89,7 @@ export default function CommentModerationTable({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/admin/events/${eventId}/comments`, {
+      const response = await fetch(`/api/admin/events/${event_id}/comments`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ export default function CommentModerationTable({
   const handleExport = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/admin/events/${eventId}/comments`, {
+      const response = await fetch(`/api/admin/events/${event_id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -286,7 +286,7 @@ export default function CommentModerationTable({
                   </td>
                   <td className="px-6 py-4">
                     <div>
-                      <div className="font-medium text-gray-900">{comment.guestName}</div>
+                      <div className="font-medium text-gray-900">{comment.guest_name}</div>
                       {comment.email && (
                         <div className="text-sm text-gray-500">{comment.email}</div>
                       )}
@@ -316,7 +316,7 @@ export default function CommentModerationTable({
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">

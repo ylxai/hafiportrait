@@ -24,7 +24,7 @@ interface ContactMessage {
   phone: string | null
   message: string
   status: string
-  createdAt: string
+  created_at: string
 }
 
 export default function MessagesPage() {
@@ -273,7 +273,7 @@ export default function MessagesPage() {
                     {/* Timestamp */}
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="w-4 h-4 mr-1" />
-                      <span>{formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}</span>
+                      <span>{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}</span>
                     </div>
                   </div>
 

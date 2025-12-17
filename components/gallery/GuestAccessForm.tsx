@@ -7,18 +7,18 @@ import Image from 'next/image';
 interface GuestAccessFormProps {
   eventSlug: string;
   eventName?: string;
-  eventDate?: string | null;
+  event_date?: string | null;
   coverPhotoUrl?: string | null;
 }
 
 export default function GuestAccessForm({
   eventSlug,
   eventName,
-  eventDate,
+  event_date,
   coverPhotoUrl,
 }: GuestAccessFormProps) {
   const router = useRouter();
-  const [accessCode, setAccessCode] = useState('');
+  const [access_code, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,7 +34,7 @@ export default function GuestAccessForm({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          accessCode: accessCode.trim().toUpperCase(),
+          access_code: access_code.trim().toUpperCase(),
         }),
       });
 
@@ -96,22 +96,22 @@ export default function GuestAccessForm({
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {eventName || 'Event Gallery'}
             </h1>
-            {eventDate && (
+            {event_date && (
               <p className="text-gray-600">
-                {formatDate(eventDate)}
+                {formatDate(event_date)}
               </p>
             )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="accessCode" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="access_code" className="block text-sm font-medium text-gray-700 mb-2">
                 Masukkan Kode Akses
               </label>
               <input
                 type="text"
-                id="accessCode"
-                value={accessCode}
+                id="access_code"
+                value={access_code}
                 onChange={handleAccessCodeChange}
                 placeholder="ABC123"
                 className="w-full px-4 py-4 text-center text-2xl font-mono tracking-widest border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -133,7 +133,7 @@ export default function GuestAccessForm({
 
             <button
               type="submit"
-              disabled={isLoading || accessCode.length !== 6}
+              disabled={isLoading || access_code.length !== 6}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-lg"
             >
               {isLoading ? 'Memvalidasi...' : 'Lihat Gallery'}

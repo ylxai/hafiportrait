@@ -3,28 +3,28 @@
 import { useEffect, useRef, useState } from 'react'
 
 interface TabContentProps {
-  isActive: boolean
+  is_active: boolean
   children: React.ReactNode
   preload?: boolean
   className?: string
 }
 
 export default function TabContent({ 
-  isActive, 
+  is_active, 
   children, 
   preload = false, 
   className = '' 
 }: TabContentProps) {
-  const [hasLoaded, setHasLoaded] = useState(isActive)
-  const [isVisible, setIsVisible] = useState(isActive)
+  const [hasLoaded, setHasLoaded] = useState(is_active)
+  const [isVisible, setIsVisible] = useState(is_active)
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isActive && !hasLoaded) {
+    if (is_active && !hasLoaded) {
       setHasLoaded(true)
     }
     
-    if (isActive) {
+    if (is_active) {
       // Use requestAnimationFrame untuk smooth transition
       requestAnimationFrame(() => {
         setIsVisible(true)
@@ -32,10 +32,10 @@ export default function TabContent({
     } else {
       setIsVisible(false)
     }
-  }, [isActive, hasLoaded])
+  }, [is_active, hasLoaded])
 
   // Preload content jika diperlukan
-  const shouldRender = hasLoaded || preload || isActive
+  const shouldRender = hasLoaded || preload || is_active
 
   if (!shouldRender) {
     return null
@@ -47,7 +47,7 @@ export default function TabContent({
       className={`
         transition-all duration-150 ease-in-out
         ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1'}
-        ${!isActive ? 'pointer-events-none absolute inset-0' : 'relative'}
+        ${!is_active ? 'pointer-events-none absolute inset-0' : 'relative'}
         ${className}
       `}
       style={{

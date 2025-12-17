@@ -5,7 +5,7 @@ interface Category {
   name: string
   slug: string
   icon: string | null
-  displayOrder: number
+  display_order: number
 }
 
 interface CategoryTabsProps {

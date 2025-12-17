@@ -21,24 +21,24 @@ export async function GET(
 
     const { id } = await context.params
 
-    const photos = await prisma.photo.findMany({
+    const photos = await prisma.photos.findMany({
       where: {
-        eventId: id,
-        deletedAt: null
+        event_id: id,
+        deleted_at: null
       },
       orderBy: {
-        displayOrder: 'asc'
+        display_order: 'asc'
       },
       select: {
         id: true,
         filename: true,
-        thumbnailLargeUrl: true,
-        thumbnailMediumUrl: true,
-        thumbnailSmallUrl: true,
-        originalUrl: true,
-        displayOrder: true,
-        isFeatured: true,
-        createdAt: true
+        thumbnail_large_url: true,
+        thumbnail_medium_url: true,
+        thumbnail_small_url: true,
+        original_url: true,
+        display_order: true,
+        is_featured: true,
+        created_at: true
       }
     })
 

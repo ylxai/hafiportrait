@@ -97,7 +97,7 @@ export class BatchUploadError extends UploadError {
     filename: string;
     success: boolean;
     error?: string;
-    photoId?: string;
+    photo_id?: string;
   }>;
 
   constructor(
@@ -106,7 +106,7 @@ export class BatchUploadError extends UploadError {
       filename: string;
       success: boolean;
       error?: string;
-      photoId?: string;
+      photo_id?: string;
     }>,
     context?: Record<string, any>
   ) {

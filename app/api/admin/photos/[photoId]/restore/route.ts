@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 
 interface RouteParams {
-  params: Promise<{ photoId: string }>;
+  params: Promise<{ photo_id: string }>;
 }
 
 // POST - Restore soft-deleted photo
@@ -12,21 +12,21 @@ export async function POST(
   { params }: RouteParams
 ) {
   try {
-    const { photoId } = await params;
+    const { photo_id } = await params;
     
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    const photo = await prisma.photos.findUnique({
+      where: { id: photo_id },
       include: {
         event: {
           select: {
             id: true,
             name: true,
-            clientId: true,
+            client_id: true,
           },
         },
       },
@@ -36,29 +36,29 @@ export async function POST(
       return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
 
-    // Check authorization - FIXED: user.id -> user.userId
-    if (user.role !== 'ADMIN' && photo.event.clientId !== user.userId) {
+    // Check authorization - FIXED: user.id -> user.user_id
+    if (user.role !== 'ADMIN' && photo.event.client_id !== user.user_id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Check if photo is soft-deleted
-    if (!photo.deletedAt) {
+    if (!photo.deleted_at) {
       return NextResponse.json(
         { error: 'Photo is not deleted' },
         { status: 400 }
       );
     }
 
-    // Restore photo - clear deletedAt and deletedById
-    const restoredPhoto = await prisma.photo.update({
-      where: { id: photoId },
+    // Restore photo - clear deleted_at and deleted_by_id
+    const restoredPhoto = await prisma.photos.update({
+      where: { id: photo_id },
       data: {
-        deletedAt: null,
-        deletedById: null,
+        deleted_at: null,
+        deleted_by_id: null,
       },
     });
 
-    // Log audit trail - FIXED: user.id -> user.userId
+    // Log audit trail - FIXED: user.id -> user.user_id
 
     return NextResponse.json({
       success: true,

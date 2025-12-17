@@ -3,16 +3,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import OptimizedImage, { ImagePresets } from '../../../components/common/OptimizedImage'
-import { useHeroSlideshowCache } from '../../../hooks/useApiCache'
+import OptimizedImage, { ImagePresets } from '@/components/common/OptimizedImage'
+import { useHeroSlideshowCache } from '@/hooks/useApiCache'
 
 interface HeroSlide {
   id: string
   imageUrl: string
-  thumbnailUrl: string | null
+  thumbnail_url: string | null
   title: string | null
   subtitle: string | null
-  displayOrder: number
+  display_order: number
 }
 
 interface SlideshowSettings {
@@ -48,34 +48,34 @@ export default function CinematicHero() {
     {
       id: '1',
       imageUrl: '/images/hero/wedding-1.jpg',
-      thumbnailUrl: null,
+      thumbnail_url: null,
       title: 'Capture Your',
       subtitle: 'Love Story',
-      displayOrder: 0
+      display_order: 0
     },
     {
       id: '2',
       imageUrl: '/images/hero/wedding-2.jpg',
-      thumbnailUrl: null,
+      thumbnail_url: null,
       title: 'Timeless',
       subtitle: 'Memories',
-      displayOrder: 1
+      display_order: 1
     },
     {
       id: '3',
       imageUrl: '/images/hero/wedding-3.jpg',
-      thumbnailUrl: null,
+      thumbnail_url: null,
       title: 'Every Moment',
       subtitle: 'Matters',
-      displayOrder: 2
+      display_order: 2
     },
     {
       id: '4',
       imageUrl: '/images/hero/wedding-4.jpg',
-      thumbnailUrl: null,
+      thumbnail_url: null,
       title: 'Your Special',
       subtitle: 'Day',
-      displayOrder: 3
+      display_order: 3
     }
   ]
 

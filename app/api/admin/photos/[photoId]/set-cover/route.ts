@@ -1,6 +1,6 @@
 /**
  * Set Photo as Event Cover API
- * POST /api/admin/photos/[photoId]/set-cover - Set photo as event cover
+ * POST /api/admin/photos/[photo_id]/set-cover - Set photo as event cover
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -12,26 +12,26 @@ import prisma from '@/lib/prisma';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ photoId: string }> }
+  { params }: { params: Promise<{ photo_id: string }> }
 ) {
   try {
     const user = await getUserFromRequest(request);
-    const { photoId } = await params;
+    const { photo_id } = await params;
     
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Fetch photo with event info
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    const photo = await prisma.photos.findUnique({
+      where: { id: photo_id },
       include: {
         event: {
           select: {
             id: true,
             name: true,
-            clientId: true,
-            coverPhotoId: true,
+            client_id: true,
+            cover_photo_id: true,
           },
         },
       },
@@ -43,7 +43,7 @@ export async function POST(
 
     // Check permissions
     const isAdmin = user.role === 'ADMIN';
-    const isOwner = photo.event.clientId === user.userId;
+    const isOwner = photo.event.client_id === user.user_id;
 
     if (!isAdmin && !isOwner) {
       return NextResponse.json(
@@ -53,24 +53,24 @@ export async function POST(
     }
 
     // Update event cover photo
-    await prisma.event.update({
-      where: { id: photo.eventId },
+    await prisma.events.update({
+      where: { id: photo.event_id },
       data: {
-        coverPhotoId: photoId,
+        cover_photo_id: photo_id,
       },
     });
 
     // Mark photo as featured
-    await prisma.photo.update({
-      where: { id: photoId },
+    await prisma.photos.update({
+      where: { id: photo_id },
       data: {
-        isFeatured: true,
+        is_featured: true,
       },
     });
     return NextResponse.json({
       success: true,
       message: 'Photo set as event cover',
-      eventId: photo.eventId,
+      event_id: photo.event_id,
     });
 
   } catch (error) {

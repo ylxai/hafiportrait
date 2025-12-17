@@ -22,7 +22,7 @@ interface PageProps {
 
 export default async function PhotoManagementPage({ params, searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
-  const { id: eventId } = await params;
+  const { id: event_id } = await params;
 
   // Verify authentication
   const cookieStore = await cookies();
@@ -39,18 +39,18 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
 
   // Fetch event with photos
   const event = await prisma.events.findUnique({
-    where: { id: eventId },
+    where: { id: event_id },
     select: {
       id: true,
       name: true,
       slug: true,
       status: true,
-      clientId: true,
+      client_id: true,
       _count: {
         select: {
           photos: {
             where: {
-              deletedAt: null,
+              deleted_at: null,
             },
           },
         },
@@ -63,8 +63,8 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   // Check permissions
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId },
+  const user = await prisma.users.findUnique({
+    where: { id: decoded.user_id },
     select: { role: true, id: true },
   });
 
@@ -73,31 +73,31 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   const isAdmin = user.role === 'ADMIN';
-  const isOwner = event.clientId === decoded.userId;
+  const isOwner = event.client_id === decoded.user_id;
 
   if (!isAdmin && !isOwner) {
     redirect('/admin/events');
   }
 
   // Build query based on filters
-  let orderBy: any = { displayOrder: 'asc' }; // Default: order by display_order
+  let orderBy: any = { display_order: 'asc' }; // Default: order by display_order
   const sort = resolvedSearchParams.sort || 'order';
 
   switch (sort) {
     case 'order':
-      orderBy = { displayOrder: 'asc' };
+      orderBy = { display_order: 'asc' };
       break;
     case 'date-asc':
-      orderBy = { createdAt: 'asc' };
+      orderBy = { created_at: 'asc' };
       break;
     case 'date-desc':
-      orderBy = { createdAt: 'desc' };
+      orderBy = { created_at: 'desc' };
       break;
     case 'size-asc':
-      orderBy = { fileSize: 'asc' };
+      orderBy = { file_size: 'asc' };
       break;
     case 'size-desc':
-      orderBy = { fileSize: 'desc' };
+      orderBy = { file_size: 'desc' };
       break;
     case 'name-asc':
       orderBy = { filename: 'asc' };
@@ -109,19 +109,19 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
 
   // Build where clause
   const where: any = {
-    eventId: eventId,
-    deletedAt: null,
+    event_id: event_id,
+    deleted_at: null,
   };
 
   // Apply date filter
   if (resolvedSearchParams.filter === 'today') {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    where.createdAt = { gte: today };
+    where.created_at = { gte: today };
   } else if (resolvedSearchParams.filter === 'week') {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    where.createdAt = { gte: weekAgo };
+    where.created_at = { gte: weekAgo };
   }
 
   // Apply search
@@ -132,29 +132,29 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
     };
   }
 
-  // Fetch photos with all required fields - ORDERED BY displayOrder
-  const photos = await prisma.photo.findMany({
+  // Fetch photos with all required fields - ORDERED BY display_order
+  const photos = await prisma.photos.findMany({
     where,
     orderBy,
     select: {
       id: true,
       filename: true,
-      originalUrl: true,
-      thumbnailSmallUrl: true,
-      thumbnailMediumUrl: true,
-      thumbnailLargeUrl: true,
-      fileSize: true,
+      original_url: true,
+      thumbnail_small_url: true,
+      thumbnail_medium_url: true,
+      thumbnail_large_url: true,
+      file_size: true,
       width: true,
       height: true,
-      mimeType: true,
+      mime_type: true,
       caption: true,
-      isFeatured: true,
-      likesCount: true,
-      viewsCount: true,
-      downloadCount: true,
-      createdAt: true,
-      displayOrder: true,
-      event: {
+      is_featured: true,
+      likes_count: true,
+      views_count: true,
+      download_count: true,
+      created_at: true,
+      display_order: true,
+      events: {
         select: {
           id: true,
           name: true,
@@ -165,6 +165,31 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   });
 
   const photoCount = event._count.photos;
+
+  // Map to frontend interface (camelCase)
+  const formattedPhotos = photos.map(photo => ({
+    id: photo.id,
+    filename: photo.filename,
+    original_url: photo.original_url,
+    thumbnail_small_url: photo.thumbnail_small_url,
+    thumbnail_medium_url: photo.thumbnail_medium_url,
+    thumbnail_large_url: photo.thumbnail_large_url,
+    file_size: photo.file_size,
+    width: photo.width,
+    height: photo.height,
+    mime_type: photo.mime_type,
+    caption: photo.caption,
+    is_featured: photo.is_featured,
+    likes_count: photo.likes_count,
+    views_count: photo.views_count,
+    download_count: photo.download_count,
+    created_at: photo.created_at,
+    display_order: photo.display_order,
+    event: {
+      id: photo.events.id,
+      name: photo.events.name,
+    },
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -179,7 +204,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
             Events
           </Link>
           <ChevronRight className="h-4 w-4" />
-          <Link href={`/admin/events/${eventId}`} className="hover:text-gray-900">
+          <Link href={`/admin/events/${event_id}`} className="hover:text-gray-900">
             {event.name}
           </Link>
           <ChevronRight className="h-4 w-4" />
@@ -195,7 +220,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
             </p>
           </div>
           <Link
-            href={`/admin/events/${eventId}/photos/upload`}
+            href={`/admin/events/${event_id}/photos/upload`}
             className="inline-flex items-center rounded-lg bg-[#54ACBF] px-6 py-3 text-sm font-semibold text-white hover:bg-[#54ACBF]/90"
           >
             <Upload className="mr-2 h-4 w-4" />
@@ -204,10 +229,10 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
         </div>
 
         {/* Photo Grid with Drag & Drop */}
-        {photos.length > 0 ? (
+        {formattedPhotos.length > 0 ? (
           <DraggablePhotoGrid
-            photos={photos}
-            eventId={eventId}
+            photos={formattedPhotos}
+            event_id={event_id}
             currentSort={sort}
             currentFilter={resolvedSearchParams.filter}
             currentSearch={resolvedSearchParams.search}
@@ -220,7 +245,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
               Get started by uploading photos to this event.
             </p>
             <Link
-              href={`/admin/events/${eventId}/photos/upload`}
+              href={`/admin/events/${event_id}/photos/upload`}
               className="mt-6 inline-flex items-center rounded-lg bg-[#54ACBF] px-6 py-3 text-sm font-semibold text-white hover:bg-[#54ACBF]/90"
             >
               <Upload className="mr-2 h-4 w-4" />

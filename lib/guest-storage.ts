@@ -64,27 +64,27 @@ export function saveLikedPhotos(likedPhotos: Set<string>): void {
 /**
  * Add photo to liked list
  */
-export function addLikedPhoto(photoId: string): void {
+export function addLikedPhoto(photo_id: string): void {
   const liked = getLikedPhotos();
-  liked.add(photoId);
+  liked.add(photo_id);
   saveLikedPhotos(liked);
 }
 
 /**
  * Remove photo from liked list
  */
-export function removeLikedPhoto(photoId: string): void {
+export function removeLikedPhoto(photo_id: string): void {
   const liked = getLikedPhotos();
-  liked.delete(photoId);
+  liked.delete(photo_id);
   saveLikedPhotos(liked);
 }
 
 /**
  * Check if photo is liked by current guest
  */
-export function isPhotoLiked(photoId: string): boolean {
+export function isPhotoLiked(photo_id: string): boolean {
   const liked = getLikedPhotos();
-  return liked.has(photoId);
+  return liked.has(photo_id);
 }
 
 /**

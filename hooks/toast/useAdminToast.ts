@@ -82,8 +82,8 @@ export function useAdminToast() {
         showSuccessToast(TOAST_MESSAGES.package.deleteSuccess(name)),
       deleteError: () => 
         showErrorToast(TOAST_MESSAGES.package.deleteError),
-      toggleActiveSuccess: (name: string, isActive: boolean) => 
-        showSuccessToast(TOAST_MESSAGES.package.toggleActiveSuccess(name, isActive)),
+      toggleActiveSuccess: (name: string, is_active: boolean) => 
+        showSuccessToast(TOAST_MESSAGES.package.toggleActiveSuccess(name, is_active)),
       toggleBestSellerSuccess: (name: string, isBest: boolean) => 
         showSuccessToast(TOAST_MESSAGES.package.toggleBestSellerSuccess(name, isBest)),
     },

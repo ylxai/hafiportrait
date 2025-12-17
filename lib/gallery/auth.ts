@@ -10,7 +10,7 @@ const COOKIE_NAME_PREFIX = 'gallery_access_';
 const TOKEN_EXPIRY_DAYS = 30;
 
 export interface GalleryTokenPayload extends JWTPayload {
-  eventId: string;
+  event_id: string;
   eventSlug: string;
   sessionId: string;
 }
@@ -19,7 +19,7 @@ export interface GalleryTokenPayload extends JWTPayload {
  * Create a guest session token for gallery access
  */
 export async function createGalleryToken(
-  eventId: string,
+  event_id: string,
   eventSlug: string,
   ipAddress?: string,
   userAgent?: string
@@ -29,7 +29,7 @@ export async function createGalleryToken(
 
   // Create JWT token
   const token = await new SignJWT({
-    eventId,
+    event_id,
     eventSlug,
     sessionId,
   })
@@ -39,14 +39,15 @@ export async function createGalleryToken(
     .sign(JWT_SECRET);
 
   // Store session in database
-  await prisma.guestSession.create({
+  await prisma.guest_sessions.create({
     data: {
-      sessionId,
-      eventId,
-      guestToken: token,
-      ipAddress,
-      userAgent,
-      expiresAt,
+      id: crypto.randomUUID(),
+      session_id: sessionId,
+      event_id,
+      guest_token: token,
+      ip_address: ipAddress || null,
+      user_agent: userAgent || null,
+      expires_at: expiresAt,
     },
   });
 
@@ -60,16 +61,16 @@ export async function verifyGalleryToken(token: string): Promise<GalleryTokenPay
   try {
     const verified = await jwtVerify(token, JWT_SECRET);
     const payload = verified.payload;
-    
+
     // Validate payload structure
     if (
-      typeof payload.eventId === 'string' &&
+      typeof payload.event_id === 'string' &&
       typeof payload.eventSlug === 'string' &&
       typeof payload.sessionId === 'string'
     ) {
       return payload as GalleryTokenPayload;
     }
-    
+
     return null;
   } catch (error) {
     console.error('Gallery token verification failed:', error);
@@ -80,9 +81,9 @@ export async function verifyGalleryToken(token: string): Promise<GalleryTokenPay
 /**
  * Get current gallery session from cookies
  */
-export async function getGallerySession(eventId: string): Promise<GalleryTokenPayload | null> {
+export async function getGallerySession(event_id: string): Promise<GalleryTokenPayload | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(`${COOKIE_NAME_PREFIX}${eventId}`)?.value;
+  const token = cookieStore.get(`${COOKIE_NAME_PREFIX}${event_id}`)?.value;
 
   if (!token) {
     return null;
@@ -95,13 +96,13 @@ export async function getGallerySession(eventId: string): Promise<GalleryTokenPa
  * Set gallery access cookie
  */
 export async function setGalleryAccessCookie(
-  eventId: string,
+  event_id: string,
   token: string,
   expiresAt: Date
 ): Promise<void> {
   const cookieStore = await cookies();
-  
-  cookieStore.set(`${COOKIE_NAME_PREFIX}${eventId}`, token, {
+
+  cookieStore.set(`${COOKIE_NAME_PREFIX}${event_id}`, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -113,9 +114,9 @@ export async function setGalleryAccessCookie(
 /**
  * Clear gallery access cookie
  */
-export async function clearGalleryAccessCookie(eventId: string): Promise<void> {
+export async function clearGalleryAccessCookie(event_id: string): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(`${COOKIE_NAME_PREFIX}${eventId}`);
+  cookieStore.delete(`${COOKIE_NAME_PREFIX}${event_id}`);
 }
 
 /**
@@ -123,16 +124,16 @@ export async function clearGalleryAccessCookie(eventId: string): Promise<void> {
  */
 export async function validateAccessCode(
   slug: string,
-  accessCode: string,
+  access_code: string,
   ipAddress?: string,
   userAgent?: string
 ): Promise<{ success: boolean; event?: any; token?: string; expiresAt?: Date; error?: string }> {
   // Find event by slug
-  const event = await prisma.event.findUnique({
+  const event = await prisma.events.findUnique({
     where: { slug },
     include: {
       photos: {
-        where: { deletedAt: null },
+        where: { deleted_at: null },
         select: { id: true },
         take: 1,
       },
@@ -149,7 +150,7 @@ export async function validateAccessCode(
   }
 
   // Validate access code (case-insensitive)
-  if (event.accessCode.toUpperCase() !== accessCode.toUpperCase()) {
+  if (event.access_code.toUpperCase() !== access_code.toUpperCase()) {
     return { success: false, error: 'Invalid access code' };
   }
 
@@ -173,9 +174,9 @@ export async function validateAccessCode(
  * Update session last access time
  */
 export async function updateSessionLastAccess(sessionId: string): Promise<void> {
-  await prisma.guestSession.update({
-    where: { sessionId },
-    data: { lastAccessAt: new Date() },
+  await prisma.guest_sessions.update({
+    where: { session_id: sessionId },
+    data: { last_access_at: new Date() },
   });
 }
 

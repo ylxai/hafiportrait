@@ -148,7 +148,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  const isActive = (href?: string) => {
+  const is_active = (href?: string) => {
     if (!href) return false
     return pathname === href || pathname.startsWith(href + '/')
   }
@@ -156,7 +156,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const renderMenuItem = (item: MenuItem, level = 0) => {
     const hasSubItems = item.subItems && item.subItems.length > 0
     const isExpanded = expandedMenus.includes(item.name)
-    const active = isActive(item.href)
+    const active = is_active(item.href)
 
     if (hasSubItems) {
       return (

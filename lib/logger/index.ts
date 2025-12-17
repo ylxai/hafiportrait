@@ -65,7 +65,7 @@ interface LogEntry {
   error?: unknown
   stack?: string
   requestId?: string
-  userId?: string
+  user_id?: string
   component?: string
   action?: string
   category?: string
@@ -166,7 +166,7 @@ class EnhancedLogger {
     message: string, 
     error?: unknown,
     context?: {
-      userId?: string
+      user_id?: string
       component?: string
       action?: string
       metadata?: Record<string, unknown>
@@ -198,7 +198,7 @@ class EnhancedLogger {
     message: string, 
     error?: unknown,
     context?: {
-      userId?: string
+      user_id?: string
       component?: string
       action?: string
       metadata?: Record<string, unknown>
@@ -224,7 +224,7 @@ class EnhancedLogger {
    * Structured error logging with full context
    */
   logError(errorContext: ErrorContext): void {
-    const { error, severity, category, userId, sessionId, component, action, metadata } = errorContext
+    const { error, severity, category, user_id, sessionId, component, action, metadata } = errorContext
     
     const entry = this.createLogEntry(
       severity === 'critical' ? LogLevel.CRITICAL : LogLevel.ERROR,
@@ -234,7 +234,7 @@ class EnhancedLogger {
         stack: error.stack,
         category,
         severity,
-        userId,
+        user_id,
         sessionId,
         component,
         action,
@@ -257,7 +257,7 @@ class EnhancedLogger {
     path: string,
     status: number,
     duration: number,
-    userId?: string
+    user_id?: string
   ): void {
     const level = status >= 500 ? LogLevel.ERROR : status >= 400 ? LogLevel.WARN : LogLevel.INFO
     
@@ -267,7 +267,7 @@ class EnhancedLogger {
         path,
         status,
         duration,
-        userId
+        user_id
       }
     })
     

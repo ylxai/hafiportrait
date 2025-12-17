@@ -56,7 +56,7 @@ export const slugSchema = z
 /**
  * Access code validation (6 alphanumeric uppercase)
  */
-export const accessCodeSchema = z
+export const access_codeSchema = z
   .string()
   .length(6, 'Access code must be exactly 6 characters')
   .regex(/^[A-Z0-9]{6}$/, 'Access code must be 6 uppercase alphanumeric characters')
@@ -87,20 +87,20 @@ export const plainTextSchema = (maxLength = 5000) =>
 export const createEventSchema = z.object({
   name: safeString(3, 200),
   slug: slugSchema,
-  clientEmail: emailSchema,
-  clientPhone: phoneSchema.optional(),
-  eventDate: z.string().datetime().optional().nullable(),
+  client_email: emailSchema,
+  client_phone: phoneSchema.optional(),
+  event_date: z.string().datetime().optional().nullable(),
   description: textContentSchema(500).optional().nullable(),
   location: safeString(1, 500).optional().nullable(),
   coupleName: safeString(1, 200).optional().nullable(),
-  storageDurationDays: z.number().int().min(30).max(365).default(30),
+  storage_duration_days: z.number().int().min(30).max(365).default(30),
   autoGenerateAccessCode: z.boolean().default(true),
 });
 
 export const updateEventSchema = createEventSchema.partial();
 
 export const eventAccessSchema = z.object({
-  accessCode: accessCodeSchema,
+  access_code: access_codeSchema,
   password: z.string().max(100).optional().nullable(),
 });
 
@@ -133,7 +133,7 @@ export const createCommentSchema = z.object({
   email: emailSchema.optional().nullable(),
   message: textContentSchema(1000),
   relationship: safeString(1, 100).optional().nullable(),
-  photoId: z.string().cuid().optional().nullable(),
+  photo_id: z.string().cuid().optional().nullable(),
 });
 
 export const updateCommentSchema = z.object({
@@ -147,17 +147,17 @@ export const updateCommentSchema = z.object({
 
 export const updatePhotoSchema = z.object({
   caption: textContentSchema(500).optional().nullable(),
-  displayOrder: z.number().int().min(0).optional(),
-  isFeatured: z.boolean().optional(),
+  display_order: z.number().int().min(0).optional(),
+  is_featured: z.boolean().optional(),
 });
 
 export const photoFilterSchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(1)).default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(1).max(100)).default('20'),
   search: z.string().max(100).optional(),
-  sortBy: z.enum(['createdAt', 'displayOrder', 'likesCount', 'viewsCount']).default('createdAt'),
+  sortBy: z.enum(['created_at', 'display_order', 'likes_count', 'views_count']).default('created_at'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  isFeatured: z.string().transform(val => val === 'true').optional(),
+  is_featured: z.string().transform(val => val === 'true').optional(),
 });
 
 // ============================================
@@ -170,8 +170,8 @@ export const createPackageSchema = z.object({
   price: z.number().int().min(0).max(1000000000), // Max 1 billion IDR
   features: z.array(z.string().max(200)).max(20).default([]),
   isBestSeller: z.boolean().default(false),
-  isActive: z.boolean().default(true),
-  displayOrder: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+  display_order: z.number().int().min(0).default(0),
   categoryId: z.string().cuid(),
 });
 
@@ -181,8 +181,8 @@ export const createPackageCategorySchema = z.object({
   name: safeString(3, 100),
   slug: slugSchema,
   icon: z.string().max(50).optional().nullable(),
-  displayOrder: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
 });
 
 export const updatePackageCategorySchema = createPackageCategorySchema.partial();
@@ -221,7 +221,7 @@ export const paginationSchema = z.object({
 export const searchSchema = z.object({
   search: z.string().max(100).optional(),
   status: z.string().max(20).optional(),
-  sortBy: z.string().max(50).default('createdAt'),
+  sortBy: z.string().max(50).default('created_at'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
@@ -244,11 +244,11 @@ export const fileMetadataSchema = z.object({
 
 export const createHeroSlideSchema = z.object({
   imageUrl: z.string().url().max(255),
-  thumbnailUrl: z.string().url().max(255).optional().nullable(),
+  thumbnail_url: z.string().url().max(255).optional().nullable(),
   title: safeString(1, 100).optional().nullable(),
   subtitle: safeString(1, 200).optional().nullable(),
-  displayOrder: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
 });
 
 export const updateHeroSlideSchema = createHeroSlideSchema.partial();

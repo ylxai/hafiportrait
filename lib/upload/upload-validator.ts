@@ -39,7 +39,7 @@ export interface FileValidationResult {
   error?: string;
   metadata?: {
     size: number;
-    mimeType: string;
+    mime_type: string;
     width?: number;
     height?: number;
     format?: string;
@@ -73,7 +73,7 @@ async function fileToBuffer(file: File | Buffer): Promise<Buffer> {
 export async function validateSingleFile(
   file: File | Buffer,
   filename: string,
-  mimeType: string,
+  mime_type: string,
   options?: UploadValidationOptions
 ): Promise<FileValidationResult> {
   const result: FileValidationResult = {
@@ -85,16 +85,16 @@ export async function validateSingleFile(
   try {
     // Get file buffer
     const buffer = await fileToBuffer(file);
-    const fileSize = buffer.length;
+    const file_size = buffer.length;
 
     // 1. Check MIME type
-    if (!isAllowedMimeType(mimeType)) {
-      result.error = `File type not allowed: ${mimeType}. Only JPEG, PNG, WebP, and HEIC are supported.`;
+    if (!isAllowedMimeType(mime_type)) {
+      result.error = `File type not allowed: ${mime_type}. Only JPEG, PNG, WebP, and HEIC are supported.`;
       return result;
     }
 
     // 2. Validate file size
-    const sizeValidation = validateFileSize(fileSize, {
+    const sizeValidation = validateFileSize(file_size, {
       minSize: FILE_SIZE_LIMITS.MIN_FILE_SIZE,
       maxSize: options?.maxFileSize || FILE_SIZE_LIMITS.MAX_FILE_SIZE,
     });
@@ -105,7 +105,7 @@ export async function validateSingleFile(
     }
 
     // 3. Comprehensive file validation (magic bytes, integrity, malware)
-    const fileValidation = await validateFile(buffer, { filename, mimeType, size: fileSize });
+    const fileValidation = await validateFile(buffer, { filename, mime_type, size: file_size });
 
     if (!fileValidation.valid) {
       result.error = fileValidation.error;
@@ -115,8 +115,8 @@ export async function validateSingleFile(
     // Success!
     result.valid = true;
     result.metadata = {
-      size: fileSize,
-      mimeType,
+      size: file_size,
+      mime_type,
       width: fileValidation.details?.dimensions?.width,
       height: fileValidation.details?.dimensions?.height,
       format: fileValidation.details?.format,
@@ -133,7 +133,7 @@ export async function validateSingleFile(
  * Validate batch file upload
  */
 export async function validateBatchUpload(
-  files: Array<{ file: File | Buffer; filename: string; mimeType: string }>,
+  files: Array<{ file: File | Buffer; filename: string; mime_type: string }>,
   options?: UploadValidationOptions
 ): Promise<BatchValidationResult> {
   const maxFiles = options?.maxFiles || 100;
@@ -162,18 +162,18 @@ export async function validateBatchUpload(
   }
 
   // 2. Calculate total batch size
-  const fileSizes = await Promise.all(
+  const file_sizes = await Promise.all(
     files.map(async ({ file }) => {
       const buffer = await fileToBuffer(file);
       return buffer.length;
     })
   );
 
-  const totalSize = fileSizes.reduce((sum, size) => sum + size, 0);
+  const totalSize = file_sizes.reduce((sum, size) => sum + size, 0);
 
   // 3. Validate batch size
   const batchSizeValidation = validateBatchSize(
-    fileSizes.map((size) => ({ size })),
+    file_sizes.map((size) => ({ size })),
     options?.maxBatchSize || FILE_SIZE_LIMITS.MAX_BATCH_SIZE
   );
 
@@ -188,8 +188,8 @@ export async function validateBatchUpload(
   }
 
   // 4. Validate each file
-  const validationPromises = files.map(({ file, filename, mimeType }) =>
-    validateSingleFile(file, filename, mimeType, options)
+  const validationPromises = files.map(({ file, filename, mime_type }) =>
+    validateSingleFile(file, filename, mime_type, options)
   );
 
   const fileResults = await Promise.all(validationPromises);

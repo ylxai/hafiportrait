@@ -32,7 +32,7 @@ interface SortOption {
 const sortOptions: SortOption[] = [
   { id: 'uploadDate', label: 'Upload Date', icon: Calendar },
   { id: 'fileName', label: 'File Name', icon: FileText },
-  { id: 'fileSize', label: 'File Size', icon: HardDrive },
+  { id: 'file_size', label: 'File Size', icon: HardDrive },
   { id: 'dateTaken', label: 'Date Taken (EXIF)', icon: Camera },
 ];
 

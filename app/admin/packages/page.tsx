@@ -10,8 +10,8 @@ interface PackageCategory {
   name: string
   slug: string
   icon: string | null
-  displayOrder: number
-  isActive: boolean
+  display_order: number
+  is_active: boolean
 }
 
 interface PackageItem {
@@ -21,12 +21,12 @@ interface PackageItem {
   price: number
   features: string[]
   isBestSeller: boolean
-  isActive: boolean
-  displayOrder: number
+  is_active: boolean
+  display_order: number
   categoryId: string
   category: PackageCategory
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }
 
 export default function PackagesPage() {
@@ -80,7 +80,7 @@ export default function PackagesPage() {
   }
 
   const toggleActive = async (pkg: PackageItem) => {
-    const newStatus = !pkg.isActive
+    const newStatus = !pkg.is_active
 
     try {
       const response = await fetch('/api/admin/packages', {
@@ -89,7 +89,7 @@ export default function PackagesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: pkg.id,
-          isActive: newStatus,
+          is_active: newStatus,
         }),
       })
 
@@ -234,13 +234,13 @@ export default function PackagesPage() {
                     <button
                       onClick={() => toggleActive(pkg)}
                       className={`p-2 rounded-lg transition-colors ${
-                        pkg.isActive
+                        pkg.is_active
                           ? 'bg-green-100 text-green-600 hover:bg-green-200'
                           : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}
-                      title={pkg.isActive ? 'Active' : 'Inactive'}
+                      title={pkg.is_active ? 'Active' : 'Inactive'}
                     >
-                      {pkg.isActive ? (
+                      {pkg.is_active ? (
                         <Eye className="w-4 h-4" />
                       ) : (
                         <EyeOff className="w-4 h-4" />

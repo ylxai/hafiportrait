@@ -1,17 +1,17 @@
 'use client';
 
 import { useState, useCallback, memo } from 'react';
-import OptimizedImage, { ImagePresets } from '../common/OptimizedImage';
+import OptimizedImage, { ImagePresets } from '@/components/common/OptimizedImage';
 import LikeButton from './LikeButton';
 import HeartAnimation from './HeartAnimation';
 
 interface Photo {
   id: string;
   filename: string;
-  thumbnailMediumUrl: string | null;
-  thumbnailSmallUrl: string | null;
-  thumbnailUrl: string | null;
-  likesCount: number;
+  thumbnail_medium_url: string | null;
+  thumbnail_small_url: string | null;
+  thumbnail_url: string | null;
+  likes_count: number;
 }
 
 interface PhotoTileProps {
@@ -36,12 +36,12 @@ function PhotoTile({
   const [isLoaded, setIsLoaded] = useState(false);
   const [lastTap, setLastTap] = useState(0);
   const [heartAnimations, setHeartAnimations] = useState<HeartAnimationState[]>([]);
-  const [localLikesCount, setLocalLikesCount] = useState(photo.likesCount);
+  const [localLikesCount, setLocalLikesCount] = useState(photo.likes_count);
   
-  const thumbnailUrl = 
-    photo.thumbnailMediumUrl || 
-    photo.thumbnailSmallUrl || 
-    photo.thumbnailUrl;
+  const thumbnail_url = 
+    photo.thumbnail_medium_url || 
+    photo.thumbnail_small_url || 
+    photo.thumbnail_url;
 
   // Double-tap handler for mobile
   const handleDoubleTap = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -100,7 +100,7 @@ function PhotoTile({
         onTouchStart={handleDoubleTap}
       >
         <OptimizedImage
-          src={thumbnailUrl || ''}
+          src={thumbnail_url || ''}
           alt={`Photography image: ${photo.filename}`}
           className="group-hover:scale-105 transition-transform duration-300"
           onLoad={() => setIsLoaded(true)}
@@ -114,7 +114,7 @@ function PhotoTile({
             id={`like-btn-${photo.id}`}
           >
             <LikeButton
-              photoId={photo.id}
+              photo_id={photo.id}
               eventSlug={eventSlug}
               initialLikesCount={localLikesCount}
               onLikeChange={handleLikeChange}
@@ -146,7 +146,7 @@ function PhotoTile({
 export default memo(PhotoTile, (prevProps, nextProps) => {
   return (
     prevProps.photo.id === nextProps.photo.id &&
-    prevProps.photo.likesCount === nextProps.photo.likesCount &&
+    prevProps.photo.likes_count === nextProps.photo.likes_count &&
     prevProps.eventSlug === nextProps.eventSlug &&
     prevProps.allowLikes === nextProps.allowLikes &&
     prevProps.onClick === nextProps.onClick

@@ -21,12 +21,12 @@ export async function POST(
     }
 
     // Get event - using explicit select to avoid coupleName field
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { id: params.id },
       select: {
         id: true,
         slug: true,
-        accessCode: true,
+        access_code: true,
       }
     })
 
@@ -36,13 +36,13 @@ export async function POST(
 
     // Generate QR code URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    const galleryUrl = `${baseUrl}/${event.slug}?code=${event.accessCode}`
+    const galleryUrl = `${baseUrl}/${event.slug}?code=${event.access_code}`
 
     // Generate QR code as data URL
     const qrCodeDataUrl = await generateQRCode(galleryUrl)
 
     // For now, store as data URL (later can upload to R2)
-    await prisma.event.update({
+    await prisma.events.update({
       where: { id: params.id },
       data: {
         qrCodeUrl: qrCodeDataUrl,

@@ -27,13 +27,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { eventSlug } = await params;
     const { searchParams } = new URL(request.url);
-    const photoId = searchParams.get('photoId');
+    const photo_id = searchParams.get('photo_id');
     const status = searchParams.get('status') || 'approved';
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Find event
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { slug: eventSlug },
       select: { id: true },
     });
@@ -57,20 +57,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Fetch comments
     const comments = await prisma.comments.findMany({
       where: {
-        eventId: event.id,
-        ...(photoId && { photoId }),
+        event_id: event.id,
+        ...(photo_id && { photo_id }),
         status,
       },
       select: {
         id: true,
-        guestName: true,
+        guest_name: true,
         message: true,
         relationship: true,
-        createdAt: true,
-        photoId: true,
+        created_at: true,
+        photo_id: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
       take: limit,
       skip: offset,
@@ -79,8 +79,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Get total count
     const totalCount = await prisma.comments.count({
       where: {
-        eventId: event.id,
-        ...(photoId && { photoId }),
+        event_id: event.id,
+        ...(photo_id && { photo_id }),
         status,
       },
     });
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { eventSlug } = await params;
     const body = await request.json();
-    const { name, email, message, relationship, guestId, photoId, honeypot } = body;
+    const { name, email, message, relationship, guestId, photo_id, honeypot } = body;
 
     // Honeypot check (simple bot detection)
     if (honeypot) {
@@ -124,9 +124,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Find event
-    const event = await prisma.event.findUnique({
+    const event = await prisma.events.findUnique({
       where: { slug: eventSlug },
-      select: { 
+      select: {
         id: true,
       },
     });
@@ -148,14 +148,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if comments are enabled
-    const settings = await prisma.eventSettings.findUnique({
-      where: { eventId: event.id },
-      select: { 
-        allowGuestComments: true,
-        requireCommentModeration: true,
+    const settings = await prisma.event_settings.findUnique({
+      where: { event_id: event.id },
+      select: {
+        allow_guest_comments: true,
+        require_comment_moderation: true,
       },
     });
-    const allowComments = settings?.allowGuestComments ?? true;
+    const allowComments = settings?.allow_guest_comments ?? true;
     if (!allowComments) {
       return NextResponse.json(
         { error: 'Comments are disabled for this event' },
@@ -166,10 +166,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Rate limiting: 5 comments per minute per guest - FIXED: Use centralized rate limiter
     const identifier = `${getClientIdentifier(request)}:${guestId}`;
     const rateLimitResult = await checkRateLimit(identifier, RateLimitPresets.GALLERY_COMMENT);
-    
+
     if (!rateLimitResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Rate limit exceeded. Please try again later.',
           resetAt: rateLimitResult.reset,
         },
@@ -205,12 +205,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check for duplicate recent comment
-    const recentDuplicate = await prisma.comment.findFirst({
+    const recentDuplicate = await prisma.comments.findFirst({
       where: {
-        eventId: event.id,
-        guestId,
+        event_id: event.id,
+        guest_id: guestId,
         message: sanitized.message,
-        createdAt: {
+        created_at: {
           gte: new Date(Date.now() - 60000), // Last 1 minute
         },
       },
@@ -223,12 +223,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Verify photo exists if photoId provided
-    if (photoId) {
-      const photo = await prisma.photo.findFirst({
+    // Verify photo exists if photo_id provided
+    if (photo_id) {
+      const photo = await prisma.photos.findFirst({
         where: {
-          id: photoId,
-          eventId: event.id,
+          id: photo_id,
+          event_id: event.id,
         },
       });
 
@@ -241,34 +241,36 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Determine comment status
-    const requireModeration = settings?.requireCommentModeration ?? false;
+    const requireModeration = settings?.require_comment_moderation ?? false;
     const status = requireModeration ? 'pending' : 'approved';
 
     // Get IP address
-    const ipAddress = request.headers.get('x-forwarded-for') || 
-                      request.headers.get('x-real-ip') || 
-                      'unknown';
+    const ipAddress = request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Create comment
-    const comment = await prisma.comment.create({
+    const comment = await prisma.comments.create({
       data: {
-        eventId: event.id,
-        photoId: photoId || null,
-        guestId,
-        guestName: sanitized.name,
+        id: crypto.randomUUID(),
+        event_id: event.id,
+        photo_id: photo_id || null,
+        guest_id: guestId,
+        guest_name: sanitized.name,
         email: sanitized.email || null,
         message: sanitized.message,
         relationship: sanitized.relationship || null,
         status,
-        ipAddress,
+        ip_address: ipAddress,
+        updated_at: new Date(),
       },
       select: {
         id: true,
-        guestName: true,
+        guest_name: true,
         message: true,
         relationship: true,
         status: true,
-        createdAt: true,
+        created_at: true,
       },
     });
 

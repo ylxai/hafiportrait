@@ -11,16 +11,16 @@ interface CommentCardProps {
   guestName: string;
   message: string;
   relationship?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export default function CommentCard({
   guestName,
   message,
   relationship,
-  createdAt,
+  created_at,
 }: CommentCardProps) {
-  const timeAgo = formatDistanceToNow(new Date(createdAt), { addSuffix: true });
+  const timeAgo = formatDistanceToNow(new Date(created_at), { addSuffix: true });
 
   return (
     <div className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">

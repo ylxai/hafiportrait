@@ -10,7 +10,7 @@ interface PackageCategory {
   name: string
   slug: string
   icon: string | null
-  displayOrder: number
+  display_order: number
   packages: Package[]
 }
 
@@ -21,14 +21,14 @@ interface Package {
   price: number
   features: string[]
   isBestSeller: boolean
-  displayOrder: number
+  display_order: number
 }
 
 interface AdditionalService {
   id: string
   name: string
   price: number
-  displayOrder: number
+  display_order: number
 }
 
 export default function PricingAccordion() {
