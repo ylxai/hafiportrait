@@ -4,7 +4,8 @@ import { getJWTSecret, securityConfig } from './config/security'
 
 export interface JWTPayload {
   user_id: string
-  email: string
+  username?: string
+  email?: string
   role: string
   iat?: number
   exp?: number
@@ -51,7 +52,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
     const { payload } = await jwtVerify(token, jwtSecret)
     
     // Validate required fields
-    if (!payload.user_id || !payload.email || !payload.role) {
+    if (!payload.user_id || !payload.role) {
       return null
     }
     

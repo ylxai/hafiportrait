@@ -154,6 +154,7 @@ export async function checkRateLimit(
   } catch (error) {
     // If Redis fails, allow the request but log error
     console.error('Rate limiter error:', error)
+    // For Redis auth errors, gracefully allow requests
     return {
       success: true,
       limit: config.maxRequests,
