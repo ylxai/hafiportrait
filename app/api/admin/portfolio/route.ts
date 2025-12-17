@@ -46,3 +46,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create portfolio item' }, { status: 500 })
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getUserFromRequest(request)
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const url = new URL(request.url)
+    const photoId = url.searchParams.get('id')
+    
+    if (!photoId) {
+      return NextResponse.json({ error: 'Photo ID required' }, { status: 400 })
+    }
+
+    await prisma.portfolio_photos.delete({
+      where: { id: photoId }
+    })
+
+    return NextResponse.json({ success: true, message: 'Portfolio item deleted' })
+  } catch (error) {
+    console.error('Portfolio DELETE error:', error)
+    return NextResponse.json({ error: 'Failed to delete portfolio item' }, { status: 500 })
+  }
+}
