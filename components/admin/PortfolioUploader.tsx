@@ -81,10 +81,13 @@ export default function PortfolioUploader({
       if (category) formData.append('category', category)
       if (description) formData.append('description', description)
 
+      console.log('Sending FormData with files:', files.map(f => f.name))
+      
       const response = await fetch('/api/admin/portfolio/upload', {
         method: 'POST',
         credentials: 'include',
         body: formData,
+        // Don't set Content-Type, let browser set it with boundary
       })
 
       if (!response.ok) {
