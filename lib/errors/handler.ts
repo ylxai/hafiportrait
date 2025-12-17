@@ -2,16 +2,50 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { AppError, ValidationError, RateLimitError, ErrorCode } from './types'
 import { Prisma } from '@prisma/client'
+import { 
+  ApplicationError, 
+  ErrorContext, 
+  ErrorHandlerResponse, 
+  ErrorSeverity,
+  isApiError,
+  isValidationError,
+  isAuthenticationError,
+  isDatabaseError,
+  isFileProcessingError,
+  isStorageError,
+  isNetworkError,
+  isRateLimitError
+} from '@/lib/types/errors'
 
 /**
- * Standard error response format
+ * Standard error response format (using new interface)
  */
-interface ErrorResponse {
-  success: false
-  error: string
-  code?: string
-  errors?: string[]
-  requestId?: string
+type ErrorResponse = ErrorHandlerResponse
+
+/**
+ * Determine error severity based on error type
+ */
+function determineErrorSeverity(error: unknown): ErrorSeverity {
+  if (isAuthenticationError(error) || isRateLimitError(error)) return 'high'
+  if (isDatabaseError(error) || isStorageError(error)) return 'critical'
+  if (isValidationError(error)) return 'medium'
+  if (isNetworkError(error)) return 'medium'
+  return 'low'
+}
+
+/**
+ * Categorize error for logging and monitoring
+ */
+function categorizeError(error: unknown): string {
+  if (isApiError(error)) return 'api'
+  if (isAuthenticationError(error)) return 'auth'
+  if (isDatabaseError(error)) return 'database'
+  if (isFileProcessingError(error)) return 'file_processing'
+  if (isStorageError(error)) return 'storage'
+  if (isNetworkError(error)) return 'network'
+  if (isValidationError(error)) return 'validation'
+  if (isRateLimitError(error)) return 'rate_limit'
+  return 'unknown'
 }
 
 /**
