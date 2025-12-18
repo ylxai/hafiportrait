@@ -3,9 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import OptimizedImage, {
-  ImagePresets,
-} from '@/components/common/OptimizedImage'
+import OptimizedImage from '@/components/common/OptimizedImage'
 import { useHeroSlideshowCache } from '@/hooks/useApiCache'
 
 interface HeroSlide {
@@ -290,40 +288,42 @@ export default function CinematicHero() {
           }}
           className="absolute inset-0"
         >
-          {/* Background Image */}
+          {/* Fallback gradient BEHIND image */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+          
+          {/* Background Image ABOVE fallback */}
           <OptimizedImage
-            src={
-              displaySlides[currentSlide]?.imageUrl ||
-              '/images/hero/wedding-1.jpg'
-            }
+            src={displaySlides[currentSlide]?.imageUrl || '/images/hero/wedding-1.jpg'}
             alt={
               `${displaySlides[currentSlide]?.title} ${displaySlides[currentSlide]?.subtitle}` ||
               'Wedding Photography'
             }
-            className="absolute inset-0"
-            {...ImagePresets.hero}
+            className="absolute inset-0 z-10 w-full h-full object-cover transition-none"
+            fill={true}
+            sizes="100vw"
+            priority={true}
+            quality={90}
+            placeholder="empty"
+            loading="eager"
           />
 
-          {/* Fallback gradient if image doesn't exist */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+          {/* Lighter image overlay for better brightness */}
+          <div className="absolute inset-0 bg-black/20 z-20" />
 
-          {/* Image overlay */}
-          <div className="absolute inset-0 bg-black/40" />
-
-          {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          {/* Lighter gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-30" />
         </motion.div>
       </AnimatePresence>
 
-      {/* Hero Content */}
-      <div className="pointer-events-none relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
+      {/* Hero Content - SMOOTH ANIMATION */}
+      <div className="pointer-events-none relative z-40 flex h-full flex-col items-center justify-center px-4 text-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0.8 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="space-y-6"
           >
             {/* Main Title */}
