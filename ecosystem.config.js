@@ -36,7 +36,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         SOCKET_PORT: 3001,
-        REDIS_URL: 'redis://localhost:6379',
+        REDIS_URL: 'redis://:Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=@localhost:6379',
         ALLOWED_ORIGINS: 'https://hafiportrait.photography,https://www.hafiportrait.photography'
       },
       error_file: './logs/socket-error.log',
