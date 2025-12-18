@@ -53,11 +53,11 @@ export default function ModernServices() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">
-            Our <span className="italic text-rose-500">Services</span>
+          <h2 className="text-2xl md:text-3xl font-light text-gray-900 mb-3">
+            Our <span className="text-rose-500">Services</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Professional photography services tailored to capture your most precious moments
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+            Professional photography for your special moments
           </p>
         </motion.div>
 
@@ -100,24 +100,35 @@ export default function ModernServices() {
           ))}
         </div>
 
-        {/* Call to Action */}
+        {/* Horizontal CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-8"
+          className="text-center mt-6"
         >
-          <p className="text-gray-600 mb-4 text-sm">
-            Tap any service above for details
+          <p className="text-gray-600 mb-3 text-xs md:text-sm">
+            Tap service for details
           </p>
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-medium rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm"
-          >
-            <Camera className="w-4 h-4" />
-            Book Session
-          </a>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <a
+              href="#pricing"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-medium rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 text-xs md:text-sm"
+            >
+              <Camera className="w-3 h-3 md:w-4 md:h-4" />
+              Price List
+            </a>
+            <a
+              href="#gallery"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-medium rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 text-xs md:text-sm"
+            >
+              <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Our Gallery
+            </a>
+          </div>
         </motion.div>
       </div>
     </section>

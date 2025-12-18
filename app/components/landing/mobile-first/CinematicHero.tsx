@@ -49,43 +49,22 @@ export default function CinematicHero() {
   const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null)
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Fallback slides if no data from database
-  const fallbackSlides: HeroSlide[] = [
-    {
-      id: '1',
-      imageUrl: '/images/hero/wedding-1.jpg',
-      thumbnail_url: null,
-      title: 'Capture Your',
-      subtitle: 'Love Story',
-      display_order: 0,
-    },
-    {
-      id: '2',
-      imageUrl: '/images/hero/wedding-2.jpg',
-      thumbnail_url: null,
-      title: 'Timeless',
-      subtitle: 'Memories',
-      display_order: 1,
-    },
-    {
-      id: '3',
-      imageUrl: '/images/hero/wedding-3.jpg',
-      thumbnail_url: null,
-      title: 'Every Moment',
-      subtitle: 'Matters',
-      display_order: 2,
-    },
-    {
-      id: '4',
-      imageUrl: '/images/hero/wedding-4.jpg',
-      thumbnail_url: null,
-      title: 'Your Special',
-      subtitle: 'Day',
-      display_order: 3,
-    },
-  ]
-
-  const displaySlides = slides.length > 0 ? slides : fallbackSlides
+  // Use API data only, no fallback images
+  const displaySlides = slides.length > 0 ? slides : []
+  
+  // Show loading state if no slides
+  if (displaySlides.length === 0) {
+    return (
+      <section className="relative h-screen w-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <h1 className="text-3xl md:text-4xl font-light tracking-tight">
+            Loading <span className="font-serif italic">Gallery</span>
+          </h1>
+        </div>
+      </section>
+    )
+  }
 
   // Navigation methods (define first!)
   const nextSlide = useCallback(() => {
