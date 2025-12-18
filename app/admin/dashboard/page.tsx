@@ -36,10 +36,7 @@ export default function AdminDashboard() {
   })
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchDashboardStats()
-  }, [])
-
+  // Define function before useEffect
   const fetchDashboardStats = async () => {
     try {
       const response = await fetch('/api/admin/dashboard/stats', {
@@ -56,6 +53,11 @@ export default function AdminDashboard() {
     }
   }
 
+  useEffect(() => {
+    fetchDashboardStats()
+  }, [])
+
+  // All conditional returns AFTER all hooks (React Rules of Hooks)
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

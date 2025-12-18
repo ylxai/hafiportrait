@@ -116,6 +116,7 @@ export default function PhotoGrid({
     }
   }, [hasMore, isLoading, page, fetchPhotos])
 
+  // Define all functions after hooks but before conditional returns
   const handlePhotoClick = (index: number) => {
     setSelectedPhotoIndex(index)
   }
@@ -134,6 +135,7 @@ export default function PhotoGrid({
     }
   }
 
+  // All conditional returns AFTER all hooks (React Rules of Hooks)
   if (error) {
     return (
       <div className="py-12 text-center">

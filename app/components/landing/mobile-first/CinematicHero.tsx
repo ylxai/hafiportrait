@@ -51,69 +51,82 @@ export default function CinematicHero() {
   const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null)
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Use API data only, no fallback images
-  const displaySlides = slides.length > 0 ? slides : []
+  // ALL useEffects MUST be before any conditional returns (React Hooks Rules)
   
-  console.log('🔍 CinematicHero slides state:', { slides, slidesLength: slides.length, displaySlides: displaySlides.length })
-  
-  // Show loading state if no slides
-  if (displaySlides.length === 0) {
-    return (
-      <section className="relative h-screen w-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600">
-        <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <h1 className="text-3xl md:text-4xl font-light tracking-tight">
-            Loading <span className="font-serif italic">Gallery</span>
-          </h1>
-        </div>
-      </section>
-    )
-  }
-
-  // Navigation methods (define first!)
-  const nextSlide = useCallback(() => {
-    const totalSlides = displaySlides.length
-    setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }, [displaySlides.length])
-
-  const prevSlide = useCallback(() => {
-    const totalSlides = displaySlides.length
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }, [displaySlides.length])
+  // Debug useEffect to check if effects are running at all
+  useEffect(() => {
+    console.log('🔥 CinematicHero useEffect test - component mounted/updated')
+    console.log('🔥 Current slideshowData in mount effect:', slideshowData)
+  }, []) // No dependencies - should run once on mount
 
   useEffect(() => {
+    console.log('🔥 CinematicHero useEffect with slideshowData dependency triggered')
+    console.log('🔥 slideshowData value:', slideshowData)
+  }, [slideshowData]) // This should run when slideshowData changes
+
+  // Fix useEffect dependency - ensure it triggers when data changes
+  useEffect(() => {
     console.log('🔄 Processing slideshow data:', slideshowData)
+    console.log('🔄 Data type:', typeof slideshowData, 'Has slides:', !!slideshowData?.slides)
     
-    if (slideshowData?.slides && slideshowData.slides.length > 0) {
-      console.log('📸 Mapping slides:', slideshowData.slides.length)
+    if (slideshowData?.slides && Array.isArray(slideshowData.slides) && slideshowData.slides.length > 0) {
+      console.log('📸 Mapping slides:', slideshowData.slides.length, slideshowData.slides)
       
-      // Map API response to component format
-      const mappedSlides = slideshowData.slides.map((slide: any) => ({
-        id: slide.id,
-        imageUrl: slide.image_url,
-        thumbnail_url: slide.thumbnail_url,
-        title: slide.title,
-        subtitle: slide.subtitle,
-        display_order: slide.display_order,
-      }))
-      
-      console.log('✅ Mapped slides:', mappedSlides.length, mappedSlides)
-      setSlides(mappedSlides)
-      
-      // Use default settings if none provided
-      const enhancedSettings = slideshowData.settings || {
-        timingSeconds: 3.5,
-        transitionEffect: 'fade',
-        autoplay: true,
+      try {
+        // Map API response to component format with error handling
+        const mappedSlides = slideshowData.slides.map((slide: any, index: number) => {
+          console.log(`🔍 Mapping slide ${index}:`, slide)
+          
+          return {
+            id: slide.id || `slide-${index}`,
+            imageUrl: slide.image_url || slide.imageUrl || '',
+            thumbnail_url: slide.thumbnail_url,
+            title: slide.title,
+            subtitle: slide.subtitle,
+            display_order: slide.display_order || index,
+          }
+        })
+        
+        console.log('✅ Mapped slides successfully:', mappedSlides.length, mappedSlides)
+        setSlides(mappedSlides)
+        
+        // Use settings from API or defaults
+        const enhancedSettings = slideshowData.settings || {
+          timingSeconds: 3.5,
+          transitionEffect: 'fade',
+          autoplay: true,
+        }
+        
+        console.log('✅ Setting slideshow settings:', enhancedSettings)
+        setSettings(enhancedSettings)
+        
+      } catch (error) {
+        console.error('❌ Error mapping slides:', error)
       }
-      
-      setSettings(enhancedSettings)
+    } else {
+      console.log('❌ No valid slides data:', {
+        hasData: !!slideshowData,
+        hasSlides: !!slideshowData?.slides,
+        isArray: Array.isArray(slideshowData?.slides),
+        length: slideshowData?.slides?.length
+      })
     }
-  }, [slideshowData])
+  }, [slideshowData]) // Explicit dependency on slideshowData
+
+  // Navigation methods (define after all hooks!)
+  const nextSlide = useCallback(() => {
+    const totalSlides = slides.length
+    setCurrentSlide((prev) => (prev + 1) % totalSlides)
+  }, [slides.length])
+
+  const prevSlide = useCallback(() => {
+    const totalSlides = slides.length
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
+  }, [slides.length])
 
   // ENHANCED: Autoplay with pause functionality
   useEffect(() => {
-    if (displaySlides.length === 0 || !settings.autoplay || isPaused) {
+    if (slides.length === 0 || !settings.autoplay || isPaused) {
       if (autoplayTimerRef.current) {
         clearInterval(autoplayTimerRef.current)
         autoplayTimerRef.current = null
@@ -130,7 +143,26 @@ export default function CinematicHero() {
         clearInterval(autoplayTimerRef.current)
       }
     }
-  }, [displaySlides.length, settings, isPaused, currentSlide, nextSlide])
+  }, [slides.length, settings, isPaused, currentSlide, nextSlide])
+
+  // Use API data only, no fallback images
+  const displaySlides = slides.length > 0 ? slides : []
+  
+  console.log('🔍 CinematicHero slides state:', { slides, slidesLength: slides.length, displaySlides: displaySlides.length })
+  
+  // Show loading state if no slides (AFTER all hooks!)
+  if (displaySlides.length === 0) {
+    return (
+      <section className="relative h-screen w-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <h1 className="text-3xl md:text-4xl font-light tracking-tight">
+            Loading <span className="font-serif italic">Gallery</span>
+          </h1>
+        </div>
+      </section>
+    )
+  }
 
   // Pause autoplay temporarily after user interaction
   const pauseAutoplayTemporarily = (duration: number = 3000) => {
