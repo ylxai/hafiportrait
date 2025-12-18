@@ -126,7 +126,7 @@ export default function FeaturedEventsCarousel() {
           transition={{ duration: 0.6 }}
           className="mb-16 text-center"
         >
-          <h2 className="mb-4 font-serif text-4xl font-bold text-gray-900 md:text-5xl">
+          <h2 className="mb-4 font-serif text-2xl font-bold text-gray-900 md:text-3xl">
             Recent <span className="italic text-rose-500">Celebrations</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
