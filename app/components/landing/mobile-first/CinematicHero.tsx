@@ -327,17 +327,17 @@ export default function CinematicHero() {
             className="space-y-6"
           >
             {/* Main Title */}
-            <h1 className="text-3xl font-light tracking-tight md:text-4xl lg:text-5xl">
+            <h1 className="text-2xl font-light tracking-tight md:text-3xl lg:text-4xl">
               <span className="block text-white/90">
                 {displaySlides[currentSlide]?.title || 'Capture Your'}
               </span>
-              <span className="mt-2 block font-serif italic text-white">
+              <span className="mt-1 block font-serif italic text-white text-xl md:text-2xl lg:text-3xl">
                 {displaySlides[currentSlide]?.subtitle || 'Love Story'}
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="mx-auto max-w-2xl text-lg font-light text-white/80 md:text-xl">
+            <p className="mx-auto max-w-2xl text-sm font-light text-white/80 md:text-base">
               Professional Wedding & Portrait Photography
             </p>
 
