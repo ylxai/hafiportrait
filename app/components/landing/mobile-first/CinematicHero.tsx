@@ -296,7 +296,7 @@ export default function CinematicHero() {
             className="space-y-6"
           >
             {/* Main Title */}
-            <h1 className="text-5xl font-light tracking-tight md:text-7xl lg:text-8xl">
+            <h1 className="text-3xl font-light tracking-tight md:text-4xl lg:text-5xl">
               <span className="block text-white/90">
                 {displaySlides[currentSlide]?.title || 'Capture Your'}
               </span>
