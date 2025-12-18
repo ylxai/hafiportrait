@@ -50,8 +50,10 @@ export default function PortfolioGallery() {
   }, [])
 
   const filterPhotos = useCallback(() => {
-    if (activeCategory === 'all') {
+    if (activeCategory === 'All') {
       setFilteredPhotos(photos)
+    } else if (activeCategory === 'Featured') {
+      setFilteredPhotos(photos.filter(photo => photo.is_featured))
     } else {
       setFilteredPhotos(photos.filter(photo => photo.category === activeCategory))
     }
