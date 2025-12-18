@@ -126,10 +126,10 @@ export default function PortfolioGallery() {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="inline-block px-4 py-2 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full text-brand-teal text-sm font-semibold mb-4">
-              Portfolio
+              <span className="italic text-rose-500">Portfolio</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-slate-900 mb-4">
-              Our Work
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
+              Our <span className="italic text-rose-500">Work</span>
             </h2>
             <p className="text-slate-600 mb-12">Portfolio gallery coming soon...</p>
           </div>

@@ -16,7 +16,7 @@ export default function EditorialAbout() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
             About <span className="italic text-rose-500">Hafiportrait</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">

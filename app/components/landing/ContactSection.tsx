@@ -119,8 +119,8 @@ export default function ContactSection() {
           <div className="inline-block px-4 py-2 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full text-brand-teal text-sm font-semibold mb-4">
             Get in Touch
           </div>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-slate-900 mb-4">
-            Let's Capture Your Story
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
+            Let's Capture Your <span className="italic text-rose-500">Story</span>
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Ready to book? Have questions? We'd love to hear from you and discuss your vision.
