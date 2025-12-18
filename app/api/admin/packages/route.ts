@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
       ],
     })
 
-    return NextResponse.json({ packages })
+    // Return packages array directly for frontend compatibility
+    return NextResponse.json(packages)
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch packages' },

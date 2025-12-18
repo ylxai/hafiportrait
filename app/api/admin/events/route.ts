@@ -101,22 +101,8 @@ export async function GET(request: NextRequest) {
       updated_at: event.updated_at.toISOString(),
     }))
 
-    const response: EventListApiResponse = {
-      success: true,
-      data: {
-        events: transformedEvents,
-        total,
-        hasMore: (page * limit) < total
-      },
-      meta: {
-        page,
-        limit,
-        total,
-        hasMore: (page * limit) < total
-      }
-    }
-
-    return NextResponse.json(response)
+    // Return events array directly for frontend compatibility
+    return NextResponse.json(transformedEvents)
   } catch (error) {
     return handleError(error)
   }
