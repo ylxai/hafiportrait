@@ -53,10 +53,10 @@ export function useApiCache<T>(
   const [error, setError] = useState<Error | null>(null)
 
   const abortControllerRef = useRef<AbortController | null>(null)
-  const mountedRef = useRef(true)
+  const mountedRef = useRef(false)
 
   const fetchData = useCallback(async () => {
-    if (!url || !enabled || !mountedRef.current) return
+    if (!url || !enabled) return
 
     // Cancel previous request if still pending
     if (abortControllerRef.current) {
@@ -113,19 +113,31 @@ export function useApiCache<T>(
     await fetchData()
   }, [invalidate, fetchData])
 
-  // Initial fetch
+  // Set mounted state and initial fetch
   useEffect(() => {
-    if (refetchOnMount) {
+    mountedRef.current = true
+    
+    return () => {
+      mountedRef.current = false
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
+
+  // Initial fetch (separate effect to avoid dependencies issue)
+  useEffect(() => {
+    if (refetchOnMount && url && enabled) {
       fetchData()
     }
-  }, [fetchData, refetchOnMount])
+  }, [url, enabled, refetchOnMount]) // Remove fetchData from deps to avoid circular
 
   // Refetch on window focus (optional)
   useEffect(() => {
     if (!refetchOnWindowFocus) return
 
     const handleFocus = () => {
-      if (!document.hidden) {
+      if (!document.hidden && mountedRef.current) {
         fetchData()
       }
     }
@@ -138,16 +150,6 @@ export function useApiCache<T>(
       window.removeEventListener('focus', handleFocus)
     }
   }, [fetchData, refetchOnWindowFocus])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [])
 
   return {
     data,
