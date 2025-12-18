@@ -30,7 +30,9 @@ interface SlideshowData {
 
 export default function CinematicHero() {
   // Use cached API hook for hero slideshow data
-  const { data: slideshowData } = useHeroSlideshowCache<SlideshowData>()
+  const { data: slideshowData, isLoading, error } = useHeroSlideshowCache<SlideshowData>()
+  
+  console.log('🔍 CinematicHero render:', { slideshowData, isLoading, error })
 
   const [slides, setSlides] = useState<HeroSlide[]>([])
   const [settings, setSettings] = useState<SlideshowSettings>({
@@ -51,6 +53,8 @@ export default function CinematicHero() {
 
   // Use API data only, no fallback images
   const displaySlides = slides.length > 0 ? slides : []
+  
+  console.log('🔍 CinematicHero slides state:', { slides, slidesLength: slides.length, displaySlides: displaySlides.length })
   
   // Show loading state if no slides
   if (displaySlides.length === 0) {
@@ -78,9 +82,11 @@ export default function CinematicHero() {
   }, [displaySlides.length])
 
   useEffect(() => {
-    console.log('Hero slideshow data:', slideshowData) // Debug log
+    console.log('🔄 Processing slideshow data:', slideshowData)
     
     if (slideshowData?.slides && slideshowData.slides.length > 0) {
+      console.log('📸 Mapping slides:', slideshowData.slides.length)
+      
       // Map API response to component format
       const mappedSlides = slideshowData.slides.map((slide: any) => ({
         id: slide.id,
@@ -91,6 +97,7 @@ export default function CinematicHero() {
         display_order: slide.display_order,
       }))
       
+      console.log('✅ Mapped slides:', mappedSlides.length, mappedSlides)
       setSlides(mappedSlides)
       
       // Use default settings if none provided

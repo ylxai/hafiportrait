@@ -127,10 +127,38 @@ export function useApiCache<T>(
 
   // Initial fetch (separate effect to avoid dependencies issue)
   useEffect(() => {
+    console.log('🔍 useApiCache initial fetch check:', { refetchOnMount, url, enabled })
     if (refetchOnMount && url && enabled) {
-      fetchData()
+      console.log('🚀 useApiCache starting fetch for:', url)
+      // Call fetchData directly without dependency to avoid circular issues
+      const fetch = async () => {
+        if (!url || !enabled || !mountedRef.current) return
+
+        setIsLoading(true)
+        setError(null)
+
+        try {
+          const result = await cachedFetch(url, {}, cacheKey, ttl)
+          if (mountedRef.current) {
+            setData(result)
+            setError(null)
+          }
+        } catch (err) {
+          if (mountedRef.current && err instanceof Error) {
+            setError(err)
+          }
+        } finally {
+          if (mountedRef.current) {
+            setIsLoading(false)
+          }
+        }
+      }
+      
+      fetch()
+    } else {
+      console.log('❌ useApiCache fetch skipped for:', url, { refetchOnMount, url, enabled })
     }
-  }, [url, enabled, refetchOnMount]) // Remove fetchData from deps to avoid circular
+  }, [url, enabled, refetchOnMount, cacheKey, ttl]) // Fixed dependencies
 
   // Refetch on window focus (optional)
   useEffect(() => {
@@ -232,11 +260,42 @@ export function useDashboardCache() {
  * Hook for hero slideshow with caching
  */
 export function useHeroSlideshowCache<T = any>() {
-  return useApiCache<T>('/api/public/hero-slideshow', {
-    ttl: CacheTTL.LONG, // Hero content doesn't change often
-    cacheKey: 'hero-slideshow',
-    refetchOnWindowFocus: false,
-  })
+  console.log('🎯 useHeroSlideshowCache called!')
+  
+  const [data, setData] = useState<T | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  
+  useEffect(() => {
+    console.log('🚀 Simple fetch starting...')
+    
+    const fetchData = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/public/hero-slideshow')
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Simple fetch success:', result)
+        setData(result)
+        setError(null)
+      } catch (err) {
+        console.error('❌ Simple fetch error:', err)
+        setError(err as Error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchData()
+  }, [])
+  
+  const result = { data, isLoading, error, refetch: () => {}, invalidate: () => {} }
+  console.log('🎯 Simple useHeroSlideshowCache result:', result)
+  return result
 }
 
 /**
