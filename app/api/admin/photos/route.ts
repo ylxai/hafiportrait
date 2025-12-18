@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * limit,
       orderBy: { created_at: 'desc' },
       include: {
-        event: {
+        events: {
           select: {
             id: true,
             name: true,
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       height: photo.height,
       mime_type: photo.mime_type,
       event_id: photo.event_id,
-      event_name: photo.event?.name || null,
+      event_name: photo.events?.name || null,
       likes_count: photo.likes_count || 0,
       view_count: photo.view_count || 0,
       created_at: photo.created_at,
