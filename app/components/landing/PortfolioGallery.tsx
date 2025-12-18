@@ -156,7 +156,7 @@ export default function PortfolioGallery() {
           {/* Section Header */}
           <div className={`text-center mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="inline-block px-4 py-2 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full text-brand-teal text-sm font-semibold mb-4">
-              Our Portfolio
+              Our <span className="italic text-rose-500">Portfolio</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
               Stories We've <span className="italic text-rose-500">Captured</span>
