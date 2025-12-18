@@ -289,20 +289,20 @@ export default function CinematicHero() {
               Professional Wedding & Portrait Photography
             </p>
 
-            {/* CTA Buttons */}
-            <div className="pointer-events-auto mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            {/* CTA Buttons - Horizontal */}
+            <div className="pointer-events-auto mt-6 flex items-center justify-center gap-3 flex-wrap">
               <a
                 href="#pricing"
-                className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-lg font-medium text-gray-900 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
+                className="group relative overflow-hidden rounded-full bg-white px-6 py-3 text-sm md:text-base font-medium text-gray-900 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
               >
-                <span className="relative z-10">Pricelist</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="relative z-10">Price List</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-rose-400 to-pink-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </a>
               <button
                 onClick={scrollToPortfolio}
-                className="rounded-full border-2 border-white/30 px-8 py-4 text-lg font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10 active:scale-95"
+                className="rounded-full border-2 border-white/30 px-6 py-3 text-sm md:text-base font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10 active:scale-95"
               >
-                View Portfolio
+                Our Gallery
               </button>
             </div>
           </motion.div>
