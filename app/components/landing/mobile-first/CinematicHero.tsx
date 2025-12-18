@@ -78,15 +78,28 @@ export default function CinematicHero() {
   }, [displaySlides.length])
 
   useEffect(() => {
+    console.log('Hero slideshow data:', slideshowData) // Debug log
+    
     if (slideshowData?.slides && slideshowData.slides.length > 0) {
-      setSlides(slideshowData.slides)
-      const enhancedSettings = {
-        ...slideshowData.settings,
-        timingSeconds:
-          slideshowData.settings.timingSeconds > 5
-            ? 3.5
-            : slideshowData.settings.timingSeconds,
+      // Map API response to component format
+      const mappedSlides = slideshowData.slides.map((slide: any) => ({
+        id: slide.id,
+        imageUrl: slide.image_url,
+        thumbnail_url: slide.thumbnail_url,
+        title: slide.title,
+        subtitle: slide.subtitle,
+        display_order: slide.display_order,
+      }))
+      
+      setSlides(mappedSlides)
+      
+      // Use default settings if none provided
+      const enhancedSettings = slideshowData.settings || {
+        timingSeconds: 3.5,
+        transitionEffect: 'fade',
+        autoplay: true,
       }
+      
       setSettings(enhancedSettings)
     }
   }, [slideshowData])
