@@ -28,10 +28,12 @@ export default function BentoGallery() {
 
   const fetchBentoPhotos = async () => {
     try {
-      const response = await fetch('/api/public/bento-grid')
+      const response = await fetch('/api/portfolio')
       if (response.ok) {
         const data = await response.json()
-        setPhotos(data || [])
+        if (data.success) {
+          setPhotos(data.photos || [])
+        }
       }
     } catch (error) {
       console.error('Error fetching bento photos:', error)
