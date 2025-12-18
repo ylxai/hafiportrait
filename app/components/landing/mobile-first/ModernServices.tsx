@@ -54,7 +54,7 @@ export default function ModernServices() {
           className="text-center mb-16"
         >
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
-            Our Services
+            Our <span className="italic text-rose-500">Services</span>
           </h2>
           <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
             Professional photography for your special moments
