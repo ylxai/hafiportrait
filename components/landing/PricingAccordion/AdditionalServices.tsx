@@ -39,7 +39,7 @@ export default function AdditionalServices({ services }: AdditionalServicesProps
               Layanan Tambahan
             </h3>
           </div>
-          <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+          <p className="text-sm md:text-base text-gray-600 leading-relaxed">
             Layanan tambahan dapat dikombinasikan dengan paket utama & Digital
           </p>
         </div>
