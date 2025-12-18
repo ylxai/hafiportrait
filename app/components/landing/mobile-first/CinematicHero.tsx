@@ -55,7 +55,7 @@ export default function CinematicHero() {
   useEffect(() => {
     console.log('🔥 CinematicHero useEffect test - component mounted/updated')
     console.log('🔥 Current slideshowData in mount effect:', slideshowData)
-  }, []) // No dependencies - should run once on mount
+  }, [slideshowData]) // Fixed dependency
 
   useEffect(() => {
     console.log('🔥 CinematicHero useEffect with slideshowData dependency triggered')
@@ -304,7 +304,6 @@ export default function CinematicHero() {
             priority={true}
             quality={90}
             placeholder="empty"
-            loading="eager"
           />
 
           {/* Lighter image overlay for better brightness */}

@@ -22,9 +22,10 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   } catch (redisError) {
     console.warn('Rate limiting disabled due to Redis error:', redisError)
     rateLimitResult = { 
-      allowed: true, 
-      count: 0, 
-      resetTime: Date.now() + 900000 
+      success: true, 
+      limit: 5, 
+      remaining: 5,
+      reset: Math.floor((Date.now() + 900000) / 1000)
     }
   }
 

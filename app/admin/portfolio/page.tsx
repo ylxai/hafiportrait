@@ -318,7 +318,7 @@ export default function PortfolioPage() {
                         if (successCount > 0) {
                           toast.updateToast(loadingId, 'success', `${successCount} foto portfolio berhasil diupload!`)
                           if (failedCount > 0) {
-                            toast.showError(`${failedCount} foto gagal diupload`)
+                            toast.generic.saveError()
                           }
                           handleUploadComplete()
                         } else {

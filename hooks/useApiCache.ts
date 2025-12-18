@@ -140,7 +140,7 @@ export function useApiCache<T>(
         try {
           const result = await cachedFetch(url, {}, cacheKey, ttl)
           if (mountedRef.current) {
-            setData(result)
+            setData(result as T)
             setError(null)
           }
         } catch (err) {

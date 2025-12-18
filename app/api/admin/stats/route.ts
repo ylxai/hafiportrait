@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       prisma.events.count(),
       prisma.photos.count(),
-      prisma.photos.aggregate({ _sum: { view_count: true } }),
+      prisma.photos.aggregate({ _sum: { views_count: true } }),
       prisma.events.findMany({
         take: 5,
         orderBy: { created_at: 'desc' },
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       data: {
         totalEvents,
         totalPhotos,
-        totalViews: totalViews._sum.view_count || 0,
+        totalViews: totalViews._sum.views_count || 0,
         recentEvents
       }
     })

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       orderBy: { updated_at: 'desc' },
       select: {
         id: true,
-        title: true,
+        name: true,
         updated_at: true,
         status: true,
         _count: {
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         recentActivity: recentActivity.map(event => ({
           id: event.id,
           type: 'event_update',
-          title: `Event "${event.title}" updated`,
+          title: `Event "${event.name}" updated`,
           description: `${event._count.photos} photos, ${event._count.comments} comments`,
           timestamp: event.updated_at,
           status: event.status

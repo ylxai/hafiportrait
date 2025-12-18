@@ -27,11 +27,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, category } = body
+    const { filename, original_url, thumbnail_url, description, category } = body
 
     const photo = await prisma.portfolio_photos.create({
       data: {
-        title: title || 'Untitled',
+        filename: filename || 'unknown.jpg',
+        original_url: original_url || '',
+        thumbnail_url: thumbnail_url || '',
         description: description || '',
         category: category || 'wedding',
         display_order: 0,

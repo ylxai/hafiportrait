@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       event_id: photo.event_id,
       event_name: photo.events?.name || null,
       likes_count: photo.likes_count || 0,
-      view_count: photo.view_count || 0,
+      view_count: photo.views_count || 0,
       created_at: photo.created_at,
       updated_at: photo.updated_at,
       deleted_at: photo.deleted_at

@@ -3,7 +3,7 @@ import { getUserFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { handleError } from '@/lib/errors/handler'
 import { generateAccessCode } from '@/lib/utils/slug'
-import { EventListApiResponse, EventApiResponse } from '@/lib/types/api'
+import { EventApiResponse } from '@/lib/types/api'
 import { z } from 'zod'
 import { Prisma } from '@prisma/client'
 
@@ -53,9 +53,6 @@ export async function GET(request: NextRequest) {
     if (status !== 'all') {
       where.status = status.toUpperCase() as Prisma.EnumEventStatusFilter
     }
-
-    // Get total count
-    const total = await prisma.events.count({ where })
 
     // Get events with pagination
     const events = await prisma.events.findMany({
