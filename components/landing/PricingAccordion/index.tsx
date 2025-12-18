@@ -92,7 +92,7 @@ export default function PricingAccordion() {
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
             Wedding <span className="italic text-rose-500">Packages</span>
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
             Pilih paket yang sesuai dengan kebutuhan acara Anda
           </p>
         </div>

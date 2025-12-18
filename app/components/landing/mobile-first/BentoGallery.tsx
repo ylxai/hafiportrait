@@ -144,7 +144,7 @@ export default function BentoGallery() {
           <h2 className="mb-4 text-2xl md:text-3xl font-serif font-bold text-gray-900">
             Our <span className="italic text-rose-500">Portfolio</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
+          <p className="mx-auto max-w-2xl text-sm md:text-base text-gray-600">
             A curated collection of our finest work, capturing life's most
             precious moments
           </p>

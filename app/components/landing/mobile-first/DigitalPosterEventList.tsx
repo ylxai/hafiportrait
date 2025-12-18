@@ -83,7 +83,7 @@ export default function DigitalPosterEventList() {
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
             Recent <span className="italic text-rose-500">Celebrations</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
             Lihat momen-momen indah dari acara yang telah kami dokumentasikan
           </p>
         </motion.div>
