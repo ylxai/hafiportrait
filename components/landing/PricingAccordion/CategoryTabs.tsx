@@ -20,24 +20,23 @@ export default function CategoryTabs({
   onCategoryChange,
 }: CategoryTabsProps) {
   return (
-    <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm py-4 mb-6 -mx-4 px-4 shadow-sm">
-      <div className="flex flex-wrap gap-2 justify-center max-w-2xl mx-auto">
+    <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm py-3 mb-6 -mx-4 px-4 shadow-sm">
+      <div className="flex flex-wrap gap-1.5 justify-center max-w-4xl mx-auto">
         {categories.map((category) => (
           <button
             key={category.id}
             onClick={() => onCategoryChange(category.slug)}
             className={`
-              px-4 py-2.5 rounded-full font-medium transition-all duration-200
-              flex items-center space-x-2
+              px-3 py-1.5 rounded-full font-medium transition-all duration-200
+              text-xs md:text-sm
               ${
                 selectedCategory === category.slug
-                  ? 'bg-brand-teal text-white shadow-lg scale-105'
+                  ? 'bg-brand-teal text-white shadow-md scale-105'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }
             `}
           >
-            <span className="text-lg">{category.icon}</span>
-            <span className="text-sm md:text-base">{category.name}</span>
+            <span>{category.name}</span>
           </button>
         ))}
       </div>
