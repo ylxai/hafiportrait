@@ -3,6 +3,22 @@ import { getUserFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { handleError } from '@/lib/errors/handler'
 import { DashboardApiResponse, DashboardData, RecentEventData } from '@/lib/types/api'
+import { z } from 'zod'
+
+// Schema validating the data shape returned from Prisma
+const RecentEventDbSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  status: z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']), // Enum matches Prisma definition
+  event_date: z.date().nullable(),
+  created_at: z.date(),
+  _count: z.object({
+    photos: z.number(),
+  }),
+})
+
+type RecentEventDb = z.infer<typeof RecentEventDbSchema>
 
 export async function GET(request: NextRequest) {
   try {
@@ -58,20 +74,10 @@ export async function GET(request: NextRequest) {
     const totalViews = 0
     const totalDownloads = 0
 
-    interface RecentEvent {
-      id: string;
-      name: string;
-      slug: string;
-      status: string;
-      event_date: Date | null;
-      created_at: Date;
-      _count: {
-        photos: number;
-      };
-    }
-
     // Transform recent events to match interface
-    const formattedRecentEvents: RecentEventData[] = (recentEvents as unknown as RecentEvent[]).map((event) => ({
+    // Note: recentEvents is strictly typed by Prisma based on the 'select' query above.
+    // We can map it directly without unsafe casting.
+    const formattedRecentEvents: RecentEventData[] = recentEvents.map((event) => ({
       id: event.id,
       name: event.name,
       date: event.event_date ? event.event_date.toISOString() : event.created_at.toISOString(),
