@@ -27,10 +27,21 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    interface ActivityEvent {
+      id: string;
+      name: string;
+      updated_at: Date;
+      status: string;
+      _count: {
+        photos: number;
+        comments: number;
+      };
+    }
+
     return NextResponse.json({
       success: true,
       data: {
-        recentActivity: recentActivity.map((event) => ({
+        recentActivity: (recentActivity as unknown as ActivityEvent[]).map((event) => ({
           id: event.id,
           type: 'event_update',
           title: `Event "${event.name}" updated`,

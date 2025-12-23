@@ -8,6 +8,7 @@
  * - Retry logic
  */
 
+import axios from 'axios';
 import { calculateChecksum } from './checksumUtils';
 
 export interface UploadProgress {
@@ -67,23 +68,36 @@ export async function uploadFile(
       ...result,
       checksum,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload failed:', error);
     
-    // Check if aborted
-    if (error.name === 'AbortError') {
-      throw error;
+    // Check if aborted (handle both standard AbortError and Axios cancellation)
+    if (
+      (error instanceof Error && error.name === 'AbortError') || 
+      axios.isCancel(error)
+    ) {
+      // Re-throw as AbortError to maintain compatibility with callers
+      const abortError = new Error('Upload aborted');
+      abortError.name = 'AbortError';
+      throw abortError;
+    }
+
+    let errorMessage = 'Upload failed';
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.error || error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
 
     return {
       success: false,
-      error: error.message || 'Upload failed',
+      error: errorMessage,
     };
   }
 }
 
 /**
- * Upload with progress tracking using XMLHttpRequest
+ * Upload with progress tracking using Axios
  */
 function uploadWithProgress(
   url: string,
@@ -93,63 +107,22 @@ function uploadWithProgress(
     signal?: AbortSignal;
   } = {}
 ): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    // Setup progress handler
-    if (options.onProgress) {
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          const progress: UploadProgress = {
-            loaded: event.loaded,
-            total: event.total,
-            percentage: Math.round((event.loaded / event.total) * 100),
-          };
-          options.onProgress!(progress);
-        }
-      });
-    }
-
-    // Setup completion handler
-    xhr.addEventListener('load', () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const response = JSON.parse(xhr.responseText);
-          resolve(response);
-        } catch (error) {
-          reject(new Error('Invalid response from server'));
-        }
-      } else {
-        try {
-          const error = JSON.parse(xhr.responseText);
-          reject(new Error(error.error || `Upload failed with status ${xhr.status}`));
-        } catch {
-          reject(new Error(`Upload failed with status ${xhr.status}`));
-        }
+  return axios.post(url, formData, {
+    signal: options.signal,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress: (progressEvent) => {
+      if (options.onProgress && progressEvent.total) {
+        const progress: UploadProgress = {
+          loaded: progressEvent.loaded,
+          total: progressEvent.total,
+          percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total),
+        };
+        options.onProgress(progress);
       }
-    });
-
-    // Setup error handler
-    xhr.addEventListener('error', () => {
-      reject(new Error('Network error during upload'));
-    });
-
-    // Setup abort handler
-    xhr.addEventListener('abort', () => {
-      reject(new DOMException('Upload aborted', 'AbortError'));
-    });
-
-    // Handle abort signal
-    if (options.signal) {
-      options.signal.addEventListener('abort', () => {
-        xhr.abort();
-      });
-    }
-
-    // Send request
-    xhr.open('POST', url);
-    xhr.send(formData);
-  });
+    },
+  }).then(response => response.data);
 }
 
 /**
@@ -187,7 +160,7 @@ export async function uploadBatch(
         options.onFileComplete(i, result);
       }
     } catch (error: any) {
-      if (error.name === 'AbortError') {
+      if (error.name === 'AbortError' || axios.isCancel(error)) {
         throw error;
       }
 

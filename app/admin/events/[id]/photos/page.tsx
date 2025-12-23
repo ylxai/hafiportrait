@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { verifyJWT } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import DraggablePhotoGrid from '@/components/admin/DraggablePhotoGrid';
 import { AdminErrorBoundary } from '@/components/error-boundaries';
 import Link from 'next/link';
@@ -85,7 +86,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   // Build query based on filters
-  let orderBy: { [key: string]: 'asc' | 'desc' } = { display_order: 'asc' }; // Default: order by display_order
+  let orderBy: Prisma.photosOrderByWithRelationInput = { display_order: 'asc' }; // Default: order by display_order
   const sort = resolvedSearchParams.sort || 'order';
 
   switch (sort) {
@@ -113,12 +114,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   // Build where clause
-  const where: { 
-    event_id: string;
-    deleted_at?: null;
-    is_featured?: boolean;
-    caption?: { contains: string; mode: string };
-  } = {
+  const where: Prisma.photosWhereInput = {
     event_id: event_id,
     deleted_at: null,
   };
@@ -176,8 +172,33 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
 
   const photoCount = event._count.photos;
 
+  // Define proper type for the selected photo data
+  interface SelectedPhoto {
+    id: string;
+    filename: string;
+    original_url: string;
+    thumbnail_small_url: string | null;
+    thumbnail_medium_url: string | null;
+    thumbnail_large_url: string | null;
+    file_size: number | null;
+    width: number | null;
+    height: number | null;
+    mime_type: string | null;
+    caption: string | null;
+    is_featured: boolean;
+    likes_count: number;
+    views_count: number;
+    download_count: number;
+    created_at: Date;
+    display_order: number;
+    events: {
+      id: string;
+      name: string;
+    };
+  }
+
   // Map to frontend interface (camelCase)
-  const formattedPhotos = photos.map((photo) => ({
+  const formattedPhotos = (photos as unknown as SelectedPhoto[]).map((photo) => ({
     id: photo.id,
     filename: photo.filename,
     original_url: photo.original_url,

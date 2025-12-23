@@ -80,8 +80,26 @@ export async function GET(request: NextRequest) {
       },
     })
 
+    // Define the event structure
+    interface AdminEvent {
+      id: string;
+      name: string;
+      slug: string;
+      status: string;
+      event_date: Date | null;
+      location: string | null;
+      access_code: string;
+      qr_code_url: string | null;
+      created_at: Date;
+      updated_at: Date;
+      _count: {
+        photos: number;
+        comments: number;
+      };
+    }
+
     // Transform events data to match interface
-    const transformedEvents = events.map((event) => ({
+    const transformedEvents = (events as unknown as AdminEvent[]).map((event) => ({
       id: event.id,
       name: event.name,
       description: null, // Not selected in this query

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { handleError } from '@/lib/errors/handler'
+import { Prisma } from '@prisma/client'
 
 // GET - List all contact messages
 export async function GET(request: NextRequest) {
@@ -21,11 +22,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || 'all'
 
     // Build where clause
-    const where: {
-      status?: string;
-      guest_name?: { contains: string; mode: string };
-      email?: { contains: string; mode: string };
-    } = {}
+    const where: Prisma.contact_messagesWhereInput = {}
     
     if (status !== 'all') {
       where.status = status

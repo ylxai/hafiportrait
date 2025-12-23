@@ -58,8 +58,20 @@ export async function GET(request: NextRequest) {
     const totalViews = 0
     const totalDownloads = 0
 
+    interface RecentEvent {
+      id: string;
+      name: string;
+      slug: string;
+      status: string;
+      event_date: Date | null;
+      created_at: Date;
+      _count: {
+        photos: number;
+      };
+    }
+
     // Transform recent events to match interface
-    const formattedRecentEvents: RecentEventData[] = recentEvents.map((event) => ({
+    const formattedRecentEvents: RecentEventData[] = (recentEvents as unknown as RecentEvent[]).map((event) => ({
       id: event.id,
       name: event.name,
       date: event.event_date ? event.event_date.toISOString() : event.created_at.toISOString(),

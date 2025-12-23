@@ -7,7 +7,9 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { verifyJWT } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import TrashPhotoGrid from '@/components/admin/TrashPhotoGrid';
+import TrashFilter from './TrashFilter';
 import { AdminErrorBoundary } from '@/components/error-boundaries';
 import Link from 'next/link';
 import { 
@@ -52,11 +54,7 @@ export default async function TrashPage({ searchParams }: PageProps) {
   const isAdmin = user.role === 'ADMIN';
 
   // Build where clause for deleted photos
-  const where: { 
-    deleted_at: { not: null };
-    event_id?: string;
-    caption?: { contains: string; mode: string };
-  } = {
+  const where: Prisma.photosWhereInput = {
     deleted_at: { not: null },
   };
 
@@ -139,8 +137,27 @@ export default async function TrashPage({ searchParams }: PageProps) {
 
   const totalPages = Math.ceil(totalCount / limit);
 
+  // Define proper type for the selected photo data
+  interface TrashPhoto {
+    id: string;
+    filename: string;
+    thumbnail_medium_url: string | null;
+    thumbnail_small_url: string | null;
+    deleted_at: Date | null;
+    events: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+    users_photos_deleted_by_idTousers: {
+      id: string;
+      name: string;
+      email: string;
+    } | null;
+  }
+
   // Map to frontend interface
-  const formattedPhotos = photos.map((photo) => ({
+  const formattedPhotos = (photos as unknown as TrashPhoto[]).map((photo) => ({
     id: photo.id,
     filename: photo.filename,
     thumbnail_medium_url: photo.thumbnail_medium_url,
@@ -191,30 +208,11 @@ export default async function TrashPage({ searchParams }: PageProps) {
 
         {/* Event Filter */}
         {events.length > 0 && (
-          <div className="mb-6">
-            <label htmlFor="eventFilter" className="mb-2 block text-sm font-medium text-gray-700">
-              Filter by Event:
-            </label>
-            <select
-              id="eventFilter"
-              value={event_id || ''}
-              onChange={(e) => {
-                const newEventId = e.target.value;
-                const url = newEventId
-                  ? `/admin/photos/trash?event_id=${newEventId}`
-                  : '/admin/photos/trash';
-                window.location.href = url;
-              }}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#54ACBF] focus:outline-none focus:ring-2 focus:ring-[#54ACBF]"
-            >
-              <option value="">All Events ({totalCount})</option>
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name} ({event._count.photos})
-                </option>
-              ))}
-            </select>
-          </div>
+          <TrashFilter 
+            events={events} 
+            currentEventId={event_id} 
+            totalCount={totalCount} 
+          />
         )}
 
         {/* Photos Grid */}

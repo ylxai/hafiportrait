@@ -179,10 +179,18 @@ export async function POST(
     let nextDisplayOrder = (maxOrderPhoto?.display_order || 0) + 1;
 
     // 6. Process and upload files with transaction-like rollback
+    // Define the structure of upload result photo
+    interface UploadResultPhoto {
+      id: string;
+      filename: string;
+      original_url: string;
+      hasExif?: boolean;
+    }
+
     const uploadResults: Array<{
       originalName: string;
       success: boolean;
-      photo?: { id: string; filename: string; original_url: string };
+      photo?: UploadResultPhoto;
       error?: string;
     }> = [];
 
@@ -363,23 +371,41 @@ export async function POST(
                 },
               });
 
+              // Define interface for upload result photo
+              interface UploadResultPhoto {
+                id: string;
+                filename: string;
+                original_url: string;
+                thumbnail_small_url: string | null;
+                thumbnail_medium_url: string | null;
+                thumbnail_large_url: string | null;
+                width: number | null;
+                height: number | null;
+                file_size: number | null;
+                mime_type: string | null;
+                created_at: Date;
+                hasExif: boolean;
+              }
+
+              const resultPhoto: UploadResultPhoto = {
+                id: photo.id,
+                filename: photo.filename,
+                original_url: photo.original_url,
+                thumbnail_small_url: photo.thumbnail_small_url,
+                thumbnail_medium_url: photo.thumbnail_medium_url,
+                thumbnail_large_url: photo.thumbnail_large_url,
+                width: photo.width,
+                height: photo.height,
+                file_size: photo.file_size,
+                mime_type: photo.mime_type,
+                created_at: photo.created_at,
+                hasExif: exif_data !== null,
+              };
+
               uploadResults.push({
                 originalName: file.name,
                 success: true,
-                photo: {
-                  id: photo.id,
-                  filename: photo.filename,
-                  original_url: photo.original_url,
-                  thumbnail_small_url: photo.thumbnail_small_url,
-                  thumbnail_medium_url: photo.thumbnail_medium_url,
-                  thumbnail_large_url: photo.thumbnail_large_url,
-                  width: photo.width,
-                  height: photo.height,
-                  file_size: photo.file_size,
-                  mime_type: photo.mime_type,
-                  created_at: photo.created_at,
-                  hasExif: exif_data !== null,
-                },
+                photo: resultPhoto as any, // Cast to any to satisfy the array type
               });
 
               logger.debug('Photo uploaded successfully', {

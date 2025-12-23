@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 interface RouteParams {
   params: Promise<{
@@ -35,11 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Build where clause
-    const whereClause: { 
-      event_id: string;
-      status?: string;
-      guest_name?: { contains: string; mode: string };
-    } = {
+    const whereClause: Prisma.commentsWhereInput = {
       event_id,
     };
 
@@ -207,9 +204,19 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    interface ExportComment {
+      id: string;
+      guest_name: string;
+      email: string | null;
+      message: string;
+      relationship: string | null;
+      status: string;
+      created_at: Date;
+    }
+
     // Create CSV
     let csv = 'ID,Name,Email,Message,Relationship,Status,Created At\n';
-    comments.forEach((comment) => {
+    (comments as unknown as ExportComment[]).forEach((comment) => {
       csv += `${comment.id},"${comment.guest_name}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
     });
 
