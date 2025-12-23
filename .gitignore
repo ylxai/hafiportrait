@@ -548,3 +548,22 @@ storybook-static/
 # Keep deployment examples
 !deployment/*.example
 !deployment/README.md
+
+# ===================
+# SECURITY & LOCAL SCRIPTS (Added by Droid)
+# ===================
+# Scripts with hardcoded secrets - DO NOT COMMIT
+portfolio-upload.js
+upload-specific-photos.js
+upload-to-r2.js
+direct-portfolio-upload.js
+ecosystem.config.js
+
+# Large binary files in root
+*.JPG
+*.jpg
+*.jpeg
+*.png
+
+# Generated Reports
+report/
