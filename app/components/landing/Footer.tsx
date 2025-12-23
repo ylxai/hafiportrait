@@ -1,6 +1,13 @@
 'use client'
 
-import { Instagram, Facebook, Mail, ArrowUp, Camera, Heart } from 'lucide-react'
+import { 
+  GlobeAltIcon as Instagram, 
+  GlobeAltIcon as Facebook, 
+  EnvelopeIcon as Mail, 
+  ArrowUpIcon as ArrowUp, 
+  CameraIcon as Camera, 
+  HeartIcon as Heart 
+} from '@heroicons/react/24/outline'
 
 export default function Footer() {
   const scrollToTop = () => {

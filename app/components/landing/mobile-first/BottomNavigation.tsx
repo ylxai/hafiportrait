@@ -1,7 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Camera, Tag, Calendar, Phone } from 'lucide-react'
+import { 
+  CameraIcon as Camera, 
+  TagIcon as Tag, 
+  CalendarIcon as Calendar, 
+  PhoneIcon as Phone 
+} from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 
 interface NavItemProps {

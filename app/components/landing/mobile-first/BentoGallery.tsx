@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { 
+  XMarkIcon as X, 
+  ChevronLeftIcon as ChevronLeft, 
+  ChevronRightIcon as ChevronRight 
+} from '@heroicons/react/24/outline'
 import Image from 'next/image'
 
 interface Photo {

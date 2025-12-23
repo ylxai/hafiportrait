@@ -14,13 +14,13 @@
 import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  X,
-  ChevronLeft,
-  ChevronRight,
-  ZoomIn,
-  ZoomOut,
-  Loader2,
-} from 'lucide-react';
+  XMarkIcon as X,
+  ChevronLeftIcon as ChevronLeft,
+  ChevronRightIcon as ChevronRight,
+  MagnifyingGlassPlusIcon as ZoomIn,
+  MagnifyingGlassMinusIcon as ZoomOut,
+  ArrowPathIcon as Loader2,
+} from '@heroicons/react/24/outline';
 import PhotoMetadata from './PhotoMetadata';
 import PhotoActions from './PhotoActions';
 

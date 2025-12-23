@@ -13,15 +13,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  Download,
-  Trash2,
-  Star,
-  Save,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Image as ImageIcon,
-} from 'lucide-react'
+  ArrowDownTrayIcon as Download,
+  TrashIcon as Trash2,
+  StarIcon as Star,
+  BookmarkIcon as Save,
+  CheckCircleIcon as CheckCircle,
+  ExclamationCircleIcon as AlertCircle,
+  ArrowPathIcon as Loader2,
+  PhotoIcon as ImageIcon,
+} from '@heroicons/react/24/outline'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface Photo {
