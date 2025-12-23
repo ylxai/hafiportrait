@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        recentActivity: recentActivity.map((event: any) => ({
+        recentActivity: recentActivity.map((event) => ({
           id: event.id,
           type: 'event_update',
           title: `Event "${event.name}" updated`,

@@ -216,12 +216,12 @@ export async function POST(request: NextRequest) {
           url: uploadResult.url,
           thumbnail_url: thumbnail_url,
         })
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(`❌ Failed to upload ${file.name}:`, error)
         uploadResults.push({
           filename: file.name,
           success: false,
-          error: error.message || 'Upload failed',
+          error: error instanceof Error ? error.message : 'Upload failed',
         })
       }
     }
@@ -241,9 +241,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: error.message || 'Upload failed' },
+      { error: error instanceof Error ? error.message : 'Upload failed' },
       { status: 500 }
     )
   }

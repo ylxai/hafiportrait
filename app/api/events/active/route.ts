@@ -43,7 +43,7 @@ export async function GET() {
     })
 
     // Format events with cover photo
-    const formattedEvents = activeEvents.map((event: any) => ({
+    const formattedEvents = activeEvents.map((event) => ({
       id: event.id,
       name: event.name,
       slug: event.slug,

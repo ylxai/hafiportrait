@@ -45,7 +45,7 @@ export async function GET() {
     })
 
     // Transform data for the frontend
-    const transformedEvents = events.map((event: any) => {
+    const transformedEvents = events.map((event) => {
       // Get cover photo - use first photo if no cover_photo_id
       const coverPhoto = event.photos[0]
 

@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       package: package_,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: 'Failed to create pricing package' },
       { status: 500 }
@@ -223,7 +223,7 @@ export async function PUT(request: NextRequest) {
       { status: 400 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: 'Failed to update pricing package' },
       { status: 500 }
@@ -260,7 +260,7 @@ export async function DELETE(request: NextRequest) {
       message: 'Package deleted successfully',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: 'Failed to delete pricing package' },
       { status: 500 }

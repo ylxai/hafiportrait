@@ -131,9 +131,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         liked: true,
         likes_count: updatedPhoto.likes_count,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle duplicate like (unique constraint violation)
-      if (error.code === 'P2002') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
         // Already liked, return current count
         return NextResponse.json({
           success: true,

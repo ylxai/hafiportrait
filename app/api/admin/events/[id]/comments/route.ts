@@ -205,7 +205,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Create CSV
     let csv = 'ID,Name,Email,Message,Relationship,Status,Created At\n';
-    comments.forEach((comment: any) => {
+    comments.forEach((comment) => {
       csv += `${comment.id},"${comment.guest_name}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
     });
 
