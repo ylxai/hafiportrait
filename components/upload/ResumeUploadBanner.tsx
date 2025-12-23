@@ -11,7 +11,11 @@
 'use client';
 
 import { UploadSession } from '@/lib/upload/uploadPersistence';
-import { Clock, Upload, X } from 'lucide-react';
+import { 
+  ClockIcon as Clock, 
+  ArrowUpTrayIcon as Upload, 
+  XMarkIcon as X 
+} from '@heroicons/react/24/outline';
 import { formatDistanceToNow } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 

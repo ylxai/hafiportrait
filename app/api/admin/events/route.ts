@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform events data to match interface
-    const transformedEvents = events.map(event => ({
+    const transformedEvents = events.map((event: any) => ({
       id: event.id,
       name: event.name,
       description: null, // Not selected in this query

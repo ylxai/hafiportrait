@@ -4,7 +4,11 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
-import { RotateCcw, Trash2, Clock } from 'lucide-react'
+import { 
+  ArrowPathIcon as RotateCcw, 
+  TrashIcon as Trash2, 
+  ClockIcon as Clock 
+} from '@heroicons/react/24/outline'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface Photo {

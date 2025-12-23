@@ -10,16 +10,16 @@
 
 import { format } from 'date-fns';
 import {
-  FileImage,
-  Calendar,
-  Ruler,
-  HardDrive,
-  Camera,
-  Eye,
-  Download,
-  Heart,
-  Info,
-} from 'lucide-react';
+  DocumentIcon as FileImage,
+  CalendarIcon as Calendar,
+  Square3Stack3DIcon as Ruler,
+  ServerIcon as HardDrive,
+  CameraIcon as Camera,
+  EyeIcon as Eye,
+  ArrowDownTrayIcon as Download,
+  HeartIcon as Heart,
+  InformationCircleIcon as Info,
+} from '@heroicons/react/24/outline';
 import { formatExifForDisplay } from '@/lib/utils/exif-formatter';
 
 interface Photo {

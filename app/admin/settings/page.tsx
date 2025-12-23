@@ -14,7 +14,7 @@ export default function SettingsPage() {
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
     { id: 'business', name: 'Business Info', icon: Building },
-    { id: 'social', name: 'Social Links', icon: LinkIcon },
+    { id: 'social', name: 'Social Links', icon: Building },
   ]
 
   return (

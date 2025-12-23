@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, Plus } from 'lucide-react'
+import { 
+  ChevronDownIcon as ChevronDown, 
+  PlusIcon as Plus 
+} from '@heroicons/react/24/outline'
 
 interface AdditionalService {
   id: string

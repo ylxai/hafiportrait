@@ -8,7 +8,12 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
-import { GripVertical, Star, Heart, Eye } from 'lucide-react'
+import { 
+  Bars3Icon as GripVertical, 
+  StarIcon as Star, 
+  HeartIcon as Heart, 
+  EyeIcon as Eye 
+} from '@heroicons/react/24/outline'
 
 interface Photo {
   id: string

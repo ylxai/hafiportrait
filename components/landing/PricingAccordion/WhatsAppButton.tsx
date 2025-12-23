@@ -1,6 +1,6 @@
 'use client'
 
-import { MessageCircle } from 'lucide-react'
+import { ChatBubbleOvalLeftEllipsisIcon as MessageCircle } from '@heroicons/react/24/outline'
 
 interface WhatsAppButtonProps {
   packageName: string

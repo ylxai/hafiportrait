@@ -14,15 +14,15 @@
 import React from 'react'
 import { ErrorInfo } from 'react'
 import { 
-  AlertCircle, 
-  RefreshCw, 
-  Home, 
-  Image as ImageIcon,
-  Upload,
-  Settings,
-  Mail,
-  ArrowLeft
-} from 'lucide-react'
+  ExclamationCircleIcon as AlertCircle, 
+  ArrowPathIcon as RefreshCw, 
+  HomeIcon as Home, 
+  PhotoIcon as ImageIcon,
+  ArrowUpTrayIcon as Upload,
+  CogIcon as Settings,
+  EnvelopeIcon as Mail,
+  ArrowLeftIcon as ArrowLeft
+} from '@heroicons/react/24/outline'
 
 export interface ErrorFallbackProps {
   error: Error

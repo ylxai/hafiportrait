@@ -7,15 +7,15 @@
 
 import { useState, useEffect } from 'react'
 import {
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Calendar,
-  FileText,
-  HardDrive,
-  Camera,
-  Check,
-} from 'lucide-react'
+  ArrowsUpDownIcon as ArrowUpDown,
+  ArrowUpIcon as ArrowUp,
+  ArrowDownIcon as ArrowDown,
+  CalendarIcon as Calendar,
+  DocumentTextIcon as FileText,
+  ServerIcon as HardDrive,
+  CameraIcon as Camera,
+  CheckIcon as Check,
+} from '@heroicons/react/24/outline'
 
 interface SortMenuProps {
   onSort: (sortBy: string, direction: 'asc' | 'desc') => void

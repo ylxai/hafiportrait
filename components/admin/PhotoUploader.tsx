@@ -14,13 +14,13 @@
 import { useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import {
-  Upload,
-  X,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Image as ImageIcon,
-} from 'lucide-react'
+  ArrowUpTrayIcon as Upload,
+  XMarkIcon as X,
+  CheckCircleIcon as CheckCircle,
+  ExclamationCircleIcon as AlertCircle,
+  ArrowPathIcon as Loader2,
+  PhotoIcon as ImageIcon,
+} from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import { showFileValidationError } from '@/lib/toast/toast-utils'
 

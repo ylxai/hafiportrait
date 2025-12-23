@@ -11,7 +11,11 @@
 'use client';
 
 import { UploadHistory } from '@/lib/upload/uploadPersistence';
-import { Clock, CheckCircle, Trash2 } from 'lucide-react';
+import { 
+  ClockIcon as Clock, 
+  CheckCircleIcon as CheckCircle, 
+  TrashIcon as Trash2 
+} from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 

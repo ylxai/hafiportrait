@@ -1,6 +1,13 @@
 'use client'
 
-import { ChevronDown, Star, Camera, Clock, BookOpen, Image } from 'lucide-react'
+import { 
+  ChevronDownIcon as ChevronDown, 
+  StarIcon as Star, 
+  CameraIcon as Camera, 
+  ClockIcon as Clock, 
+  BookOpenIcon as BookOpen, 
+  PhotoIcon as Image 
+} from '@heroicons/react/24/outline'
 import WhatsAppButton from './WhatsAppButton'
 
 interface Package {

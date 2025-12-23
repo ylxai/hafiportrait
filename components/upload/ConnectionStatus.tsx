@@ -11,12 +11,12 @@
 
 import { useNetworkStatus } from '@/hooks/useNetworkStatus'
 import {
-  Wifi,
-  WifiOff,
-  SignalHigh,
-  SignalLow,
-  SignalMedium,
-} from 'lucide-react'
+  WifiIcon as Wifi,
+  XCircleIcon as WifiOff,
+  SignalIcon as SignalHigh,
+  SignalSlashIcon as SignalLow,
+  SignalIcon as SignalMedium,
+} from '@heroicons/react/24/outline'
 
 export function ConnectionStatus() {
   const { isOnline, effectiveType, wasOffline, resetOfflineFlag } =

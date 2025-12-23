@@ -9,16 +9,16 @@ import Image from 'next/image'
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import {
-  Upload,
-  X,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Image as ImageIcon,
-  Pause,
-  Play,
-  Trash2,
-} from 'lucide-react'
+  ArrowUpTrayIcon as Upload,
+  XMarkIcon as X,
+  CheckCircleIcon as CheckCircle,
+  ExclamationCircleIcon as AlertCircle,
+  ArrowPathIcon as Loader2,
+  PhotoIcon as ImageIcon,
+  PauseIcon as Pause,
+  PlayIcon as Play,
+  TrashIcon as Trash2,
+} from '@heroicons/react/24/outline'
 import { IntegratedUploadQueue } from '@/lib/upload/uploadQueueIntegrated'
 import {
   UploadSession,
