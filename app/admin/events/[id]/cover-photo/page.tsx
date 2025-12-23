@@ -3,7 +3,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { ArrowLeft, Upload, Image as ImageIcon, Check } from 'lucide-react'
+import { 
+  ArrowLeftIcon as ArrowLeft, 
+  ArrowUpTrayIcon as Upload, 
+  PhotoIcon as ImageIcon, 
+  CheckIcon as Check 
+} from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import Image from 'next/image'
 

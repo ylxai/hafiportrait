@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { DollarSign, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react'
+import { 
+  CurrencyDollarIcon as DollarSign, 
+  PlusIcon as Plus, 
+  PencilIcon as Edit2, 
+  TrashIcon as Trash2, 
+  EyeIcon as Eye, 
+  EyeSlashIcon as EyeOff 
+} from '@heroicons/react/24/outline'
 // import { GripVertical } from 'lucide-react' // For future drag & drop reordering
 
 interface PricingPackage {

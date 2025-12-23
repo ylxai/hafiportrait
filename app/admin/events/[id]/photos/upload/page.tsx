@@ -9,7 +9,10 @@ import { verifyJWT } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import PhotoUploader from '@/components/admin/PhotoUploader';
 import Link from 'next/link';
-import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { 
+  ChevronRightIcon as ChevronRight, 
+  ArrowLeftIcon as ArrowLeft 
+} from '@heroicons/react/24/outline';
 import { UploadErrorBoundary } from '@/components/error-boundaries';
 
 interface PageProps {

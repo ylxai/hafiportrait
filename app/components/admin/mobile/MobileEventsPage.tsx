@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Plus, Calendar, Camera, Eye } from 'lucide-react'
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  CalendarDaysIcon,
+  CameraIcon,
+  EyeIcon,
+} from '@heroicons/react/24/outline'
 
 interface Event {
   id: string
@@ -29,7 +35,7 @@ export default function MobileEventsPage() {
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/admin/events', {
-        credentials: 'include'
+        credentials: 'include',
       })
       if (response.ok) {
         const data = await response.json()
@@ -42,33 +48,36 @@ export default function MobileEventsPage() {
     }
   }
 
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = selectedStatus === 'all' || event.status === selectedStatus
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch = event.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+    const matchesStatus =
+      selectedStatus === 'all' || event.status === selectedStatus
     return matchesSearch && matchesStatus
   })
 
   const getEventStats = (event: Event) => {
     return [
-      { label: 'Photos', value: event._count.photos, icon: Camera },
-      { label: 'Views', value: 0, icon: Eye },
+      { label: 'Photos', value: event._count.photos, icon: CameraIcon },
+      { label: 'Views', value: 0, icon: EyeIcon },
     ]
   }
 
   if (loading) {
     return (
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="mobile-card bg-white p-4">
             <div className="space-y-3">
-              <div className="skeleton w-3/4 h-5 rounded" />
+              <div className="skeleton h-5 w-3/4 rounded" />
               <div className="flex space-x-2">
-                <div className="skeleton w-16 h-5 rounded-full" />
-                <div className="skeleton w-20 h-5 rounded" />
+                <div className="skeleton h-5 w-16 rounded-full" />
+                <div className="skeleton h-5 w-20 rounded" />
               </div>
               <div className="flex space-x-4">
-                <div className="skeleton w-12 h-4 rounded" />
-                <div className="skeleton w-12 h-4 rounded" />
+                <div className="skeleton h-4 w-12 rounded" />
+                <div className="skeleton h-4 w-12 rounded" />
               </div>
             </div>
           </div>
@@ -78,17 +87,17 @@ export default function MobileEventsPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4 p-4">
       {/* Search and Filter */}
       <div className="space-y-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
           <input
             type="text"
             placeholder="Search events..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
@@ -97,7 +106,7 @@ export default function MobileEventsPage() {
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium ${
                 selectedStatus === status
                   ? 'bg-purple-600 text-white'
                   : 'bg-gray-100 text-gray-700'
@@ -115,7 +124,7 @@ export default function MobileEventsPage() {
           <div
             key={event.id}
             onClick={() => router.push(`/admin/events/${event.id}`)}
-            className="mobile-card bg-white p-4 cursor-pointer"
+            className="mobile-card cursor-pointer bg-white p-4"
           >
             <div className="space-y-3">
               <div>
@@ -124,17 +133,22 @@ export default function MobileEventsPage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  event.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                  event.status === 'PUBLISHED' ? 'bg-blue-100 text-blue-700' :
-                  event.status === 'DRAFT' ? 'bg-gray-100 text-gray-700' :
-                  'bg-yellow-100 text-yellow-700'
-                }`}>
+                <span
+                  className={`rounded-full px-2 py-1 text-xs font-medium ${
+                    event.status === 'ACTIVE'
+                      ? 'bg-green-100 text-green-700'
+                      : event.status === 'PUBLISHED'
+                        ? 'bg-blue-100 text-blue-700'
+                        : event.status === 'DRAFT'
+                          ? 'bg-gray-100 text-gray-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                  }`}
+                >
                   {event.status}
                 </span>
                 {event.event_date && (
-                  <span className="text-xs text-gray-600 flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" />
+                  <span className="flex items-center text-xs text-gray-600">
+                    <CalendarDaysIcon className="mr-1 h-3 w-3" />
                     {new Date(event.event_date).toLocaleDateString('id-ID')}
                   </span>
                 )}
@@ -143,7 +157,7 @@ export default function MobileEventsPage() {
               <div className="flex items-center space-x-4">
                 {getEventStats(event).map((stat, idx) => (
                   <div key={idx} className="flex items-center text-gray-600">
-                    <stat.icon className="w-4 h-4 mr-1" />
+                    <stat.icon className="mr-1 h-4 w-4" />
                     <span className="text-sm">{stat.value}</span>
                   </div>
                 ))}
@@ -156,9 +170,9 @@ export default function MobileEventsPage() {
       {/* Create Button */}
       <button
         onClick={() => router.push('/admin/events/create')}
-        className="fixed bottom-20 right-4 w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full shadow-lg flex items-center justify-center"
+        className="fixed bottom-20 right-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
       >
-        <Plus className="w-6 h-6" />
+        <PlusIcon className="h-6 w-6" />
       </button>
     </div>
   )

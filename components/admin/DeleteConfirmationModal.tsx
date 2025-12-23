@@ -1,6 +1,9 @@
 'use client'
 
-import { X, AlertTriangle } from 'lucide-react'
+import { 
+  XMarkIcon as X, 
+  ExclamationTriangleIcon as AlertTriangle 
+} from '@heroicons/react/24/outline'
 import { useState } from 'react'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 

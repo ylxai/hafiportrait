@@ -6,15 +6,14 @@ import Image from 'next/image'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import EventForm from '@/app/components/admin/EventForm'
 import {
-  CheckCircle,
-  AlertCircle,
-  Download,
-  QrCode,
-  Trash2,
-  Eye,
-  Copy,
-
-} from 'lucide-react'
+  CheckCircleIcon as CheckCircle,
+  ExclamationCircleIcon as AlertCircle,
+  ArrowDownTrayIcon as Download,
+  QrCodeIcon as QrCode,
+  TrashIcon as Trash2,
+  EyeIcon as Eye,
+  DocumentDuplicateIcon as Copy,
+} from '@heroicons/react/24/outline'
 
 interface Event {
   id: string

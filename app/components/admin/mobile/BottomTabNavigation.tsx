@@ -3,12 +3,12 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
-  LayoutDashboard,
-  Calendar,
-  Image,
-  Users,
-  Menu as MenuIcon,
-} from 'lucide-react'
+  RectangleGroupIcon as LayoutDashboard,
+  CalendarIcon as Calendar,
+  PhotoIcon as Image,
+  UsersIcon as Users,
+  Bars3Icon as MenuIcon,
+} from '@heroicons/react/24/outline'
 import { useState } from 'react'
 import MobileMoreMenu from './MobileMoreMenu'
 

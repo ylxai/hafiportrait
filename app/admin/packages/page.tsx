@@ -2,7 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { Package, Plus, Edit2, Trash2, Eye, EyeOff, Star } from 'lucide-react'
+import { 
+  CubeIcon as Package, 
+  PlusIcon as Plus, 
+  PencilIcon as Edit2, 
+  TrashIcon as Trash2, 
+  EyeIcon as Eye, 
+  EyeSlashIcon as EyeOff, 
+  StarIcon as Star 
+} from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 
 interface PackageCategory {

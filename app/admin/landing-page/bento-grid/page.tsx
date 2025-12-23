@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { Grid3x3, Image as ImageIcon, Star } from 'lucide-react'
+import { 
+  Squares2X2Icon as Grid3x3, 
+  PhotoIcon as ImageIcon, 
+  StarIcon as Star 
+} from '@heroicons/react/24/outline'
 import Image from 'next/image'
 
 interface PortfolioPhoto {

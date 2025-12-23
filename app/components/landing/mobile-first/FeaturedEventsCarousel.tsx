@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Calendar,
-  MapPin,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-} from 'lucide-react'
+  CalendarDaysIcon,
+  MapPinIcon,
+  UsersIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowTopRightOnSquareIcon,
+} from '@heroicons/react/24/outline'
 import Image from 'next/image'
 
 interface Event {
@@ -215,15 +215,15 @@ export default function FeaturedEventsCarousel() {
                       className="mb-6 flex flex-wrap gap-4 text-sm md:gap-6 md:text-base"
                     >
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
+                        <CalendarDaysIcon className="h-4 w-4" />
                         <span>{currentEvent.date}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
+                        <MapPinIcon className="h-4 w-4" />
                         <span>{currentEvent.location}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
+                        <UsersIcon className="h-4 w-4" />
                         <span>{currentEvent.guests} guests</span>
                       </div>
                     </motion.div>
@@ -248,7 +248,7 @@ export default function FeaturedEventsCarousel() {
                       className="inline-flex transform items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-gray-900 transition-all duration-300 hover:scale-105 hover:bg-rose-500 hover:text-white"
                     >
                       View Full Gallery
-                      <ExternalLink className="h-4 w-4" />
+                      <ArrowTopRightOnSquareIcon className="h-4 w-4" />
                     </motion.button>
                   </div>
                 </div>
@@ -261,14 +261,14 @@ export default function FeaturedEventsCarousel() {
               className="absolute left-4 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-white/20 p-3 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30"
               aria-label="Previous event"
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronLeftIcon className="h-6 w-6" />
             </button>
             <button
               onClick={() => paginate(1)}
               className="absolute right-4 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-white/20 p-3 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30"
               aria-label="Next event"
             >
-              <ChevronRight className="h-6 w-6" />
+              <ChevronRightIcon className="h-6 w-6" />
             </button>
 
             {/* Dot Indicators */}

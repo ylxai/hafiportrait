@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  Plus,
-  Camera,
-  Calendar,
-  Upload,
-  MessageSquare,
-  X
-} from 'lucide-react'
+  PlusIcon,
+  CameraIcon,
+  CalendarDaysIcon,
+  ArrowUpTrayIcon,
+  ChatBubbleLeftIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline'
 
 interface QuickAction {
   label: string
@@ -28,23 +28,26 @@ export default function QuickActionsFAB() {
     const baseActions = [
       {
         label: 'Create Event',
-        icon: Calendar,
+        icon: CalendarDaysIcon,
         href: '/admin/events/create',
-        color: 'bg-brand-teal'
+        color: 'bg-brand-teal',
       },
       {
         label: 'Upload Photos',
-        icon: Upload,
+        icon: ArrowUpTrayIcon,
         onClick: () => {
           // Check if we're in an event context
-          if (pathname.includes('/admin/events/') && pathname.match(/\/admin\/events\/[^/]+$/)) {
+          if (
+            pathname.includes('/admin/events/') &&
+            pathname.match(/\/admin\/events\/[^/]+$/)
+          ) {
             const event_id = pathname.split('/').pop()
             router.push(`/admin/events/${event_id}/photos/upload`)
           } else {
             router.push('/admin/photos')
           }
         },
-        color: 'bg-blue-500'
+        color: 'bg-blue-500',
       },
     ]
 
@@ -54,11 +57,11 @@ export default function QuickActionsFAB() {
         return [
           {
             label: 'Upload Photos',
-            icon: Upload,
+            icon: ArrowUpTrayIcon,
             href: pathname.replace('/photos', '/photos/upload'),
-            color: 'bg-green-500'
+            color: 'bg-green-500',
           },
-          ...baseActions.filter(a => a.label !== 'Upload Photos')
+          ...baseActions.filter((a) => a.label !== 'Upload Photos'),
         ]
       }
     }
@@ -67,11 +70,11 @@ export default function QuickActionsFAB() {
       return [
         {
           label: 'Upload to Portfolio',
-          icon: Camera,
+          icon: CameraIcon,
           href: '/admin/portfolio',
-          color: 'bg-purple-500'
+          color: 'bg-purple-500',
         },
-        ...baseActions
+        ...baseActions,
       ]
     }
 
@@ -79,13 +82,13 @@ export default function QuickActionsFAB() {
       return [
         {
           label: 'New Message',
-          icon: MessageSquare,
+          icon: ChatBubbleLeftIcon,
           onClick: () => {
             // Implement new message creation
           },
-          color: 'bg-orange-500'
+          color: 'bg-orange-500',
         },
-        ...baseActions
+        ...baseActions,
       ]
     }
 
@@ -104,16 +107,16 @@ export default function QuickActionsFAB() {
   }
 
   return (
-    <div className="md:hidden fixed bottom-20 right-4 z-40">
+    <div className="fixed bottom-20 right-4 z-40 md:hidden">
       {/* Action Menu */}
       {isOpen && (
         <>
           {/* Overlay */}
-          <div 
+          <div
             className="fixed inset-0 -z-10"
             onClick={() => setIsOpen(false)}
           />
-          
+
           {/* Actions */}
           <div className="absolute bottom-16 right-0 space-y-3">
             {quickActions.map((action, index) => {
@@ -121,20 +124,20 @@ export default function QuickActionsFAB() {
               return (
                 <div
                   key={action.label}
-                  className="flex items-center space-x-3 animate-in slide-in-from-right duration-200"
+                  className="animate-in slide-in-from-right flex items-center space-x-3 duration-200"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Action Label */}
-                  <div className="bg-black/80 text-white text-sm px-3 py-2 rounded-lg whitespace-nowrap">
+                  <div className="whitespace-nowrap rounded-lg bg-black/80 px-3 py-2 text-sm text-white">
                     {action.label}
                   </div>
-                  
+
                   {/* Action Button */}
                   <button
                     onClick={() => handleActionClick(action)}
-                    className={`w-12 h-12 rounded-full ${action.color || 'bg-gray-600'} text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center`}
+                    className={`h-12 w-12 rounded-full ${action.color || 'bg-gray-600'} flex transform items-center justify-center text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl`}
                   >
-                    <Icon className="w-6 h-6" />
+                    <Icon className="h-6 w-6" />
                   </button>
                 </div>
               )
@@ -146,14 +149,14 @@ export default function QuickActionsFAB() {
       {/* Main FAB */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full bg-brand-teal text-white shadow-lg hover:shadow-xl transform transition-all duration-200 flex items-center justify-center ${
+        className={`flex h-14 w-14 transform items-center justify-center rounded-full bg-brand-teal text-white shadow-lg transition-all duration-200 hover:shadow-xl ${
           isOpen ? 'rotate-45 bg-gray-600' : 'hover:scale-105'
         }`}
       >
         {isOpen ? (
-          <X className="w-6 h-6" />
+          <XMarkIcon className="h-6 w-6" />
         ) : (
-          <Plus className="w-6 h-6" />
+          <PlusIcon className="h-6 w-6" />
         )}
       </button>
     </div>

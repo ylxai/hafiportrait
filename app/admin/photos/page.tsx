@@ -5,7 +5,14 @@ import MobilePhotosPage from '@/app/components/admin/mobile/MobilePhotosPage'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Upload, Image as ImageIcon, Search, Filter, Grid3x3, List } from 'lucide-react'
+import { 
+  ArrowUpTrayIcon as Upload, 
+  PhotoIcon as ImageIcon, 
+  MagnifyingGlassIcon as Search, 
+  FunnelIcon as Filter, 
+  Squares2X2Icon as Grid3x3, 
+  ListBulletIcon as List 
+} from '@heroicons/react/24/outline'
 
 interface Photo {
   id: string

@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { generateSlug } from '@/lib/utils/slug'
-import { Calendar, Loader2 } from 'lucide-react'
+import { 
+  CalendarIcon as Calendar, 
+  ArrowPathIcon as Loader2 
+} from '@heroicons/react/24/outline'
 
 interface EventFormData {
   name: string

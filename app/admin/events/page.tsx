@@ -4,7 +4,15 @@ import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import MobileEventsPage from '@/app/components/admin/mobile/MobileEventsPage'
 import Link from 'next/link'
-import { Calendar, Plus, Search, Filter, Eye, Camera, Trash2 } from 'lucide-react'
+import { 
+  CalendarIcon as Calendar, 
+  PlusIcon as Plus, 
+  MagnifyingGlassIcon as Search, 
+  FunnelIcon as Filter, 
+  EyeIcon as Eye, 
+  CameraIcon as Camera, 
+  TrashIcon as Trash2 
+} from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 
 interface Event {

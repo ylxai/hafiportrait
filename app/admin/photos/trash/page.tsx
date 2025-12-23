@@ -10,7 +10,10 @@ import prisma from '@/lib/prisma';
 import TrashPhotoGrid from '@/components/admin/TrashPhotoGrid';
 import { AdminErrorBoundary } from '@/components/error-boundaries';
 import Link from 'next/link';
-import { ChevronRight, Trash2 } from 'lucide-react';
+import { 
+  ChevronRightIcon as ChevronRight, 
+  TrashIcon as Trash2 
+} from '@heroicons/react/24/outline';
 
 interface PageProps {
   searchParams: Promise<{

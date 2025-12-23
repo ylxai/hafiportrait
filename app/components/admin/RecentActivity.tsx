@@ -1,7 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Calendar, Image, MessageSquare, User, Clock } from 'lucide-react'
+import {
+  CalendarDaysIcon,
+  PhotoIcon,
+  ChatBubbleLeftIcon,
+  UserIcon,
+  ClockIcon,
+} from '@heroicons/react/24/outline'
 import { formatDistanceToNow } from 'date-fns'
 import { id } from 'date-fns/locale'
 
@@ -25,7 +31,7 @@ export default function RecentActivity() {
   const fetchRecentActivity = async () => {
     try {
       const response = await fetch('/api/admin/dashboard/activity', {
-        credentials: 'include'
+        credentials: 'include',
       })
       if (response.ok) {
         const data = await response.json()
@@ -41,15 +47,15 @@ export default function RecentActivity() {
   const getIcon = (type: Activity['type']) => {
     switch (type) {
       case 'event':
-        return Calendar
+        return CalendarDaysIcon
       case 'photo':
-        return Image
+        return PhotoIcon
       case 'message':
-        return MessageSquare
+        return ChatBubbleLeftIcon
       case 'user':
-        return User
+        return UserIcon
       default:
-        return Clock
+        return ClockIcon
     }
   }
 
@@ -70,15 +76,17 @@ export default function RecentActivity() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Recent Activity
+        </h2>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse flex items-start space-x-4">
-              <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+            <div key={i} className="flex animate-pulse items-start space-x-4">
+              <div className="h-10 w-10 rounded-lg bg-gray-200" />
               <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                <div className="mb-2 h-4 w-3/4 rounded bg-gray-200" />
+                <div className="h-3 w-1/2 rounded bg-gray-200" />
               </div>
             </div>
           ))}
@@ -88,26 +96,32 @@ export default function RecentActivity() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        Recent Activity
+      </h2>
       {activities.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">No recent activity</p>
+        <p className="py-8 text-center text-gray-500">No recent activity</p>
       ) : (
         <div className="space-y-4">
           {activities.map((activity) => {
             const Icon = getIcon(activity.type)
             return (
               <div key={activity.id} className="flex items-start space-x-4">
-                <div className={`p-2 rounded-lg ${getIconColor(activity.type)}`}>
-                  <Icon className="w-5 h-5" />
+                <div
+                  className={`rounded-lg p-2 ${getIconColor(activity.type)}`}
+                >
+                  <Icon className="h-5 w-5" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium text-gray-900">{activity.title}</p>
-                  <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatDistanceToNow(new Date(activity.timestamp), { 
+                  <p className="mt-1 text-sm text-gray-600">
+                    {activity.description}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formatDistanceToNow(new Date(activity.timestamp), {
                       addSuffix: true,
-                      locale: id 
+                      locale: id,
                     })}
                   </p>
                 </div>

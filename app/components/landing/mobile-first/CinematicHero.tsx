@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import OptimizedImage from '@/components/common/OptimizedImage'
 import { useHeroSlideshowCache } from '@/hooks/useApiCache'
 
@@ -28,8 +28,12 @@ interface SlideshowData {
 
 export default function CinematicHero() {
   // Use cached API hook for hero slideshow data
-  const { data: slideshowData, isLoading, error } = useHeroSlideshowCache<SlideshowData>()
-  
+  const {
+    data: slideshowData,
+    isLoading,
+    error,
+  } = useHeroSlideshowCache<SlideshowData>()
+
   console.log('🔍 CinematicHero render:', { slideshowData, isLoading, error })
 
   const [slides, setSlides] = useState<HeroSlide[]>([])
@@ -50,7 +54,7 @@ export default function CinematicHero() {
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // ALL useEffects MUST be before any conditional returns (React Hooks Rules)
-  
+
   // Debug useEffect to check if effects are running at all
   useEffect(() => {
     console.log('🔥 CinematicHero useEffect test - component mounted/updated')
@@ -58,46 +62,66 @@ export default function CinematicHero() {
   }, [slideshowData]) // Fixed dependency
 
   useEffect(() => {
-    console.log('🔥 CinematicHero useEffect with slideshowData dependency triggered')
+    console.log(
+      '🔥 CinematicHero useEffect with slideshowData dependency triggered'
+    )
     console.log('🔥 slideshowData value:', slideshowData)
   }, [slideshowData]) // This should run when slideshowData changes
 
   // Fix useEffect dependency - ensure it triggers when data changes
   useEffect(() => {
     console.log('🔄 Processing slideshow data:', slideshowData)
-    console.log('🔄 Data type:', typeof slideshowData, 'Has slides:', !!slideshowData?.slides)
-    
-    if (slideshowData?.slides && Array.isArray(slideshowData.slides) && slideshowData.slides.length > 0) {
-      console.log('📸 Mapping slides:', slideshowData.slides.length, slideshowData.slides)
-      
+    console.log(
+      '🔄 Data type:',
+      typeof slideshowData,
+      'Has slides:',
+      !!slideshowData?.slides
+    )
+
+    if (
+      slideshowData?.slides &&
+      Array.isArray(slideshowData.slides) &&
+      slideshowData.slides.length > 0
+    ) {
+      console.log(
+        '📸 Mapping slides:',
+        slideshowData.slides.length,
+        slideshowData.slides
+      )
+
       try {
         // Map API response to component format with error handling
-        const mappedSlides = slideshowData.slides.map((slide: any, index: number) => {
-          console.log(`🔍 Mapping slide ${index}:`, slide)
-          
-          return {
-            id: slide.id || `slide-${index}`,
-            imageUrl: slide.image_url || slide.imageUrl || '',
-            thumbnail_url: slide.thumbnail_url,
-            title: slide.title,
-            subtitle: slide.subtitle,
-            display_order: slide.display_order || index,
+        const mappedSlides = slideshowData.slides.map(
+          (slide: any, index: number) => {
+            console.log(`🔍 Mapping slide ${index}:`, slide)
+
+            return {
+              id: slide.id || `slide-${index}`,
+              imageUrl: slide.image_url || slide.imageUrl || '',
+              thumbnail_url: slide.thumbnail_url,
+              title: slide.title,
+              subtitle: slide.subtitle,
+              display_order: slide.display_order || index,
+            }
           }
-        })
-        
-        console.log('✅ Mapped slides successfully:', mappedSlides.length, mappedSlides)
+        )
+
+        console.log(
+          '✅ Mapped slides successfully:',
+          mappedSlides.length,
+          mappedSlides
+        )
         setSlides(mappedSlides)
-        
+
         // Use settings from API or defaults
         const enhancedSettings = slideshowData.settings || {
           timingSeconds: 3.5,
           transitionEffect: 'fade',
           autoplay: true,
         }
-        
+
         console.log('✅ Setting slideshow settings:', enhancedSettings)
         setSettings(enhancedSettings)
-        
       } catch (error) {
         console.error('❌ Error mapping slides:', error)
       }
@@ -106,7 +130,7 @@ export default function CinematicHero() {
         hasData: !!slideshowData,
         hasSlides: !!slideshowData?.slides,
         isArray: Array.isArray(slideshowData?.slides),
-        length: slideshowData?.slides?.length
+        length: slideshowData?.slides?.length,
       })
     }
   }, [slideshowData]) // Explicit dependency on slideshowData
@@ -145,16 +169,20 @@ export default function CinematicHero() {
 
   // Use API data only, no fallback images
   const displaySlides = slides.length > 0 ? slides : []
-  
-  console.log('🔍 CinematicHero slides state:', { slides, slidesLength: slides.length, displaySlides: displaySlides.length })
-  
+
+  console.log('🔍 CinematicHero slides state:', {
+    slides,
+    slidesLength: slides.length,
+    displaySlides: displaySlides.length,
+  })
+
   // Show loading state if no slides (AFTER all hooks!)
   if (displaySlides.length === 0) {
     return (
-      <section className="relative h-screen w-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600">
+      <section className="relative flex h-screen w-full items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600">
         <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <h1 className="text-3xl md:text-4xl font-light tracking-tight">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
+          <h1 className="text-3xl font-light tracking-tight md:text-4xl">
             Loading <span className="font-serif italic">Gallery</span>
           </h1>
         </div>
@@ -290,15 +318,18 @@ export default function CinematicHero() {
         >
           {/* Fallback gradient BEHIND image */}
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-          
+
           {/* Background Image ABOVE fallback */}
           <OptimizedImage
-            src={displaySlides[currentSlide]?.imageUrl || '/images/hero/wedding-1.jpg'}
+            src={
+              displaySlides[currentSlide]?.imageUrl ||
+              '/images/hero/wedding-1.jpg'
+            }
             alt={
               `${displaySlides[currentSlide]?.title} ${displaySlides[currentSlide]?.subtitle}` ||
               'Wedding Photography'
             }
-            className="absolute inset-0 z-10 w-full h-full object-cover transition-none"
+            className="absolute inset-0 z-10 h-full w-full object-cover transition-none"
             fill={true}
             sizes="100vw"
             priority={true}
@@ -307,10 +338,10 @@ export default function CinematicHero() {
           />
 
           {/* Lighter image overlay for better brightness */}
-          <div className="absolute inset-0 bg-black/20 z-20" />
+          <div className="absolute inset-0 z-20 bg-black/20" />
 
           {/* Lighter gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-30" />
+          <div className="absolute inset-0 z-30 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
@@ -330,7 +361,7 @@ export default function CinematicHero() {
               <span className="block text-white/90">
                 {displaySlides[currentSlide]?.title || 'Capture Your'}
               </span>
-              <span className="mt-1 block font-serif italic text-white text-xl md:text-2xl lg:text-3xl">
+              <span className="mt-1 block font-serif text-xl italic text-white md:text-2xl lg:text-3xl">
                 {displaySlides[currentSlide]?.subtitle || 'Love Story'}
               </span>
             </h1>
@@ -341,17 +372,17 @@ export default function CinematicHero() {
             </p>
 
             {/* CTA Buttons - Horizontal */}
-            <div className="pointer-events-auto mt-6 flex items-center justify-center gap-3 flex-wrap">
+            <div className="pointer-events-auto mt-6 flex flex-wrap items-center justify-center gap-3">
               <a
                 href="#pricing"
-                className="group relative overflow-hidden rounded-full bg-white px-6 py-3 text-sm md:text-base font-medium text-gray-900 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
+                className="group relative overflow-hidden rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 md:text-base"
               >
                 <span className="relative z-10">Price List</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-rose-400 to-pink-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </a>
               <button
                 onClick={scrollToPortfolio}
-                className="rounded-full border-2 border-white/30 px-6 py-3 text-sm md:text-base font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10 active:scale-95"
+                className="rounded-full border-2 border-white/30 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10 active:scale-95 md:text-base"
               >
                 Our Gallery
               </button>
@@ -397,7 +428,7 @@ export default function CinematicHero() {
           aria-label="Scroll down"
         >
           <span className="text-sm font-light tracking-wider">SCROLL</span>
-          <ChevronDown className="h-6 w-6" />
+          <ChevronDownIcon className="h-6 w-6" />
         </button>
       </motion.div>
 

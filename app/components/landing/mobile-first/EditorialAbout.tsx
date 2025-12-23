@@ -1,12 +1,20 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Award, Heart, Camera, Users } from 'lucide-react'
+import {
+  TrophyIcon,
+  HeartIcon,
+  CameraIcon,
+  UsersIcon,
+} from '@heroicons/react/24/outline'
 import Image from 'next/image'
 
 export default function EditorialAbout() {
   return (
-    <section id="about" className="section bg-gradient-to-b from-gray-50 to-white">
+    <section
+      id="about"
+      className="section bg-gradient-to-b from-gray-50 to-white"
+    >
       <div className="container-custom">
         {/* Center-aligned heading */}
         <motion.div
@@ -14,14 +22,15 @@ export default function EditorialAbout() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="mb-12 text-center"
         >
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
+          <h2 className="mb-4 font-serif text-2xl font-bold text-gray-900 md:text-3xl">
             About <span className="italic text-rose-500">Hafiportrait</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            We capture life's most precious moments with an editorial eye and cinematic approach. 
-            Every frame tells a story of love, joy, and celebration.
+          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
+            We capture life's most precious moments with an editorial eye and
+            cinematic approach. Every frame tells a story of love, joy, and
+            celebration.
           </p>
         </motion.div>
 
@@ -31,30 +40,36 @@ export default function EditorialAbout() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-16"
+          className="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3"
         >
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-rose-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-white" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-400 to-pink-500">
+              <UsersIcon className="h-8 w-8 text-white" />
             </div>
-            <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">500+</div>
-            <div className="text-gray-600 font-medium">Weddings Captured</div>
+            <div className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
+              500+
+            </div>
+            <div className="font-medium text-gray-600">Weddings Captured</div>
           </div>
 
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-white" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500">
+              <HeartIcon className="h-8 w-8 text-white" />
             </div>
-            <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">1000+</div>
-            <div className="text-gray-600 font-medium">Happy Couples</div>
+            <div className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
+              1000+
+            </div>
+            <div className="font-medium text-gray-600">Happy Couples</div>
           </div>
 
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Award className="w-8 h-8 text-white" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500">
+              <TrophyIcon className="h-8 w-8 text-white" />
             </div>
-            <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">5+</div>
-            <div className="text-gray-600 font-medium">Years Experience</div>
+            <div className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
+              5+
+            </div>
+            <div className="font-medium text-gray-600">Years Experience</div>
           </div>
         </motion.div>
 
@@ -64,11 +79,11 @@ export default function EditorialAbout() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="max-w-4xl mx-auto"
+          className="mx-auto max-w-4xl"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             {/* Image */}
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-2xl">
               <Image
                 src="https://images.unsplash.com/photo-1554048612-b6a482bc67e5?q=80&w=1000&auto=format&fit=crop"
                 alt="Professional photographer at work"
@@ -81,27 +96,34 @@ export default function EditorialAbout() {
 
             {/* Content */}
             <div className="space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-rose-100 rounded-full text-rose-600 font-semibold text-sm">
-                <Camera className="w-4 h-4" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-rose-100 px-4 py-2 text-sm font-semibold text-rose-600">
+                <CameraIcon className="h-4 w-4" />
                 Our Story
               </div>
 
-              <h3 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
+              <h3 className="font-serif text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
                 Turning Moments Into
-                <span className="block text-rose-500 italic mt-2">
+                <span className="mt-2 block italic text-rose-500">
                   Timeless Memories
                 </span>
               </h3>
 
-              <div className="space-y-4 text-gray-600 leading-relaxed">
+              <div className="space-y-4 leading-relaxed text-gray-600">
                 <p>
-                  Hi, we're <strong className="text-gray-900">Hafiportrait</strong> — a team of passionate photographers dedicated to capturing the authentic emotions and beautiful details of your special day.
+                  Hi, we're{' '}
+                  <strong className="text-gray-900">Hafiportrait</strong> — a
+                  team of passionate photographers dedicated to capturing the
+                  authentic emotions and beautiful details of your special day.
                 </p>
                 <p>
-                  With over 5 years of experience and 500+ weddings under our belt, we've perfected the art of editorial-cinematic photography that tells your unique love story.
+                  With over 5 years of experience and 500+ weddings under our
+                  belt, we've perfected the art of editorial-cinematic
+                  photography that tells your unique love story.
                 </p>
                 <p>
-                  Our approach combines classic elegance with modern techniques, creating images that feel both timeless and contemporary — photos you'll treasure for generations.
+                  Our approach combines classic elegance with modern techniques,
+                  creating images that feel both timeless and contemporary —
+                  photos you'll treasure for generations.
                 </p>
               </div>
 
@@ -111,7 +133,7 @@ export default function EditorialAbout() {
                     const element = document.getElementById('contact')
                     if (element) element.scrollIntoView({ behavior: 'smooth' })
                   }}
-                  className="px-8 py-4 bg-gradient-to-r from-rose-400 to-pink-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="transform rounded-full bg-gradient-to-r from-rose-400 to-pink-500 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
                   Let's Work Together
                 </button>

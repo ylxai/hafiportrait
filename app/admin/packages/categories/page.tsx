@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { FolderOpen, Plus, Edit2, Trash2, Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import { 
+  FolderOpenIcon as FolderOpen, 
+  PlusIcon as Plus, 
+  PencilIcon as Edit2, 
+  TrashIcon as Trash2, 
+  EyeIcon as Eye, 
+  EyeSlashIcon as EyeOff, 
+  ArrowLeftIcon as ArrowLeft 
+} from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
 interface PackageCategory {

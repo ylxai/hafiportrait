@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  Calendar,
-  Image as ImageIcon,
-  Eye,
-  MessageSquare,
-  Camera,
-  Upload
-} from 'lucide-react'
+  CalendarIcon as Calendar,
+  PhotoIcon as ImageIcon,
+  EyeIcon as Eye,
+  ChatBubbleLeftEllipsisIcon as MessageSquare,
+  CameraIcon as Camera,
+  ArrowUpTrayIcon as Upload
+} from '@heroicons/react/24/outline'
 
 interface DashboardStats {
   totalEvents: number

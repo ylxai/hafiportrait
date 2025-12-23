@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  Search,
-  Bell,
-  ArrowLeft,
-  Menu,
-} from 'lucide-react'
+  MagnifyingGlassIcon as Search,
+  BellIcon as Bell,
+  ArrowLeftIcon as ArrowLeft,
+  Bars3Icon as Menu,
+} from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
 interface MobileHeaderProps {

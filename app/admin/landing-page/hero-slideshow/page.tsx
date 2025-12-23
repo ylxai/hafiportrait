@@ -2,7 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { Upload, Trash2, GripVertical, Image as ImageIcon } from 'lucide-react'
+import { 
+  ArrowUpTrayIcon as Upload, 
+  TrashIcon as Trash2, 
+  Bars3Icon as GripVertical, 
+  PhotoIcon as ImageIcon 
+} from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'

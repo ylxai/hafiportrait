@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { MessageSquare, Clock, Phone, Mail, Calendar } from 'lucide-react'
+import { 
+  ChatBubbleLeftEllipsisIcon as MessageSquare, 
+  ClockIcon as Clock, 
+  PhoneIcon as Phone, 
+  EnvelopeIcon as Mail, 
+  CalendarIcon as Calendar 
+} from '@heroicons/react/24/outline'
 
 interface FormSubmission {
   id: string

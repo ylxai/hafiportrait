@@ -10,7 +10,11 @@ import prisma from '@/lib/prisma';
 import DraggablePhotoGrid from '@/components/admin/DraggablePhotoGrid';
 import { AdminErrorBoundary } from '@/components/error-boundaries';
 import Link from 'next/link';
-import { ChevronRight, Upload, Image as ImageIcon } from 'lucide-react';
+import { 
+  ChevronRightIcon as ChevronRight, 
+  ArrowUpTrayIcon as Upload, 
+  PhotoIcon as ImageIcon 
+} from '@heroicons/react/24/outline';
 
 interface PageProps {
   params: Promise<{ id: string }>;

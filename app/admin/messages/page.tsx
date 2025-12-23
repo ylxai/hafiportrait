@@ -3,16 +3,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import {
-  MessageSquare,
-  Mail,
-  Phone,
-  Clock,
-  CheckCircle,
-  Reply,
-  Trash2,
-  Filter,
-  Download,
-} from 'lucide-react'
+  ChatBubbleLeftEllipsisIcon as MessageSquare,
+  EnvelopeIcon as Mail,
+  PhoneIcon as Phone,
+  ClockIcon as Clock,
+  CheckCircleIcon as CheckCircle,
+  ArrowUturnLeftIcon as Reply,
+  TrashIcon as Trash2,
+  FunnelIcon as Filter,
+  ArrowDownTrayIcon as Download,
+} from '@heroicons/react/24/outline'
 import { formatDistanceToNow } from 'date-fns'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import { copyToClipboardWithToast } from '@/lib/toast/toast-utils'

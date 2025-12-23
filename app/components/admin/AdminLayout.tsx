@@ -4,21 +4,21 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
-  LayoutDashboard,
-  Calendar,
-  Image,
-  MessageSquare,
-  Package,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  Home,
-  Grid3x3,
-  Sliders,
-  ChevronDown,
-  ChevronRight,
-} from 'lucide-react'
+  RectangleGroupIcon as LayoutDashboard,
+  CalendarIcon as Calendar,
+  PhotoIcon as Image,
+  ChatBubbleLeftEllipsisIcon as MessageSquare,
+  CubeIcon as Package,
+  CogIcon as Settings,
+  ArrowRightOnRectangleIcon as LogOut,
+  Bars3Icon as Menu,
+  XMarkIcon as X,
+  HomeIcon as Home,
+  Squares2X2Icon as Grid3x3,
+  AdjustmentsHorizontalIcon as Sliders,
+  ChevronDownIcon as ChevronDown,
+  ChevronRightIcon as ChevronRight,
+} from '@heroicons/react/24/outline'
 
 interface User {
   id: string

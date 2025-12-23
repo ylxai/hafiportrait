@@ -2,8 +2,11 @@
 
 import { useState } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { Settings as SettingsIcon, User, Building } from 'lucide-react'
-import { Link as LinkIcon } from 'lucide-react'
+import { 
+  CogIcon as SettingsIcon, 
+  UserIcon as User, 
+  BuildingOfficeIcon as Building 
+} from '@heroicons/react/24/outline'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')

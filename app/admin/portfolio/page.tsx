@@ -2,7 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { Image as ImageIcon, Upload, Trash2, Eye } from 'lucide-react'
+import { 
+  PhotoIcon as ImageIcon, 
+  ArrowUpTrayIcon as Upload, 
+  TrashIcon as Trash2, 
+  EyeIcon as Eye 
+} from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import Image from 'next/image'
 

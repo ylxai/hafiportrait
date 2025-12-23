@@ -3,19 +3,19 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  Loader2,
-  MessageCircle,
-  Home,
-  Camera,
-  Calendar,
-  MapPin,
-  DollarSign,
-  Sparkles,
-  User,
-} from 'lucide-react'
+  ArrowRightIcon,
+  ArrowLeftIcon,
+  CheckIcon,
+  ArrowPathIcon,
+  ChatBubbleLeftRightIcon,
+  HomeIcon,
+  CameraIcon,
+  CalendarDaysIcon,
+  MapPinIcon,
+  CurrencyDollarIcon,
+  SparklesIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline'
 
 interface FormStep {
   id: string
@@ -41,7 +41,7 @@ const formSteps: FormStep[] = [
     placeholder: 'Contoh: Budi & Sarah',
     validation: (value) => value.length >= 2,
     errorMessage: 'Mohon masukkan nama Anda',
-    icon: User,
+    icon: UserIcon,
   },
   {
     id: 'step-2',
@@ -52,7 +52,7 @@ const formSteps: FormStep[] = [
     placeholder: '0895 7005 03193',
     validation: (value) => /^[0-9+\s-()]{10,}$/.test(value),
     errorMessage: 'Mohon masukkan nomor WhatsApp yang valid',
-    icon: MessageCircle,
+    icon: ChatBubbleLeftRightIcon,
   },
   {
     id: 'step-3',
@@ -68,7 +68,7 @@ const formSteps: FormStep[] = [
       'Studio Couple',
       'Event Lainnya',
     ],
-    icon: Camera,
+    icon: CameraIcon,
   },
   {
     id: 'step-4',
@@ -79,7 +79,7 @@ const formSteps: FormStep[] = [
     placeholder: 'Contoh: Desember 2024 atau 15 Juni 2025',
     validation: (value) => value.length >= 3,
     errorMessage: 'Mohon masukkan perkiraan tanggal',
-    icon: Calendar,
+    icon: CalendarDaysIcon,
   },
   {
     id: 'step-5',
@@ -90,7 +90,7 @@ const formSteps: FormStep[] = [
     placeholder: 'Contoh: Banjarmasin, Martapura, atau venue tertentu',
     validation: (value) => value.length >= 3,
     errorMessage: 'Mohon masukkan lokasi acara',
-    icon: MapPin,
+    icon: MapPinIcon,
   },
   {
     id: 'step-6',
@@ -106,7 +106,7 @@ const formSteps: FormStep[] = [
       'Belum yakin / Konsultasi dulu',
     ],
     optional: true,
-    icon: DollarSign,
+    icon: CurrencyDollarIcon,
   },
   {
     id: 'step-7',
@@ -118,7 +118,7 @@ const formSteps: FormStep[] = [
       'Contoh: Kami ingin sesi prewedding outdoor dengan tema natural dan candid. Kami suka gaya foto yang warm dan intimate...',
     validation: (value) => value.length >= 10,
     errorMessage: 'Mohon ceritakan lebih detail (minimal 10 karakter)',
-    icon: Sparkles,
+    icon: SparklesIcon,
   },
 ]
 
@@ -266,7 +266,7 @@ export default function ConversationalForm() {
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg"
             >
-              <Check className="h-12 w-12 text-white" strokeWidth={3} />
+              <CheckIcon className="h-12 w-12 text-white" strokeWidth={3} />
             </motion.div>
 
             {/* Success Message */}
@@ -295,7 +295,7 @@ export default function ConversationalForm() {
               className="mb-8 rounded-2xl bg-purple-50 p-6"
             >
               <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
-                <Camera className="h-5 w-5 text-purple-600" />
+                <CameraIcon className="h-5 w-5 text-purple-600" />
                 Langkah Selanjutnya:
               </h4>
               <ul className="space-y-2 text-gray-700">
@@ -334,7 +334,7 @@ export default function ConversationalForm() {
                 onClick={handleWhatsAppDirect}
                 className="flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-lg font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-xl"
               >
-                <MessageCircle className="h-6 w-6" />
+                <ChatBubbleLeftRightIcon className="h-6 w-6" />
                 Hubungi Langsung via WhatsApp
               </button>
 
@@ -344,14 +344,14 @@ export default function ConversationalForm() {
                   onClick={handleViewPortfolio}
                   className="flex items-center justify-center gap-2 rounded-xl border-2 border-purple-200 px-4 py-3 font-medium text-purple-700 transition-all hover:bg-purple-50"
                 >
-                  <Camera className="h-5 w-5" />
+                  <CameraIcon className="h-5 w-5" />
                   Lihat Portfolio
                 </button>
                 <button
                   onClick={handleBackToHome}
                   className="flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 px-4 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50"
                 >
-                  <Home className="h-5 w-5" />
+                  <HomeIcon className="h-5 w-5" />
                   Kembali ke Beranda
                 </button>
               </div>
@@ -472,7 +472,7 @@ export default function ConversationalForm() {
                   >
                     <span className="flex items-center gap-3">
                       {formData[currentStepData.field] === option && (
-                        <Check className="h-5 w-5 text-purple-600" />
+                        <CheckIcon className="h-5 w-5 text-purple-600" />
                       )}
                       {option}
                     </span>
@@ -524,7 +524,7 @@ export default function ConversationalForm() {
                     onClick={handleBack}
                     className="flex items-center gap-2 rounded-xl border-2 border-gray-200 px-5 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50"
                   >
-                    <ArrowLeft className="h-5 w-5" />
+                    <ArrowLeftIcon className="h-5 w-5" />
                     Kembali
                   </button>
                 )}
@@ -545,7 +545,7 @@ export default function ConversationalForm() {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <ArrowPathIcon className="h-5 w-5 animate-spin" />
                       Mengirim...
                     </>
                   ) : (
@@ -553,7 +553,7 @@ export default function ConversationalForm() {
                       {currentStep === formSteps.length - 1
                         ? 'Dapatkan Penawaran'
                         : 'Lanjut'}
-                      <ArrowRight className="h-5 w-5" />
+                      <ArrowRightIcon className="h-5 w-5" />
                     </>
                   )}
                 </button>
@@ -574,7 +574,7 @@ export default function ConversationalForm() {
             onClick={handleWhatsAppDirect}
             className="inline-flex items-center gap-2 rounded-xl border-2 border-green-500 bg-white px-6 py-3 font-semibold text-green-700 shadow-md transition-all hover:bg-green-50 hover:shadow-lg"
           >
-            <MessageCircle className="h-5 w-5" />
+            <ChatBubbleLeftRightIcon className="h-5 w-5" />
             Hubungi Langsung via WhatsApp
           </button>
         </motion.div>

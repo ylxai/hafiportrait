@@ -1,12 +1,14 @@
 'use client'
 
-import { LucideIcon } from 'lucide-react'
+import { ComponentType, SVGProps } from 'react'
+
+type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>
 
 interface StatCardProps {
   title: string
   value: number | string
   subtitle?: string
-  icon: LucideIcon
+  icon: HeroIcon
   color?: 'purple' | 'pink' | 'blue' | 'green' | 'yellow'
 }
 

@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, MessageCircle, Phone } from 'lucide-react'
+import {
+  CalendarDaysIcon,
+  ChatBubbleLeftRightIcon,
+  PhoneIcon,
+} from '@heroicons/react/24/outline'
 
 export default function FloatingCTA() {
   const [isVisible, setIsVisible] = useState(false)
@@ -46,17 +50,17 @@ export default function FloatingCTA() {
       >
         <button
           onClick={() => setShowOptions(!showOptions)}
-          className="group relative p-4 bg-gradient-to-r from-rose-400 to-pink-500 text-white rounded-full shadow-2xl hover:shadow-rose-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95"
+          className="group relative transform rounded-full bg-gradient-to-r from-rose-400 to-pink-500 p-4 text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:shadow-rose-500/50 active:scale-95"
         >
           <motion.div
             animate={{ rotate: showOptions ? 45 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Calendar className="w-6 h-6" />
+            <CalendarDaysIcon className="h-6 w-6" />
           </motion.div>
-          
+
           {/* Pulse Animation */}
-          <span className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-20" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-rose-500 opacity-20" />
         </button>
       </motion.div>
 
@@ -74,12 +78,12 @@ export default function FloatingCTA() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
             onClick={handleWhatsApp}
-            className="group flex items-center gap-3 p-3 bg-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+            className="group flex transform items-center gap-3 rounded-full bg-white p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
-            <div className="p-2 bg-green-500 rounded-full">
-              <MessageCircle className="w-5 h-5 text-white" />
+            <div className="rounded-full bg-green-500 p-2">
+              <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
             </div>
-            <span className="pr-3 text-sm font-semibold text-gray-800 whitespace-nowrap">
+            <span className="whitespace-nowrap pr-3 text-sm font-semibold text-gray-800">
               WhatsApp
             </span>
           </motion.button>
@@ -90,12 +94,12 @@ export default function FloatingCTA() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
             onClick={handleCall}
-            className="group flex items-center gap-3 p-3 bg-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+            className="group flex transform items-center gap-3 rounded-full bg-white p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
-            <div className="p-2 bg-blue-500 rounded-full">
-              <Phone className="w-5 h-5 text-white" />
+            <div className="rounded-full bg-blue-500 p-2">
+              <PhoneIcon className="h-5 w-5 text-white" />
             </div>
-            <span className="pr-3 text-sm font-semibold text-gray-800 whitespace-nowrap">
+            <span className="whitespace-nowrap pr-3 text-sm font-semibold text-gray-800">
               Call Us
             </span>
           </motion.button>
@@ -106,12 +110,12 @@ export default function FloatingCTA() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
             onClick={handleBooking}
-            className="group flex items-center gap-3 p-3 bg-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+            className="group flex transform items-center gap-3 rounded-full bg-white p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
-            <div className="p-2 bg-rose-500 rounded-full">
-              <Calendar className="w-5 h-5 text-white" />
+            <div className="rounded-full bg-rose-500 p-2">
+              <CalendarDaysIcon className="h-5 w-5 text-white" />
             </div>
-            <span className="pr-3 text-sm font-semibold text-gray-800 whitespace-nowrap">
+            <span className="whitespace-nowrap pr-3 text-sm font-semibold text-gray-800">
               Book Now
             </span>
           </motion.button>
@@ -125,7 +129,7 @@ export default function FloatingCTA() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => setShowOptions(false)}
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30"
+          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
         />
       )}
     </>

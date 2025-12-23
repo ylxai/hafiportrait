@@ -24,7 +24,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Search } from 'lucide-react'
+import { MagnifyingGlassIcon as Search } from '@heroicons/react/24/outline'
 import SortablePhotoItem from './SortablePhotoItem'
 import PhotoDetailModal from './PhotoDetailModal'
 import SortMenu from './SortMenu'
