@@ -159,14 +159,16 @@ export async function uploadBatch(
       if (options.onFileComplete) {
         options.onFileComplete(i, result);
       }
-    } catch (error: any) {
-      if (error.name === 'AbortError' || axios.isCancel(error)) {
+    } catch (error: unknown) {
+      if ((error instanceof Error && error.name === 'AbortError') || axios.isCancel(error)) {
         throw error;
       }
 
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+
       const errorResult: UploadResult = {
         success: false,
-        error: error.message || 'Upload failed',
+        error: errorMessage,
       };
 
       results.push(errorResult);

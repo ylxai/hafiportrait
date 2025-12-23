@@ -40,10 +40,16 @@ import { ConnectionStatusBanner } from '@/components/upload/ConnectionStatus'
 import { ResumeUploadBanner } from '@/components/upload/ResumeUploadBanner'
 import { UploadHistoryPanel } from '@/components/upload/UploadHistoryPanel'
 
+export interface UploadStats {
+  success: number
+  error: number
+  total: number
+}
+
 interface PhotoUploaderPersistentProps {
   event_id: string
   eventName: string
-  onUploadComplete?: (results: any) => void
+  onUploadComplete?: (results: UploadStats) => void
   maxFiles?: number
   maxFileSize?: number
 }

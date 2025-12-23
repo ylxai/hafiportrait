@@ -304,10 +304,13 @@ export async function fileExistsInR2(key: string): Promise<boolean> {
 
     await r2Client.send(command);
     return true;
-  } catch (error: any) {
-    // Fix: Check if error exists and has the expected properties
-    if (error && (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404)) {
-      return false;
+  } catch (error: unknown) {
+    // Safely check for AWS SDK error properties
+    if (typeof error === 'object' && error !== null) {
+      const err = error as any; // Temporary cast for property access
+      if (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) {
+        return false;
+      }
     }
     console.error('R2 file exists check error:', error);
     return false;

@@ -315,13 +315,19 @@ export class UploadQueue {
       // Continue processing queue
       await this.processQueue();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.activeUploads.delete(fileId);
 
       // Check if aborted (pause/cancel)
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         this.updateFileState(fileId, { status: 'paused' });
         return;
+      }
+
+      // Check if error is DOMException with AbortError (sometimes instance check fails across contexts)
+      if (typeof error === 'object' && error !== null && 'name' in error && (error as any).name === 'AbortError') {
+         this.updateFileState(fileId, { status: 'paused' });
+         return;
       }
 
       // Handle upload error
@@ -360,9 +366,10 @@ export class UploadQueue {
   /**
    * Handle upload error with retry logic
    */
-  private async handleUploadError(fileId: string, task: UploadTask, error: any): Promise<void> {
+  private async handleUploadError(fileId: string, task: UploadTask, error: unknown): Promise<void> {
     const fileState = task.fileState;
     const retryCount = fileState.retryCount + 1;
+    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
 
     // Check if should retry
     if (retryCount <= this.options.maxRetries) {
@@ -372,7 +379,7 @@ export class UploadQueue {
         status: 'failed',
         retryCount,
         lastRetry: Date.now(),
-        error: error.message || 'Upload failed',
+        error: errorMessage,
       });
 
       this.options.onRetrying(fileId, retryCount, delay);
@@ -389,10 +396,10 @@ export class UploadQueue {
       // Max retries exceeded
       this.updateFileState(fileId, {
         status: 'failed',
-        error: `Upload failed after ${retryCount} attempts: ${error.message}`,
+        error: `Upload failed after ${retryCount} attempts: ${errorMessage}`,
       });
       
-      this.options.onFileError(fileId, error.message || 'Upload failed');
+      this.options.onFileError(fileId, errorMessage);
       
       // Continue with next file
       await this.processQueue();

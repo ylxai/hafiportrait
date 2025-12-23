@@ -15,6 +15,18 @@ interface HeroSlide {
   display_order: number
 }
 
+// Interface for raw API response which might have inconsistent naming
+interface RawHeroSlide {
+  id?: string
+  imageUrl?: string
+  image_url?: string
+  src?: string
+  thumbnail_url?: string | null
+  title?: string | null
+  subtitle?: string | null
+  display_order?: number
+}
+
 interface SlideshowSettings {
   timingSeconds: number
   transitionEffect: string
@@ -22,7 +34,7 @@ interface SlideshowSettings {
 }
 
 interface SlideshowData {
-  slides: HeroSlide[]
+  slides: RawHeroSlide[] // Update to use RawHeroSlide for incoming data
   settings: SlideshowSettings
 }
 
@@ -62,7 +74,7 @@ export default function CinematicHero() {
         // Map API response to component format
         // Since useHeroSlideshowCache is generic typed, we assume slides match HeroSlide or are compatible
         const mappedSlides = slideshowData.slides.map(
-          (slide: any, index: number) => { // Use any temporarily for raw API data flexibility
+          (slide, index) => {
             return {
               id: slide.id || `slide-${index}`,
               imageUrl: slide.imageUrl || slide.image_url || slide.src || '',

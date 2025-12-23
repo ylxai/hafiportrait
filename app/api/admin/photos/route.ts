@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform photos data
-    const transformedPhotos = photos.map((photo: any) => ({
+    const transformedPhotos = photos.map((photo) => ({
       id: photo.id,
       filename: photo.filename,
       original_url: photo.original_url,
@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
       mime_type: photo.mime_type,
       event_id: photo.event_id,
       event_name: photo.events?.name || null,
-      likes_count: photo.likes_count || 0,
-      view_count: photo.views_count || 0,
+      likes_count: photo.likes_count,
+      view_count: photo.views_count,
       created_at: photo.created_at,
       updated_at: photo.updated_at,
       deleted_at: photo.deleted_at

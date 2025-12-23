@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Transform photos data to match interface
-    const transformedPhotos = photos.map((photo: any) => ({
+    const transformedPhotos = photos.map((photo) => ({
       id: photo.id,
       filename: photo.filename,
       original_url: photo.original_url,
@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
       event_id: photo.event_id,
       uploadedAt: photo.created_at.toISOString(),
       updated_at: photo.updated_at.toISOString(),
-      likes_count: photo.likes_count || 0,
-      download_count: photo.download_count || 0,
+      likes_count: photo.likes_count,
+      download_count: photo.download_count,
       isDeleted: photo.deleted_at !== null,
       deleted_at: photo.deleted_at?.toISOString() || null,
       exif_data: photo.exif_data as Record<string, unknown> | null,

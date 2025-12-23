@@ -55,7 +55,7 @@ export interface PhotoWithMetadata extends Photo {
     dateTimeOriginal?: string
     gpsLatitude?: number
     gpsLongitude?: number
-    [key: string]: any
+    [key: string]: unknown
   } | null
 }
 
@@ -82,7 +82,7 @@ export interface PhotoUpload {
   height?: number
   caption?: string
   display_order?: number
-  exif_data?: Record<string, any>
+  exif_data?: Record<string, unknown>
   event_id: string
 }
 

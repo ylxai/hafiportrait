@@ -139,6 +139,19 @@ export async function clearGalleryAccessCookie(event_id: string): Promise<void> 
   cookieStore.delete(`${COOKIE_NAME_PREFIX}${event_id}`);
 }
 
+import { z } from 'zod';
+
+// Interface for the event data returned by validation
+export interface GalleryAccessEvent {
+  id: string;
+  name: string;
+  slug: string;
+  event_date: Date | null;
+  location: string | null;
+  description: string | null;
+  access_code: string;
+}
+
 /**
  * Validate event access by slug (Simplified access without code)
  */
@@ -146,7 +159,7 @@ export async function validateEventAccess(
   slug: string,
   ipAddress?: string,
   userAgent?: string
-): Promise<{ success: boolean; event?: any; token?: string; expiresAt?: Date; error?: string }> {
+): Promise<{ success: boolean; event?: GalleryAccessEvent; token?: string; expiresAt?: Date; error?: string }> {
   // Find event by slug
   const event = await prisma.events.findUnique({
     where: { slug },
@@ -192,7 +205,7 @@ export async function validateAccessCode(
   access_code: string,
   ipAddress?: string,
   userAgent?: string
-): Promise<{ success: boolean; event?: any; token?: string; expiresAt?: Date; error?: string }> {
+): Promise<{ success: boolean; event?: GalleryAccessEvent; token?: string; expiresAt?: Date; error?: string }> {
   // Find event by slug
   const event = await prisma.events.findUnique({
     where: { slug },

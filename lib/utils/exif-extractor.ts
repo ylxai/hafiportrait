@@ -174,7 +174,7 @@ export async function extractBasicMetadata(buffer: Buffer) {
  * @param exif_data EXIF data object
  * @returns Formatted string
  */
-export function formatExifForDisplay(exif_data: any): Record<string, string> {
+export function formatExifForDisplay(exif_data: ExifData | null | undefined): Record<string, string> {
   const formatted: Record<string, string> = {};
 
   if (!exif_data) return formatted;
