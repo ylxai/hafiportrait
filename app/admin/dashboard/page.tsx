@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { 
-  Calendar, 
-  Image, 
-  MessageSquare, 
-  TrendingUp,
-  Eye,
-  Download,
-  Heart
-} from 'lucide-react'
+  CalendarIcon as Calendar, 
+  PhotoIcon as Image, 
+  ChatBubbleLeftEllipsisIcon as MessageSquare, 
+  ArrowTrendingUpIcon as TrendingUp,
+  EyeIcon as Eye,
+  ArrowDownTrayIcon as Download,
+  HeartIcon as Heart
+} from '@heroicons/react/24/outline'
 import StatCard from '@/app/components/admin/StatCard'
 import RecentActivity from '@/app/components/admin/RecentActivity'
 import QuickActions from '@/app/components/admin/QuickActions'

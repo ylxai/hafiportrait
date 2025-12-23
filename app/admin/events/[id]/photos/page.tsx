@@ -168,7 +168,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   const photoCount = event._count.photos;
 
   // Map to frontend interface (camelCase)
-  const formattedPhotos = photos.map(photo => ({
+  const formattedPhotos = photos.map((photo: any) => ({
     id: photo.id,
     filename: photo.filename,
     original_url: photo.original_url,

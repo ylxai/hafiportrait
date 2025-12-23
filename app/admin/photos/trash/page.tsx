@@ -133,7 +133,7 @@ export default async function TrashPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil(totalCount / limit);
 
   // Map to frontend interface
-  const formattedPhotos = photos.map(photo => ({
+  const formattedPhotos = photos.map((photo: any) => ({
     id: photo.id,
     filename: photo.filename,
     thumbnail_medium_url: photo.thumbnail_medium_url,
@@ -201,7 +201,7 @@ export default async function TrashPage({ searchParams }: PageProps) {
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#54ACBF] focus:outline-none focus:ring-2 focus:ring-[#54ACBF]"
             >
               <option value="">All Events ({totalCount})</option>
-              {events.map((event) => (
+              {events.map((event: any) => (
                 <option key={event.id} value={event.id}>
                   {event.name} ({event._count.photos})
                 </option>

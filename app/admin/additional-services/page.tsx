@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import { Plus, Edit2, Trash2, Eye, EyeOff, Wrench } from 'lucide-react'
+import { 
+  PlusIcon as Plus, 
+  PencilIcon as Edit2, 
+  TrashIcon as Trash2, 
+  EyeIcon as Eye, 
+  EyeSlashIcon as EyeOff, 
+  WrenchScrewdriverIcon as Wrench 
+} from '@heroicons/react/24/outline'
 
 interface AdditionalService {
   id: string
