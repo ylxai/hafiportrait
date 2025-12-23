@@ -32,9 +32,8 @@ export default async function UploadPersistentPage({ params }: PageProps) {
           <PhotoUploaderPersistent
             event_id={event.id}
             eventName={event.name}
-            onUploadComplete={(results) => {
+            onUploadComplete={() => {
               // Refresh page atau update UI setelah upload
-              console.log('Upload completed:', results);
               // Optional: redirect atau refresh
               // window.location.reload();
             }}

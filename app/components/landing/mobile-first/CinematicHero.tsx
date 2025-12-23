@@ -30,11 +30,7 @@ export default function CinematicHero() {
   // Use cached API hook for hero slideshow data
   const {
     data: slideshowData,
-    isLoading,
-    error,
   } = useHeroSlideshowCache<SlideshowData>()
-
-  console.log('🔍 CinematicHero render:', { slideshowData, isLoading, error })
 
   const [slides, setSlides] = useState<HeroSlide[]>([])
   const [settings, setSettings] = useState<SlideshowSettings>({
@@ -55,62 +51,29 @@ export default function CinematicHero() {
 
   // ALL useEffects MUST be before any conditional returns (React Hooks Rules)
 
-  // Debug useEffect to check if effects are running at all
-  useEffect(() => {
-    console.log('🔥 CinematicHero useEffect test - component mounted/updated')
-    console.log('🔥 Current slideshowData in mount effect:', slideshowData)
-  }, [slideshowData]) // Fixed dependency
-
-  useEffect(() => {
-    console.log(
-      '🔥 CinematicHero useEffect with slideshowData dependency triggered'
-    )
-    console.log('🔥 slideshowData value:', slideshowData)
-  }, [slideshowData]) // This should run when slideshowData changes
-
   // Fix useEffect dependency - ensure it triggers when data changes
   useEffect(() => {
-    console.log('🔄 Processing slideshow data:', slideshowData)
-    console.log(
-      '🔄 Data type:',
-      typeof slideshowData,
-      'Has slides:',
-      !!slideshowData?.slides
-    )
-
     if (
       slideshowData?.slides &&
       Array.isArray(slideshowData.slides) &&
       slideshowData.slides.length > 0
     ) {
-      console.log(
-        '📸 Mapping slides:',
-        slideshowData.slides.length,
-        slideshowData.slides
-      )
-
       try {
-        // Map API response to component format with error handling
+        // Map API response to component format
+        // Since useHeroSlideshowCache is generic typed, we assume slides match HeroSlide or are compatible
         const mappedSlides = slideshowData.slides.map(
-          (slide: { id: string; src: string; alt: string }, index: number) => {
-            console.log(`🔍 Mapping slide ${index}:`, slide)
-
+          (slide: any, index: number) => { // Use any temporarily for raw API data flexibility
             return {
               id: slide.id || `slide-${index}`,
-              imageUrl: slide.image_url || slide.imageUrl || '',
-              thumbnail_url: slide.thumbnail_url,
-              title: slide.title,
-              subtitle: slide.subtitle,
-              display_order: slide.display_order || index,
+              imageUrl: slide.imageUrl || slide.image_url || slide.src || '',
+              thumbnail_url: slide.thumbnail_url || null,
+              title: slide.title || null,
+              subtitle: slide.subtitle || null,
+              display_order: slide.display_order ?? index,
             }
           }
         )
 
-        console.log(
-          '✅ Mapped slides successfully:',
-          mappedSlides.length,
-          mappedSlides
-        )
         setSlides(mappedSlides)
 
         // Use settings from API or defaults
@@ -120,18 +83,10 @@ export default function CinematicHero() {
           autoplay: true,
         }
 
-        console.log('✅ Setting slideshow settings:', enhancedSettings)
         setSettings(enhancedSettings)
       } catch (error) {
         console.error('❌ Error mapping slides:', error)
       }
-    } else {
-      console.log('❌ No valid slides data:', {
-        hasData: !!slideshowData,
-        hasSlides: !!slideshowData?.slides,
-        isArray: Array.isArray(slideshowData?.slides),
-        length: slideshowData?.slides?.length,
-      })
     }
   }, [slideshowData]) // Explicit dependency on slideshowData
 
@@ -169,12 +124,6 @@ export default function CinematicHero() {
 
   // Use API data only, no fallback images
   const displaySlides = slides.length > 0 ? slides : []
-
-  console.log('🔍 CinematicHero slides state:', {
-    slides,
-    slidesLength: slides.length,
-    displaySlides: displaySlides.length,
-  })
 
   // Show loading state if no slides (AFTER all hooks!)
   if (displaySlides.length === 0) {

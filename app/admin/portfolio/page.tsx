@@ -299,17 +299,13 @@ export default function PortfolioPage() {
                           formData.append('files', file)
                         })
 
-                        console.log('Uploading files:', Array.from(files).map(f => f.name))
-                        
                         const response = await fetch('/api/admin/portfolio/upload', {
                           method: 'POST',
                           credentials: 'include',
                           body: formData,
                         })
                         
-                        console.log('Upload response status:', response.status)
                         const responseText = await response.text()
-                        console.log('Raw upload response:', responseText)
                         
                         if (!response.ok) {
                           throw new Error(`Upload failed: ${response.status} ${response.statusText}`)

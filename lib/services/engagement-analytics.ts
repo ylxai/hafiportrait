@@ -78,16 +78,16 @@ export async function getEventEngagementAnalytics(
   });
 
   // Calculate totals
-  const totalLikes = photos.reduce((sum, p) => sum + p.likes_count, 0);
-  const totalViews = photos.reduce((sum, p) => sum + p.views_count, 0);
-  const totalDownloads = photos.reduce((sum, p) => sum + p.download_count, 0);
+  const totalLikes = photos.reduce((sum: number, p: { likes_count: number }) => sum + p.likes_count, 0);
+  const totalViews = photos.reduce((sum: number, p: { views_count: number }) => sum + p.views_count, 0);
+  const totalDownloads = photos.reduce((sum: number, p: { download_count: number }) => sum + p.download_count, 0);
   const totalPhotos = photos.length;
   const averageLikesPerPhoto = totalPhotos > 0 ? totalLikes / totalPhotos : 0;
 
   // Get most liked photos with engagement score
   const mostLikedPhotos: PhotoEngagementStats[] = photos
     .slice(0, limit)
-    .map((photo) => ({
+    .map((photo: { id: string; filename: string; likes_count: number; views_count: number; download_count: number; thumbnail_url: string | null }) => ({
       photo_id: photo.id,
       filename: photo.filename,
       likes_count: photo.likes_count,
@@ -136,7 +136,7 @@ function calculateEngagementScore(
  */
 async function getRecentActivity(
   event_id: string,
-  dateFilter: 'day' | 'week' | 'month' | 'year',
+  dateFilter: { gte?: Date; lte?: Date },
   limit: number
 ): Promise<ActivityLog[]> {
   // Get recent likes
@@ -164,7 +164,7 @@ async function getRecentActivity(
     take: limit,
   });
 
-  return recentLikes.map((like) => ({
+  return recentLikes.map((like: { id: string; guest_id: string; photo_id: string; created_at: Date; photos: { filename: string } }) => ({
     id: like.id,
     type: 'like' as const,
     photo_id: like.photo_id,
@@ -209,14 +209,14 @@ async function getLikesTrend(
   }
 
   // Count likes per date
-  likes.forEach((like) => {
+  likes.forEach((like: { created_at: Date }) => {
     const dateStr = like.created_at.toISOString().split('T')[0] as string;
     trendMap.set(dateStr, (trendMap.get(dateStr) || 0) + 1);
   });
 
   // Convert to array and sort
   const trendData: TrendData[] = Array.from(trendMap.entries())
-    .map(([date, likes]) => ({
+    .map(([date, likes]: [string, number]) => ({
       date,
       likes,
       views: 0, // TODO: Add views tracking
@@ -250,7 +250,7 @@ export async function getTopLikedPhotos(
     take: limit,
   });
 
-  return photos.map((photo) => ({
+  return photos.map((photo: { id: string; filename: string; likes_count: number; views_count: number; download_count: number; thumbnail_url: string | null }) => ({
     photo_id: photo.id,
     filename: photo.filename,
     likes_count: photo.likes_count,
@@ -297,7 +297,7 @@ export async function detectBulkLikePatterns(
     },
   });
 
-  return recentLikes.map((group) => group.guest_id);
+  return recentLikes.map((group: { guest_id: string }) => group.guest_id);
 }
 
 /**
@@ -325,7 +325,7 @@ export async function exportEngagementData(
   let csv = 'Photo ID,Filename,Likes,Views,Downloads,Engagement Score,Upload Date\n';
 
   // Add data rows
-  photos.forEach((photo) => {
+  photos.forEach((photo: { id: string; filename: string; likes_count: number; views_count: number; download_count: number; created_at: Date }) => {
     const engagementScore = calculateEngagementScore(
       photo.likes_count,
       photo.views_count,

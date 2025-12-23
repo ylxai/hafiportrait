@@ -13,7 +13,6 @@ const prisma = new PrismaClient();
 // Configuration
 const PORT = parseInt(process.env.SOCKET_PORT || '3001', 10);
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
-const NODE_ENV = process.env.NODE_ENV || 'development';
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',')
   : [
