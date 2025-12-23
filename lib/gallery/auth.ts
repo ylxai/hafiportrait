@@ -139,8 +139,6 @@ export async function clearGalleryAccessCookie(event_id: string): Promise<void> 
   cookieStore.delete(`${COOKIE_NAME_PREFIX}${event_id}`);
 }
 
-import { z } from 'zod';
-
 // Interface for the event data returned by validation
 export interface GalleryAccessEvent {
   id: string;

@@ -61,7 +61,7 @@ export async function GET() {
     // Format events with cover photo
     // We can't strictly type the input 'event' without complex Prisma generic types,
     // but we can enforce the return type using our Zod schema structure.
-    const formattedEvents: ActiveEventItem[] = activeEvents.map((event) => ({
+    const formattedEvents: ActiveEventItem[] = activeEvents.map((event: typeof activeEvents[number]) => ({
       id: event.id,
       name: event.name,
       slug: event.slug,

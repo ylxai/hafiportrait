@@ -1,27 +1,5 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
-
-const SlideshowSettingSchema = z.object({
-  timingSeconds: z.number(),
-  transitionEffect: z.string(),
-  autoplay: z.boolean(),
-})
-
-const HeroSlideSchema = z.object({
-  id: z.string(),
-  imageUrl: z.string(),
-  thumbnail_url: z.string().nullable(),
-  title: z.string().nullable(),
-  subtitle: z.string().nullable(),
-  display_order: z.number(),
-})
-
-// Combined response schema
-const SlideshowResponseSchema = z.object({
-  slides: z.array(HeroSlideSchema),
-  settings: SlideshowSettingSchema
-})
 
 export async function GET() {
   // Note: request parameter not needed for this endpoint
@@ -42,7 +20,7 @@ export async function GET() {
     const dbSettings = await prisma.slideshow_settings.findFirst()
 
     // Transform to match schema (camelCase for frontend)
-    const slides = dbSlides.map(slide => ({
+    const slides = dbSlides.map((slide: typeof dbSlides[number]) => ({
       id: slide.id,
       imageUrl: slide.image_url, // Transform snake_case to camelCase property
       thumbnail_url: slide.thumbnail_url,

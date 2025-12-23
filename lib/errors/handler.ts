@@ -154,16 +154,17 @@ function handleZodError(
  * Handle Prisma errors
  */
 function handlePrismaError(
-  error: Error,
+  error: unknown,
   requestId: string
 ): NextResponse<ErrorResponse> {
   const isDevelopment = process.env.NODE_ENV === 'development'
 
   // Prisma unique constraint violation
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if ((error as any).code === 'P2002') {
-      const field = (error.meta?.target as string[])?.join(', ') || 'field'
-      logError(error, { requestId, prismaCode: error.code })
+    const prismaError = error as Prisma.PrismaClientKnownRequestError
+    if (prismaError.code === 'P2002') {
+      const field = (prismaError.meta?.target as string[])?.join(', ') || 'field'
+      logError(prismaError, { requestId, prismaCode: prismaError.code })
 
       return NextResponse.json(
         {
@@ -179,8 +180,8 @@ function handlePrismaError(
       )
     }
     // Record not found
-    if (error.code === 'P2025') {
-      logError(error, { requestId, prismaCode: error.code })
+    if (prismaError.code === 'P2025') {
+      logError(prismaError, { requestId, prismaCode: prismaError.code })
 
       return NextResponse.json(
         {
@@ -196,14 +197,16 @@ function handlePrismaError(
       )
     }
   }
+
+  const errorMessage = error instanceof Error ? error.message : 'Database operation failed'
   // Generic Prisma error
-  logError(error, { requestId, type: 'PrismaError' })
+  logError(error instanceof Error ? error : new Error(String(error)), { requestId, type: 'PrismaError' })
 
   return NextResponse.json(
     {
       success: false,
       error: {
-        message: isDevelopment ? error.message : 'Database operation failed',
+        message: isDevelopment ? errorMessage : 'Database operation failed',
         code: ErrorCode.DATABASE_ERROR,
       },
       timestamp: new Date().toISOString(),
@@ -238,7 +241,7 @@ export function handleError(
     error instanceof Prisma.PrismaClientKnownRequestError ||
     error instanceof Prisma.PrismaClientValidationError
   ) {
-    return handlePrismaError(error as Error, requestId)
+    return handlePrismaError(error, requestId)
   }
 
   // Handle standard Error

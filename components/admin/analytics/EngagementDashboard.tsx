@@ -322,7 +322,7 @@ export default function EngagementDashboard({
 /**
  * Simple Trend Chart Component
  */
-function SimpleTrendChart({ data }: { data: Array<{ date: string; value: number }> }) {
+function SimpleTrendChart({ data }: { data: Array<{ date: string; likes: number }> }) {
   const maxLikes = Math.max(...data.map((d) => d.likes), 1)
 
   return (

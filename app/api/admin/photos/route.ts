@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform photos data
-    const transformedPhotos = photos.map((photo) => ({
+    const transformedPhotos = photos.map((photo: typeof photos[number]) => ({
       id: photo.id,
       filename: photo.filename,
       original_url: photo.original_url,

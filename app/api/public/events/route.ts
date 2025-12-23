@@ -60,7 +60,7 @@ export async function GET() {
     })
 
     // Transform data for the frontend
-    const transformedEvents: PublicEventItem[] = events.map((event) => {
+    const transformedEvents: PublicEventItem[] = events.map((event: typeof events[number]) => {
       // Get cover photo - use first photo if no cover_photo_id
       const coverPhoto = event.photos[0]
 

@@ -38,7 +38,7 @@ class ApiCache {
       return null;
     }
     
-    return entry.data;
+    return entry.data as T;
   }
   
   /**
@@ -77,7 +77,7 @@ class ApiCache {
     
     // Return existing pending request if it exists and is recent (< 30s)
     if (existing && Date.now() - existing.timestamp < 30000) {
-      return existing.promise;
+      return existing.promise as Promise<T>;
     }
     
     // Create new request

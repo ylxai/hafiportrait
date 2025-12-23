@@ -482,7 +482,7 @@ sessions/
 
 # Cache directories
 .cache/
-cache/
+/cache/
 
 # Storybook
 .storybook-out/
