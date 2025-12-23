@@ -1,5 +1,20 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+
+// Schema for public event data
+const PublicEventSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+  coupleName: z.string(),
+  event_date: z.date(),
+  status: z.enum(['LIVE', 'COMPLETED']),
+  coverPhotoUrl: z.string(),
+  photoCount: z.number(),
+})
+
+type PublicEventItem = z.infer<typeof PublicEventSchema>
 
 export async function GET() {
   try {
@@ -45,7 +60,7 @@ export async function GET() {
     })
 
     // Transform data for the frontend
-    const transformedEvents = events.map((event: any) => {
+    const transformedEvents: PublicEventItem[] = events.map((event) => {
       // Get cover photo - use first photo if no cover_photo_id
       const coverPhoto = event.photos[0]
 

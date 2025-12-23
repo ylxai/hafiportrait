@@ -1,5 +1,21 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { z } from 'zod'
+
+// Define schema for the response item
+const ActiveEventItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  date: z.date(),
+  event_date: z.date().nullable(),
+  location: z.string().nullable(),
+  clientName: z.string().optional(),
+  totalPhotos: z.number(),
+  coverPhotoUrl: z.string().nullable(),
+})
+
+type ActiveEventItem = z.infer<typeof ActiveEventItemSchema>
 
 // GET - Public endpoint to fetch active events
 export async function GET() {
@@ -43,7 +59,9 @@ export async function GET() {
     })
 
     // Format events with cover photo
-    const formattedEvents = activeEvents.map((event: any) => ({
+    // We can't strictly type the input 'event' without complex Prisma generic types,
+    // but we can enforce the return type using our Zod schema structure.
+    const formattedEvents: ActiveEventItem[] = activeEvents.map((event) => ({
       id: event.id,
       name: event.name,
       slug: event.slug,
@@ -54,6 +72,9 @@ export async function GET() {
       totalPhotos: event._count.photos,
       coverPhotoUrl: event.photos[0]?.thumbnail_url || event.photos[0]?.original_url || null,
     }))
+
+    // Runtime validation (optional but recommended for critical data)
+    // z.array(ActiveEventItemSchema).parse(formattedEvents) 
 
     return NextResponse.json({
       success: true,
