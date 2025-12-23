@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateAccessCode, setGalleryAccessCookie } from '@/lib/gallery/auth';
+import { validateAccessCode, validateEventAccess, setGalleryAccessCookie } from '@/lib/gallery/auth';
 import { checkRateLimit, RateLimitPresets, getClientIdentifier } from '@/lib/security/rate-limiter';
 
 export async function POST(
@@ -11,12 +11,7 @@ export async function POST(
     const body = await request.json();
     const { access_code } = body;
     
-    // TODO: Implement password protection for events
-    // if (event.requirePasswordAccess && password !== event.accessPassword) {
-    //   return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
-    // }
-
-    // Check rate limit - FIXED: Use centralized rate limiter
+    // Check rate limit
     const identifier = getClientIdentifier(request);
     const rateLimitResult = await checkRateLimit(identifier, RateLimitPresets.GALLERY_ACCESS);
     
@@ -31,34 +26,32 @@ export async function POST(
       );
     }
 
-    // Validate input
-    if (!access_code || typeof access_code !== 'string') {
-      return NextResponse.json(
-        { error: 'Access code is required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate access code format (6 alphanumeric characters)
-    const cleanCode = access_code.trim().toUpperCase();
-    if (!/^[A-Z0-9]{6}$/.test(cleanCode)) {
-      return NextResponse.json(
-        { error: 'Access code must be 6 alphanumeric characters' },
-        { status: 400 }
-      );
-    }
-
     const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                       request.headers.get('x-real-ip') || 
                       'unknown';
     const userAgent = request.headers.get('user-agent') || undefined;
 
-    // Validate access code and create session
-    const result = await validateAccessCode(eventSlug, cleanCode, ipAddress, userAgent);
+    let result;
+
+    // If access_code provided, validate strictly. If not, validate by slug only.
+    if (access_code && typeof access_code === 'string') {
+      const cleanCode = access_code.trim().toUpperCase();
+      // Basic format check
+      if (/^[A-Z0-9]{6}$/.test(cleanCode)) {
+         result = await validateAccessCode(eventSlug, cleanCode, ipAddress, userAgent);
+      } else {
+         // If code format is invalid, try falling back to direct access or return error
+         // For now, let's treat invalid code format as a reason to fail if code WAS provided
+         return NextResponse.json({ error: 'Invalid access code format' }, { status: 400 });
+      }
+    } else {
+      // Direct access without code
+      result = await validateEventAccess(eventSlug, ipAddress, userAgent);
+    }
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error || 'Invalid access code' },
+        { error: result.error || 'Access denied' },
         { status: 401 }
       );
     }
@@ -96,24 +89,24 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
 
-    if (!code) {
-      return NextResponse.json(
-        { error: 'Access code is required' },
-        { status: 400 }
-      );
-    }
-
     const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                       request.headers.get('x-real-ip') || 
                       'unknown';
     const userAgent = request.headers.get('user-agent') || undefined;
 
-    // Validate access code
-    const result = await validateAccessCode(eventSlug, code, ipAddress, userAgent);
+    let result;
+
+    if (code) {
+       // Validate strictly if code provided
+       result = await validateAccessCode(eventSlug, code, ipAddress, userAgent);
+    } else {
+       // Validate by slug only (direct access)
+       result = await validateEventAccess(eventSlug, ipAddress, userAgent);
+    }
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error || 'Invalid access code' },
+        { error: result.error || 'Access denied' },
         { status: 401 }
       );
     }

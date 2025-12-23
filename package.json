@@ -38,7 +38,7 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
     "prepare": "husky install",
-    "start:socket": "node server/socket-server.js",
+    "start:socket": "tsx server/socket-server.ts",
     "start:production": "pm2 start ecosystem.config.js --env production",
     "start:dev:all": "concurrently \"npm run dev\" \"npm run start:socket\"",
     "stop:production": "pm2 stop ecosystem.config.js",
@@ -59,6 +59,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/sanitize-html": "^2.16.0",
     "@vercel/blob": "^2.0.0",
+    "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "csrf": "^3.1.0",
     "date-fns": "^3.6.0",
@@ -108,6 +109,9 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vitest": "^4.0.15"
+  },
+  "overrides": {
+    "@opentelemetry/api": "^1.9.0"
   },
   "engines": {
     "node": ">=20.0.0",

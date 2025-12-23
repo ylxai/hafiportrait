@@ -140,6 +140,51 @@ export async function clearGalleryAccessCookie(event_id: string): Promise<void> 
 }
 
 /**
+ * Validate event access by slug (Simplified access without code)
+ */
+export async function validateEventAccess(
+  slug: string,
+  ipAddress?: string,
+  userAgent?: string
+): Promise<{ success: boolean; event?: any; token?: string; expiresAt?: Date; error?: string }> {
+  // Find event by slug
+  const event = await prisma.events.findUnique({
+    where: { slug },
+    include: {
+      photos: {
+        where: { deleted_at: null },
+        select: { id: true },
+        take: 1,
+      },
+    },
+  });
+
+  if (!event) {
+    return { success: false, error: 'Event not found' };
+  }
+
+  // Check if event is archived
+  if (event.status === 'ARCHIVED') {
+    return { success: false, error: 'This event has been archived' };
+  }
+
+  // Create gallery token directly
+  const { token, expiresAt } = await createGalleryToken(
+    event.id,
+    event.slug,
+    ipAddress,
+    userAgent
+  );
+
+  return {
+    success: true,
+    event,
+    token,
+    expiresAt,
+  };
+}
+
+/**
  * Validate access code and create session
  */
 export async function validateAccessCode(

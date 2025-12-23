@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'redis'
+import { verifyJWT } from '@/lib/auth'
 
 // Rate limit tiers
 export const RATE_LIMITS = {
@@ -93,8 +94,9 @@ export function getClientIdentifier(
 
 /**
  * Check if user is admin (exempt from strict rate limits)
+ * SECURITY FIX: Proper async JWT validation
  */
-export function isAdminRequest(request: NextRequest): boolean {
+export async function isAdminRequest(request: NextRequest): Promise<boolean> {
   // Check for admin role di JWT token
   try {
     const authHeader = request.headers.get('authorization')
@@ -103,9 +105,9 @@ export function isAdminRequest(request: NextRequest): boolean {
     }
 
     const token = authHeader.substring(7)
-    // TODO: Properly validate JWT and check admin role
-    // For now, just check if token exists (basic check)
-    return token.length > 10 // Very basic check
+    const payload = await verifyJWT(token)
+    
+    return payload?.role === 'ADMIN'
   } catch (error) {
     console.warn('Error checking admin request:', error)
     return false
@@ -222,7 +224,7 @@ export async function withRateLimit(
   user_id?: string
 ): Promise<{ allowed: boolean; response?: NextResponse }> {
   // Admin exemption
-  if (isAdminRequest(request) && tier !== 'AUTH_LOGIN') {
+  if (await isAdminRequest(request) && tier !== 'AUTH_LOGIN') {
     return { allowed: true }
   }
 
