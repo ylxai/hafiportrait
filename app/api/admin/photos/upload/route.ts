@@ -64,7 +64,19 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     );
   }
 
-  // 3. Rate limiting - DISABLED for production wedding photo uploads
+  // 3. CSRF Protection with Smart Exemption (API clients exempt)
+  const { withCSRFProtection } = await import('@/lib/security/csrf');
+  const csrfCheck = await withCSRFProtection(request);
+  if (!csrfCheck.valid && csrfCheck.response) {
+    return csrfCheck.response;
+  }
+  if (csrfCheck.exemptReason) {
+    logger.debug('Upload request from API client, CSRF check skipped', {
+      reason: csrfCheck.exemptReason
+    });
+  }
+
+  // 4. Rate limiting - DISABLED for production wedding photo uploads
   /*
   try {
     await rateLimit(request, UPLOAD_RATE_LIMIT);
@@ -74,7 +86,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   }
   */
 
-  // 4. Parse multipart form data
+  // 5. Parse multipart form data
   let formData: FormData;
   try {
     formData = await request.formData();
@@ -84,13 +96,13 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     });
   }
 
-  // 5. Extract and validate event ID
+  // 6. Extract and validate event ID
   const event_id = formData.get('event_id') as string;
   if (!event_id || typeof event_id !== 'string') {
     throw new FileValidationError('Event ID is required');
   }
 
-  // 6. Extract metadata (optional)
+  // 7. Extract metadata (optional)
   const metadataStr = formData.get('metadata') as string;
   let metadata = {};
   if (metadataStr) {
@@ -102,7 +114,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   }
   const sanitizedMetadata = validateAndSanitizeMetadata(metadata);
 
-  // 7. Extract files from form data
+  // 8. Extract files from form data
   const files: Array<{ file: File; filename: string; mime_type: string }> = [];
   
   for (const [key, value] of formData.entries()) {
@@ -123,7 +135,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     throw new FileValidationError('No files provided for upload');
   }
 
-  // 8. Validate all files before processing (relaxed validation)
+  // 9. Validate all files before processing (relaxed validation)
   const validationResult = await validateBatchUpload(files);
 
   if (!validationResult.valid) {
@@ -138,7 +150,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     );
   }
 
-  // 9. Check memory and time estimates
+  // 10. Check memory and time estimates
   const file_sizes = validationResult.files.map((f) => ({
     size: f.metadata?.size || 0,
   }));
@@ -152,7 +164,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     filesCount: file_sizes.length
   });
   
-  // 10. Process uploads (convert Files to Buffers)
+  // 11. Process uploads (convert Files to Buffers)
   const fileBuffers = await Promise.all(
     files.map(async (f) => ({
       buffer: Buffer.from(await f.file.arrayBuffer()),
@@ -161,7 +173,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     }))
   );
 
-  // 11. Upload files with parallel processing and retry logic
+  // 12. Upload files with parallel processing and retry logic
   const uploadResults = await processBatchUpload(fileBuffers, {
     event_id,
     user_id: user.user_id,
@@ -169,11 +181,11 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     is_featured: false,
   });
 
-  // 12. Categorize results
+  // 13. Categorize results
   const successful = uploadResults.filter((r) => r.success);
   const failed = uploadResults.filter((r) => !r.success);
 
-  // 13. Return response
+  // 14. Return response
   const response = {
     uploaded: successful.length,
     failed: failed.length,

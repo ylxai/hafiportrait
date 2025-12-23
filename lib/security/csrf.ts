@@ -98,7 +98,17 @@ export function setCSRFCookie(response: NextResponse, secret: string): void {
 }
 
 /**
- * CSRF Protection Middleware untuk API routes
+ * CSRF Protection Middleware dengan Smart Exemption untuk API routes
+ * 
+ * CSRF Protection Rules:
+ * 1. Browser requests (cookie-based auth) → REQUIRE CSRF token
+ * 2. API requests (Bearer token/API key) → SKIP CSRF check (inherently safe from CSRF)
+ * 
+ * Why API clients are exempt from CSRF:
+ * - CSRF attacks ONLY affect browsers (cookies auto-sent by browser)
+ * - Bearer tokens/API keys must be explicitly set in headers (not auto-attached)
+ * - Attacker cannot read tokens from other domains (Same-Origin Policy)
+ * - API clients don't have cross-site risk
  * 
  * Usage di API route:
  * export async function POST(request: NextRequest) {
@@ -111,11 +121,24 @@ export function setCSRFCookie(response: NextResponse, secret: string): void {
  */
 export async function withCSRFProtection(
   request: NextRequest
-): Promise<{ valid: boolean; response?: NextResponse; secret?: string }> {
+): Promise<{ valid: boolean; response?: NextResponse; secret?: string; exemptReason?: string }> {
   // Skip CSRF untuk GET, HEAD, OPTIONS (safe methods)
   const method = request.method
   if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
     return { valid: true }
+  }
+
+  // SMART EXEMPTION: Check if this is an API client request
+  const authHeader = request.headers.get('authorization')
+  const apiKey = request.headers.get('x-api-key')
+  
+  // API clients using Bearer token or API key are exempt from CSRF
+  if (authHeader?.startsWith('Bearer ') || apiKey) {
+    console.log('[CSRF] API client detected (Bearer/API Key), skipping CSRF validation')
+    return { 
+      valid: true,
+      exemptReason: 'API_CLIENT'
+    }
   }
 
   const secret = extractCSRFSecret(request)
@@ -124,7 +147,10 @@ export async function withCSRFProtection(
   if (!secret) {
     const newSecret = generateCSRFSecret()
     const response = NextResponse.json(
-      { error: 'CSRF token missing. Please refresh and try again.' },
+      { 
+        error: 'CSRF token missing. Please refresh and try again.',
+        hint: 'Browser requests require CSRF token. Use Bearer token or API key for API clients.'
+      },
       { status: 403 }
     )
     setCSRFCookie(response, newSecret)
@@ -153,7 +179,10 @@ export async function withCSRFProtection(
     return {
       valid: false,
       response: NextResponse.json(
-        { error: 'Invalid CSRF token. Security check failed.' },
+        { 
+          error: 'Invalid CSRF token. Security check failed.',
+          hint: 'Browser requests require CSRF token. Use Bearer token or API key for API clients.'
+        },
         { status: 403 }
       )
     }
