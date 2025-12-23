@@ -29,7 +29,7 @@ export default function CommentSection({
     autoLoad: true,
   });
 
-  const handleCommentSubmitted = (comment: any) => {
+  const handleCommentSubmitted = (comment: { id: string; guest_name: string; message: string; created_at: string }) => {
     addComment(comment);
     setShowForm(false);
   };

@@ -36,7 +36,7 @@ export async function GET(
     }
 
     // Build order by clause
-    let orderBy: any = { display_order: 'asc' };
+    let orderBy: { [key: string]: 'asc' | 'desc' } = { display_order: 'asc' };
     if (sort === 'newest') {
       orderBy = { created_at: 'desc' };
     } else if (sort === 'oldest') {

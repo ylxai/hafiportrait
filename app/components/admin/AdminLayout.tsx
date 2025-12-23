@@ -34,7 +34,7 @@ interface AdminLayoutProps {
 interface MenuItem {
   name: string
   href?: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   subItems?: MenuItem[]
 }
 

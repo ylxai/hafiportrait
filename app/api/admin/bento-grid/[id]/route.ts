@@ -17,7 +17,7 @@ export async function PATCH(
     const { bentoSize, bentoPriority, is_featured_bento } = body
 
     // Convert property names for Prisma
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (bentoSize !== undefined) updateData.bento_size = bentoSize
     if (bentoPriority !== undefined) updateData.bento_priority = bentoPriority
     if (is_featured_bento !== undefined) updateData.is_featured_bento = is_featured_bento

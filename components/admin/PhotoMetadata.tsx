@@ -33,7 +33,7 @@ interface Photo {
   likes_count: number;
   views_count: number;
   download_count: number;
-  exif_data?: any;
+  exif_data?: Record<string, unknown>;
 }
 
 interface PhotoMetadataProps {

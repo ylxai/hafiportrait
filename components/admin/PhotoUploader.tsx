@@ -39,7 +39,7 @@ interface UploadFile {
 interface PhotoUploaderProps {
   event_id: string
   eventName: string
-  onUploadComplete?: (results: any) => void
+  onUploadComplete?: (results: Array<{ success: boolean; filename: string; error?: string }>) => void
   maxFiles?: number
   maxFileSize?: number // in bytes
 }

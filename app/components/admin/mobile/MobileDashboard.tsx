@@ -35,7 +35,7 @@ interface RecentEvent {
 interface QuickAction {
   label: string
   href: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   color: string
   description: string
 }

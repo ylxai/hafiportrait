@@ -16,7 +16,12 @@ export async function GET(request: NextRequest) {
     const deleted = searchParams.get('deleted') === 'true'
 
     // Build where clause
-    const where: any = {}
+    const where: { 
+      event_id?: string;
+      deleted_at?: null;
+      is_featured?: boolean;
+      caption?: { contains: string; mode: string };
+    } = {}
     
     if (eventId) {
       where.event_id = eventId

@@ -39,7 +39,7 @@ interface Photo {
   views_count: number;
   download_count: number;
   created_at: Date;
-  exif_data?: any;
+  exif_data?: Record<string, unknown>;
   event: {
     id: string;
     name: string;
@@ -52,7 +52,7 @@ interface PhotoDetailModalProps {
   currentIndex: number;
   onClose: () => void;
   onPhotoChange: (index: number) => void;
-  onPhotoUpdate: (updatedPhoto?: any) => void;
+  onPhotoUpdate: (updatedPhoto?: { id: string; filename: string; caption?: string }) => void;
 }
 
 export default function PhotoDetailModal({

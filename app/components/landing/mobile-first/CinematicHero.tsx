@@ -92,7 +92,7 @@ export default function CinematicHero() {
       try {
         // Map API response to component format with error handling
         const mappedSlides = slideshowData.slides.map(
-          (slide: any, index: number) => {
+          (slide: { id: string; src: string; alt: string }, index: number) => {
             console.log(`🔍 Mapping slide ${index}:`, slide)
 
             return {

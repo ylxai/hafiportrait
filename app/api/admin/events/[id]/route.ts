@@ -97,7 +97,7 @@ export async function PATCH(
     const body = await request.json()
     const { cover_photo_id, coupleName, ...otherFields } = body
 
-    const updateData: any = { ...otherFields }
+    const updateData: Record<string, unknown> = { ...otherFields }
 
     if (cover_photo_id !== undefined) {
       updateData.cover_photo_id = cover_photo_id

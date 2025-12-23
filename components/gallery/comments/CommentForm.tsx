@@ -11,7 +11,7 @@ import { useGuestIdentifier } from '@/hooks/useGuestIdentifier';
 interface CommentFormProps {
   eventSlug: string;
   photo_id?: string;
-  onCommentSubmitted?: (comment: any) => void;
+  onCommentSubmitted?: (comment: { id: string; guest_name: string; message: string; created_at: string }) => void;
 }
 
 export default function CommentForm({

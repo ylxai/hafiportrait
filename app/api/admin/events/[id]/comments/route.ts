@@ -35,7 +35,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Build where clause
-    const whereClause: any = {
+    const whereClause: { 
+      event_id: string;
+      status?: string;
+      guest_name?: { contains: string; mode: string };
+    } = {
       event_id,
     };
 

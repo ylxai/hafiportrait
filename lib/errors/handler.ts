@@ -56,7 +56,7 @@ function generateRequestId(): string {
 /**
  * Log error dengan context
  */
-function logError(error: Error, context?: Record<string, any>): void {
+function logError(error: Error, context?: Record<string, unknown>): void {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const timestamp = new Date().toISOString()
 
@@ -280,9 +280,9 @@ export function handleError(
  * Supports both Request and NextRequest
  */
 export function asyncHandler(
-  handler: (request: NextRequest, context?: any) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: Record<string, unknown>) => Promise<NextResponse>
 ) {
-  return async (request: NextRequest, context?: any): Promise<NextResponse> => {
+  return async (request: NextRequest, context?: Record<string, unknown>): Promise<NextResponse> => {
     try {
       return await handler(request, context)
     } catch (error) {

@@ -275,7 +275,7 @@ export default function DraggablePhotoGrid({
   }, [])
 
   // Handle photo update
-  const handlePhotoUpdate = useCallback((updatedPhoto: any) => {
+  const handlePhotoUpdate = useCallback((updatedPhoto: { id: string; filename: string; caption?: string }) => {
     setPhotos((prevPhotos) =>
       prevPhotos.map((p) =>
         p.id === updatedPhoto.id ? { ...p, ...updatedPhoto } : p

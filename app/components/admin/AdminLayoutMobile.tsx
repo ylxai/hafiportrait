@@ -48,7 +48,7 @@ export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) 
       })
       if (response.ok) {
         const data = await response.json()
-        const unreadCount = data.messages?.filter((msg: any) => !msg.read)?.length || 0
+        const unreadCount = data.messages?.filter((msg: { read?: boolean }) => !msg.read)?.length || 0
         setNewMessagesCount(unreadCount)
       }
     } catch (error) {

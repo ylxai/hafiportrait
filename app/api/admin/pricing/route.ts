@@ -175,7 +175,7 @@ export async function PUT(request: NextRequest) {
       const { id, name, ...data } = updates;
 
       // If name changed, regenerate slug
-      let updateData: any = data;
+      let updateData: Record<string, unknown> = data;
       if (name) {
         updateData.name = name;
 

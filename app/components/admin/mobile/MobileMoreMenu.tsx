@@ -20,12 +20,12 @@ import { useAuth } from '@/hooks/useAuth'
 interface MenuItem {
   name: string
   href?: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   description: string
   subItems?: {
     name: string
     href: string
-    icon: any
+    icon: React.ComponentType<{ className?: string }>
   }[]
 }
 

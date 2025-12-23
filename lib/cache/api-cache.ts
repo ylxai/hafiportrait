@@ -10,12 +10,12 @@ interface CacheEntry<T> {
 }
 
 interface PendingRequest {
-  promise: Promise<any>;
+  promise: Promise<unknown>;
   timestamp: number;
 }
 
 class ApiCache {
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
   private pendingRequests = new Map<string, PendingRequest>();
   
   // Default TTL: 5 minutes

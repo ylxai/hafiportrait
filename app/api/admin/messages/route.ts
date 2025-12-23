@@ -21,7 +21,11 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || 'all'
 
     // Build where clause
-    const where: any = {}
+    const where: {
+      status?: string;
+      guest_name?: { contains: string; mode: string };
+      email?: { contains: string; mode: string };
+    } = {}
     
     if (status !== 'all') {
       where.status = status

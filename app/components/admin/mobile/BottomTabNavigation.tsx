@@ -15,7 +15,7 @@ import MobileMoreMenu from './MobileMoreMenu'
 interface TabItem {
   name: string
   href: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   badge?: number
 }
 

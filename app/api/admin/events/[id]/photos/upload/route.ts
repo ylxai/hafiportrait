@@ -182,7 +182,7 @@ export async function POST(
     const uploadResults: Array<{
       originalName: string;
       success: boolean;
-      photo?: any;
+      photo?: { id: string; filename: string; original_url: string };
       error?: string;
     }> = [];
 

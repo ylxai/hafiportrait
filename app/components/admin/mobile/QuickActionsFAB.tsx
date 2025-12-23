@@ -13,7 +13,7 @@ import {
 
 interface QuickAction {
   label: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   href?: string
   onClick?: () => void
   color?: string

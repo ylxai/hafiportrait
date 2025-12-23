@@ -136,7 +136,7 @@ function calculateEngagementScore(
  */
 async function getRecentActivity(
   event_id: string,
-  dateFilter: any,
+  dateFilter: 'day' | 'week' | 'month' | 'year',
   limit: number
 ): Promise<ActivityLog[]> {
   // Get recent likes

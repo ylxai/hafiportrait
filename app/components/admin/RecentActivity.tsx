@@ -17,7 +17,7 @@ interface Activity {
   title: string
   description: string
   timestamp: string
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export default function RecentActivity() {

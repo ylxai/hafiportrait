@@ -85,7 +85,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   // Build query based on filters
-  let orderBy: any = { display_order: 'asc' }; // Default: order by display_order
+  let orderBy: { [key: string]: 'asc' | 'desc' } = { display_order: 'asc' }; // Default: order by display_order
   const sort = resolvedSearchParams.sort || 'order';
 
   switch (sort) {
@@ -113,7 +113,12 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   }
 
   // Build where clause
-  const where: any = {
+  const where: { 
+    event_id: string;
+    deleted_at?: null;
+    is_featured?: boolean;
+    caption?: { contains: string; mode: string };
+  } = {
     event_id: event_id,
     deleted_at: null,
   };
@@ -172,7 +177,7 @@ export default async function PhotoManagementPage({ params, searchParams }: Page
   const photoCount = event._count.photos;
 
   // Map to frontend interface (camelCase)
-  const formattedPhotos = photos.map((photo: any) => ({
+  const formattedPhotos = photos.map((photo) => ({
     id: photo.id,
     filename: photo.filename,
     original_url: photo.original_url,
