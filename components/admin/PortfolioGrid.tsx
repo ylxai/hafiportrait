@@ -2,7 +2,13 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Star, Trash2, Edit2, GripVertical, Check } from 'lucide-react'
+import { 
+  StarIcon as Star, 
+  TrashIcon as Trash2, 
+  PencilIcon as Edit2, 
+  Bars3Icon as GripVertical, 
+  CheckIcon as Check 
+} from '@heroicons/react/24/outline'
 
 interface PortfolioPhoto {
   id: string

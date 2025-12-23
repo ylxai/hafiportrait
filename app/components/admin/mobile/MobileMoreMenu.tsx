@@ -3,18 +3,18 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { 
-  X, 
-  LogOut, 
-  Settings,
-  Package,
-  MessageSquare,
-  BarChart3,
-  FileText,
-  Home,
-  Palette,
-  Grid3x3,
-  Presentation as Slideshow
-} from 'lucide-react'
+  XMarkIcon as X, 
+  ArrowRightOnRectangleIcon as LogOut, 
+  CogIcon as Settings,
+  CubeIcon as Package,
+  ChatBubbleLeftEllipsisIcon as MessageSquare,
+  ChartBarIcon as BarChart3,
+  DocumentTextIcon as FileText,
+  HomeIcon as Home,
+  SwatchIcon as Palette,
+  Squares2X2Icon as Grid3x3,
+  PresentationChartBarIcon as Slideshow
+} from '@heroicons/react/24/outline'
 import { useAuth } from '@/hooks/useAuth'
 
 interface MenuItem {

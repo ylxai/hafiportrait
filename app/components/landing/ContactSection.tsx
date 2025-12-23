@@ -1,7 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Mail, Phone, MapPin, Send, Instagram, MessageCircle, Clock, CheckCircle } from 'lucide-react'
+import { 
+  EnvelopeIcon as Mail, 
+  PhoneIcon as Phone, 
+  MapPinIcon as MapPin, 
+  PaperAirplaneIcon as Send, 
+  GlobeAltIcon as Instagram, 
+  ChatBubbleLeftEllipsisIcon as MessageCircle, 
+  ClockIcon as Clock, 
+  CheckCircleIcon as CheckCircle 
+} from '@heroicons/react/24/outline'
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({

@@ -3,13 +3,13 @@
 import Image from 'next/image'
 import { useState, useCallback } from 'react'
 import {
-  Upload,
-  X,
-  Image as ImageIcon,
-  CheckCircle,
-  XCircle,
-  Loader2,
-} from 'lucide-react'
+  ArrowUpTrayIcon as Upload,
+  XMarkIcon as X,
+  PhotoIcon as ImageIcon,
+  CheckCircleIcon as CheckCircle,
+  XCircleIcon as XCircle,
+  ArrowPathIcon as Loader2,
+} from '@heroicons/react/24/outline'
 
 interface UploadResult {
   filename: string

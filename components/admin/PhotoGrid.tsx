@@ -16,15 +16,15 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  Search,
-  SlidersHorizontal,
-  Trash2,
-  Download,
-  Eye,
-  CheckSquare,
-  Square,
-  Star,
-} from 'lucide-react'
+  MagnifyingGlassIcon as Search,
+  AdjustmentsHorizontalIcon as SlidersHorizontal,
+  TrashIcon as Trash2,
+  ArrowDownTrayIcon as Download,
+  EyeIcon as Eye,
+  CheckIcon as CheckSquare,
+  Squares2X2Icon as Square,
+  StarIcon as Star,
+} from '@heroicons/react/24/outline'
 import { format } from 'date-fns'
 import PhotoDetailModal from './PhotoDetailModal'
 

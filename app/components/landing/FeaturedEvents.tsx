@@ -3,7 +3,12 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, Users, MapPin, ExternalLink } from 'lucide-react'
+import { 
+  CalendarIcon as Calendar, 
+  UsersIcon as Users, 
+  MapPinIcon as MapPin, 
+  ArrowTopRightOnSquareIcon as ExternalLink 
+} from '@heroicons/react/24/outline'
 
 interface Event {
   id: string

@@ -2,7 +2,15 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { X, ChevronLeft, ChevronRight, Loader2, Heart, Eye, Filter } from 'lucide-react'
+import { 
+  XMarkIcon as X, 
+  ChevronLeftIcon as ChevronLeft, 
+  ChevronRightIcon as ChevronRight, 
+  ArrowPathIcon as Loader2, 
+  HeartIcon as Heart, 
+  EyeIcon as Eye, 
+  FunnelIcon as Filter 
+} from '@heroicons/react/24/outline'
 
 interface PortfolioPhoto {
   id: string

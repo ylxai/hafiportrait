@@ -56,7 +56,7 @@ export default function PhotoActions({
   >('idle')
   const [isSettingCover, setIsSettingCover] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-save caption on blur
   const handleCaptionBlur = async () => {

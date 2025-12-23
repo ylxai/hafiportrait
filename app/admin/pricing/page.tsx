@@ -10,7 +10,7 @@ import {
   EyeIcon as Eye, 
   EyeSlashIcon as EyeOff 
 } from '@heroicons/react/24/outline'
-// import { GripVertical } from 'lucide-react' // For future drag & drop reordering
+// import { Bars3Icon as GripVertical } from '@heroicons/react/24/outline' // For future drag & drop reordering
 
 interface PricingPackage {
   id: string
