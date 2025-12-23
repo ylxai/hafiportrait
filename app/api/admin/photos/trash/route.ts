@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Transform photos data to match interface
-    const transformedPhotos = photos.map((photo) => ({
+    const transformedPhotos = photos.map((photo: any) => ({
       id: photo.id,
       filename: photo.filename,
       original_url: photo.original_url,

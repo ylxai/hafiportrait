@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
 import { getUserFromRequest } from '@/lib/auth'
+import { Prisma } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,12 +17,7 @@ export async function GET(request: NextRequest) {
     const deleted = searchParams.get('deleted') === 'true'
 
     // Build where clause
-    const where: { 
-      event_id?: string;
-      deleted_at?: null;
-      is_featured?: boolean;
-      caption?: { contains: string; mode: string };
-    } = {}
+    const where: Prisma.photosWhereInput = {}
     
     if (eventId) {
       where.event_id = eventId
@@ -51,7 +47,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform photos data
-    const transformedPhotos = photos.map((photo) => ({
+    const transformedPhotos = photos.map((photo: any) => ({
       id: photo.id,
       filename: photo.filename,
       original_url: photo.original_url,
