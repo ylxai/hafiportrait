@@ -4,7 +4,7 @@
  */
 
 import sharp from 'sharp';
-import { uploadToR2, getR2Url } from '@/lib/storage/r2';
+import { uploadPhoto, getStorageBackend } from '@/lib/storage/storage-adapter';
 import { optimizeImage, extractImageMetadata } from '@/lib/storage/image-processor';
 import prisma from '@/lib/prisma';
 import {
@@ -141,30 +141,41 @@ export async function processSingleUpload(
       );
     }
 
-    // 3. Generate storage key
+    // 3. Generate unique filename
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
     const extension = sanitizedFilename.substring(sanitizedFilename.lastIndexOf('.'));
-    const storageKey = `events/${options.event_id}/photos/${timestamp}-${randomStr}${extension}`;
+    const uniqueFilename = `${timestamp}-${randomStr}${extension}`;
 
-    // 4. Upload to R2
+    // 4. Upload to storage (VPS or R2 based on config)
+    let uploadResult;
     try {
-      await withRetry(
+      uploadResult = await withRetry(
         () =>
-          uploadToR2(processedData.optimized, storageKey, mime_type, false),
+          uploadPhoto(
+            processedData.optimized,
+            options.event_id,
+            uniqueFilename,
+            'originals',
+            mime_type
+          ),
         MAX_RETRIES,
         `upload-${sanitizedFilename}`
       );
+      
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'Upload failed');
+      }
     } catch (error) {
       throw new StorageError(
         `Failed to upload to storage: ${error instanceof Error ? error.message : 'Unknown error'}`,
         true,
-        { filename: sanitizedFilename }
+        { filename: sanitizedFilename, backend: getStorageBackend() }
       );
     }
 
-    // 5. Generate public URL
-    const publicUrl = getR2Url(storageKey);
+    // 5. Get public URL from upload result
+    const publicUrl = uploadResult.url;
 
     // 6. Save to database
     let photo;
