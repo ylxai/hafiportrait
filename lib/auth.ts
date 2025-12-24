@@ -68,11 +68,30 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
 
 /**
  * Extract dan verify JWT dari request headers atau cookies
+ * Also supports API Key authentication
  * Returns user payload jika authenticated, null jika tidak
  */
 export async function getUserFromRequest(
   request: Request
 ): Promise<JWTPayload | null> {
+  // Check X-API-Key header (API Key authentication)
+  const apiKeyHeader = request.headers.get('x-api-key')
+  
+  if (apiKeyHeader) {
+    const { validateApiKey } = await import('./auth/api-keys')
+    const apiKeyUser = await validateApiKey(apiKeyHeader)
+    
+    if (apiKeyUser) {
+      return {
+        user_id: apiKeyUser.user_id,
+        email: apiKeyUser.email,
+        username: apiKeyUser.email, // Use email as username fallback
+        role: apiKeyUser.role,
+        name: apiKeyUser.name
+      }
+    }
+  }
+
   // Check Authorization header (Bearer token)
   const authHeader = request.headers.get('authorization')
   
