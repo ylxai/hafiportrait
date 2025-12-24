@@ -14,6 +14,7 @@ import {
   TrashIcon as Trash2 
 } from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 
 interface Event {
   id: string
@@ -30,22 +31,27 @@ interface Event {
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const toast = useAdminToast()
 
   const fetchEvents = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/events', {
         credentials: 'include',
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch events')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch events (${response.status})`)
       }
 
       const data = await response.json()
       setEvents(data.events || [])
       setLoading(false)
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch events'
+      setError(message)
       console.error('Error fetching events:', error)
       setLoading(false)
     }
@@ -107,6 +113,9 @@ export default function AdminEventsPage() {
 
       {/* Desktop Layout */}
       <div className="hidden md:block space-y-6">
+        {/* Error Alert */}
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>

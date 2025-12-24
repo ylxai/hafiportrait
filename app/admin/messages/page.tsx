@@ -16,6 +16,7 @@ import {
 import { formatDistanceToNow } from 'date-fns'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import { copyToClipboardWithToast } from '@/lib/toast/toast-utils'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 
 interface ContactMessage {
   id: string
@@ -30,18 +31,25 @@ interface ContactMessage {
 export default function MessagesPage() {
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null)
   const toast = useAdminToast()
 
   const fetchMessages = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/messages')
       if (response.ok) {
         const data = await response.json()
         setMessages(data.messages || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch messages (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch messages'
+      setError(message)
       console.error('Error fetching messages:', error)
     } finally {
       setLoading(false)
@@ -151,6 +159,9 @@ export default function MessagesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Error Alert */}
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
