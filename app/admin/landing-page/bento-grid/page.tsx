@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   Squares2X2Icon as Grid3x3, 
   PhotoIcon as ImageIcon, 
@@ -24,6 +25,7 @@ export default function BentoGridPage() {
   const [allPhotos, setAllPhotos] = useState<PortfolioPhoto[]>([])
   const [bentoPhotos, setBentoPhotos] = useState<PortfolioPhoto[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchPhotos()
@@ -31,6 +33,7 @@ export default function BentoGridPage() {
 
   const fetchPhotos = async () => {
     try {
+      setError(null)
       const [allResponse, bentoResponse] = await Promise.all([
         fetch('/api/admin/portfolio', { credentials: 'include' }),
         fetch('/api/admin/bento-grid', { credentials: 'include' })
@@ -39,13 +42,21 @@ export default function BentoGridPage() {
       if (allResponse.ok) {
         const data = await allResponse.json()
         setAllPhotos(data.photos || [])
+      } else {
+        const errorData = await allResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch portfolio (${allResponse.status})`)
       }
 
       if (bentoResponse.ok) {
         const data = await bentoResponse.json()
         setBentoPhotos(data || [])
+      } else {
+        const errorData = await bentoResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch bento grid (${bentoResponse.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch photos'
+      setError(message)
       console.error('Error fetching photos:', error)
     } finally {
       setLoading(false)
@@ -98,6 +109,8 @@ export default function BentoGridPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Bento Grid Gallery</h1>

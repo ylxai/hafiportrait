@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   ArrowUpTrayIcon as Upload, 
   TrashIcon as Trash2, 
@@ -79,17 +80,24 @@ function SortableItem({ image, onDelete, onToggleActive }: SortableItemProps) {
 export default function HeroSlideshowPage() {
   const [images, setImages] = useState<HeroImage[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const toast = useAdminToast()
 
   const fetchImages = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/landing-page/hero-slideshow')
       if (response.ok) {
         const data = await response.json()
         setImages(data.images || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch images (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch images'
+      setError(message)
       console.error('Error fetching images:', error)
     } finally {
       setLoading(false)
@@ -210,6 +218,8 @@ export default function HeroSlideshowPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

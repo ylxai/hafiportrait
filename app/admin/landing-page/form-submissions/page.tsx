@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   ChatBubbleLeftEllipsisIcon as MessageSquare, 
   ClockIcon as Clock, 
@@ -26,18 +27,25 @@ interface FormSubmission {
 export default function FormSubmissionsPage() {
   const [submissions, setSubmissions] = useState<FormSubmission[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null)
   const [notes, setNotes] = useState('')
 
   const fetchSubmissions = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/landing-page/form-submissions')
       if (response.ok) {
         const data = await response.json()
         setSubmissions(data.submissions || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch submissions (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch submissions'
+      setError(message)
       console.error('Error fetching submissions:', error)
     } finally {
       setLoading(false)
@@ -108,6 +116,8 @@ export default function FormSubmissionsPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Form Submissions</h1>
