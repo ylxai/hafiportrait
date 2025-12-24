@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect } from 'react'
 import CinematicHero from './components/landing/mobile-first/CinematicHero'
 import ModernServices from './components/landing/mobile-first/ModernServices'
 import BentoGallery from './components/landing/mobile-first/BentoGallery'
@@ -9,6 +12,15 @@ import FloatingCTA from './components/landing/mobile-first/FloatingCTA'
 import Footer from './components/landing/Footer'
 
 export default function HomePage() {
+  // Force scroll to top on mount to prevent browser scroll restoration
+  useEffect(() => {
+    // Only scroll to top if there's no hash in URL
+    if (!window.location.hash) {
+      window.history.scrollRestoration = 'manual'
+      window.scrollTo(0, 0)
+    }
+  }, [])
+
   return (
     <main className="min-h-screen bg-white">
       {/* Cinematic Hero with Auto-play Slideshow */}
