@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   CogIcon as SettingsIcon, 
   UserIcon as User, 
@@ -10,6 +11,7 @@ import {
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
+  const [error, setError] = useState<string | null>(null)
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
@@ -20,6 +22,8 @@ export default function SettingsPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
             Settings
