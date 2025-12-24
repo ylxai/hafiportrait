@@ -1,22 +1,45 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   CogIcon as SettingsIcon, 
   UserIcon as User, 
-  BuildingOfficeIcon as Building 
+  BuildingOfficeIcon as Building,
+  KeyIcon as Key
 } from '@heroicons/react/24/outline'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
   const [error, setError] = useState<string | null>(null)
 
-  const tabs = [
-    { id: 'profile', name: 'Profile', icon: User },
-    { id: 'business', name: 'Business Info', icon: Building },
-    { id: 'social', name: 'Social Links', icon: Building },
+  const settingsCards = [
+    {
+      id: 'api-keys',
+      name: 'API Keys',
+      description: 'Manage API keys for programmatic access',
+      icon: Key,
+      href: '/admin/api-keys',
+      color: 'purple'
+    },
+    {
+      id: 'profile',
+      name: 'Profile Settings',
+      description: 'Update your personal information',
+      icon: User,
+      color: 'blue',
+      comingSoon: true
+    },
+    {
+      id: 'business',
+      name: 'Business Info',
+      description: 'Configure business details',
+      icon: Building,
+      color: 'green',
+      comingSoon: true
+    },
   ]
 
   return (
@@ -33,42 +56,38 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm">
-          {/* Tabs */}
-          <div className="border-b">
-            <nav className="flex space-x-8 px-6" aria-label="Tabs">
-              {tabs.map((tab) => {
-                const Icon = tab.icon
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === tab.id
-                        ? 'border-brand-teal text-brand-teal'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{tab.name}</span>
-                  </button>
-                )
-              })}
-            </nav>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {settingsCards.map((card) => {
+            const Icon = card.icon
+            const content = (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div className={`w-12 h-12 rounded-lg bg-${card.color}-100 flex items-center justify-center mb-4`}>
+                  <Icon className={`w-6 h-6 text-${card.color}-600`} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {card.name}
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  {card.description}
+                </p>
+                {card.comingSoon && (
+                  <span className="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                    Coming Soon
+                  </span>
+                )}
+              </div>
+            )
 
-          {/* Tab Content */}
-          <div className="p-6">
-            <div className="text-center py-12">
-              <SettingsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Settings Coming Soon
-              </h3>
-              <p className="text-gray-600">
-                Configure your profile, business information, and social media links
-              </p>
-            </div>
-          </div>
+            return card.href && !card.comingSoon ? (
+              <Link key={card.id} href={card.href}>
+                {content}
+              </Link>
+            ) : (
+              <div key={card.id} className="cursor-not-allowed opacity-60">
+                {content}
+              </div>
+            )
+          })}
         </div>
       </div>
     </AdminLayout>

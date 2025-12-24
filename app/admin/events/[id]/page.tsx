@@ -73,7 +73,7 @@ export default function EventDetailPage() {
       }
 
       const data = await response.json()
-      setEvent(data.event)
+      setEvent(data)
       setLoading(false)
     } catch (error) {
       console.error('Error loading event:', error)

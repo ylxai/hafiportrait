@@ -87,7 +87,7 @@ export default function HeroSlideshowPage() {
   const fetchImages = useCallback(async () => {
     try {
       setError(null)
-      const response = await fetch('/api/admin/landing-page/hero-slideshow')
+      const response = await fetch('/api/admin/hero-slideshow')
       if (response.ok) {
         const data = await response.json()
         setImages(data.images || [])
