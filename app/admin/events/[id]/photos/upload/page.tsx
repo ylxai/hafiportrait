@@ -101,12 +101,6 @@ export default async function PhotoUploadPage({ params }: PageProps) {
             <PhotoUploader
               event_id={event_id}
               eventName={event.name}
-              onUploadComplete={() => {
-                // Redirect to photo management page after upload
-                // This is handled by the client component or we can add a router.push here if we made this a client component, 
-                // but this is a server component rendering a client component.
-                // The PhotoUploader should handle redirection or UI feedback.
-              }}
             />
           </UploadErrorBoundary>
         </div>
