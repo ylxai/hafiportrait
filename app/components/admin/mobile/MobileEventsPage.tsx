@@ -39,7 +39,7 @@ export default function MobileEventsPage() {
       })
       if (response.ok) {
         const data = await response.json()
-        setEvents(data)
+        setEvents(data.events || [])
       }
     } catch (error) {
       console.error('Failed to fetch events:', error)
