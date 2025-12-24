@@ -10,7 +10,7 @@
  */
 
 import sharp from 'sharp';
-import { uploadToR2, buildPhotoStorageKey } from './r2';
+import { uploadPhoto } from './storage-adapter';
 
 /**
  * Magic bytes for image format validation
@@ -329,14 +329,16 @@ export async function generateThumbnails(
               .toBuffer();
           }
 
-          // Upload to R2
+          // Upload to storage (VPS or R2)
           const filename = `${baseFilename}.${format}`;
-          const storageKey = buildPhotoStorageKey(event_id, filename, 'thumbnails', size);
           
-          const uploadResult = await uploadToR2(
+          const uploadResult = await uploadPhoto(
             convertedBuffer,
-            storageKey,
-            `image/${format}`
+            event_id,
+            filename,
+            `image/${format}`,
+            'thumbnails',
+            size
           );
           
           if (uploadResult.success) {
