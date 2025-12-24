@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   PlusIcon as Plus, 
   PencilIcon as Edit2, 
@@ -25,6 +26,7 @@ interface AdditionalService {
 export default function AdditionalServicesPage() {
   const [services, setServices] = useState<AdditionalService[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingService, setEditingService] = useState<AdditionalService | null>(null)
 
@@ -35,6 +37,7 @@ export default function AdditionalServicesPage() {
   const fetchServices = async () => {
     try {
       setLoading(true)
+      setError(null)
       const response = await fetch('/api/admin/additional-services', {
         credentials: 'include',
       })
@@ -42,8 +45,13 @@ export default function AdditionalServicesPage() {
       if (response.ok) {
         const data = await response.json()
         setServices(data.services || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch services (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch services'
+      setError(message)
       console.error('Failed to fetch services:', error)
     } finally {
       setLoading(false)
@@ -98,6 +106,8 @@ export default function AdditionalServicesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">

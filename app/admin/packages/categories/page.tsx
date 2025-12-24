@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   FolderOpenIcon as FolderOpen, 
   PlusIcon as Plus, 
@@ -28,6 +29,7 @@ interface PackageCategory {
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<PackageCategory[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState<PackageCategory | null>(null)
 
@@ -38,6 +40,7 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     try {
       setLoading(true)
+      setError(null)
       const response = await fetch('/api/admin/packages/categories', {
         credentials: 'include',
       })
@@ -45,8 +48,13 @@ export default function CategoriesPage() {
       if (response.ok) {
         const data = await response.json()
         setCategories(data.categories || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch categories (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch categories'
+      setError(message)
       console.error('Failed to fetch categories:', error)
     } finally {
       setLoading(false)
@@ -93,6 +101,8 @@ export default function CategoriesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         <div className="flex items-center justify-between">
           <div>
             <Link
