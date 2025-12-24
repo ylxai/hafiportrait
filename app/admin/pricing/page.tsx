@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
   CurrencyDollarIcon as DollarSign, 
   PlusIcon as Plus, 
@@ -32,18 +33,25 @@ interface PricingPackage {
 export default function PricingPage() {
   const [packages, setPackages] = useState<PricingPackage[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingPackage, setEditingPackage] = useState<PricingPackage | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>('')
 
   const fetchPackages = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/pricing')
       if (response.ok) {
         const data = await response.json()
         setPackages(data.packages || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch pricing (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch pricing'
+      setError(message)
       console.error('Error fetching packages:', error)
     } finally {
       setLoading(false)
@@ -96,6 +104,8 @@ export default function PricingPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
