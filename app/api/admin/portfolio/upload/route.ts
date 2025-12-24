@@ -10,13 +10,13 @@ import { getUserFromRequest } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import prisma from '@/lib/prisma'
 import {
-  uploadToR2WithRetry,
   generateUniqueFilename,
   buildPhotoStorageKey,
   verifyFileType,
   MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES,
 } from '@/lib/storage/r2'
+import { uploadPhoto } from '@/lib/storage/storage-adapter'
 import {
   extractImageMetadata,
   generateThumbnailsWithRetry,
@@ -175,8 +175,8 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Upload original to R2
-        const uploadResult = await uploadToR2WithRetry(buffer, storageKey, file.type)
+        // Upload original to storage (VPS or R2)
+        const uploadResult = await uploadPhoto(buffer, 'portfolio', uniqueFilename, 'originals', file.type)
         uploadedKeys.push(storageKey)
 
         // Generate thumbnails with correct parameters
