@@ -336,9 +336,8 @@ export async function generateThumbnails(
             convertedBuffer,
             event_id,
             filename,
-            `image/${format}`,
             'thumbnails',
-            size
+            `image/${format}`
           );
           
           if (uploadResult.success) {
