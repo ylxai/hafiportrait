@@ -5,14 +5,12 @@ import Link from 'next/link'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
-  CogIcon as SettingsIcon, 
   UserIcon as User, 
   BuildingOfficeIcon as Building,
   KeyIcon as Key
 } from '@heroicons/react/24/outline'
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('profile')
   const [error, setError] = useState<string | null>(null)
 
   const settingsCards = [
