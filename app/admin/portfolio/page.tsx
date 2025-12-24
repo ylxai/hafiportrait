@@ -9,6 +9,7 @@ import {
   EyeIcon as Eye 
 } from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 import Image from 'next/image'
 
 interface PortfolioPhoto {
@@ -29,18 +30,25 @@ interface PortfolioPhoto {
 export default function PortfolioPage() {
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showUploader, setShowUploader] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([])
   const toast = useAdminToast()
 
   const fetchPhotos = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/portfolio')
       if (response.ok) {
         const data = await response.json()
         setPhotos(data.photos || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch portfolio (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch portfolio'
+      setError(message)
       console.error('Error fetching photos:', error)
     } finally {
       setLoading(false)
@@ -117,6 +125,8 @@ export default function PortfolioPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

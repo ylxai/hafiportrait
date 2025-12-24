@@ -12,6 +12,7 @@ import {
   StarIcon as Star 
 } from '@heroicons/react/24/outline'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
+import ErrorAlert from '@/components/ui/ErrorAlert'
 
 interface PackageCategory {
   id: string
@@ -41,6 +42,7 @@ export default function PackagesPage() {
   const [packages, setPackages] = useState<PackageItem[]>([])
   const [categories] = useState<PackageCategory[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [_showForm, setShowForm] = useState(false)
   const [_editingPackage, setEditingPackage] = useState<PackageItem | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("")
@@ -48,12 +50,18 @@ export default function PackagesPage() {
 
   const fetchData = useCallback(async () => {
     try {
+      setError(null)
       const response = await fetch('/api/admin/packages')
       if (response.ok) {
         const data = await response.json()
         setPackages(data.packages || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch packages (${response.status})`)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch packages'
+      setError(message)
       console.error('Error fetching packages:', error)
     } finally {
       setLoading(false)
@@ -150,6 +158,8 @@ export default function PackagesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+        
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
