@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         prisma.events.count(),
         prisma.photos.count(),
         prisma.portfolio_photos.count(),
-        prisma.contact_messages.count(),
+        prisma.form_submissions.count(),
       ])
 
     // Get active events count
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Get new messages count
-    const newMessages = await prisma.contact_messages.count({
+    const newMessages = await prisma.form_submissions.count({
       where: { status: 'new' },
     })
 

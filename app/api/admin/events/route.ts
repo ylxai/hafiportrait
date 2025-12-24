@@ -98,26 +98,21 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Transform events data to match interface
+    // Transform events data to match frontend interface
     const transformedEvents = (events as unknown as AdminEvent[]).map((event) => ({
       id: event.id,
       name: event.name,
-      description: null, // Not selected in this query
-      date: event.event_date?.toISOString() || event.created_at.toISOString(),
       slug: event.slug,
-      access_code: event.access_code,
-      is_active: event.status === 'ACTIVE',
-      cover_photo_id: null, // TODO: Add cover photo logic
-      coverPhotoUrl: null,
-      photosCount: event._count.photos,
-      views_count: 0, // TODO: Implement analytics
-      downloadsCount: 0, // TODO: Implement analytics
+      status: event.status,
+      event_date: event.event_date?.toISOString() || null,
       created_at: event.created_at.toISOString(),
-      updated_at: event.updated_at.toISOString(),
+      _count: {
+        photos: event._count.photos,
+      },
     }))
 
-    // Return events array directly for frontend compatibility
-    return NextResponse.json(transformedEvents)
+    // Return events in expected format
+    return NextResponse.json({ events: transformedEvents })
   } catch (error) {
     return handleError(error)
   }
