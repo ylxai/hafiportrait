@@ -42,7 +42,7 @@ export default function ApiKeysPage() {
       })
       if (response.ok) {
         const data = await response.json()
-        setApiKeys(data.apiKeys || [])
+        setApiKeys(data.data || [])
       }
     } catch (error) {
       console.error('Failed to fetch API keys:', error)
@@ -68,7 +68,7 @@ export default function ApiKeysPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setNewKeyGenerated(data.apiKey.key)
+        setNewKeyGenerated(data.data.apiKey)
         setNewKeyName('')
         setShowCreateDialog(false)
         fetchApiKeys()
