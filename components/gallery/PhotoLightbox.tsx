@@ -134,15 +134,21 @@ export default function PhotoLightbox({
         return
       }
 
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = currentPhoto.filename
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      // API returns JSON with downloadUrl
+      const data = await response.json()
+      
+      if (data.success && data.downloadUrl) {
+        // Open download URL in new tab (browser will download)
+        const a = document.createElement('a')
+        a.href = data.downloadUrl
+        a.download = currentPhoto.filename
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+      } else {
+        alert('Failed to get download URL')
+      }
     } catch (error) {
       console.error('Download error:', error)
       alert('Failed to download photo. Please try again.')
