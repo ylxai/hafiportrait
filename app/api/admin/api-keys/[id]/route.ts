@@ -31,8 +31,8 @@ export async function GET(
       select: {
         id: true,
         name: true,
-        key: true,
-        permissions: true,
+        key_hash: true,
+        key_prefix: true,
         created_at: true,
         last_used_at: true,
         expires_at: true,
@@ -73,7 +73,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, permissions, expires_at } = body;
+    const { name, expires_at } = body;
 
     // Check if API key exists
     const existingKey = await prisma.api_keys.findUnique({
@@ -92,14 +92,13 @@ export async function PATCH(
       where: { id },
       data: {
         ...(name && { name }),
-        ...(permissions && { permissions }),
         ...(expires_at && { expires_at: new Date(expires_at) }),
       },
       select: {
         id: true,
         name: true,
         key_hash: true,
-        permissions: true,
+        key_prefix: true,
         created_at: true,
         last_used_at: true,
         expires_at: true,

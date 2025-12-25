@@ -143,7 +143,7 @@ export async function DELETE(
       },
       data: {
         deleted_at: new Date(),
-        deletedBy: user.user_id,
+        deleted_by: user.user_id,
       },
     })
 
