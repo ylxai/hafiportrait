@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getGallerySession, getOrCreateGuestId } from '@/lib/gallery/auth';
+import { getOrCreateGuestId } from '@/lib/gallery/auth';
 
 interface RouteParams {
   params: Promise<{ eventSlug: string }>;
