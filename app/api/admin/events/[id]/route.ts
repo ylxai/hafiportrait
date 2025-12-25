@@ -134,6 +134,20 @@ export async function DELETE(
 
     const { id } = await context.params
 
+    // Delete event with cascade (soft delete photos first)
+    // 1. Soft delete all photos in this event
+    await prisma.photos.updateMany({
+      where: { 
+        event_id: id,
+        deleted_at: null // Only soft-delete non-deleted photos
+      },
+      data: {
+        deleted_at: new Date(),
+        deletedBy: user.user_id,
+      },
+    })
+
+    // 2. Delete event
     await prisma.events.delete({
       where: { id }
     })

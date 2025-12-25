@@ -16,6 +16,18 @@ export async function PATCH(
     const body = await request.json()
     const { title, subtitle, is_active, display_order } = body
 
+    // Check if slide exists
+    const existingSlide = await prisma.hero_slideshow.findUnique({
+      where: { id },
+    })
+
+    if (!existingSlide) {
+      return NextResponse.json(
+        { error: 'Slideshow item not found' },
+        { status: 404 }
+      )
+    }
+
     const slide = await prisma.hero_slideshow.update({
       where: { id },
       data: {
