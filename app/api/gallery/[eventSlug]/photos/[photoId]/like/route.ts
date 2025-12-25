@@ -87,7 +87,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Verify photo exists and belongs to event
     const photo = await prisma.photos.findFirst({
       where: {
-        id: photo_id,
+        id: photoId,
         event_id: event.id,
       },
       select: {
@@ -197,7 +197,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Verify photo exists and belongs to event
     const photo = await prisma.photos.findFirst({
       where: {
-        id: photo_id,
+        id: photoId,
         event_id: event.id,
       },
       select: {
