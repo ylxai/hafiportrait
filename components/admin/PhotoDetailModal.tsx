@@ -106,12 +106,17 @@ export default function PhotoDetailModal({
   const handleDownload = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/photos/${photo.id}/download`);
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
       const data = await response.json();
-      if (data.downloadUrl) {
-        window.open(data.downloadUrl, '_blank');
+      if (data.success && data.photo?.original_url) {
+        // Open original URL in new tab to trigger download
+        window.open(data.photo.original_url, '_blank');
       }
     } catch (error) {
       console.error('Error downloading photo:', error);
+      alert('Failed to download photo');
     }
   }, [photo]);
 

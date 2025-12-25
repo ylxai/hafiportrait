@@ -5,10 +5,10 @@ import { checkRateLimit } from '@/lib/security/rate-limiter';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ eventSlug: string; photo_id: string }> }
+  { params }: { params: Promise<{ eventSlug: string; photoId: string }> }
 ) {
   try {
-    const { eventSlug, photo_id } = await params;
+    const { eventSlug, photoId } = await params;
 
     // Find event
     const event = await prisma.events.findUnique({
@@ -57,7 +57,7 @@ export async function GET(
     // Find photo
     const photo = await prisma.photos.findUnique({
       where: { 
-        id: photo_id,
+        id: photoId,
         event_id: event.id,
       },
       select: {
