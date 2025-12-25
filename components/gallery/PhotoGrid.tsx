@@ -46,7 +46,7 @@ export default function PhotoGrid({
     if (!event_id) return
 
     try {
-      await fetch(`/api/gallery/events/${event_id}/view`, {
+      await fetch(`/api/gallery/${eventSlug}/view`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
