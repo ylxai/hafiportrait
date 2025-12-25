@@ -330,7 +330,8 @@ export async function generateThumbnails(
           }
 
           // Upload to storage (VPS or R2)
-          const filename = `${baseFilename}.${format}`;
+          // FIXED: Add size suffix to prevent overwriting (small/medium/large)
+          const filename = `${baseFilename}-${size}.${format}`;
           
           const uploadResult = await uploadPhoto(
             convertedBuffer,

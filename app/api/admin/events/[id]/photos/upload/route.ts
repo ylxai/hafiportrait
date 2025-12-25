@@ -20,7 +20,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import {
-  uploadToR2WithRetry,
   generateUniqueFilename,
   buildPhotoStorageKey,
   isValidImageType,
@@ -30,6 +29,7 @@ import {
   MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES,
 } from '@/lib/storage/r2';
+import { uploadPhotoWithBackup } from '@/lib/storage/storage-adapter';
 import {
   extractImageMetadata,
   generateThumbnailsWithRetry,
@@ -282,12 +282,24 @@ export async function POST(
             const uniqueFilename = generateUniqueFilename(file.name);
             const baseFilename = uniqueFilename.replace(/\.[^/.]+$/, ''); // Remove extension
 
-            // Upload original to R2 (MIME verification disabled for speed)
+            // Upload original to VPS + R2 backup (DUAL STORAGE for redundancy)
             const originalKey = buildPhotoStorageKey(event_id, uniqueFilename, 'originals');
-            const uploadResult = await uploadToR2WithRetry(buffer, originalKey, file.type, 3, false);
+            const uploadResult = await uploadPhotoWithBackup(
+              buffer,
+              event_id,
+              uniqueFilename,
+              'originals',
+              file.type,
+              true // Enable R2 backup for redundancy
+            );
 
             if (!uploadResult.success) {
               throw new Error(uploadResult.error || 'Failed to upload original photo');
+            }
+
+            // Log backup warnings (non-critical)
+            if (uploadResult.warnings && uploadResult.warnings.length > 0) {
+              console.warn('Upload warnings (R2 backup):', uploadResult.warnings);
             }
 
             // Track uploaded file for potential rollback

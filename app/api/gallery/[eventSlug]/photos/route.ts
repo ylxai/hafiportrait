@@ -64,8 +64,11 @@ export async function GET(
           width: true,
           height: true,
           likes_count: true,
+          download_count: true, // Analytics
+          views_count: true, // Analytics
           caption: true,
           display_order: true,
+          is_featured: true, // For featured photos
           created_at: true,
         },
         orderBy,

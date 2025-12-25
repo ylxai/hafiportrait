@@ -32,12 +32,17 @@ export async function GET(
       select: {
         id: true,
         filename: true,
+        thumbnail_url: true, // Legacy fallback field
         thumbnail_large_url: true,
         thumbnail_medium_url: true,
         thumbnail_small_url: true,
         original_url: true,
         display_order: true,
         is_featured: true,
+        caption: true, // For photo descriptions
+        likes_count: true, // Analytics
+        download_count: true, // Analytics
+        views_count: true, // Analytics
         created_at: true
       }
     })

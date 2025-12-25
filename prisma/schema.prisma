@@ -283,19 +283,22 @@ model photos {
 }
 
 model portfolio_photos {
-  id                String   @id @default(uuid())
-  filename          String
-  original_url      String
-  thumbnail_url     String
-  display_order     Int      @default(0)
-  is_featured       Boolean  @default(false)
-  category          String?
-  description       String?
-  created_at        DateTime @default(now())
-  updated_at        DateTime
-  bento_priority    Int?     @default(0)
-  bento_size        String?  @db.VarChar(20)
-  is_featured_bento Boolean  @default(false)
+  id                   String   @id @default(uuid())
+  filename             String
+  original_url         String
+  thumbnail_url        String
+  thumbnail_small_url  String?
+  thumbnail_medium_url String?
+  thumbnail_large_url  String?
+  display_order        Int      @default(0)
+  is_featured          Boolean  @default(false)
+  category             String?
+  description          String?
+  created_at           DateTime @default(now())
+  updated_at           DateTime
+  bento_priority       Int?     @default(0)
+  bento_size           String?  @db.VarChar(20)
+  is_featured_bento    Boolean  @default(false)
 
   @@index([bento_priority])
   @@index([display_order])

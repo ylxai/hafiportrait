@@ -16,7 +16,7 @@ import {
   MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES,
 } from '@/lib/storage/r2'
-import { uploadPhoto } from '@/lib/storage/storage-adapter'
+import { uploadPhotoWithBackup } from '@/lib/storage/storage-adapter'
 import {
   extractImageMetadata,
   generateThumbnailsWithRetry,
@@ -175,9 +175,21 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Upload original to storage (VPS or R2)
-        const uploadResult = await uploadPhoto(buffer, 'portfolio', uniqueFilename, 'originals', file.type)
+        // Upload original to VPS + R2 backup (DUAL STORAGE for redundancy)
+        const uploadResult = await uploadPhotoWithBackup(
+          buffer,
+          'portfolio',
+          uniqueFilename,
+          'originals',
+          file.type,
+          true // Enable R2 backup
+        )
         uploadedKeys.push(storageKey)
+
+        // Log backup warnings (non-critical)
+        if (uploadResult.warnings && uploadResult.warnings.length > 0) {
+          console.warn('Upload warnings (R2 backup):', uploadResult.warnings)
+        }
 
         // Generate thumbnails with correct parameters
         const thumbnailResult = await generateThumbnailsWithRetry(
@@ -186,21 +198,47 @@ export async function POST(request: NextRequest) {
           uniqueFilename.replace(/\.[^.]+$/, '')
         )
 
-        // Get the medium thumbnail URL (WebP format preferred)
+        // Get all thumbnail size URLs (WebP format preferred)
         let thumbnail_url = uploadResult.url
-        if (thumbnailResult.success && thumbnailResult.thumbnails.medium?.webp?.url) {
-          thumbnail_url = thumbnailResult.thumbnails.medium.webp.url
-        } else if (thumbnailResult.thumbnails.medium?.jpeg?.url) {
-          thumbnail_url = thumbnailResult.thumbnails.medium.jpeg.url
+        let thumbnail_small_url = null
+        let thumbnail_medium_url = null
+        let thumbnail_large_url = null
+
+        if (thumbnailResult.success) {
+          // Small thumbnail (400px)
+          if (thumbnailResult.thumbnails.small?.webp?.url) {
+            thumbnail_small_url = thumbnailResult.thumbnails.small.webp.url
+          } else if (thumbnailResult.thumbnails.small?.jpeg?.url) {
+            thumbnail_small_url = thumbnailResult.thumbnails.small.jpeg.url
+          }
+
+          // Medium thumbnail (800px) - also used as legacy thumbnail_url
+          if (thumbnailResult.thumbnails.medium?.webp?.url) {
+            thumbnail_medium_url = thumbnailResult.thumbnails.medium.webp.url
+            thumbnail_url = thumbnail_medium_url // Legacy field
+          } else if (thumbnailResult.thumbnails.medium?.jpeg?.url) {
+            thumbnail_medium_url = thumbnailResult.thumbnails.medium.jpeg.url
+            thumbnail_url = thumbnail_medium_url
+          }
+
+          // Large thumbnail (1200px)
+          if (thumbnailResult.thumbnails.large?.webp?.url) {
+            thumbnail_large_url = thumbnailResult.thumbnails.large.webp.url
+          } else if (thumbnailResult.thumbnails.large?.jpeg?.url) {
+            thumbnail_large_url = thumbnailResult.thumbnails.large.jpeg.url
+          }
         }
 
-        // Create portfolio photo record
+        // Create portfolio photo record with responsive image URLs
         const portfolioPhoto = await prisma.portfolio_photos.create({
           data: {
             id: crypto.randomUUID(),
             filename: file.name,
             original_url: uploadResult.url,
-            thumbnail_url: thumbnail_url,
+            thumbnail_url: thumbnail_url, // Legacy field (medium size)
+            thumbnail_small_url: thumbnail_small_url,
+            thumbnail_medium_url: thumbnail_medium_url,
+            thumbnail_large_url: thumbnail_large_url,
             display_order: display_order++,
             is_featured: false,
             category: category || null,
