@@ -10,7 +10,7 @@ from pathlib import Path
 
 # Configuration
 API_BASE_URL = "https://hafiportrait.photography/api"
-API_KEY = "YOUR_API_KEY_HERE"  # Replace with actual API key
+API_KEY = "hpk_0734d2bf3a1dc694b71cee1040930d6c86ba8b817e425e3e920505c0d981f231"
 EVENT_ID = "f5e06495-c84b-4da0-9085-820adddc4681"  # Sara & Lie event
 
 # Photos directory
@@ -37,7 +37,7 @@ def upload_photo(file_path, event_id, api_key):
     # Open file and upload
     with open(file_path, 'rb') as f:
         files = {
-            'photos': (os.path.basename(file_path), f, 'image/jpeg')
+            'files': (os.path.basename(file_path), f, 'image/jpeg')
         }
         
         print(f"Uploading: {os.path.basename(file_path)}...", end=' ')
@@ -101,11 +101,9 @@ def main():
     print(f"🔑 API Key: {API_KEY[:10]}...")
     print()
     
-    # Ask for confirmation
-    answer = input(f"Upload {len(photo_files)} photos? (y/n): ").lower()
-    if answer != 'y':
-        print("❌ Cancelled")
-        return
+    # Auto-confirm for batch upload
+    print(f"✅ Auto-confirming upload of {len(photo_files)} photos...")
+    print("   (To cancel, press Ctrl+C)")
     
     print()
     print("Starting upload...")
