@@ -5,6 +5,11 @@ const nextConfig = {
       bodySizeLimit: '500mb', // Increased for large photo uploads (multiple files)
     },
   },
+  api: {
+    bodyParser: {
+      sizeLimit: '500mb', // Also increase API route body size limit
+    },
+  },
   images: {
     remotePatterns: [
       {
