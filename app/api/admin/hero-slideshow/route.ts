@@ -48,7 +48,9 @@ export async function POST(request: NextRequest) {
     const sanitizedName = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.-]/g, '')
     const filename = `hero-slideshow/hero-${timestamp}-${sanitizedName}`
 
-    // Upload original to R2
+    // Upload original to VPS + R2 backup (DUAL STORAGE)
+    // Note: Hero slideshow uses different path structure (not event-based)
+    // Using direct uploadToR2 with local storage handling
     const uploadResult = await uploadToR2(fileBuffer, filename, file.type || 'image/jpeg')
 
     if (!uploadResult.success) {

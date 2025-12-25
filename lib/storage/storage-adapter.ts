@@ -109,6 +109,90 @@ export async function uploadPhoto(
 }
 
 /**
+ * Upload photo with backup to both VPS and R2 (DUAL STORAGE)
+ * VPS = Primary (fast, local access)
+ * R2 = Backup (redundancy, CDN)
+ * 
+ * @param buffer - Image buffer
+ * @param eventId - Event ID
+ * @param filename - Filename
+ * @param type - originals or thumbnails
+ * @param contentType - MIME type
+ * @param enableR2Backup - Whether to backup to R2 (default: true)
+ * @returns Upload result with VPS as primary URL
+ */
+export async function uploadPhotoWithBackup(
+  buffer: Buffer,
+  eventId: string,
+  filename: string,
+  type: 'originals' | 'thumbnails' = 'originals',
+  contentType?: string,
+  enableR2Backup: boolean = true
+): Promise<{
+  success: boolean;
+  url: string; // VPS URL (primary)
+  backupUrl?: string; // R2 URL (backup)
+  backend: 'dual' | 'local';
+  size: number;
+  error?: string;
+  warnings?: string[];
+}> {
+  const key = buildPhotoStorageKey(eventId, filename, type);
+  const warnings: string[] = [];
+  
+  logger.info('Uploading photo with backup', {
+    key,
+    size: buffer.length,
+    type,
+    enableR2Backup
+  });
+  
+  // 1. Upload to VPS (PRIMARY)
+  const vpsResult = await uploadToLocal(buffer, key, contentType);
+  
+  if (!vpsResult.success) {
+    // VPS upload failed - critical error
+    return {
+      success: false,
+      url: '',
+      backend: 'local',
+      size: 0,
+      error: `VPS upload failed: ${vpsResult.error}`
+    };
+  }
+  
+  // 2. Upload to R2 (BACKUP) - non-blocking
+  let backupUrl: string | undefined;
+  
+  if (enableR2Backup) {
+    try {
+      const r2Result = await uploadToR2(buffer, key, contentType || 'application/octet-stream');
+      
+      if (r2Result.success) {
+        backupUrl = getR2Url(key);
+        logger.info('R2 backup successful', { key, url: backupUrl });
+      } else {
+        warnings.push(`R2 backup failed: ${r2Result.error}`);
+        logger.warn('R2 backup failed (non-critical)', { key, error: r2Result.error });
+      }
+    } catch (error) {
+      warnings.push(`R2 backup error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      logger.warn('R2 backup error (non-critical)', { key, error });
+    }
+  }
+  
+  // Return VPS URL as primary
+  return {
+    success: true,
+    url: vpsResult.url, // VPS URL (primary)
+    backupUrl, // R2 URL (optional)
+    backend: backupUrl ? 'dual' : 'local',
+    size: vpsResult.size,
+    warnings: warnings.length > 0 ? warnings : undefined
+  };
+}
+
+/**
  * Delete photo from active storage backend
  */
 export async function deletePhoto(

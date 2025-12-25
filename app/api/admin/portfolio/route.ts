@@ -10,7 +10,25 @@ export async function GET(request: NextRequest) {
     }
 
     const photos = await prisma.portfolio_photos.findMany({
-      orderBy: { display_order: 'desc' }
+      orderBy: { display_order: 'desc' },
+      select: {
+        id: true,
+        filename: true,
+        original_url: true,
+        thumbnail_url: true,
+        thumbnail_small_url: true,
+        thumbnail_medium_url: true,
+        thumbnail_large_url: true,
+        display_order: true,
+        is_featured: true,
+        category: true,
+        description: true,
+        bento_priority: true,
+        bento_size: true,
+        is_featured_bento: true,
+        created_at: true,
+        updated_at: true,
+      }
     })
 
     return NextResponse.json({ photos })
