@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 
 interface RouteParams {
-  params: Promise<{ photo_id: string }>;
+  params: Promise<{ photoId: string }>;
 }
 
 // POST - Restore soft-deleted photo
@@ -12,7 +12,7 @@ export async function POST(
   { params }: RouteParams
 ) {
   try {
-    const { photo_id } = await params;
+    const { photoId } = await params;
 
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -20,7 +20,7 @@ export async function POST(
     }
 
     const photo = await prisma.photos.findUnique({
-      where: { id: photo_id },
+      where: { id: photoId },
       include: {
         events: {
           select: {
@@ -51,7 +51,7 @@ export async function POST(
 
     // Restore photo - clear deleted_at and deleted_by_id
     const restoredPhoto = await prisma.photos.update({
-      where: { id: photo_id },
+      where: { id: photoId },
       data: {
         deleted_at: null,
         deleted_by_id: null,

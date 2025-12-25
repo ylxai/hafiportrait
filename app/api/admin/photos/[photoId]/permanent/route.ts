@@ -4,7 +4,7 @@ import { getUserFromRequest } from '@/lib/auth';
 import { del } from '@vercel/blob';
 
 interface RouteParams {
-  params: Promise<{ photo_id: string }>;
+  params: Promise<{ photoId: string }>;
 }
 
 // DELETE - Permanently delete photo (hard delete)
@@ -13,7 +13,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { photo_id } = await params;
+    const { photoId } = await params;
 
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -26,7 +26,7 @@ export async function DELETE(
     }
 
     const photo = await prisma.photos.findUnique({
-      where: { id: photo_id },
+      where: { id: photoId },
       include: {
         events: {
           select: {
@@ -67,7 +67,7 @@ export async function DELETE(
 
     // Delete database record permanently
     await prisma.photos.delete({
-      where: { id: photo_id },
+      where: { id: photoId },
     });
 
     // Log audit trail - FIXED: user.id -> user.user_id

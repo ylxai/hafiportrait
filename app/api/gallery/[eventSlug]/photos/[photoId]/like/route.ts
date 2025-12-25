@@ -11,7 +11,7 @@ import { checkRateLimit, RateLimitPresets, getClientIdentifier } from '@/lib/sec
 interface RouteParams {
   params: Promise<{
     eventSlug: string;
-    photo_id: string;
+    photoId: string;
   }>;
 }
 
@@ -20,7 +20,7 @@ interface RouteParams {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
-    const { eventSlug, photo_id } = await params;
+    const { eventSlug, photoId } = await params;
     const body = await request.json();
     const { guestId } = body;
 
@@ -108,14 +108,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       await prisma.photo_likes.create({
         data: {
           id: crypto.randomUUID(),
-          photo_id: photo_id,
+          photo_id: photoId,
           guest_id: guestId,
         },
       });
 
       // Increment like count
       const updatedPhoto = await prisma.photos.update({
-        where: { id: photo_id },
+        where: { id: photoId },
         data: {
           likes_count: {
             increment: 1,
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { eventSlug, photo_id } = await params;
+    const { eventSlug, photoId } = await params;
     const body = await request.json();
     const { guestId } = body;
 
@@ -216,7 +216,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Delete like
     const deletedLike = await prisma.photo_likes.deleteMany({
       where: {
-        photo_id: photo_id,
+        photo_id: photoId,
         guest_id: guestId,
       },
     });
@@ -224,7 +224,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Decrement like count if like was actually deleted
     if (deletedLike.count > 0) {
       const updatedPhoto = await prisma.photos.update({
-        where: { id: photo_id },
+        where: { id: photoId },
         data: {
           likes_count: {
             decrement: 1,
