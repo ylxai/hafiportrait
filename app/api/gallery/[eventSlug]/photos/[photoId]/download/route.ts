@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getGallerySession, getOrCreateGuestId } from '@/lib/gallery/auth';
 import { checkRateLimit } from '@/lib/security/rate-limiter';
+import { getDownloadUrl } from '@/lib/storage/url-converter';
 
 export async function GET(
   request: NextRequest,
@@ -97,9 +98,12 @@ export async function GET(
     }
 
     // Return photo URL for client-side download
+    // Use R2 URL for fast CDN delivery
+    const downloadUrl = getDownloadUrl(photo.original_url);
+    
     return NextResponse.json({
       success: true,
-      downloadUrl: photo.original_url,
+      downloadUrl: downloadUrl, // R2 URL for fast download
       filename: photo.filename,
     });
 

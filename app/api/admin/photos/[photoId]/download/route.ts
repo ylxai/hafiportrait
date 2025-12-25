@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { getDownloadUrl } from '@/lib/storage/url-converter';
 
 interface RouteParams {
   params: Promise<{ photoId: string }>;
@@ -66,12 +67,15 @@ export async function GET(
     });
 
     // Return photo info for client-side download
+    // Use R2 URL for fast CDN delivery
+    const downloadUrl = getDownloadUrl(photo.original_url);
+    
     return NextResponse.json({
       success: true,
       photo: {
         id: photo.id,
         filename: photo.filename,
-        original_url: photo.original_url,
+        original_url: downloadUrl, // R2 URL for fast download
       },
     });
 
