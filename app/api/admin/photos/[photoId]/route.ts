@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 
 interface RouteParams {
-  params: Promise<{ photo_id: string }>;
+  params: Promise<{ photoId: string }>;
 }
 
 // GET - Get photo details
@@ -12,7 +12,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { photo_id } = await params;
+    const { photoId } = await params;
 
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -20,7 +20,7 @@ export async function GET(
     }
 
     const photo = await prisma.photos.findUnique({
-      where: { id: photo_id },
+      where: { id: photoId },
       include: {
 
         // New 'events' relation for direct event data access
@@ -89,7 +89,7 @@ export async function PATCH(
   { params }: RouteParams
 ) {
   try {
-    const { photo_id } = await params;
+    const { photoId } = await params;
 
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -97,7 +97,7 @@ export async function PATCH(
     }
 
     const photo = await prisma.photos.findUnique({
-      where: { id: photo_id },
+      where: { id: photoId },
       include: {
         events: {
           select: {
@@ -120,7 +120,7 @@ export async function PATCH(
     const { caption, is_featured } = body;
 
     const updatedPhoto = await prisma.photos.update({
-      where: { id: photo_id },
+      where: { id: photoId },
       data: {
         ...(caption !== undefined && { caption }),
         ...(is_featured !== undefined && { is_featured }),
@@ -142,7 +142,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { photo_id } = await params;
+    const { photoId } = await params;
 
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -150,7 +150,7 @@ export async function DELETE(
     }
 
     const photo = await prisma.photos.findUnique({
-      where: { id: photo_id },
+      where: { id: photoId },
       include: {
         events: {
           select: {
@@ -181,7 +181,7 @@ export async function DELETE(
 
     // Soft delete - set deleted_at timestamp and deletedBy - FIXED: user.id -> user.user_id
     const deletedPhoto = await prisma.photos.update({
-      where: { id: photo_id },
+      where: { id: photoId },
       data: {
         deleted_at: new Date(),
         deleted_by_id: user.user_id,

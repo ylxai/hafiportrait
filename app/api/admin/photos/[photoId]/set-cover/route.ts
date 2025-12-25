@@ -12,11 +12,11 @@ import prisma from '@/lib/prisma';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ photo_id: string }> }
+  { params }: { params: Promise<{ photoId: string }> }
 ) {
   try {
     const user = await getUserFromRequest(request);
-    const { photo_id } = await params;
+    const { photoId } = await params;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,7 +24,7 @@ export async function POST(
 
     // Fetch photo with event info
     const photo = await prisma.photos.findUnique({
-      where: { id: photo_id },
+      where: { id: photoId },
       include: {
         events: {
           select: {
@@ -56,13 +56,13 @@ export async function POST(
     await prisma.events.update({
       where: { id: photo.event_id },
       data: {
-        cover_photo_id: photo_id,
+        cover_photo_id: photoId,
       },
     });
 
     // Mark photo as featured
     await prisma.photos.update({
-      where: { id: photo_id },
+      where: { id: photoId },
       data: {
         is_featured: true,
       },

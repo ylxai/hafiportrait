@@ -300,10 +300,10 @@ export default function PhotoDetailModal({
 
       {/* Main content */}
       <div className="flex h-full w-full flex-col lg:flex-row">
-        {/* Image preview */}
+        {/* Image preview - Better mobile height */}
         <div
           ref={imageRef}
-          className="flex flex-1 items-center justify-center overflow-hidden p-4 lg:p-8"
+          className="flex flex-1 items-center justify-center overflow-hidden p-4 lg:p-8 min-h-[40vh] lg:min-h-0"
         >
           {isLoading ? (
             <Loader2 className="h-12 w-12 animate-spin text-white" />
@@ -325,8 +325,8 @@ export default function PhotoDetailModal({
           )}
         </div>
 
-        {/* Metadata sidebar */}
-        <div className="w-full overflow-y-auto bg-white lg:w-96">
+        {/* Metadata sidebar - Scrollable on mobile */}
+        <div className="w-full overflow-y-auto bg-white lg:w-96 max-h-[50vh] lg:max-h-full">
           <PhotoMetadata photo={displayPhoto} isLoading={isLoading} />
           <PhotoActions
             photo={displayPhoto}
