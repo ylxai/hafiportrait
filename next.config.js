@@ -2,14 +2,11 @@
 const nextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: '500mb', // Increased for large photo uploads (multiple files)
+      bodySizeLimit: '500mb', // For Server Actions
     },
   },
-  api: {
-    bodyParser: {
-      sizeLimit: '500mb', // Also increase API route body size limit
-    },
-  },
+  // CORRECT CONFIG for App Router API routes body size
+  middlewareClientMaxBodySize: '500mb',
   images: {
     remotePatterns: [
       {
