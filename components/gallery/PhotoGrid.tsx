@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { toast } from 'sonner'
 import PhotoTile from './PhotoTile'
 import PhotoLightbox from './PhotoLightbox'
 import { PhotoTileErrorBoundary } from '@/components/error-boundaries'
+import { useSocket } from '@/hooks/useSocket'
 
 interface Photo {
   id: string
@@ -38,8 +40,14 @@ export default function PhotoGrid({
   )
   const [error, setError] = useState<string | null>(null)
 
+  // Phase 1 realtime UI state
+  const [hasNewImages, setHasNewImages] = useState(false)
+  const toastShownAtRef = useRef<number>(0)
+
   const observerTarget = useRef<HTMLDivElement>(null)
   const PHOTOS_PER_PAGE = 50
+
+  const { onPhotoUploadComplete } = useSocket({ eventSlug })
 
   // Track event view analytics
   const trackEventView = useCallback(async () => {
@@ -54,13 +62,26 @@ export default function PhotoGrid({
       // Silently fail analytics tracking
       console.warn('Failed to track event view:', error)
     }
-  }, [event_id])
+  }, [event_id, eventSlug])
+
+  const mergeAndDedupe = useCallback((incoming: Photo[], existing: Photo[]) => {
+    // Keep newest-first ordering: incoming (newest page 1) should be prepended.
+    const merged = [...incoming, ...existing]
+    const seen = new Set<string>()
+    const deduped: Photo[] = []
+    for (const p of merged) {
+      if (seen.has(p.id)) continue
+      seen.add(p.id)
+      deduped.push(p)
+    }
+    return deduped
+  }, [])
 
   const fetchPhotos = useCallback(
     async (pageNum: number) => {
       try {
         const response = await fetch(
-          `/api/gallery/${eventSlug}/photos?page=${pageNum}&limit=${PHOTOS_PER_PAGE}`
+          `/api/gallery/${eventSlug}/photos?page=${pageNum}&limit=${PHOTOS_PER_PAGE}&sort=newest`
         )
 
         if (!response.ok) {
@@ -70,9 +91,11 @@ export default function PhotoGrid({
         const data = await response.json()
 
         if (pageNum === 1) {
-          setPhotos(data.photos)
+          setPhotos((prev) => mergeAndDedupe(data.photos, prev))
         } else {
-          setPhotos((prev) => [...prev, ...data.photos])
+          // Pagination can overlap when new photos are inserted at the top.
+          // Always dedupe to avoid duplicates in the grid.
+          setPhotos((prev) => mergeAndDedupe(data.photos, prev))
         }
 
         setHasMore(data.hasMore)
@@ -83,13 +106,46 @@ export default function PhotoGrid({
         setIsLoading(false)
       }
     },
-    [eventSlug]
+    [eventSlug, mergeAndDedupe]
   )
 
   useEffect(() => {
     fetchPhotos(1)
     trackEventView()
   }, [fetchPhotos, trackEventView])
+
+  // Phase 1 realtime: listen for new uploads and show "New Images Added"
+  useEffect(() => {
+    const unsubscribe = onPhotoUploadComplete(() => {
+      setHasNewImages(true)
+
+      // Debounce toast so we don't spam during burst uploads
+      const now = Date.now()
+      if (now - toastShownAtRef.current < 5000) return
+      toastShownAtRef.current = now
+
+      toast('New Images Added', {
+        duration: 8000, // auto-hide 5–10s
+      })
+    })
+
+    return unsubscribe
+  }, [onPhotoUploadComplete])
+
+  const handleLoadNewImages = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    // Fetch newest page and merge into existing list (dedupe by id)
+    await fetchPhotos(1)
+
+    // Reset pagination baseline to reduce overlap risk
+    setPage(1)
+    setHasNewImages(false)
+
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [fetchPhotos])
 
   // Infinite scroll observer
   useEffect(() => {
@@ -192,6 +248,16 @@ export default function PhotoGrid({
 
   return (
     <>
+      {hasNewImages && (
+        <button
+          type="button"
+          onClick={handleLoadNewImages}
+          className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-black/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-md"
+        >
+          New Images Added
+        </button>
+      )}
+
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
         {photos.map((photo, index) => (
           <PhotoTileErrorBoundary key={photo.id} photoId={photo.id}>

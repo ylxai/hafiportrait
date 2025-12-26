@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import { 
   KeyIcon,
@@ -26,16 +26,7 @@ export default function ApiKeysPage() {
   const [newKeyGenerated, setNewKeyGenerated] = useState<string | null>(null)
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
 
-  useEffect(() => {
-    fetchApiKeys()
-  }, [])
-
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message })
-    setTimeout(() => setNotification(null), 5000)
-  }
-
-  const fetchApiKeys = async () => {
+  const fetchApiKeys = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/api-keys', {
         credentials: 'include'
@@ -50,6 +41,15 @@ export default function ApiKeysPage() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  useEffect(() => {
+    fetchApiKeys()
+  }, [fetchApiKeys])
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message })
+    setTimeout(() => setNotification(null), 5000)
   }
 
   const createApiKey = async () => {

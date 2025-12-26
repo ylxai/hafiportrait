@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { toast } from 'sonner'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { PhotoTileErrorBoundary } from '@/components/error-boundaries'
 import ImmersiveLightbox from './ImmersiveLightbox'
 import FloatingMenu from './FloatingMenu'
 import StoryView from './StoryView'
+import { useSocket } from '@/hooks/useSocket'
 
 interface Photo {
   id: string
@@ -37,6 +39,11 @@ export default function EditorialPhotoGrid({
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
   const [error, setError] = useState<string | null>(null)
+
+  // Phase 1 realtime UI state
+  const [hasNewImages, setHasNewImages] = useState(false)
+  const toastShownAtRef = useRef<number>(0)
+  const { onPhotoUploadComplete } = useSocket({ eventSlug })
   
   // UI States
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -74,13 +81,25 @@ export default function EditorialPhotoGrid({
     } catch (error) {
       console.warn('Failed to track event view:', error)
     }
-  }, [event_id])
+  }, [event_id, eventSlug])
+
+  const mergeAndDedupe = useCallback((incoming: Photo[], existing: Photo[]) => {
+    const merged = [...incoming, ...existing]
+    const seen = new Set<string>()
+    const deduped: Photo[] = []
+    for (const p of merged) {
+      if (seen.has(p.id)) continue
+      seen.add(p.id)
+      deduped.push(p)
+    }
+    return deduped
+  }, [])
 
   const fetchPhotos = useCallback(
     async (pageNum: number) => {
       try {
         const response = await fetch(
-          `/api/gallery/${eventSlug}/photos?page=${pageNum}&limit=${PHOTOS_PER_PAGE}`
+          `/api/gallery/${eventSlug}/photos?page=${pageNum}&limit=${PHOTOS_PER_PAGE}&sort=newest`
         )
 
         if (!response.ok) {
@@ -90,9 +109,9 @@ export default function EditorialPhotoGrid({
         const data = await response.json()
 
         if (pageNum === 1) {
-          setPhotos(data.photos)
+          setPhotos((prev) => mergeAndDedupe(data.photos, prev))
         } else {
-          setPhotos((prev) => [...prev, ...data.photos])
+          setPhotos((prev) => mergeAndDedupe(data.photos, prev))
         }
 
         setHasMore(data.hasMore)
@@ -103,13 +122,43 @@ export default function EditorialPhotoGrid({
         setIsLoading(false)
       }
     },
-    [eventSlug]
+    [eventSlug, mergeAndDedupe]
   )
 
   useEffect(() => {
     fetchPhotos(1)
     trackEventView()
   }, [fetchPhotos, trackEventView])
+
+  // Phase 1 realtime: listen for new uploads and show "New Images Added"
+  useEffect(() => {
+    const unsubscribe = onPhotoUploadComplete(() => {
+      setHasNewImages(true)
+
+      // Debounce toast so we don't spam during burst uploads
+      const now = Date.now()
+      if (now - toastShownAtRef.current < 5000) return
+      toastShownAtRef.current = now
+
+      toast('New Images Added', {
+        duration: 8000,
+      })
+    })
+
+    return unsubscribe
+  }, [onPhotoUploadComplete])
+
+  const handleLoadNewImages = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    await fetchPhotos(1)
+
+    setPage(1)
+    setHasNewImages(false)
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [fetchPhotos])
 
   // Infinite scroll observer
   useEffect(() => {
@@ -179,6 +228,16 @@ export default function EditorialPhotoGrid({
 
   return (
     <>
+      {hasNewImages && (
+        <button
+          type="button"
+          onClick={handleLoadNewImages}
+          className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-black/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-md"
+        >
+          New Images Added
+        </button>
+      )}
+
       {/* Masonry Layout */}
       <div className="columns-2 md:columns-3 gap-4 space-y-4 p-4 md:p-0">
         {photos.map((photo, index) => (
