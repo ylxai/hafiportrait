@@ -196,10 +196,46 @@ io.use(async (socket, next) => {
 
     // Try Guest Session
     if (!authPayload && guestSessionId && (eventSlug || eventId)) {
-      // Note: In a full implementation, we should also verify the guest session against DB/Redis here
+      const resolvedEventSlug = (eventSlug ?? eventId) as string;
+
+      // Phase 3 hardening: verify guest session against DB (prevents spoofed guestSessionId)
+      if (process.env.SOCKET_GUEST_SESSION_VALIDATION_DISABLED !== 'true') {
+        const event = await prisma.events.findUnique({
+          where: { slug: resolvedEventSlug },
+          select: { id: true },
+        });
+
+        if (!event) {
+          return next(new Error('Invalid event'));
+        }
+
+        const session = await prisma.guest_sessions.findFirst({
+          where: {
+            session_id: guestSessionId,
+            event_id: event.id,
+            expires_at: { gt: new Date() },
+          },
+          select: { session_id: true },
+        });
+
+        if (!session) {
+          return next(new Error('Invalid guest session'));
+        }
+
+        // Best-effort update last access
+        prisma.guest_sessions
+          .update({
+            where: { session_id: guestSessionId },
+            data: { last_access_at: new Date() },
+          })
+          .catch(() => {
+            // ignore
+          });
+      }
+
       authPayload = {
         guestToken: guestSessionId,
-        eventSlug: eventSlug ?? eventId,
+        eventSlug: resolvedEventSlug,
         // Keep the legacy field as well for backward compatibility
         eventId: eventId,
         sessionType: 'guest',
