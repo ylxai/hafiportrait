@@ -271,42 +271,55 @@ io.on('connection', (socket) => {
   });
 
   // Protected Events (Like/Comment)
-  socket.on('photo:like', async ({ eventSlug, photoId, likeCount }: any) => {
+  // Standardized payload: use `photo_id` (snake_case) consistently.
+  // Backward compatibility: accept both `photo_id` and `photoId` from clients.
+  socket.on('photo:like', async ({ eventSlug, photo_id, photoId, likeCount }: any) => {
     if (!(await validateEventAccess(socket, eventSlug))) return;
-    
+
     const rateLimitKey = `like:${socket.id}`;
     if (!checkRateLimit(rateLimitKey, 10, 1000)) return;
-    
+
+    const resolvedPhotoId = photo_id ?? photoId;
+    if (!resolvedPhotoId) return;
+
     io.to(`event:${eventSlug}`).emit('photo:like', {
-      photoId,
+      photo_id: resolvedPhotoId,
       likeCount,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 
-  socket.on('photo:comment', async ({ eventSlug, photoId, comment }: any) => {
+  socket.on('photo:comment', async ({ eventSlug, photo_id, photoId, comment }: any) => {
     if (!(await validateEventAccess(socket, eventSlug))) return;
-    
+
     const rateLimitKey = `comment:${socket.id}`;
     if (!checkRateLimit(rateLimitKey, 3, 5000)) return;
-    
+
+    const resolvedPhotoId = photo_id ?? photoId;
+    if (!resolvedPhotoId) return;
+
     io.to(`event:${eventSlug}`).emit('photo:comment', {
-      photoId,
+      photo_id: resolvedPhotoId,
       comment,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 
   // Upload Events (Admin/Auth Only)
-  socket.on('photo:upload:progress', async ({ eventSlug, photoId, progress, filename }: any) => {
+  // Standardized payload: use `photo_id` (snake_case) consistently.
+  // Backward compatibility: accept both `photo_id` and `photoId` from clients.
+  socket.on('photo:upload:progress', async ({ eventSlug, photo_id, photoId, progress, filename }: any) => {
     if (socket.sessionType !== 'admin' && socket.sessionType !== 'authenticated') return;
     if (!(await validateEventAccess(socket, eventSlug))) return;
-    
+
+    const resolvedPhotoId = photo_id ?? photoId;
+    if (!resolvedPhotoId) return;
+
     io.to(`event:${eventSlug}`).emit('photo:upload:progress', {
-      photoId,
+      photo_id: resolvedPhotoId,
       progress,
       filename, // sanitized by frontend usually, but could add sanitization here
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 
