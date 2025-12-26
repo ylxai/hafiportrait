@@ -13,6 +13,8 @@ const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
 
 function parseRedisUrl(url: string): { url: string; password?: string } {
   // Support: redis://:password@host:port or rediss://:password@host:port
+  // Some env loaders may keep surrounding quotes, so normalize first.
+  url = url.trim().replace(/^"|"$/g, '')
   // Some URL parsers/tools can mis-handle `+` and `=` in password when unencoded.
   // We extract the raw password segment directly.
   const match = url.match(/^(rediss?:\/\/)(?::([^@]+)@)?(.+)$/)

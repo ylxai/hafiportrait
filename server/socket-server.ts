@@ -72,6 +72,7 @@ const io = new Server(server, {
 
 // Redis adapter setup
 function parseRedisUrl(url: string): { url: string; password?: string } {
+  url = url.trim().replace(/^"|"$/g, '')
   const match = url.match(/^(rediss?:\/\/)(?::([^@]+)@)?(.+)$/);
   if (!match) return { url };
   const scheme = match[1];
