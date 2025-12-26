@@ -98,6 +98,34 @@ op_restart() {
   esac
 }
 
+op_restart_safe() {
+  # Preferred order for this project: restart socket first, then main.
+  run_pm2 restart "$SOCKET_NAME" --update-env
+  run_pm2 restart "$MAIN_NAME" --update-env
+}
+
+op_health_check() {
+  # You can override these URLs when running the script.
+  local base_url=${BASE_URL:-"http://localhost:3000"}
+  local socket_url=${SOCKET_URL:-"http://localhost:3001"}
+
+  echo "> Checking web health: ${base_url}/api/health"
+  if curl -fsS "${base_url}/api/health" >/dev/null; then
+    echo "OK: web /api/health"
+  else
+    echo "FAIL: web /api/health" >&2
+    return 1
+  fi
+
+  echo "> Checking socket health: ${socket_url}/health"
+  if curl -fsS "${socket_url}/health" >/dev/null; then
+    echo "OK: socket /health"
+  else
+    echo "FAIL: socket /health" >&2
+    return 1
+  fi
+}
+
 op_save() {
   run_pm2 save
 }
@@ -125,7 +153,7 @@ main() {
   while true; do
     echo ""
     echo "Choose operation:"
-    select op in "status" "start" "stop" "restart" "logs" "save" "quit"; do
+    select op in "status" "start" "stop" "restart" "restart-safe" "health-check" "logs" "save" "quit"; do
       case "$op" in
         status)
           op_status
@@ -147,6 +175,14 @@ main() {
           target=$(menu_select_target)
           [[ "$target" == "cancel" ]] && break
           op_restart "$target"
+          break
+          ;;
+        restart-safe)
+          op_restart_safe
+          break
+          ;;
+        health-check)
+          op_health_check || true
           break
           ;;
         logs)
