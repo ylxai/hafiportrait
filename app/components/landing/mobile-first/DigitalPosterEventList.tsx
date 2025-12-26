@@ -28,8 +28,8 @@ export default function DigitalPosterEventList() {
     try {
       const response = await fetch('/api/public/events')
       if (response.ok) {
-        const data = await response.json()
-        setEvents(data)
+        const data: { events?: EventData[] } = await response.json()
+        setEvents(data.events || [])
       }
     } catch (error) {
       console.error('Error fetching events:', error)

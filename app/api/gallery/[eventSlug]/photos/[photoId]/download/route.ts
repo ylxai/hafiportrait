@@ -56,8 +56,9 @@ export async function GET(
     }
 
     // Find photo
-    const photo = await prisma.photos.findUnique({
-      where: { 
+    // NOTE: `findUnique` cannot be used with non-unique composite filters.
+    const photo = await prisma.photos.findFirst({
+      where: {
         id: photoId,
         event_id: event.id,
       },
