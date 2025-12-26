@@ -171,6 +171,37 @@ main() {
   echo "- socket process: $SOCKET_NAME"
   echo "(Override names via PM2_MAIN_NAME / PM2_SOCKET_NAME env vars)"
 
+  # Non-interactive mode:
+  #   bash scripts/pm2-control.sh <operation> [target] [extra]
+  # Examples:
+  #   bash scripts/pm2-control.sh status
+  #   bash scripts/pm2-control.sh restart-safe
+  #   bash scripts/pm2-control.sh restart-safe+health
+  #   bash scripts/pm2-control.sh restart both
+  #   bash scripts/pm2-control.sh logs socket 200
+  if [[ $# -ge 1 ]]; then
+    local op="$1"; shift
+    case "$op" in
+      status) op_status ;;
+      start) op_start "${1:-both}" ;;
+      stop) op_stop "${1:-both}" ;;
+      restart) op_restart "${1:-both}" ;;
+      restart-safe) op_restart_safe ;;
+      restart-safe+health) op_restart_safe_and_health ;;
+      health-check) op_health_check ;;
+      logs)
+        # logs <target> [lines]
+        op_logs "${1:-both}" "${2:-100}"
+        ;;
+      save) op_save ;;
+      *)
+        echo "Unknown operation: $op" >&2
+        exit 1
+        ;;
+    esac
+    return 0
+  fi
+
   while true; do
     echo ""
     echo "Choose operation:"
