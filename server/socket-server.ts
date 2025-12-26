@@ -71,6 +71,11 @@ const io = new Server(server, {
 
 // Redis adapter setup
 async function setupRedisAdapter() {
+  if (process.env.SOCKET_REDIS_DISABLED === 'true') {
+    console.log('ℹ️ Redis adapter disabled via SOCKET_REDIS_DISABLED=true')
+    return null;
+  }
+
   try {
     const pubClient = createClient({ url: REDIS_URL });
     const subClient = pubClient.duplicate();

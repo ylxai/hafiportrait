@@ -78,6 +78,9 @@ export function useSocket({
 
     try {
       // Initialize socket connection
+      // NOTE: Standalone socket server requires auth for both guest and admin.
+      // For gallery guests, we obtain a non-httpOnly sessionId from a server-side endpoint
+      // (which reads the httpOnly cookie) and use it for socket handshake auth.
       const socket = io(SOCKET_URL, {
         transports: ['websocket', 'polling'],
         reconnection: true,
@@ -85,10 +88,37 @@ export function useSocket({
         reconnectionDelayMax: 5000,
         reconnectionAttempts,
         timeout: 20000,
-        autoConnect: true,
+        autoConnect: false,
       });
 
       socketRef.current = socket;
+
+      const connectWithAuth = async () => {
+        // If we're in a gallery context (eventSlug provided), try to fetch guest socket auth.
+        // If this fails, we still attempt to connect without auth so errors are visible.
+        if (eventSlug) {
+          try {
+            const res = await fetch(`/api/gallery/${eventSlug}/socket-auth`, {
+              method: 'GET',
+              credentials: 'include',
+            })
+
+            if (res.ok) {
+              const data: { guestSessionId: string; eventId: string } = await res.json()
+              socket.auth = {
+                guestSessionId: data.guestSessionId,
+                eventId: data.eventId,
+              }
+            }
+          } catch {
+            // ignore; connect_error handler will surface problems
+          }
+        }
+
+        socket.connect()
+      }
+
+      void connectWithAuth()
 
       // Connection handlers (check if still mounted before state updates)
       socket.on('connect', () => {
