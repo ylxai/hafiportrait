@@ -163,6 +163,43 @@ menu_select_target() {
   done
 }
 
+print_help() {
+  cat <<'EOF'
+Hafiportrait PM2 Control
+
+Usage:
+  bash scripts/pm2-control.sh               # interactive menu
+  bash scripts/pm2-control.sh <op> [args]   # non-interactive
+
+Process names (override if needed):
+  PM2_MAIN_NAME=main
+  PM2_SOCKET_NAME=socket
+
+Health check URLs (override if needed):
+  BASE_URL=http://localhost:3000
+  SOCKET_URL=http://localhost:3001
+
+Operations:
+  status
+  start [main|socket|both]
+  stop [main|socket|both]
+  restart [main|socket|both]
+  restart-safe
+  restart-safe+health
+  health-check
+  logs [main|socket|both] [lines]
+  save
+
+Examples:
+  bash scripts/pm2-control.sh status
+  bash scripts/pm2-control.sh restart-safe
+  BASE_URL="https://hafiportrait.photography" \
+  SOCKET_URL="https://socketio.hafiportrait.photography" \
+  bash scripts/pm2-control.sh restart-safe+health
+
+EOF
+}
+
 main() {
   require_pm2
 
@@ -181,6 +218,11 @@ main() {
   #   bash scripts/pm2-control.sh logs socket 200
   if [[ $# -ge 1 ]]; then
     local op="$1"; shift
+
+    if [[ "$op" == "--help" || "$op" == "-h" || "$op" == "help" ]]; then
+      print_help
+      return 0
+    fi
     case "$op" in
       status) op_status ;;
       start) op_start "${1:-both}" ;;
