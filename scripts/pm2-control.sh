@@ -136,12 +136,14 @@ op_restart_safe_and_health() {
   for ((i=1; i<=attempts; i++)); do
     echo "> Health check attempt ${i}/${attempts}"
     if op_health_check; then
+      echo "RESULT: OK"
       return 0
     fi
     sleep "$delay"
   done
 
   echo "Health check failed after ${attempts} attempts" >&2
+  echo "RESULT: FAIL" >&2
   return 1
 }
 
@@ -201,7 +203,10 @@ main() {
           break
           ;;
         restart-safe+health)
-          op_restart_safe_and_health || true
+          if ! op_restart_safe_and_health; then
+            # Keep interactive mode running, but still surface failure clearly.
+            echo "(restart-safe+health returned non-zero)" >&2
+          fi
           break
           ;;
         health-check)
