@@ -423,7 +423,7 @@ export async function POST(
 
               // Phase 1 realtime: broadcast per photo completion to Socket.IO
               // This triggers guest gallery to show "New Images Added" without refresh.
-              broadcastPhotoUploadComplete({
+              await broadcastPhotoUploadComplete({
                 eventSlug: event.slug,
                 photo: resultPhoto,
               });

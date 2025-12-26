@@ -4,25 +4,44 @@
  */
 
 import { io as ioClient, Socket } from 'socket.io-client';
+import { signJWT } from '@/lib/auth';
 
 // Singleton socket instance untuk server-side broadcasting
 let serverSocket: Socket | null = null;
+let broadcastToken: string | null = null;
+
+async function getBroadcastToken(): Promise<string> {
+  if (broadcastToken) return broadcastToken;
+
+  // Internal system token for server-side broadcasting to Socket.IO
+  // Socket server expects a valid JWT token.
+  broadcastToken = await signJWT({
+    user_id: 'system',
+    username: 'system',
+    role: 'ADMIN',
+  });
+
+  return broadcastToken;
+}
 
 /**
  * Initialize server-side socket connection untuk broadcasting
  */
-export function initServerSocket() {
+export async function initServerSocket() {
   if (serverSocket?.connected) {
     return serverSocket;
   }
 
   const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
-  
+
+  const token = await getBroadcastToken();
+
   serverSocket = ioClient(SOCKET_URL, {
     transports: ['websocket', 'polling'],
     reconnection: true,
     reconnectionDelay: 1000,
     reconnectionAttempts: 5,
+    auth: { token },
   });
 
   serverSocket.on('connect', () => {
@@ -41,7 +60,7 @@ export function initServerSocket() {
 /**
  * Get or create server socket instance
  */
-export function getServerSocket(): Socket | null {
+export async function getServerSocket(): Promise<Socket | null> {
   if (!serverSocket || !serverSocket.connected) {
     return initServerSocket();
   }
@@ -51,83 +70,78 @@ export function getServerSocket(): Socket | null {
 /**
  * Broadcast photo upload progress
  */
-export function broadcastPhotoUploadProgress(data: {
+export async function broadcastPhotoUploadProgress(data: {
   eventSlug: string;
   photo_id: string;
   progress: number;
   filename: string;
 }) {
-  const socket = getServerSocket();
-  if (socket?.connected) {
-    socket.emit('photo:upload:progress', data);
-  }
+  const socket = await getServerSocket();
+  if (!socket) return;
+  socket.emit('photo:upload:progress', data);
 }
 
 /**
  * Broadcast photo upload completion
  */
-export function broadcastPhotoUploadComplete(data: {
+export async function broadcastPhotoUploadComplete(data: {
   eventSlug: string;
   photo: any;
 }) {
-  const socket = getServerSocket();
-  if (socket?.connected) {
-    socket.emit('photo:upload:complete', data);
-  }
+  const socket = await getServerSocket();
+  if (!socket) return;
+  // Emit even if not yet connected: socket.io-client will buffer and send on connect.
+  socket.emit('photo:upload:complete', data);
 }
 
 /**
  * Broadcast photo like update
  */
-export function broadcastPhotoLike(data: {
+export async function broadcastPhotoLike(data: {
   eventSlug: string;
   photo_id: string;
   likeCount: number;
 }) {
-  const socket = getServerSocket();
-  if (socket?.connected) {
-    socket.emit('photo:like', data);
-  }
+  const socket = await getServerSocket();
+  if (!socket) return;
+  socket.emit('photo:like', data);
 }
 
 /**
  * Broadcast new comment
  */
-export function broadcastPhotoComment(data: {
+export async function broadcastPhotoComment(data: {
   eventSlug: string;
   photo_id: string;
   comment: any;
 }) {
-  const socket = getServerSocket();
-  if (socket?.connected) {
-    socket.emit('photo:comment', data);
-  }
+  const socket = await getServerSocket();
+  if (!socket) return;
+  socket.emit('photo:comment', data);
 }
 
 /**
  * Broadcast event update
  */
-export function broadcastEventUpdate(data: {
+export async function broadcastEventUpdate(data: {
   eventSlug: string;
   updates: any;
 }) {
-  const socket = getServerSocket();
-  if (socket?.connected) {
-    socket.emit('event:update', data);
-  }
+  const socket = await getServerSocket();
+  if (!socket) return;
+  socket.emit('event:update', data);
 }
 
 /**
  * Broadcast admin notification
  */
-export function broadcastAdminNotification(data: {
+export async function broadcastAdminNotification(data: {
   type: 'inquiry' | 'booking' | 'upload_complete' | 'system';
   data: any;
 }) {
-  const socket = getServerSocket();
-  if (socket?.connected) {
-    socket.emit('admin:notification', data);
-  }
+  const socket = await getServerSocket();
+  if (!socket) return;
+  socket.emit('admin:notification', data);
 }
 
 /**
