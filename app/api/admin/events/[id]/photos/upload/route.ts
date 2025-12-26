@@ -39,6 +39,7 @@ import { extractExifData } from '@/lib/utils/exif-extractor';
 import { logger } from '@/lib/logger';
 // import { rateLimit } from '@/lib/security/rate-limiter'; // PRODUCTION: Disabled for wedding uploads
 import { memoryManager } from '@/lib/storage/memory-manager';
+import { broadcastPhotoUploadComplete } from '@/lib/socket-broadcast';
 
 // Maximum files per request - PRODUCTION: Increased for bulk uploads
 const MAX_FILES_PER_REQUEST = 100;
@@ -95,7 +96,7 @@ export async function POST(
     // 3. Verify event exists and user has access
     const event = await prisma.events.findUnique({
       where: { id: event_id },
-      select: { id: true, client_id: true, name: true, status: true },
+      select: { id: true, slug: true, client_id: true, name: true, status: true },
     });
 
     if (!event) {
@@ -420,11 +421,19 @@ export async function POST(
                 photo: resultPhoto as any, // Cast to any to satisfy the array type
               });
 
+              // Phase 1 realtime: broadcast per photo completion to Socket.IO
+              // This triggers guest gallery to show "New Images Added" without refresh.
+              broadcastPhotoUploadComplete({
+                eventSlug: event.slug,
+                photo: resultPhoto,
+              });
+
               logger.debug('Photo uploaded successfully', {
                 filename: file.name,
                 uniqueFilename,
                 hasExif: !!exif_data,
-                storageKey: originalKey
+                storageKey: originalKey,
+                eventSlug: event.slug,
               });
             } catch (dbError) {
               // TRANSACTION ROLLBACK: Database insert failed, cleanup R2 files
