@@ -121,9 +121,12 @@ export default function PhotoLightbox({
   }
 
   const handleDownload = async () => {
+    // Create a window synchronously to avoid popup blockers (Safari/iOS)
+    const popup = window.open('', '_blank')
+
     try {
       if (!currentPhoto) return
-      
+
       const response = await fetch(
         `/api/gallery/${eventSlug}/photos/${currentPhoto.id}/download`
       )
@@ -138,19 +141,20 @@ export default function PhotoLightbox({
       const data = await response.json()
       
       if (data.success && data.downloadUrl) {
-        // Open download URL in new tab (browser will download)
-        const a = document.createElement('a')
-        a.href = data.downloadUrl
-        a.download = currentPhoto.filename
-        a.target = '_blank'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
+        // Prefer setting location on a pre-opened tab/window to avoid popup blockers.
+        if (popup) {
+          popup.location.href = data.downloadUrl
+        } else {
+          // Fallback: navigate current window (most reliable)
+          window.location.href = data.downloadUrl
+        }
       } else {
         alert('Failed to get download URL')
       }
     } catch (error) {
       console.error('Download error:', error)
+      // Close popup if we opened it but failed
+      if (popup && !popup.closed) popup.close()
       alert('Failed to download photo. Please try again.')
     }
   }
