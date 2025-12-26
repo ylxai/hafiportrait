@@ -71,6 +71,15 @@ const io = new Server(server, {
 });
 
 // Redis adapter setup
+function parseRedisUrl(url: string): { url: string; password?: string } {
+  const match = url.match(/^(rediss?:\/\/)(?::([^@]+)@)?(.+)$/);
+  if (!match) return { url };
+  const scheme = match[1];
+  const password = match[2];
+  const rest = match[3];
+  return { url: `${scheme}${rest}`, password };
+}
+
 async function setupRedisAdapter() {
   if (process.env.SOCKET_REDIS_DISABLED === 'true') {
     console.log('ℹ️ Redis adapter disabled via SOCKET_REDIS_DISABLED=true')
@@ -78,7 +87,10 @@ async function setupRedisAdapter() {
   }
 
   try {
-    const pubClient = createClient({ url: REDIS_URL });
+    const { url: redisUrlNoPass, password: redisPasswordFromUrl } = parseRedisUrl(REDIS_URL);
+    const redisPassword = process.env.REDIS_PASSWORD || redisPasswordFromUrl;
+
+    const pubClient = createClient({ url: redisUrlNoPass, password: redisPassword });
     const subClient = pubClient.duplicate();
 
     await Promise.all([

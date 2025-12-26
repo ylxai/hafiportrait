@@ -11,10 +11,32 @@ const globalForRedis = globalThis as unknown as {
  */
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
 
+function parseRedisUrl(url: string): { url: string; password?: string } {
+  // Support: redis://:password@host:port or rediss://:password@host:port
+  // Some URL parsers/tools can mis-handle `+` and `=` in password when unencoded.
+  // We extract the raw password segment directly.
+  const match = url.match(/^(rediss?:\/\/)(?::([^@]+)@)?(.+)$/)
+  if (!match) return { url }
+
+  const scheme = match[1]
+  const password = match[2]
+  const rest = match[3]
+
+  // Rebuild URL without embedding password
+  return {
+    url: `${scheme}${rest}`,
+    password,
+  }
+}
+
+const { url: redisUrlNoPass, password: redisPasswordFromUrl } = parseRedisUrl(redisUrl)
+const redisPassword = process.env.REDIS_PASSWORD || redisPasswordFromUrl
+
 export const redis =
   globalForRedis.redis ??
   createClient({
-    url: redisUrl,
+    url: redisUrlNoPass,
+    password: redisPassword,
     socket: {
       reconnectStrategy: (retries) => {
         // Exponential backoff dengan max 3000ms
