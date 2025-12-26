@@ -9,6 +9,20 @@ const globalForRedis = globalThis as unknown as {
  * Parse Redis URL dan handle authentication
  * Format: redis://:password@host:port atau redis://host:port
  */
+// In some production setups (e.g. PM2 + next start), process.env may not include values
+// from .env.production at module init time. As a safety net, attempt to load env files
+// if REDIS_URL/REDIS_PASSWORD are missing.
+if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL && !process.env.REDIS_PASSWORD) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const dotenv = require('dotenv') as typeof import('dotenv')
+    const envFiles = ['.env.production.local', '.env.production', '.env.local', '.env']
+    for (const p of envFiles) dotenv.config({ path: p })
+  } catch {
+    // ignore
+  }
+}
+
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
 
 function parseRedisUrl(url: string): { url: string; password?: string } {
