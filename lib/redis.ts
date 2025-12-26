@@ -9,21 +9,42 @@ const globalForRedis = globalThis as unknown as {
  * Parse Redis URL dan handle authentication
  * Format: redis://:password@host:port atau redis://host:port
  */
-// In some production setups (e.g. PM2 + next start), process.env may not include values
-// from .env.production at module init time. As a safety net, attempt to load env files
-// if REDIS_URL/REDIS_PASSWORD are missing.
-if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL && !process.env.REDIS_PASSWORD) {
+import fs from 'node:fs'
+
+function readEnvVarFromFile(filePath: string, key: string): string | null {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const dotenv = require('dotenv') as typeof import('dotenv')
-    const envFiles = ['.env.production.local', '.env.production', '.env.local', '.env']
-    for (const p of envFiles) dotenv.config({ path: p })
+    const content = fs.readFileSync(filePath, 'utf8')
+    const lines = content.split(/\r?\n/)
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#')) continue
+      const idx = trimmed.indexOf('=')
+      if (idx === -1) continue
+      const k = trimmed.slice(0, idx).trim()
+      if (k !== key) continue
+      let v = trimmed.slice(idx + 1).trim()
+      // strip surrounding quotes
+      v = v.replace(/^"|"$/g, '').replace(/^'|'$/g, '')
+      return v
+    }
+    return null
   } catch {
-    // ignore
+    return null
   }
 }
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
+function getEffectiveRedisUrl(): string {
+  const envUrl = process.env.REDIS_URL
+  // If production accidentally has a dev REDIS_URL without auth (e.g. from .env.local),
+  // prefer the value from .env.production when present.
+  if (process.env.NODE_ENV === 'production' && envUrl && !envUrl.includes('://:')) {
+    const prodUrl = readEnvVarFromFile('.env.production', 'REDIS_URL')
+    if (prodUrl && prodUrl.includes('://:')) return prodUrl
+  }
+  return envUrl || 'redis://localhost:6379'
+}
+
+const redisUrl = getEffectiveRedisUrl()
 
 function parseRedisUrl(url: string): { url: string; password?: string } {
   // Support: redis://:password@host:port or rediss://:password@host:port

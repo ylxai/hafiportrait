@@ -10,7 +10,39 @@ const prisma = new PrismaClient();
 
 // Configuration
 const PORT = parseInt(process.env.SOCKET_PORT || '3001', 10);
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+import fs from 'node:fs';
+
+function readEnvVarFromFile(filePath: string, key: string): string | null {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const idx = trimmed.indexOf('=');
+      if (idx === -1) continue;
+      const k = trimmed.slice(0, idx).trim();
+      if (k !== key) continue;
+      let v = trimmed.slice(idx + 1).trim();
+      v = v.replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+      return v;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getEffectiveRedisUrl(): string {
+  const envUrl = process.env.REDIS_URL;
+  if (process.env.NODE_ENV === 'production' && envUrl && !envUrl.includes('://:')) {
+    const prodUrl = readEnvVarFromFile('.env.production', 'REDIS_URL');
+    if (prodUrl && prodUrl.includes('://:')) return prodUrl;
+  }
+  return envUrl || 'redis://localhost:6379';
+}
+
+const REDIS_URL = getEffectiveRedisUrl();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',')
   : [
