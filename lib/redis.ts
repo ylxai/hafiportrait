@@ -14,7 +14,7 @@ const globalForRedis = globalThis as unknown as {
 // if REDIS_URL/REDIS_PASSWORD are missing.
 if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL && !process.env.REDIS_PASSWORD) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const dotenv = require('dotenv') as typeof import('dotenv')
     const envFiles = ['.env.production.local', '.env.production', '.env.local', '.env']
     for (const p of envFiles) dotenv.config({ path: p })
