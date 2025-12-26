@@ -25,7 +25,10 @@ interface AuthPayload {
   userId?: string;
   role?: string;
   guestToken?: string;
+  // Backward compatible: historically clients send `eventId` but it actually contains the event slug.
   eventId?: string;
+  // Preferred field name (explicit): eventSlug
+  eventSlug?: string;
   sessionType: 'admin' | 'authenticated' | 'guest';
 }
 
@@ -130,9 +133,10 @@ async function validateEventAccess(socket: Socket, eventSlug: string): Promise<b
   // 1. Admin always access
   if (auth.sessionType === 'admin') return true;
 
-  // 2. Guest access - strictly linked to the eventId in their session
+  // 2. Guest access - strictly linked to the event slug in their session
   if (auth.sessionType === 'guest') {
-    return auth.eventId === eventSlug;
+    const slugFromAuth = auth.eventSlug ?? auth.eventId;
+    return slugFromAuth === eventSlug;
   }
 
   // 3. Authenticated User (Photographer/Client)
@@ -168,7 +172,8 @@ io.use(async (socket, next) => {
     const token = socket.handshake.auth.token || 
                   socket.handshake.headers.authorization?.replace('Bearer ', '');
     const guestSessionId = socket.handshake.auth.guestSessionId;
-    const eventId = socket.handshake.auth.eventId;
+    const eventSlug = socket.handshake.auth.eventSlug;
+    const eventId = socket.handshake.auth.eventId; // backward compatible (often contains slug)
 
     let authPayload: AuthPayload | null = null;
 
@@ -190,10 +195,12 @@ io.use(async (socket, next) => {
     }
 
     // Try Guest Session
-    if (!authPayload && guestSessionId && eventId) {
+    if (!authPayload && guestSessionId && (eventSlug || eventId)) {
       // Note: In a full implementation, we should also verify the guest session against DB/Redis here
       authPayload = {
         guestToken: guestSessionId,
+        eventSlug: eventSlug ?? eventId,
+        // Keep the legacy field as well for backward compatibility
         eventId: eventId,
         sessionType: 'guest',
       };

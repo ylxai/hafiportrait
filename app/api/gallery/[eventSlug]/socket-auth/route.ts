@@ -26,7 +26,10 @@ export async function GET(
     // Socket server expects guestSessionId + eventId (currently treated as eventSlug)
     return NextResponse.json({
       guestSessionId: session.sessionId,
+      // backward compatible
       eventId: eventSlug,
+      // preferred
+      eventSlug,
     })
   } catch {
     return NextResponse.json(

@@ -107,6 +107,8 @@ export function useSocket({
               const data: { guestSessionId: string; eventId: string } = await res.json()
               socket.auth = {
                 guestSessionId: data.guestSessionId,
+                eventSlug: data.eventId,
+                // backward compatible
                 eventId: data.eventId,
               }
             }
