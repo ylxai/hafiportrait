@@ -126,6 +126,25 @@ op_health_check() {
   fi
 }
 
+op_restart_safe_and_health() {
+  op_restart_safe
+
+  # Give services a moment to bind ports, then retry health check.
+  local attempts=${HEALTH_ATTEMPTS:-10}
+  local delay=${HEALTH_DELAY_SECONDS:-2}
+
+  for ((i=1; i<=attempts; i++)); do
+    echo "> Health check attempt ${i}/${attempts}"
+    if op_health_check; then
+      return 0
+    fi
+    sleep "$delay"
+  done
+
+  echo "Health check failed after ${attempts} attempts" >&2
+  return 1
+}
+
 op_save() {
   run_pm2 save
 }
@@ -153,7 +172,7 @@ main() {
   while true; do
     echo ""
     echo "Choose operation:"
-    select op in "status" "start" "stop" "restart" "restart-safe" "health-check" "logs" "save" "quit"; do
+    select op in "status" "start" "stop" "restart" "restart-safe" "restart-safe+health" "health-check" "logs" "save" "quit"; do
       case "$op" in
         status)
           op_status
@@ -179,6 +198,10 @@ main() {
           ;;
         restart-safe)
           op_restart_safe
+          break
+          ;;
+        restart-safe+health)
+          op_restart_safe_and_health || true
           break
           ;;
         health-check)
