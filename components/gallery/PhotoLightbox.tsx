@@ -120,43 +120,17 @@ export default function PhotoLightbox({
     }
   }
 
-  const handleDownload = async () => {
-    // Create a window synchronously to avoid popup blockers (Safari/iOS)
-    const popup = window.open('', '_blank')
+  const handleDownload = () => {
+    if (!currentPhoto) return
 
-    try {
-      if (!currentPhoto) return
-
-      const response = await fetch(
-        `/api/gallery/${eventSlug}/photos/${currentPhoto.id}/download`
-      )
-
-      if (!response.ok) {
-        const data = await response.json()
-        alert(data.error || 'Failed to download photo')
-        return
-      }
-
-      // API returns JSON with downloadUrl
-      const data = await response.json()
-      
-      if (data.success && data.downloadUrl) {
-        // Prefer setting location on a pre-opened tab/window to avoid popup blockers.
-        if (popup) {
-          popup.location.href = data.downloadUrl
-        } else {
-          // Fallback: navigate current window (most reliable)
-          window.location.href = data.downloadUrl
-        }
-      } else {
-        alert('Failed to get download URL')
-      }
-    } catch (error) {
-      console.error('Download error:', error)
-      // Close popup if we opened it but failed
-      if (popup && !popup.closed) popup.close()
-      alert('Failed to download photo. Please try again.')
-    }
+    // Download via same-origin API endpoint so browsers can reliably save as a file
+    // (avoids popup blockers and cross-origin download attribute limitations).
+    const a = document.createElement('a')
+    a.href = `/api/gallery/${eventSlug}/photos/${currentPhoto.id}/download`
+    a.download = currentPhoto.filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 
   const handleLikeChange = useCallback(

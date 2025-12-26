@@ -98,15 +98,44 @@ export async function GET(
       console.warn('Failed to track download:', trackingError);
     }
 
-    // Return photo URL for client-side download
-    // Use R2 URL for fast CDN delivery
+    // Build download URL (R2/CDN)
     const downloadUrl = getDownloadUrl(photo.original_url);
-    
-    return NextResponse.json({
-      success: true,
-      downloadUrl: downloadUrl, // R2 URL for fast download
-      filename: photo.filename,
-    });
+
+    // Default behavior: stream file as an attachment from our own domain.
+    // This makes downloads reliable on mobile Safari/Chrome and avoids "Save image" UX.
+    // If a JSON response is needed, use `?format=json`.
+    const format = request.nextUrl.searchParams.get('format');
+    if (format === 'json') {
+      return NextResponse.json({
+        success: true,
+        downloadUrl,
+        filename: photo.filename,
+      });
+    }
+
+    const upstream = await fetch(downloadUrl);
+    if (!upstream.ok || !upstream.body) {
+      return NextResponse.json(
+        { error: 'Failed to fetch file' },
+        { status: 502 }
+      );
+    }
+
+    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
+
+    // RFC 5987 filename encoding
+    const safeFilename = photo.filename || 'download';
+    const encodedFilename = encodeURIComponent(safeFilename);
+
+    const headers = new Headers();
+    headers.set('Content-Type', contentType);
+    headers.set(
+      'Content-Disposition',
+      `attachment; filename="${safeFilename.replace(/\"/g, '')}"; filename*=UTF-8''${encodedFilename}`
+    );
+    headers.set('Cache-Control', 'private, no-store');
+
+    return new NextResponse(upstream.body, { headers });
 
   } catch (error) {
     return NextResponse.json(
