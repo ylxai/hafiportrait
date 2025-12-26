@@ -38,7 +38,7 @@ interface Event {
 interface EventUpdateFormData {
   name?: string
   slug?: string
-  status?: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'
+  status?: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
   client_email?: string
   client_phone?: string
   event_date?: string
@@ -259,6 +259,26 @@ export default function EventDetailPage() {
               >
                 {event.status}
               </span>
+
+              {event.status === 'DRAFT' && (
+                <button
+                  type="button"
+                  onClick={() => handleUpdate({ status: 'ACTIVE' })}
+                  className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700"
+                >
+                  Publish
+                </button>
+              )}
+
+              {event.status === 'ACTIVE' && (
+                <button
+                  type="button"
+                  onClick={() => handleUpdate({ status: 'DRAFT' })}
+                  className="inline-flex items-center rounded-lg bg-gray-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
+                >
+                  Unpublish
+                </button>
+              )}
             </div>
             <p className="text-gray-600">
               Created {new Date(event.created_at).toLocaleDateString()}
