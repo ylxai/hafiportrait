@@ -5,23 +5,6 @@ import { createClient } from 'redis';
 import http from 'http';
 import { verifyJWT } from '../lib/auth';
 import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
-
-// Load the appropriate env file when running as a standalone service under PM2.
-// Next.js loads .env.production automatically, but this standalone Socket server needs it explicitly.
-// Load env files in a Next.js-like order so PM2 standalone socket server sees the same secrets.
-// Order (production): .env.production.local -> .env.production -> .env.local -> .env
-// Order (dev): .env.local -> .env
-const isProd = process.env.NODE_ENV === 'production'
-const envFiles = isProd
-  ? ['.env.production.local', '.env.production', '.env.local', '.env']
-  : ['.env.local', '.env']
-
-for (const p of envFiles) {
-  dotenv.config({ path: p })
-}
-
-
 // Initialize Prisma
 const prisma = new PrismaClient();
 
