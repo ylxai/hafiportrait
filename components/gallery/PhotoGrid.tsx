@@ -42,6 +42,7 @@ export default function PhotoGrid({
 
   // Phase 1 realtime UI state
   const [hasNewImages, setHasNewImages] = useState(false)
+  const [newImagesCount, setNewImagesCount] = useState(0)
   const toastShownAtRef = useRef<number>(0)
 
   const observerTarget = useRef<HTMLDivElement>(null)
@@ -118,6 +119,7 @@ export default function PhotoGrid({
   useEffect(() => {
     const unsubscribe = onPhotoUploadComplete(() => {
       setHasNewImages(true)
+      setNewImagesCount((c) => c + 1)
 
       // Debounce toast so we don't spam during burst uploads
       const now = Date.now()
@@ -142,6 +144,7 @@ export default function PhotoGrid({
     // Reset pagination baseline to reduce overlap risk
     setPage(1)
     setHasNewImages(false)
+    setNewImagesCount(0)
 
     // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -252,9 +255,9 @@ export default function PhotoGrid({
         <button
           type="button"
           onClick={handleLoadNewImages}
-          className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-black/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-md"
+          className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-full border border-black/10 bg-white/85 px-3 py-1 text-xs font-medium text-black shadow-lg backdrop-blur-md transition hover:bg-white"
         >
-          New Images Added
+          New Images Added{newImagesCount > 0 ? ` (${newImagesCount})` : ''}
         </button>
       )}
 
