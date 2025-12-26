@@ -13,6 +13,7 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '50');
     const sort = searchParams.get('sort') || 'newest';
     const since = searchParams.get('since');
+    const sinceId = searchParams.get('since_id');
 
     // Find event
     const event = await prisma.events.findUnique({
@@ -37,30 +38,42 @@ export async function GET(
     }
 
     // Build order by clause
-    let orderBy: { [key: string]: 'asc' | 'desc' } = { display_order: 'asc' };
+    // For stable ordering, always include `id` as a tie-breaker for created_at sorting.
+    let orderBy: Array<Record<string, 'asc' | 'desc'>> | Record<string, 'asc' | 'desc'> = {
+      display_order: 'asc',
+    };
     if (sort === 'newest') {
-      orderBy = { created_at: 'desc' };
+      orderBy = [{ created_at: 'desc' }, { id: 'desc' }];
     } else if (sort === 'oldest') {
-      orderBy = { created_at: 'asc' };
+      orderBy = [{ created_at: 'asc' }, { id: 'asc' }];
     } else if (sort === 'most_liked') {
-      orderBy = { likes_count: 'desc' };
+      orderBy = [{ likes_count: 'desc' }, { id: 'desc' }];
     }
 
-    // Phase 2: delta fetch for realtime updates
+    // Phase 3 (hardening): delta fetch cursor uses (created_at, id) to avoid misses when timestamps tie.
     if (since) {
       const sinceDate = new Date(since);
       if (Number.isNaN(sinceDate.getTime())) {
-        return NextResponse.json(
-          { error: 'Invalid since parameter' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid since parameter' }, { status: 400 });
       }
+
+      // Cursor semantics:
+      // - For newest-first: return items newer than cursor; when created_at ties, use id as tie-breaker.
+      // - For oldest-first: the cursor is still based on the newest item the client has seen; in practice we use newest-first for realtime.
+      const cursorFilter = sinceId
+        ? {
+            OR: [
+              { created_at: { gt: sinceDate } },
+              { created_at: sinceDate, id: { gt: sinceId } },
+            ],
+          }
+        : { created_at: { gt: sinceDate } };
 
       const photos = await prisma.photos.findMany({
         where: {
           event_id: event.id,
           deleted_at: null,
-          created_at: { gt: sinceDate },
+          ...cursorFilter,
         },
         select: {
           id: true,

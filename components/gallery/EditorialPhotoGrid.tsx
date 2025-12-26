@@ -152,9 +152,16 @@ export default function EditorialPhotoGrid({
   }, [onPhotoUploadComplete])
 
   const fetchDeltaPhotos = useCallback(
-    async (since: string) => {
+    async (cursor: { since: string; since_id?: string }) => {
+      const qs = new URLSearchParams({
+        since: cursor.since,
+        limit: String(PHOTOS_PER_PAGE),
+        sort: 'newest',
+      })
+      if (cursor.since_id) qs.set('since_id', cursor.since_id)
+
       const response = await fetch(
-        `/api/gallery/${eventSlug}/photos?since=${encodeURIComponent(since)}&limit=${PHOTOS_PER_PAGE}&sort=newest`
+        `/api/gallery/${eventSlug}/photos?${qs.toString()}`
       )
 
       if (!response.ok) {
@@ -167,19 +174,21 @@ export default function EditorialPhotoGrid({
     [eventSlug]
   )
 
-  const getLatestDisplayedCreatedAt = useCallback(() => {
-    return photos[0]?.created_at
+  const getLatestCursor = useCallback(() => {
+    const top = photos[0]
+    if (!top?.created_at) return null
+    return { since: top.created_at, since_id: top.id }
   }, [photos])
 
   const handleLoadNewImages = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
-    const since = getLatestDisplayedCreatedAt()
-    if (!since) {
+    const cursor = getLatestCursor()
+    if (!cursor) {
       await fetchPhotos(1)
     } else {
-      const newPhotos = await fetchDeltaPhotos(since)
+      const newPhotos = await fetchDeltaPhotos(cursor)
       setPhotos((prev) => mergeAndDedupe(newPhotos, prev))
     }
 
@@ -188,16 +197,19 @@ export default function EditorialPhotoGrid({
     setNewImagesCount(0)
 
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [fetchDeltaPhotos, fetchPhotos, getLatestDisplayedCreatedAt, mergeAndDedupe])
+  }, [fetchDeltaPhotos, fetchPhotos, getLatestCursor, mergeAndDedupe])
 
   // Phase 2 polling fallback (30–45s with jitter)
-  const lastNotifiedSinceRef = useRef<string | null>(null)
+  const lastNotifiedCursorRef = useRef<{ since: string; since_id?: string } | null>(null)
 
   useEffect(() => {
     if (photos.length === 0) return
 
-    if (!lastNotifiedSinceRef.current) {
-      lastNotifiedSinceRef.current = photos[0]?.created_at ?? null
+    if (!lastNotifiedCursorRef.current) {
+      const top = photos[0]
+      lastNotifiedCursorRef.current = top?.created_at
+        ? { since: top.created_at, since_id: top.id }
+        : null
     }
 
     let timeoutId: ReturnType<typeof setTimeout> | null = null
@@ -211,7 +223,7 @@ export default function EditorialPhotoGrid({
     const runPoll = async () => {
       if (cancelled) return
 
-      const cursor = lastNotifiedSinceRef.current
+      const cursor = lastNotifiedCursorRef.current
       if (!cursor) {
         scheduleNext()
         return
@@ -223,7 +235,9 @@ export default function EditorialPhotoGrid({
           setHasNewImages(true)
           setNewImagesCount((c) => c + newPhotos.length)
 
-          lastNotifiedSinceRef.current = newPhotos[0]?.created_at ?? cursor
+          lastNotifiedCursorRef.current = newPhotos[0]?.created_at
+            ? { since: newPhotos[0].created_at, since_id: newPhotos[0].id }
+            : cursor
 
           const now = Date.now()
           if (now - toastShownAtRef.current >= 5000) {
