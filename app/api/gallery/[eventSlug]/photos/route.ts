@@ -12,6 +12,7 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const sort = searchParams.get('sort') || 'newest';
+    const since = searchParams.get('since');
 
     // Find event
     const event = await prisma.events.findUnique({
@@ -43,6 +44,53 @@ export async function GET(
       orderBy = { created_at: 'asc' };
     } else if (sort === 'most_liked') {
       orderBy = { likes_count: 'desc' };
+    }
+
+    // Phase 2: delta fetch for realtime updates
+    if (since) {
+      const sinceDate = new Date(since);
+      if (Number.isNaN(sinceDate.getTime())) {
+        return NextResponse.json(
+          { error: 'Invalid since parameter' },
+          { status: 400 }
+        );
+      }
+
+      const photos = await prisma.photos.findMany({
+        where: {
+          event_id: event.id,
+          deleted_at: null,
+          created_at: { gt: sinceDate },
+        },
+        select: {
+          id: true,
+          filename: true,
+          original_url: true,
+          thumbnail_url: true,
+          thumbnail_small_url: true,
+          thumbnail_medium_url: true,
+          thumbnail_large_url: true,
+          width: true,
+          height: true,
+          likes_count: true,
+          download_count: true,
+          views_count: true,
+          caption: true,
+          display_order: true,
+          is_featured: true,
+          created_at: true,
+        },
+        orderBy,
+        take: limit,
+      });
+
+      return NextResponse.json({
+        photos,
+        hasMore: false,
+        total: photos.length,
+        page: 1,
+        limit,
+      });
     }
 
     // Fetch photos with pagination

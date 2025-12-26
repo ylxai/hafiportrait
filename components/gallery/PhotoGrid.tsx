@@ -18,6 +18,7 @@ interface Photo {
   height: number | null
   likes_count: number
   caption: string | null
+  created_at: string
 }
 
 interface PhotoGridProps {
@@ -134,21 +135,105 @@ export default function PhotoGrid({
     return unsubscribe
   }, [onPhotoUploadComplete])
 
+  const fetchDeltaPhotos = useCallback(
+    async (since: string) => {
+      const response = await fetch(
+        `/api/gallery/${eventSlug}/photos?since=${encodeURIComponent(since)}&limit=${PHOTOS_PER_PAGE}&sort=newest`
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch new photos')
+      }
+
+      const data = await response.json()
+      return data.photos as Photo[]
+    },
+    [eventSlug]
+  )
+
+  const getLatestDisplayedCreatedAt = useCallback(() => {
+    return photos[0]?.created_at
+  }, [photos])
+
   const handleLoadNewImages = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
-    // Fetch newest page and merge into existing list (dedupe by id)
-    await fetchPhotos(1)
+    const since = getLatestDisplayedCreatedAt()
+    if (!since) {
+      // Fallback to full refresh if we don't have a cursor yet
+      await fetchPhotos(1)
+    } else {
+      const newPhotos = await fetchDeltaPhotos(since)
+      setPhotos((prev) => mergeAndDedupe(newPhotos, prev))
+    }
 
     // Reset pagination baseline to reduce overlap risk
     setPage(1)
     setHasNewImages(false)
     setNewImagesCount(0)
 
-    // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [fetchPhotos])
+  }, [fetchDeltaPhotos, fetchPhotos, getLatestDisplayedCreatedAt, mergeAndDedupe])
+
+  // Phase 2 polling fallback (30–45s with jitter)
+  const lastNotifiedSinceRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (photos.length === 0) return
+
+    // Initialize lastNotified cursor from what user currently sees
+    if (!lastNotifiedSinceRef.current) {
+      lastNotifiedSinceRef.current = photos[0]?.created_at ?? null
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let cancelled = false
+
+    const scheduleNext = () => {
+      const nextDelay = 30000 + Math.floor(Math.random() * 15000) // 30–45s
+      timeoutId = setTimeout(runPoll, nextDelay)
+    }
+
+    const runPoll = async () => {
+      if (cancelled) return
+
+      const cursor = lastNotifiedSinceRef.current
+      if (!cursor) {
+        scheduleNext()
+        return
+      }
+
+      try {
+        const newPhotos = await fetchDeltaPhotos(cursor)
+        if (newPhotos.length > 0) {
+          // Mark that there are new images available, but don't mutate the grid yet
+          setHasNewImages(true)
+          setNewImagesCount((c) => c + newPhotos.length)
+
+          // Advance the notified cursor so we don't count the same photos repeatedly
+          lastNotifiedSinceRef.current = newPhotos[0]?.created_at ?? cursor
+
+          const now = Date.now()
+          if (now - toastShownAtRef.current >= 5000) {
+            toastShownAtRef.current = now
+            toast('New Images Added', { duration: 8000 })
+          }
+        }
+      } catch {
+        // Silent fail; polling is best-effort
+      } finally {
+        scheduleNext()
+      }
+    }
+
+    scheduleNext()
+
+    return () => {
+      cancelled = true
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [fetchDeltaPhotos, photos])
 
   // Infinite scroll observer
   useEffect(() => {
