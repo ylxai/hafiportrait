@@ -51,6 +51,8 @@ export default function AdminPhotosPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'trash'>('all')
   const [photos, setPhotos] = useState<Photo[]>([])
   const [trashPhotos, setTrashPhotos] = useState<TrashPhoto[]>([])
+  const [events, setEvents] = useState<Array<{ id: string; name: string }>>([])
+  const [selectedEventId, setSelectedEventId] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -60,15 +62,21 @@ export default function AdminPhotosPage() {
 
   useEffect(() => {
     void fetchAll()
+    void fetchEvents()
   }, [])
 
-  const fetchAll = async () => {
+  const fetchAll = async (eventId?: string) => {
     setLoading(true)
     setError(null)
 
     try {
+      const photosUrl =
+        eventId && eventId !== 'all'
+          ? `/api/admin/photos?event_id=${encodeURIComponent(eventId)}`
+          : '/api/admin/photos'
+
       const [allRes, trashRes] = await Promise.all([
-        fetch('/api/admin/photos', { credentials: 'include' }),
+        fetch(photosUrl, { credentials: 'include' }),
         fetch('/api/admin/photos/trash?limit=100', { credentials: 'include' }),
       ])
 
@@ -79,7 +87,25 @@ export default function AdminPhotosPage() {
       const trashData = await trashRes.json()
 
       // /api/admin/photos returns an array
-      setPhotos(Array.isArray(allData) ? allData : allData.photos || [])
+      const rawPhotos: any[] = Array.isArray(allData) ? allData : allData.photos || []
+      const mappedPhotos: Photo[] = rawPhotos.map((p) => ({
+        id: p.id,
+        filename: p.filename,
+        original_url: p.original_url,
+        thumbnail_small_url: p.thumbnail_small_url ?? p.thumbnail_url ?? null,
+        thumbnail_medium_url: p.thumbnail_medium_url ?? p.thumbnail_url ?? null,
+        thumbnail_large_url: p.thumbnail_large_url ?? null,
+        event_id: p.event_id,
+        is_featured: p.is_featured ?? false,
+        created_at: p.created_at,
+        event: p.event_name
+          ? {
+              id: p.event_id,
+              name: p.event_name,
+            }
+          : undefined,
+      }))
+      setPhotos(mappedPhotos)
 
       // /api/admin/photos/trash returns { success, data: { photos: [...] } }
       const trashList = trashData?.data?.photos || []
@@ -120,6 +146,21 @@ export default function AdminPhotosPage() {
 
   const selectedCount = selected.size
 
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch('/api/admin/events?limit=200', {
+        credentials: 'include',
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      const list = data?.data?.events || data?.events || []
+      const mapped = list.map((e: any) => ({ id: e.id, name: e.name }))
+      setEvents(mapped)
+    } catch {
+      // ignore
+    }
+  }
+
   const handleBulkTrash = async () => {
     if (selectedCount === 0) return
 
@@ -157,7 +198,28 @@ export default function AdminPhotosPage() {
             <p className="text-gray-600 mt-1">Manage your photography portfolio and event photos</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {/* Event Filter (All tab) */}
+            {activeTab === 'all' && (
+              <select
+                value={selectedEventId}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setSelectedEventId(value)
+                  void fetchAll(value)
+                  closeLightbox()
+                }}
+                className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm"
+              >
+                <option value="all">All Events</option>
+                {events.map((evt) => (
+                  <option key={evt.id} value={evt.id}>
+                    {evt.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
             <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
               <button
                 type="button"
