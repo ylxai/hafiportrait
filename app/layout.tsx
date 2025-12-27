@@ -5,29 +5,37 @@ import { RootErrorBoundary } from '@/components/error-boundaries'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://hafiportrait.photography'),
   title: 'Hafiportrait - Editorial Wedding Photography for Modern Couples',
-  description: 'Cinematic wedding photography with instant gallery access. Capturing authentic love stories with editorial-style imagery for Gen Z & Millennial couples.',
-  keywords: 'wedding photography, editorial photography, cinematic wedding, modern wedding photographer, Gen Z wedding, Banjar photographer, instant gallery, professional photographer, couple photography',
+  description:
+    'Cinematic wedding photography with instant gallery access. Capturing authentic love stories with editorial-style imagery for Gen Z & Millennial couples.',
+  keywords:
+    'wedding photography, editorial photography, cinematic wedding, modern wedding photographer, Gen Z wedding, Banjar photographer, instant gallery, professional photographer, couple photography',
   authors: [{ name: 'Hafiportrait' }],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Hafiportrait - Editorial Wedding Photography',
     description: 'Cinematic wedding photography for modern couples',
     type: 'website',
     locale: 'id_ID',
+    url: '/',
+    siteName: 'Hafiportrait',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/images/hafiportrait.png',
         width: 1200,
         height: 630,
-        alt: 'Hafiportrait Photography'
-      }
-    ]
+        alt: 'Hafiportrait Photography',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Hafiportrait - Editorial Wedding Photography',
     description: 'Cinematic wedding photography for modern couples',
-    images: ['/og-image.jpg'],
+    images: ['/images/hafiportrait.png'],
   },
 }
 
