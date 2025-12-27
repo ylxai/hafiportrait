@@ -65,7 +65,18 @@ export async function GET(request: NextRequest) {
       deleted_at: photo.deleted_at
     }))
 
-    return NextResponse.json(transformedPhotos)
+    const total = await prisma.photos.count({ where })
+    const hasMore = page * limit < total
+
+    return NextResponse.json({
+      photos: transformedPhotos,
+      meta: {
+        page,
+        limit,
+        total,
+        hasMore,
+      },
+    })
   } catch (error) {
     console.error('Photos API error:', error)
     return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 })

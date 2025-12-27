@@ -53,6 +53,8 @@ export default function AdminPhotosPage() {
   const [trashPhotos, setTrashPhotos] = useState<TrashPhoto[]>([])
   const [events, setEvents] = useState<Array<{ id: string; name: string }>>([])
   const [selectedEventId, setSelectedEventId] = useState<string>('all')
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -61,19 +63,22 @@ export default function AdminPhotosPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    void fetchAll()
+    void fetchAll('all', 1)
     void fetchEvents()
   }, [])
 
-  const fetchAll = async (eventId?: string) => {
+  const PAGE_SIZE = 60
+
+  const fetchAll = async (eventId?: string, pageNum: number = 1) => {
     setLoading(true)
     setError(null)
 
     try {
-      const photosUrl =
+      const base =
         eventId && eventId !== 'all'
           ? `/api/admin/photos?event_id=${encodeURIComponent(eventId)}`
           : '/api/admin/photos'
+      const photosUrl = `${base}&page=${pageNum}&limit=${PAGE_SIZE}`.replace('?&', '?')
 
       const [allRes, trashRes] = await Promise.all([
         fetch(photosUrl, { credentials: 'include' }),
@@ -86,8 +91,10 @@ export default function AdminPhotosPage() {
       const allData = await allRes.json()
       const trashData = await trashRes.json()
 
-      // /api/admin/photos returns an array
-      const rawPhotos: any[] = Array.isArray(allData) ? allData : allData.photos || []
+      // /api/admin/photos now returns { photos, meta }
+      const rawPhotos: any[] = allData?.photos || []
+      setHasMore(Boolean(allData?.meta?.hasMore))
+      setPage(Number(allData?.meta?.page || pageNum))
       const mappedPhotos: Photo[] = rawPhotos.map((p) => ({
         id: p.id,
         filename: p.filename,
@@ -180,7 +187,7 @@ export default function AdminPhotosPage() {
 
       setSelected(new Set())
       setIsSelectMode(false)
-      await fetchAll()
+      await fetchAll(selectedEventId, 1)
     } catch (e) {
       console.error(e)
       alert('Failed to move photos to Trash')
@@ -207,8 +214,10 @@ export default function AdminPhotosPage() {
                 onChange={(e) => {
                   const value = e.target.value
                   setSelectedEventId(value)
-                  void fetchAll(value)
                   closeLightbox()
+                  setSelected(new Set())
+                  setIsSelectMode(false)
+                  void fetchAll(value, 1)
                 }}
                 className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm"
               >
@@ -376,6 +385,27 @@ export default function AdminPhotosPage() {
               ))}
             </div>
 
+            {/* Pagination */}
+            <div className="flex items-center justify-between pt-4">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => void fetchAll(selectedEventId, page - 1)}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <div className="text-sm text-gray-600">Page {page}</div>
+              <button
+                type="button"
+                disabled={!hasMore}
+                onClick={() => void fetchAll(selectedEventId, page + 1)}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+
             {/* Lightbox (All only) */}
             {selectedPhoto && lightboxIndex !== null && (
               <PhotoDetailModal
@@ -385,7 +415,7 @@ export default function AdminPhotosPage() {
                 currentIndex={lightboxIndex}
                 onClose={closeLightbox}
                 onPhotoChange={(i) => setLightboxIndex(i)}
-                onPhotoUpdate={() => void fetchAll()}
+                onPhotoUpdate={() => void fetchAll(selectedEventId, page)}
               />
             )}
           </>

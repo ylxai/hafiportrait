@@ -29,7 +29,7 @@ export default function MobilePhotosPage() {
 
   const fetchPhotos = async () => {
     try {
-      const response = await fetch('/api/admin/photos', {
+      const response = await fetch('/api/admin/photos?page=1&limit=20', {
         credentials: 'include',
       })
       if (response.ok) {
