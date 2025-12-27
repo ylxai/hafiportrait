@@ -78,7 +78,9 @@ export default function AdminPhotosPage() {
         eventId && eventId !== 'all'
           ? `/api/admin/photos?event_id=${encodeURIComponent(eventId)}`
           : '/api/admin/photos'
-      const photosUrl = `${base}&page=${pageNum}&limit=${PAGE_SIZE}`.replace('?&', '?')
+
+      const separator = base.includes('?') ? '&' : '?' 
+      const photosUrl = `${base}${separator}page=${pageNum}&limit=${PAGE_SIZE}`
 
       const [allRes, trashRes] = await Promise.all([
         fetch(photosUrl, { credentials: 'include' }),
