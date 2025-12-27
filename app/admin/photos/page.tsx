@@ -1,7 +1,6 @@
 'use client'
 
 import AdminLayout from '@/app/components/admin/AdminLayout'
-import MobilePhotosPage from '@/app/components/admin/mobile/MobilePhotosPage'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,6 +9,9 @@ import TrashPhotoGrid from '@/components/admin/TrashPhotoGrid'
 import {
   ArrowUpTrayIcon as Upload,
   PhotoIcon as ImageIcon,
+  CheckIcon as Check,
+  Squares2X2Icon as Square,
+  TrashIcon as Trash,
 } from '@heroicons/react/24/outline'
 
 interface Photo {
@@ -53,6 +55,8 @@ export default function AdminPhotosPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [isSelectMode, setIsSelectMode] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     void fetchAll()
@@ -105,15 +109,47 @@ export default function AdminPhotosPage() {
 
   const closeLightbox = () => setLightboxIndex(null)
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const selectedCount = selected.size
+
+  const handleBulkTrash = async () => {
+    if (selectedCount === 0) return
+
+    const confirmed = confirm(
+      `Move ${selectedCount} photo(s) to Trash? You can restore them later.`
+    )
+    if (!confirmed) return
+
+    try {
+      const ids = Array.from(selected).join(',')
+      const res = await fetch(`/api/admin/photos?ids=${encodeURIComponent(ids)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+
+      if (!res.ok) throw new Error('Failed to delete photos')
+
+      setSelected(new Set())
+      setIsSelectMode(false)
+      await fetchAll()
+    } catch (e) {
+      console.error(e)
+      alert('Failed to move photos to Trash')
+    }
+  }
+
   return (
     <AdminLayout>
-      {/* Mobile Layout */}
-      <div className="block md:hidden">
-        <MobilePhotosPage />
-      </div>
-
-      {/* Desktop Layout */}
-      <div className="hidden md:block space-y-6">
+      {/* Unified Layout (mobile + desktop) */}
+      <div className="space-y-6">
         {/* Header + Tabs + Upload */}
         <div className="flex items-center justify-between">
           <div>
@@ -123,6 +159,20 @@ export default function AdminPhotosPage() {
 
           <div className="flex items-center gap-2">
             <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSelectMode((v) => !v)
+                  setSelected(new Set())
+                }}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                  isSelectMode
+                    ? 'bg-[#54ACBF] text-white'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {isSelectMode ? 'Cancel' : 'Select'}
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -162,6 +212,22 @@ export default function AdminPhotosPage() {
             </Link>
           </div>
         </div>
+
+        {isSelectMode && activeTab === 'all' && selectedCount > 0 && (
+          <div className="rounded-lg bg-[#54ACBF]/10 px-4 py-3 flex items-center justify-between">
+            <div className="text-sm font-semibold text-gray-900">
+              {selectedCount} selected
+            </div>
+            <button
+              type="button"
+              onClick={handleBulkTrash}
+              className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+            >
+              <Trash className="w-4 h-4 mr-2" />
+              Move to Trash
+            </button>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -208,9 +274,26 @@ export default function AdminPhotosPage() {
                 <button
                   key={photo.id}
                   type="button"
-                  onClick={() => setLightboxIndex(idx)}
-                  className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow text-left"
+                  onClick={() => {
+                    if (isSelectMode) {
+                      toggleSelect(photo.id)
+                    } else {
+                      setLightboxIndex(idx)
+                    }
+                  }}
+                  className={`relative aspect-square rounded-lg overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow text-left ${
+                    selected.has(photo.id) ? 'ring-4 ring-[#54ACBF]' : ''
+                  }`}
                 >
+                  {isSelectMode && (
+                    <div className="absolute left-2 top-2 z-10">
+                      {selected.has(photo.id) ? (
+                        <Check className="h-6 w-6 text-[#54ACBF]" />
+                      ) : (
+                        <Square className="h-6 w-6 text-white" />
+                      )}
+                    </div>
+                  )}
                   <Image
                     src={photo.thumbnail_medium_url || photo.thumbnail_small_url || photo.original_url}
                     alt={photo.filename}
