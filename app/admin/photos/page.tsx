@@ -191,14 +191,15 @@ export default function AdminPhotosPage() {
     <AdminLayout>
       {/* Unified Layout (mobile + desktop) */}
       <div className="space-y-6">
-        {/* Header + Tabs + Upload */}
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="space-y-3">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Photos</h1>
-            <p className="text-gray-600 mt-1">Manage your photography portfolio and event photos</p>
+            <p className="text-gray-600 mt-1">Manage event photos</p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap justify-end">
+          {/* Controls */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             {/* Event Filter (All tab) */}
             {activeTab === 'all' && (
               <select
