@@ -1,153 +1,255 @@
 #!/usr/bin/env python3
+"""Hafiportrait Photo Upload Script
+
+Supports:
+1) Batch upload all photos in a directory (existing behavior)
+2) Stress test mode: upload N photos every M seconds
+
+Examples:
+  # Stress test: upload 2 photos every 60 seconds (default)
+  python3 test-upload.py --stress --event-id <EVENT_ID> --api-key <API_KEY> --photos-dir /path/to/photos
+
+  # Stress test: run 30 minutes, 2 photos per minute
+  python3 test-upload.py --stress --duration-minutes 30 --batch-size 2 --interval-seconds 60 \
+    --event-id <EVENT_ID> --api-key <API_KEY> --photos-dir /path/to/photos
+
+  # Batch upload all photos (legacy)
+  python3 test-upload.py --event-id <EVENT_ID> --api-key <API_KEY> --photos-dir /path/to/photos
 """
-Simple Auto Upload Script for Hafi Portrait
-Upload photos to event via API
-"""
+
+import argparse
+import os
+import random
+import time
+from pathlib import Path
+from typing import List, Optional
 
 import requests
-import os
-from pathlib import Path
 
-# Configuration
-API_BASE_URL = "https://hafiportrait.photography/api"
-API_KEY = "hpk_0734d2bf3a1dc694b71cee1040930d6c86ba8b817e425e3e920505c0d981f231"
-EVENT_ID = "f5e06495-c84b-4da0-9085-820adddc4681"  # Sara & Lie event
+DEFAULT_API_BASE_URL = "https://hafiportrait.photography/api"
+DEFAULT_PHOTOS_DIR = "/home/eouser/foto"
 
-# Photos directory
-PHOTOS_DIR = "/home/eouser/foto"
 
-def upload_photo(file_path, event_id, api_key):
-    """
-    Upload a single photo to the event
-    
-    Args:
-        file_path: Path to the photo file
-        event_id: Event ID to upload to
-        api_key: API key for authentication
-    
-    Returns:
-        dict: Response from API
-    """
-    url = f"{API_BASE_URL}/admin/events/{event_id}/photos/upload"
-    
-    headers = {
-        "x-api-key": api_key
-    }
-    
-    # Open file and upload
-    with open(file_path, 'rb') as f:
-        files = {
-            'files': (os.path.basename(file_path), f, 'image/jpeg')
-        }
-        
-        print(f"Uploading: {os.path.basename(file_path)}...", end=' ')
-        
+def upload_photo(
+    session: requests.Session,
+    api_base_url: str,
+    file_path: str,
+    event_id: str,
+    api_key: str,
+    timeout_seconds: int = 120,
+) -> dict:
+    """Upload a single photo to the event."""
+    url = f"{api_base_url}/admin/events/{event_id}/photos/upload"
+    headers = {"x-api-key": api_key}
+
+    with open(file_path, "rb") as f:
+        files = {"files": (os.path.basename(file_path), f, "image/jpeg")}
         try:
-            response = requests.post(url, headers=headers, files=files, timeout=120)
-            
+            response = session.post(url, headers=headers, files=files, timeout=timeout_seconds)
+
             if response.status_code == 200:
                 result = response.json()
-                if result.get('success'):
-                    print("✅ SUCCESS!")
-                    return {'success': True, 'data': result}
-                else:
-                    print(f"❌ FAILED: {result.get('message', 'Unknown error')}")
-                    return {'success': False, 'error': result.get('message')}
-            else:
-                print(f"❌ HTTP {response.status_code}")
-                try:
-                    error_data = response.json()
-                    print(f"   Error: {error_data.get('error', 'Unknown error')}")
-                except:
-                    print(f"   Response: {response.text[:100]}")
-                return {'success': False, 'error': f"HTTP {response.status_code}"}
-                
-        except requests.exceptions.Timeout:
-            print("❌ TIMEOUT (> 120s)")
-            return {'success': False, 'error': 'Timeout'}
-        except Exception as e:
-            print(f"❌ ERROR: {str(e)}")
-            return {'success': False, 'error': str(e)}
+                if result.get("success"):
+                    return {"success": True, "data": result}
+                return {"success": False, "error": result.get("message", "Unknown error")}
 
-def main():
-    """Main upload function"""
-    print("="*60)
-    print("🚀 Hafi Portrait Auto Upload Script")
-    print("="*60)
-    print()
-    
-    # Validate API key
-    if API_KEY == "YOUR_API_KEY_HERE":
-        print("❌ ERROR: Please set your API key in the script!")
-        print("   Edit line 12: API_KEY = \"your-actual-api-key\"")
-        return
-    
-    # Find photos to upload
-    photos_dir = Path(PHOTOS_DIR)
-    if not photos_dir.exists():
-        print(f"❌ ERROR: Directory not found: {PHOTOS_DIR}")
-        return
-    
-    # Get all JPG files
-    photo_files = sorted(photos_dir.glob("*.jpg")) + sorted(photos_dir.glob("*.JPG")) + \
-                  sorted(photos_dir.glob("*.jpeg")) + sorted(photos_dir.glob("*.JPEG"))
-    
+            # Non-200
+            try:
+                error_data = response.json()
+                return {"success": False, "error": error_data.get("error", f"HTTP {response.status_code}")}
+            except Exception:
+                return {"success": False, "error": f"HTTP {response.status_code}: {response.text[:200]}"}
+
+        except requests.exceptions.Timeout:
+            return {"success": False, "error": f"Timeout (> {timeout_seconds}s)"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+
+def list_photo_files(photos_dir: str) -> List[Path]:
+    p = Path(photos_dir)
+    if not p.exists():
+        raise FileNotFoundError(f"Directory not found: {photos_dir}")
+
+    files = (
+        sorted(p.glob("*.jpg"))
+        + sorted(p.glob("*.JPG"))
+        + sorted(p.glob("*.jpeg"))
+        + sorted(p.glob("*.JPEG"))
+    )
+    return files
+
+
+def batch_upload_all(
+    api_base_url: str,
+    api_key: str,
+    event_id: str,
+    photos_dir: str,
+    delay_seconds: float = 0.5,
+) -> None:
+    photo_files = list_photo_files(photos_dir)
     if not photo_files:
-        print(f"❌ No photos found in: {PHOTOS_DIR}")
+        print(f"❌ No photos found in: {photos_dir}")
         return
-    
-    print(f"📁 Found {len(photo_files)} photos in: {PHOTOS_DIR}")
-    print(f"🎯 Target event: Sara & Lie")
-    print(f"🔑 API Key: {API_KEY[:10]}...")
-    print()
-    
-    # Auto-confirm for batch upload
-    print(f"✅ Auto-confirming upload of {len(photo_files)} photos...")
-    print("   (To cancel, press Ctrl+C)")
-    
-    print()
-    print("Starting upload...")
-    print("-"*60)
-    
-    # Upload each photo
+
+    print("=" * 60)
+    print("🚀 Hafiportrait Batch Upload")
+    print("=" * 60)
+    print(f"📁 Found {len(photo_files)} photos in: {photos_dir}")
+    print(f"🎯 Event ID: {event_id}")
+    print(f"🔑 API Key: {api_key[:10]}...")
+    print("-" * 60)
+
+    session = requests.Session()
     results = []
+
     for i, photo_path in enumerate(photo_files, 1):
-        print(f"[{i}/{len(photo_files)}] ", end='')
-        result = upload_photo(str(photo_path), EVENT_ID, API_KEY)
-        results.append(result)
-        
-        # Small delay to avoid overwhelming server
-        import time
-        time.sleep(0.5)
-    
-    # Summary
-    print()
-    print("-"*60)
-    print("📊 UPLOAD SUMMARY")
-    print("-"*60)
-    
-    success_count = sum(1 for r in results if r['success'])
-    failed_count = len(results) - success_count
-    
+        print(f"[{i}/{len(photo_files)}] Uploading: {photo_path.name}... ", end="")
+        r = upload_photo(session, api_base_url, str(photo_path), event_id, api_key)
+        results.append((photo_path, r))
+        if r["success"]:
+            print("✅ SUCCESS")
+        else:
+            print(f"❌ FAIL ({r.get('error')})")
+        time.sleep(delay_seconds)
+
+    success_count = sum(1 for _, r in results if r["success"])
+    failed = [(p, r) for p, r in results if not r["success"]]
+
+    print("-" * 60)
+    print("📊 SUMMARY")
     print(f"✅ Successful: {success_count}/{len(results)}")
-    print(f"❌ Failed: {failed_count}/{len(results)}")
-    
-    if failed_count > 0:
-        print()
+    print(f"❌ Failed: {len(failed)}/{len(results)}")
+    if failed:
         print("Failed uploads:")
-        for i, (photo, result) in enumerate(zip(photo_files, results)):
-            if not result['success']:
-                print(f"  - {photo.name}: {result.get('error', 'Unknown error')}")
-    
-    print()
-    print("="*60)
-    print("✅ Upload complete!")
-    print("="*60)
+        for p, r in failed:
+            print(f"  - {p.name}: {r.get('error')}")
+
+
+def stress_test(
+    api_base_url: str,
+    api_key: str,
+    event_id: str,
+    photos_dir: str,
+    batch_size: int = 2,
+    interval_seconds: int = 60,
+    duration_minutes: Optional[int] = None,
+    iterations: Optional[int] = None,
+    randomize: bool = False,
+) -> None:
+    photo_files = list_photo_files(photos_dir)
+    if not photo_files:
+        print(f"❌ No photos found in: {photos_dir}")
+        return
+
+    if iterations is None and duration_minutes is None:
+        # default to 60 minutes if user doesn't specify a stop condition
+        duration_minutes = 60
+
+    total_iterations = iterations if iterations is not None else int(duration_minutes * 60 / interval_seconds)
+    total_iterations = max(1, total_iterations)
+
+    print("=" * 60)
+    print("🧪 Hafiportrait Stress Test")
+    print("=" * 60)
+    print(f"📁 Source dir      : {photos_dir}")
+    print(f"📸 Total files     : {len(photo_files)}")
+    print(f"🎯 Event ID        : {event_id}")
+    print(f"🔑 API Key         : {api_key[:10]}...")
+    print(f"📦 Batch size      : {batch_size} file(s) per interval")
+    print(f"⏱️  Interval        : {interval_seconds} seconds")
+    print(f"🔁 Iterations      : {total_iterations}")
+    print(f"🎲 Randomize order : {randomize}")
+    print("-" * 60)
+
+    session = requests.Session()
+
+    idx = 0
+    successes = 0
+    failures = 0
+
+    for it in range(1, total_iterations + 1):
+        start = time.time()
+        print(f"\n[Iteration {it}/{total_iterations}] {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+        # select batch
+        if randomize:
+            batch = random.sample(photo_files, k=min(batch_size, len(photo_files)))
+        else:
+            batch = []
+            for _ in range(batch_size):
+                batch.append(photo_files[idx % len(photo_files)])
+                idx += 1
+
+        for p in batch:
+            print(f"- Uploading: {p.name}... ", end="")
+            r = upload_photo(session, api_base_url, str(p), event_id, api_key)
+            if r["success"]:
+                successes += 1
+                print("✅")
+            else:
+                failures += 1
+                print(f"❌ ({r.get('error')})")
+
+        elapsed = time.time() - start
+        sleep_for = max(0, interval_seconds - elapsed)
+        print(f"Iteration done. Elapsed={elapsed:.1f}s, sleeping={sleep_for:.1f}s")
+        if it != total_iterations:
+            time.sleep(sleep_for)
+
+    print("\n" + "-" * 60)
+    print("📊 STRESS TEST SUMMARY")
+    print(f"✅ Upload success: {successes}")
+    print(f"❌ Upload failed : {failures}")
+    print("-" * 60)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Hafiportrait upload helper")
+
+    parser.add_argument("--api-base-url", default=DEFAULT_API_BASE_URL)
+    parser.add_argument("--api-key", default=os.environ.get("HAFI_API_KEY", ""))
+    parser.add_argument("--event-id", default=os.environ.get("HAFI_EVENT_ID", ""))
+    parser.add_argument("--photos-dir", default=os.environ.get("HAFI_PHOTOS_DIR", DEFAULT_PHOTOS_DIR))
+
+    parser.add_argument("--stress", action="store_true", help="Enable stress test mode")
+    parser.add_argument("--batch-size", type=int, default=2, help="Photos per interval")
+    parser.add_argument("--interval-seconds", type=int, default=60, help="Interval between batches")
+    parser.add_argument("--duration-minutes", type=int, default=None, help="Total duration in minutes")
+    parser.add_argument("--iterations", type=int, default=None, help="Number of iterations")
+    parser.add_argument("--random", action="store_true", help="Pick random photos instead of sequential")
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+
+    if not args.api_key:
+        raise SystemExit("❌ Missing API key. Provide --api-key or set HAFI_API_KEY")
+    if not args.event_id:
+        raise SystemExit("❌ Missing event id. Provide --event-id or set HAFI_EVENT_ID")
+
+    if args.stress:
+        stress_test(
+            api_base_url=args.api_base_url,
+            api_key=args.api_key,
+            event_id=args.event_id,
+            photos_dir=args.photos_dir,
+            batch_size=args.batch_size,
+            interval_seconds=args.interval_seconds,
+            duration_minutes=args.duration_minutes,
+            iterations=args.iterations,
+            randomize=args.random,
+        )
+    else:
+        batch_upload_all(
+            api_base_url=args.api_base_url,
+            api_key=args.api_key,
+            event_id=args.event_id,
+            photos_dir=args.photos_dir,
+        )
+
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n\n❌ Upload cancelled by user")
-    except Exception as e:
-        print(f"\n\n❌ Unexpected error: {e}")
+    main()
