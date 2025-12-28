@@ -567,3 +567,6 @@ ecosystem.config.js
 
 # Generated Reports
 report/
+
+# Local stress-test photos (do not commit)
+foto/
