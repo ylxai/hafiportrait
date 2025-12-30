@@ -33,21 +33,28 @@ model bottom_navigation_settings {
   updated_at        DateTime
 }
 
+enum GuestAttendanceStatus {
+  UNKNOWN
+  ATTENDING
+  NOT_ATTENDING
+}
+
 model comments {
-  id           String   @id @default(uuid())
-  guest_name   String
-  message      String
-  created_at   DateTime @default(now())
-  event_id     String
-  photo_id     String?
-  email        String?
-  guest_id     String
-  ip_address   String?
-  relationship String?
-  status       String   @default("approved")
-  updated_at   DateTime
-  events       events   @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  photos       photos?  @relation(fields: [photo_id], references: [id], onDelete: Cascade)
+  id                String               @id @default(uuid())
+  guest_name        String
+  message           String
+  created_at        DateTime             @default(now())
+  event_id          String
+  photo_id          String?
+  email             String?
+  guest_id          String
+  ip_address        String?
+  relationship      String?
+  attendance_status GuestAttendanceStatus @default(UNKNOWN)
+  status            String               @default("approved")
+  updated_at        DateTime
+  events            events               @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  photos            photos?              @relation(fields: [photo_id], references: [id], onDelete: Cascade)
 
   @@index([event_id, created_at], map: "comment_event_created")
   @@index([photo_id, created_at], map: "comment_photo_created")

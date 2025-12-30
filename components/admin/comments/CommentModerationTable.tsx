@@ -23,6 +23,7 @@ interface Comment {
   email: string | null
   message: string
   relationship: string | null
+  attendance_status?: 'UNKNOWN' | 'ATTENDING' | 'NOT_ATTENDING'
   status: string
   created_at: Date
   photos: {
@@ -348,10 +349,27 @@ export default function CommentModerationTable({
                           {comment.email}
                         </div>
                       )}
-                      {comment.relationship && (
-                        <span className="mt-1 inline-block rounded bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
-                          {comment.relationship}
-                        </span>
+                      {(comment.relationship || comment.attendance_status) && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {comment.relationship && (
+                            <span className="inline-block rounded bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                              {comment.relationship}
+                            </span>
+                          )}
+                          {comment.attendance_status && comment.attendance_status !== 'UNKNOWN' && (
+                            <span
+                              className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+                                comment.attendance_status === 'ATTENDING'
+                                  ? 'bg-green-50 text-green-700'
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}
+                            >
+                              {comment.attendance_status === 'ATTENDING'
+                                ? 'Hadir'
+                                : 'Tidak Hadir'}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                   </td>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { useComments } from '@/hooks/useComments'
-import CommentForm from './CommentForm'
+import GuestbookForm from './GuestbookForm'
 import CommentList from './CommentList'
 
 interface GuestbookSheetProps {
@@ -79,9 +79,9 @@ export default function GuestbookSheet({ eventSlug, isOpen, onClose }: Guestbook
                   </button>
                 </div>
 
-                <CommentForm
+                <GuestbookForm
                   eventSlug={eventSlug}
-                  onCommentSubmitted={(c) => {
+                  onSubmitted={(c) => {
                     addComment(c)
                     setShowForm(false)
                   }}

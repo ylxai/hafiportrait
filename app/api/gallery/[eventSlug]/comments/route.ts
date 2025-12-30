@@ -66,6 +66,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         guest_name: true,
         message: true,
         relationship: true,
+        attendance_status: true,
         created_at: true,
         photo_id: true,
       },
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { eventSlug } = await params;
     const body = await request.json();
-    const { name, email, message, relationship, guestId, photo_id, honeypot } = body;
+    const { name, email, message, relationship, attendance, guestId, photo_id, honeypot } = body;
 
     // Honeypot check (simple bot detection)
     if (honeypot) {
@@ -178,7 +179,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Validate input
-    const validation = validateComment({ name, email, message, relationship });
+    const validation = validateComment({ name, email, message, relationship, attendance });
     if (!validation.isValid) {
       return NextResponse.json(
         { error: 'Validation failed', errors: validation.errors },
@@ -187,7 +188,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Sanitize input
-    const sanitized = sanitizeComment({ name, email, message, relationship });
+    const sanitized = sanitizeComment({ name, email, message, relationship, attendance });
 
     // Check for spam and profanity
     if (isSpam(sanitized.message)) {
@@ -221,6 +222,20 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         { error: 'Duplicate comment detected' },
         { status: 400 }
       );
+    }
+
+    // Guestbook requirements (event-level comments)
+    const isGuestbook = !photo_id
+    const normalizedAttendance =
+      attendance === 'ATTENDING' || attendance === 'NOT_ATTENDING'
+        ? attendance
+        : null
+
+    if (isGuestbook && !normalizedAttendance) {
+      return NextResponse.json(
+        { error: 'Attendance is required' },
+        { status: 400 }
+      )
     }
 
     // Verify photo exists if photo_id provided
@@ -260,6 +275,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         email: sanitized.email || null,
         message: sanitized.message,
         relationship: sanitized.relationship || null,
+        attendance_status: normalizedAttendance || 'UNKNOWN',
         status,
         ip_address: ipAddress,
         updated_at: new Date(),
@@ -269,6 +285,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         guest_name: true,
         message: true,
         relationship: true,
+        attendance_status: true,
         status: true,
         created_at: true,
       },

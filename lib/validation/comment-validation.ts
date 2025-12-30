@@ -11,6 +11,7 @@ export interface CommentValidationResult {
     email?: string;
     message?: string;
     relationship?: string;
+    attendance?: string;
   };
 }
 
@@ -19,6 +20,7 @@ export interface CommentInput {
   email?: string;
   message: string;
   relationship?: string;
+  attendance?: 'ATTENDING' | 'NOT_ATTENDING';
 }
 
 /**
@@ -57,11 +59,13 @@ export function validateComment(input: CommentInput): CommentValidationResult {
 
   // Validate relationship (if provided)
   if (input.relationship) {
-    const validRelationships = ['Family', 'Friend', 'Colleague', 'Other'];
+    const validRelationships = ['Tamu', 'Keluarga', 'Teman', 'Rekan kerja'];
     if (!validRelationships.includes(input.relationship)) {
       errors.relationship = 'Invalid relationship type';
     }
   }
+
+  // attendance is validated at route-level (required for guestbook).
 
   return {
     isValid: Object.keys(errors).length === 0,
@@ -75,11 +79,14 @@ export function validateComment(input: CommentInput): CommentValidationResult {
 export function sanitizeComment(input: CommentInput): CommentInput {
   return {
     name: DOMPurify.sanitize(input.name.trim(), { ALLOWED_TAGS: [] }),
-    email: input.email ? DOMPurify.sanitize(input.email.trim(), { ALLOWED_TAGS: [] }) : undefined,
+    email: input.email
+      ? DOMPurify.sanitize(input.email.trim(), { ALLOWED_TAGS: [] })
+      : undefined,
     message: DOMPurify.sanitize(input.message.trim(), { ALLOWED_TAGS: [] }),
     relationship: input.relationship
       ? DOMPurify.sanitize(input.relationship.trim(), { ALLOWED_TAGS: [] })
       : undefined,
+    attendance: input.attendance,
   };
 }
 

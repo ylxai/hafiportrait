@@ -58,6 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         email: true,
         message: true,
         relationship: true,
+        attendance_status: true,
         status: true,
         ip_address: true,
         created_at: true,
@@ -209,6 +210,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         email: true,
         message: true,
         relationship: true,
+        attendance_status: true,
         status: true,
         created_at: true,
       },
@@ -223,14 +225,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       email: string | null;
       message: string;
       relationship: string | null;
+      attendance_status: string;
       status: string;
       created_at: Date;
     }
 
     // Create CSV
-    let csv = 'ID,Name,Email,Message,Relationship,Status,Created At\n';
+    let csv = 'ID,Name,Email,Message,Relationship,Attendance,Status,Created At\n';
     (comments as unknown as ExportComment[]).forEach((comment) => {
-      csv += `${comment.id},"${comment.guest_name}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
+      csv += `${comment.id},"${comment.guest_name}","${comment.email || ''}","${comment.message.replace(/"/g, '""')}","${comment.relationship || ''}","${comment.attendance_status || ''}","${comment.status}","${comment.created_at.toISOString()}"\n`;
     });
 
     return new NextResponse(csv, {
