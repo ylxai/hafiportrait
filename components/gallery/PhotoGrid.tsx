@@ -6,6 +6,7 @@ import PhotoTile from './PhotoTile'
 import PhotoLightbox from './PhotoLightbox'
 import { PhotoTileErrorBoundary } from '@/components/error-boundaries'
 import { useSocket } from '@/hooks/useSocket'
+import GuestbookSheet from '@/components/gallery/comments/GuestbookSheet'
 
 interface Photo {
   id: string
@@ -50,6 +51,7 @@ export default function PhotoGrid({
   const PHOTOS_PER_PAGE = 50
 
   const { onPhotoUploadComplete } = useSocket({ eventSlug })
+  const [isGuestbookOpen, setIsGuestbookOpen] = useState(false)
 
   // Track event view analytics
   const trackEventView = useCallback(async () => {
@@ -359,6 +361,20 @@ export default function PhotoGrid({
           New Images Added{newImagesCount > 0 ? ` (${newImagesCount})` : ''}
         </button>
       )}
+
+      <button
+        type="button"
+        onClick={() => setIsGuestbookOpen(true)}
+        className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 rounded-full bg-black/80 px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-md border border-white/10"
+      >
+        Beri Ucapan
+      </button>
+
+      <GuestbookSheet
+        eventSlug={eventSlug}
+        isOpen={isGuestbookOpen}
+        onClose={() => setIsGuestbookOpen(false)}
+      />
 
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
         {photos.map((photo, index) => (
