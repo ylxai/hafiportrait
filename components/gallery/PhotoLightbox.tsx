@@ -35,6 +35,8 @@ export default function PhotoLightbox({
   allowLikes = true,
 }: PhotoLightboxProps) {
   const currentPhoto = photos[currentIndex]
+  const prevPhoto = currentIndex > 0 ? photos[currentIndex - 1] : null
+  const nextPhoto = currentIndex < photos.length - 1 ? photos[currentIndex + 1] : null
   
   // All hooks must be at the top, before any conditional returns
   const [isLoading, setIsLoading] = useState(true)
@@ -44,6 +46,7 @@ export default function PhotoLightbox({
   const [localLikesCount, setLocalLikesCount] = useState(
     currentPhoto?.likes_count || 0
   )
+  const [showHighRes, setShowHighRes] = useState(false)
   const hasPrev = currentIndex > 0
   const hasNext = currentIndex < photos.length - 1
 
@@ -54,6 +57,28 @@ export default function PhotoLightbox({
     }
   }, [currentPhoto, currentIndex])
 
+  // Reset loading state and progressive image when photo changes
+  useEffect(() => {
+    setIsLoading(true)
+    setShowHighRes(false)
+  }, [currentIndex])
+
+  // Preload adjacent photos for instant navigation
+  useEffect(() => {
+    const preloadImage = (url: string) => {
+      const img = new window.Image()
+      img.src = url
+    }
+
+    // Preload prev/next original images
+    if (prevPhoto?.original_url) {
+      preloadImage(prevPhoto.original_url)
+    }
+    if (nextPhoto?.original_url) {
+      preloadImage(nextPhoto.original_url)
+    }
+  }, [prevPhoto, nextPhoto])
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,10 +86,8 @@ export default function PhotoLightbox({
         onClose()
       } else if (e.key === 'ArrowLeft' && hasPrev) {
         onNavigate('prev')
-        setIsLoading(true)
       } else if (e.key === 'ArrowRight' && hasNext) {
         onNavigate('next')
-        setIsLoading(true)
       }
     }
 
@@ -158,7 +181,7 @@ export default function PhotoLightbox({
         </div>
       )}
 
-      {/* Main image */}
+      {/* Main image - Progressive Loading */}
       <div
         className="absolute inset-0 flex items-center justify-center p-4"
         onTouchStart={handleTouchStart}
@@ -166,14 +189,34 @@ export default function PhotoLightbox({
         onTouchEnd={handleTouchEnd}
       >
         <div className="relative h-full w-full">
+          {/* Thumbnail placeholder - loads fast */}
+          {!showHighRes && (
+            <Image
+              src={currentPhoto.thumbnail_medium_url || currentPhoto.thumbnail_url || currentPhoto.original_url}
+              alt={`Thumbnail: ${currentPhoto.caption || currentPhoto.filename}`}
+              fill
+              sizes="100vw"
+              className="object-contain"
+              onLoad={() => setIsLoading(false)}
+              priority
+              quality={75}
+            />
+          )}
+          
+          {/* High resolution original - loads in background */}
           <Image
             src={currentPhoto.original_url}
             alt={`Full size photography image: ${currentPhoto.caption || currentPhoto.filename}`}
             fill
             sizes="100vw"
-            className="object-contain"
-            onLoad={() => setIsLoading(false)}
-            priority
+            className={`object-contain transition-opacity duration-300 ${
+              showHighRes ? 'opacity-100' : 'opacity-0'
+            }`}
+            onLoad={() => {
+              setShowHighRes(true)
+              setIsLoading(false)
+            }}
+            priority={!showHighRes}
             quality={95}
           />
         </div>
@@ -238,10 +281,7 @@ export default function PhotoLightbox({
         {/* Navigation arrows */}
         {hasPrev && (
           <button
-            onClick={() => {
-              onNavigate('prev')
-              setIsLoading(true)
-            }}
+            onClick={() => onNavigate('prev')}
             className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70"
           >
             <svg
@@ -262,10 +302,7 @@ export default function PhotoLightbox({
 
         {hasNext && (
           <button
-            onClick={() => {
-              onNavigate('next')
-              setIsLoading(true)
-            }}
+            onClick={() => onNavigate('next')}
             className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70"
           >
             <svg
