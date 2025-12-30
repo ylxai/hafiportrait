@@ -571,3 +571,6 @@ report/
 
 # Local stress-test photos (do not commit)
 foto/
+
+# Standalone photographer python workflow (kept outside git)
+python-workflow/
