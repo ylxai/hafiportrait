@@ -13,6 +13,8 @@ import {
 import StatCard from '@/app/components/admin/StatCard'
 import RecentActivity from '@/app/components/admin/RecentActivity'
 import QuickActions from '@/app/components/admin/QuickActions'
+import LineChartCard from '@/app/components/admin/charts/LineChartCard'
+import BarChartCard from '@/app/components/admin/charts/BarChartCard'
 
 interface DashboardStats {
   totalEvents: number
@@ -22,6 +24,12 @@ interface DashboardStats {
   recentViews: number
   recentDownloads: number
   recentLikes: number
+}
+
+interface ChartData {
+  uploadsTrend: Array<{ name: string; uploads: number }>
+  engagementTrend: Array<{ name: string; views: number; downloads: number; likes: number }>
+  topEvents: Array<{ name: string; views: number; downloads: number; likes: number }>
 }
 
 export default function AdminDashboard() {
@@ -34,7 +42,13 @@ export default function AdminDashboard() {
     recentDownloads: 0,
     recentLikes: 0,
   })
+  const [chartData, setChartData] = useState<ChartData>({
+    uploadsTrend: [],
+    engagementTrend: [],
+    topEvents: [],
+  })
   const [loading, setLoading] = useState(true)
+  const [chartsLoading, setChartsLoading] = useState(true)
 
   // Define function before useEffect
   const fetchDashboardStats = async () => {
@@ -53,8 +67,25 @@ export default function AdminDashboard() {
     }
   }
 
+  const fetchChartData = async () => {
+    try {
+      const response = await fetch('/api/admin/dashboard/charts', {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setChartData(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch chart data:', error)
+    } finally {
+      setChartsLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchDashboardStats()
+    fetchChartData()
   }, [])
 
   // All conditional returns AFTER all hooks (React Rules of Hooks)
@@ -150,6 +181,50 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Charts Section */}
+      {!chartsLoading && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Uploads Trend */}
+          <LineChartCard
+            title="Photo Uploads Trend"
+            description="Daily uploads over the last 30 days"
+            data={chartData.uploadsTrend}
+            lines={[
+              { key: 'uploads', name: 'Uploads', color: '#8b5cf6' }
+            ]}
+            height={300}
+          />
+
+          {/* Engagement Trend */}
+          <LineChartCard
+            title="Engagement Trend"
+            description="Views, downloads, and likes over the last 30 days"
+            data={chartData.engagementTrend}
+            lines={[
+              { key: 'views', name: 'Views', color: '#3b82f6' },
+              { key: 'downloads', name: 'Downloads', color: '#10b981' },
+              { key: 'likes', name: 'Likes', color: '#ec4899' }
+            ]}
+            height={300}
+          />
+        </div>
+      )}
+
+      {/* Top Events Bar Chart */}
+      {!chartsLoading && chartData.topEvents.length > 0 && (
+        <BarChartCard
+          title="Top 5 Active Events"
+          description="Events with highest engagement (views + downloads + likes)"
+          data={chartData.topEvents}
+          bars={[
+            { key: 'views', name: 'Views', color: '#3b82f6' },
+            { key: 'downloads', name: 'Downloads', color: '#10b981' },
+            { key: 'likes', name: 'Likes', color: '#ec4899' }
+          ]}
+          height={300}
+        />
+      )}
 
       {/* Recent Activity */}
       <RecentActivity />

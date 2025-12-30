@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    recentEvents.forEach((event) => {
+    recentEvents.forEach((event: any) => {
       activities.push({
         id: `event-${event.id}`,
         type: 'event',
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     // Group photos by event and date (same day = 1 activity)
     const photoGroups = new Map<string, { count: number; event: string; timestamp: Date; eventId: string }>()
-    recentPhotos.forEach((photo) => {
+    recentPhotos.forEach((photo: any) => {
       const dateKey = photo.created_at.toISOString().split('T')[0] // YYYY-MM-DD
       const groupKey = `${photo.event_id}-${dateKey}`
       
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    recentMessages.forEach((message) => {
+    recentMessages.forEach((message: any) => {
       activities.push({
         id: `message-${message.id}`,
         type: 'message',
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    recentGuestbookMessages.forEach((msg) => {
+    recentGuestbookMessages.forEach((msg: any) => {
       const preview = msg.message.length > 50 ? msg.message.substring(0, 50) + '...' : msg.message
       activities.push({
         id: `guestbook-${msg.id}`,
