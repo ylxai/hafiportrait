@@ -356,16 +356,16 @@ export default function PhotoGrid({
         <button
           type="button"
           onClick={handleLoadNewImages}
-          className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-full border border-black/10 bg-white/85 px-3 py-1 text-xs font-medium text-black shadow-lg backdrop-blur-md transition hover:bg-white"
+          className="fixed top-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-teal px-5 py-3 text-sm font-bold text-white shadow-2xl transition hover:bg-teal-600 animate-pulse"
         >
-          New Images Added{newImagesCount > 0 ? ` (${newImagesCount})` : ''}
+          New Images{newImagesCount > 0 ? ` (${newImagesCount})` : ''}
         </button>
       )}
 
       <button
         type="button"
         onClick={() => setIsGuestbookOpen(true)}
-        className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 rounded-full bg-black/80 px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-md border border-white/10"
+        className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 rounded-full bg-black/80 px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-md border border-white/10"
       >
         Beri Ucapan
       </button>
@@ -387,11 +387,25 @@ export default function PhotoGrid({
             />
           </PhotoTileErrorBoundary>
         ))}
+        
+        {/* Skeleton loading tiles */}
+        {isLoading && hasMore && (
+          <>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                className="aspect-square bg-gray-200 rounded-lg animate-pulse"
+              />
+            ))}
+          </>
+        )}
       </div>
 
       {hasMore && (
         <div ref={observerTarget} className="flex justify-center py-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
+          {!isLoading && (
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
+          )}
         </div>
       )}
 

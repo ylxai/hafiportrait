@@ -332,9 +332,9 @@ export default function EditorialPhotoGrid({
         <button
           type="button"
           onClick={handleLoadNewImages}
-          className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-full border border-black/10 bg-white/85 px-3 py-1 text-xs font-medium text-black shadow-lg backdrop-blur-md transition hover:bg-white"
+          className="fixed top-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-teal px-5 py-3 text-sm font-bold text-white shadow-2xl transition hover:bg-teal-600 animate-pulse"
         >
-          New Images Added{newImagesCount > 0 ? ` (${newImagesCount})` : ''}
+          New Images{newImagesCount > 0 ? ` (${newImagesCount})` : ''}
         </button>
       )}
 
@@ -366,13 +366,30 @@ export default function EditorialPhotoGrid({
             </motion.div>
           </PhotoTileErrorBoundary>
         ))}
+        
+        {/* Skeleton loading tiles */}
+        {isLoading && hasMore && (
+          <>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                className="break-inside-avoid w-full rounded-lg bg-gray-200 animate-pulse"
+                style={{ height: Math.random() > 0.5 ? '300px' : '200px' }}
+              />
+            ))}
+          </>
+        )}
       </div>
 
       {hasMore && (
         <div ref={observerTarget} className="flex justify-center py-12">
-          <div className="h-1 w-1 bg-black/20 rounded-full mx-1 animate-bounce" />
-          <div className="h-1 w-1 bg-black/20 rounded-full mx-1 animate-bounce delay-75" />
-          <div className="h-1 w-1 bg-black/20 rounded-full mx-1 animate-bounce delay-150" />
+          {!isLoading && (
+            <>
+              <div className="h-1 w-1 bg-black/20 rounded-full mx-1 animate-bounce" />
+              <div className="h-1 w-1 bg-black/20 rounded-full mx-1 animate-bounce delay-75" />
+              <div className="h-1 w-1 bg-black/20 rounded-full mx-1 animate-bounce delay-150" />
+            </>
+          )}
         </div>
       )}
 
