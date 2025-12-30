@@ -45,7 +45,7 @@ export default function QuickActions() {
       <h2 className="mb-4 text-lg font-semibold text-gray-900">
         Quick Actions
       </h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4">
         {actions.map((action) => (
           <Link
             key={action.title}
@@ -55,16 +55,18 @@ export default function QuickActions() {
             <div
               className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 transition-opacity group-hover:opacity-10`}
             />
-            <div className="relative">
+            <div className="relative flex items-center gap-4">
               <div
-                className={`inline-flex rounded-lg bg-gradient-to-br p-3 ${action.color} mb-3`}
+                className={`inline-flex rounded-lg bg-gradient-to-br p-3 ${action.color} shrink-0`}
               >
-                <action.icon className="h-5 w-5 text-white" />
+                <action.icon className="h-6 w-6 text-white" />
               </div>
-              <h3 className="mb-1 font-semibold text-gray-900">
-                {action.title}
-              </h3>
-              <p className="text-sm text-gray-600">{action.description}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 truncate">
+                  {action.title}
+                </h3>
+                <p className="text-sm text-gray-600 truncate">{action.description}</p>
+              </div>
             </div>
           </Link>
         ))}
