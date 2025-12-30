@@ -54,9 +54,10 @@ export default function MessagesPage() {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null)
   const toast = useAdminToast()
 
-  const [events, setEvents] = useState<Array<{ id: string; name: string }>>([])
+  const [events, setEvents] = useState<Array<{ id: string; name: string; messageCount?: number }>>([])
   const [selectedEventId, setSelectedEventId] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [totalGuestbookCount, setTotalGuestbookCount] = useState(0)
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -109,7 +110,28 @@ export default function MessagesPage() {
       if (!res.ok) return
       const data = await res.json()
       const list = data?.data?.events || []
-      setEvents(list.map((e: any) => ({ id: e.id, name: e.name })))
+      
+      // Fetch guestbook counts per event
+      const countsRes = await fetch('/api/admin/guestbook?page=1&limit=1000', { credentials: 'include' })
+      if (countsRes.ok) {
+        const countsData = await countsRes.json()
+        const messages = countsData.messages || []
+        
+        // Count messages per event
+        const countMap: Record<string, number> = {}
+        messages.forEach((msg: any) => {
+          countMap[msg.event_id] = (countMap[msg.event_id] || 0) + 1
+        })
+        
+        setTotalGuestbookCount(messages.length)
+        setEvents(list.map((e: any) => ({ 
+          id: e.id, 
+          name: e.name,
+          messageCount: countMap[e.id] || 0
+        })))
+      } else {
+        setEvents(list.map((e: any) => ({ id: e.id, name: e.name })))
+      }
     } catch {
       // ignore
     }
@@ -349,10 +371,12 @@ export default function MessagesPage() {
                   onChange={(e) => setSelectedEventId(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
                 >
-                  <option value="all">All Events</option>
+                  <option value="all">
+                    All Events ({totalGuestbookCount} messages)
+                  </option>
                   {events.map((evt) => (
                     <option key={evt.id} value={evt.id}>
-                      {evt.name}
+                      {evt.name} ({evt.messageCount || 0} messages)
                     </option>
                   ))}
                 </select>
