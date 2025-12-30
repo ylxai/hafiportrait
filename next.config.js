@@ -5,8 +5,6 @@ const nextConfig = {
       bodySizeLimit: '500mb', // For Server Actions
     },
   },
-  // CORRECT CONFIG for App Router API routes body size
-  middlewareClientMaxBodySize: '500mb',
   images: {
     remotePatterns: [
       {

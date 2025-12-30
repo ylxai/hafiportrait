@@ -54,11 +54,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className="scroll-smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <body className="font-sans antialiased">
+        <RootErrorBoundary userType="guest">
+          {children}
+        </RootErrorBoundary>
 
         {/* Google Analytics Script */}
         <Script
@@ -78,11 +77,7 @@ export default function RootLayout({
             `
           }}
         />
-      </head>
-      <body className="font-sans antialiased">
-        <RootErrorBoundary userType="guest">
-          {children}
-        </RootErrorBoundary>
+
         <ToastProvider />
       </body>
     </html>

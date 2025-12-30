@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: 'Hafiportrait',
     images: [
       {
-        url: '/images/hafiportrait.png',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Hafiportrait Photography',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Hafiportrait - Editorial Wedding Photography',
     description: 'Cinematic wedding photography for modern couples',
-    images: ['/images/hafiportrait.png'],
+    images: ['/og-image.jpg'],
   },
 }
 

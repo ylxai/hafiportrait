@@ -530,6 +530,7 @@ storybook-static/
 # Keep placeholder images
 !public/placeholder.jpg
 !public/placeholder.png
+!public/og-image.jpg
 
 # Keep example uploads directory structure
 !public/uploads/.gitkeep
