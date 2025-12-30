@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
 import PhotoTile from './PhotoTile'
 import PhotoLightbox from './PhotoLightbox'
+import GalleryHeader from './GalleryHeader'
 import { PhotoTileErrorBoundary } from '@/components/error-boundaries'
 import { useSocket } from '@/hooks/useSocket'
 import GuestbookSheet from '@/components/gallery/comments/GuestbookSheet'
@@ -25,12 +26,20 @@ interface Photo {
 interface PhotoGridProps {
   event_id: string
   eventSlug: string
+  eventName: string
+  event_date?: Date | null
+  location?: string | null
+  totalPhotoCount: number
   allowLikes?: boolean
 }
 
 export default function PhotoGrid({
   event_id,
   eventSlug,
+  eventName,
+  event_date,
+  location,
+  totalPhotoCount,
   allowLikes = true,
 }: PhotoGridProps) {
   const [photos, setPhotos] = useState<Photo[]>([])
@@ -352,6 +361,15 @@ export default function PhotoGrid({
 
   return (
     <>
+      {/* Gallery Header with progress */}
+      <GalleryHeader
+        eventName={eventName}
+        event_date={event_date}
+        location={location}
+        photoCount={totalPhotoCount}
+        loadedPhotoCount={photos.length}
+      />
+
       {hasNewImages && (
         <button
           type="button"

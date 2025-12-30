@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { getGallerySession } from '@/lib/gallery/auth';
 import PhotoGrid from '@/components/gallery/PhotoGrid';
-import GalleryHeader from '@/components/gallery/GalleryHeader';
 import { GalleryErrorBoundary } from '@/components/error-boundaries';
 
 interface PageProps {
@@ -66,16 +65,16 @@ export default async function GalleryPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <GalleryHeader
-        eventName={event.name}
-        event_date={event.event_date}
-        location={event.location}
-        photoCount={photoCount}
-      />
-      
       <main className="container mx-auto px-4 py-6">
         <GalleryErrorBoundary errorContext="Gallery Photos" eventSlug={event.slug}>
-          <PhotoGrid event_id={event.id} eventSlug={event.slug} />
+          <PhotoGrid 
+            event_id={event.id} 
+            eventSlug={event.slug}
+            eventName={event.name}
+            event_date={event.event_date}
+            location={event.location}
+            totalPhotoCount={photoCount}
+          />
         </GalleryErrorBoundary>
       </main>
     </div>
