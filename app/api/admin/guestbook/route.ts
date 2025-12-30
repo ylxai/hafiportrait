@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({
-      messages: items.map((c) => ({
+      messages: items.map((c: typeof items[number]) => ({
         ...c,
         event_name: c.events?.name,
         event_slug: c.events?.slug,

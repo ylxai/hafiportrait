@@ -6,12 +6,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import PhotoDetailModal from '@/components/admin/PhotoDetailModal'
 import TrashPhotoGrid from '@/components/admin/TrashPhotoGrid'
+import FloatingActionBar from '@/app/components/admin/FloatingActionBar'
 import {
   ArrowUpTrayIcon as Upload,
   PhotoIcon as ImageIcon,
   CheckIcon as Check,
   Squares2X2Icon as Square,
-  TrashIcon as Trash,
 } from '@heroicons/react/24/outline'
 
 interface Photo {
@@ -61,6 +61,8 @@ export default function AdminPhotosPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [isSelectMode, setIsSelectMode] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     void fetchAll('all', 1)
@@ -178,6 +180,7 @@ export default function AdminPhotosPage() {
     )
     if (!confirmed) return
 
+    setIsDeleting(true)
     try {
       const ids = Array.from(selected).join(',')
       const res = await fetch(`/api/admin/photos?ids=${encodeURIComponent(ids)}`, {
@@ -193,7 +196,49 @@ export default function AdminPhotosPage() {
     } catch (e) {
       console.error(e)
       alert('Failed to move photos to Trash')
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const handleBulkDownload = async () => {
+    if (selectedCount === 0) return
+
+    setIsDownloading(true)
+    try {
+      const selectedPhotos = photos.filter(p => selected.has(p.id))
+      
+      // Download each photo sequentially
+      for (const photo of selectedPhotos) {
+        try {
+          // Create temporary anchor and trigger download
+          const a = document.createElement('a')
+          a.href = photo.original_url
+          a.download = photo.filename
+          a.target = '_blank'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          
+          // Small delay to avoid browser blocking multiple downloads
+          await new Promise(resolve => setTimeout(resolve, 300))
+        } catch (error) {
+          console.error(`Failed to download ${photo.filename}:`, error)
+        }
+      }
+
+      alert(`Started download for ${selectedCount} photo(s)`)
+    } catch (e) {
+      console.error(e)
+      alert('Failed to download photos')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
+  const handleCancelSelection = () => {
+    setSelected(new Set())
+    setIsSelectMode(false)
   }
 
   return (
@@ -287,20 +332,16 @@ export default function AdminPhotosPage() {
           </div>
         </div>
 
+        {/* FloatingActionBar for bulk actions */}
         {isSelectMode && activeTab === 'all' && selectedCount > 0 && (
-          <div className="rounded-lg bg-[#54ACBF]/10 px-4 py-3 flex items-center justify-between">
-            <div className="text-sm font-semibold text-gray-900">
-              {selectedCount} selected
-            </div>
-            <button
-              type="button"
-              onClick={handleBulkTrash}
-              className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
-            >
-              <Trash className="w-4 h-4 mr-2" />
-              Move to Trash
-            </button>
-          </div>
+          <FloatingActionBar
+            selectedCount={selectedCount}
+            onDelete={handleBulkTrash}
+            onDownload={handleBulkDownload}
+            onCancel={handleCancelSelection}
+            isDeleting={isDeleting}
+            isDownloading={isDownloading}
+          />
         )}
 
         {error && (
