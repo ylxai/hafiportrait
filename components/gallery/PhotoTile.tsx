@@ -42,9 +42,10 @@ function PhotoTile({
   )
   const [localLikesCount, setLocalLikesCount] = useState(photo.likes_count)
 
+  // Use smallest thumbnail for grid view (400px is enough for tiles)
   const thumbnail_url =
-    photo.thumbnail_medium_url ||
     photo.thumbnail_small_url ||
+    photo.thumbnail_medium_url ||
     photo.thumbnail_url
 
   // Double-tap handler for mobile

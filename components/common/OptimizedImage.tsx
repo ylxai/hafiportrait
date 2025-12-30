@@ -167,9 +167,9 @@ export default memo(OptimizedImage, (prevProps, nextProps) => {
 
 // Export preset configurations for common use cases
 export const ImagePresets = {
-  // Gallery thumbnail
+  // Gallery thumbnail (optimized for small size 400px)
   thumbnail: {
-    quality: 60,
+    quality: 75,
     aspectRatio: 'square' as const,
     sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
     placeholder: 'blur' as const

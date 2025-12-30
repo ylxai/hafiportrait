@@ -351,7 +351,7 @@ export default function EditorialPhotoGrid({
               onClick={() => setLightboxIndex(index)}
             >
               <Image
-                src={photo.thumbnail_medium_url || photo.thumbnail_url || ''}
+                src={photo.thumbnail_small_url || photo.thumbnail_medium_url || photo.thumbnail_url || ''}
                 alt={photo.filename}
                 width={photo.width || 500}
                 height={photo.height || 500}
