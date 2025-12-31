@@ -50,6 +50,7 @@ export default function CommentForm({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim() || undefined,
@@ -149,11 +150,11 @@ export default function CommentForm({
           disabled={isSubmitting}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
         >
-          <option value="">Select relationship</option>
-          <option value="Family">Family</option>
-          <option value="Friend">Friend</option>
-          <option value="Colleague">Colleague</option>
-          <option value="Other">Other</option>
+          <option value="">Pilih relasi</option>
+          <option value="Tamu">Tamu</option>
+          <option value="Keluarga">Keluarga</option>
+          <option value="Teman">Teman</option>
+          <option value="Rekan kerja">Rekan kerja</option>
         </select>
       </div>
 

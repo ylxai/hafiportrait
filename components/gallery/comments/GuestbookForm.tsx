@@ -27,8 +27,13 @@ export default function GuestbookForm({ eventSlug, onSubmitted }: GuestbookFormP
       setError('Silakan pilih Hadir / Tidak Hadir')
       return
     }
-    if (!message.trim()) {
+    const trimmedMessage = message.trim()
+    if (!trimmedMessage) {
       setError('Ucapan wajib diisi')
+      return
+    }
+    if (trimmedMessage.length < 10) {
+      setError('Ucapan minimal 10 karakter')
       return
     }
 
@@ -54,7 +59,10 @@ export default function GuestbookForm({ eventSlug, onSubmitted }: GuestbookFormP
 
       const data = await res.json()
       if (!res.ok) {
-        setError(data?.error || 'Gagal mengirim ucapan')
+        // Prefer detailed field errors when available
+        const fieldError =
+          data?.errors?.message || data?.errors?.name || data?.errors?.attendance || null
+        setError(fieldError || data?.error || 'Gagal mengirim ucapan')
         return
       }
 

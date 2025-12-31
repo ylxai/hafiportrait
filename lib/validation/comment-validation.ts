@@ -30,12 +30,18 @@ export function validateComment(input: CommentInput): CommentValidationResult {
   const errors: CommentValidationResult['errors'] = {};
 
   // Validate name
-  if (!input.name || input.name.trim().length === 0) {
+  const trimmedName = (input.name ?? '').trim();
+  if (!trimmedName) {
     errors.name = 'Name is required';
-  } else if (input.name.trim().length > 50) {
+  } else if (trimmedName.length > 50) {
     errors.name = 'Name must be less than 50 characters';
-  } else if (!/^[a-zA-Z\s]+$/.test(input.name.trim())) {
-    errors.name = 'Name must contain only letters and spaces';
+  } else {
+    // Allow unicode letters (incl. Indonesian names), spaces, and common punctuation.
+    // Examples allowed: "Muhammad Ali", "Nur Aisyah", "D'Angelo", "Siti R."
+    const nameRegex = /^[\p{L}\p{M}][\p{L}\p{M}\s.'-]*$/u;
+    if (!nameRegex.test(trimmedName)) {
+      errors.name = 'Name contains invalid characters';
+    }
   }
 
   // Validate email (if provided)
@@ -59,7 +65,17 @@ export function validateComment(input: CommentInput): CommentValidationResult {
 
   // Validate relationship (if provided)
   if (input.relationship) {
-    const validRelationships = ['Tamu', 'Keluarga', 'Teman', 'Rekan kerja'];
+    // Support both Indonesian and existing English UI options
+    const validRelationships = [
+      'Tamu',
+      'Keluarga',
+      'Teman',
+      'Rekan kerja',
+      'Family',
+      'Friend',
+      'Colleague',
+      'Other',
+    ];
     if (!validRelationships.includes(input.relationship)) {
       errors.relationship = 'Invalid relationship type';
     }
