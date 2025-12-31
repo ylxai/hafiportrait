@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import PhotoUploader from '@/components/admin/PhotoUploader'
 import PhotoUploaderPersistent from '@/components/admin/PhotoUploaderPersistent'
 import { UploadErrorBoundary } from '@/components/error-boundaries'
 import { ArrowLeftIcon as ArrowLeft } from '@heroicons/react/24/outline'
@@ -25,6 +26,7 @@ export default function AdminPhotosUploadPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [usePersistent, setUsePersistent] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -128,6 +130,40 @@ export default function AdminPhotosUploadPage() {
         </div>
 
         {/* Uploader */}
+        <div className="mb-4 rounded-lg bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-900">Mode Upload</h2>
+              <p className="text-xs text-gray-500">
+                Default: Standard (stabil). Persistent cocok untuk upload besar / resume.
+              </p>
+            </div>
+
+            <div className="inline-flex items-center gap-2">
+              <span className={`text-xs font-medium ${!usePersistent ? 'text-gray-900' : 'text-gray-500'}`}>
+                Standard
+              </span>
+              <button
+                type="button"
+                onClick={() => setUsePersistent((v) => !v)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  usePersistent ? 'bg-brand-teal' : 'bg-gray-300'
+                }`}
+                aria-label="Toggle persistent upload"
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                    usePersistent ? 'translate-x-5' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <span className={`text-xs font-medium ${usePersistent ? 'text-gray-900' : 'text-gray-500'}`}>
+                Persistent
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-lg bg-white p-6 shadow-sm">
           {!selectedEvent ? (
             <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center text-sm text-gray-600">
@@ -135,7 +171,14 @@ export default function AdminPhotosUploadPage() {
             </div>
           ) : (
             <UploadErrorBoundary errorContext="Global Photo Upload" eventId={selectedEvent.id}>
-              <PhotoUploaderPersistent event_id={selectedEvent.id} eventName={selectedEvent.name} />
+              {usePersistent ? (
+                <PhotoUploaderPersistent
+                  event_id={selectedEvent.id}
+                  eventName={selectedEvent.name}
+                />
+              ) : (
+                <PhotoUploader event_id={selectedEvent.id} eventName={selectedEvent.name} />
+              )}
             </UploadErrorBoundary>
           )}
         </div>
