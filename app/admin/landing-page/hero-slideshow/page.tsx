@@ -115,21 +115,26 @@ export default function HeroSlideshowPage() {
     setUploading(true)
     const loadingToastId = toast.showLoading(`Uploading ${files.length} gambar...`)
 
-    const formData = new FormData()
-    Array.from(files).forEach((file) => {
-      formData.append('files', file)
-    })
+    // API supports single file with key "file". Upload sequentially so we can show progress.
 
     try {
-      const response = await fetch('/api/admin/hero-slideshow', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      })
+      for (const file of Array.from(files)) {
+        const fd = new FormData()
+        fd.append('file', file)
+        // Optional metadata can be set later; keep empty
+        fd.append('title', '')
+        fd.append('subtitle', '')
 
-      if (!response.ok) throw new Error('Upload failed')
+        const res = await fetch('/api/admin/hero-slideshow', {
+          method: 'POST',
+          credentials: 'include',
+          body: fd,
+        })
 
-      await response.json()
+        if (!res.ok) throw new Error('Upload failed')
+        await res.json()
+      }
+
       toast.updateToast(loadingToastId, 'success', `${files.length} slide berhasil diupload!`)
       fetchImages()
     } catch (error) {

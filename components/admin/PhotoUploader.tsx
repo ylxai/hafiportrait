@@ -13,6 +13,7 @@
 
 import { useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
+import { xhrUpload } from '@/lib/upload/xhr-upload'
 import {
   ArrowUpTrayIcon as Upload,
   XMarkIcon as X,
@@ -225,7 +226,7 @@ export default function PhotoUploader({
       setFiles((prev) =>
         prev.map((f) =>
           batch.find((b) => b.id === f.id)
-            ? { ...f, status: 'uploading' as const }
+            ? { ...f, status: 'uploading' as const, progress: 0 }
             : f
         )
       )
@@ -236,18 +237,28 @@ export default function PhotoUploader({
           const formData = new FormData()
           formData.append('files', uploadFile.file)
 
-          const response = await fetch(
-            `/api/admin/events/${event_id}/photos/upload`,
-            {
-              method: 'POST',
-              body: formData,
-              credentials: 'include',
-            }
-          )
+          const result = await xhrUpload({
+            url: `/api/admin/events/${event_id}/photos/upload`,
+            formData,
+            withCredentials: true,
+            onProgress: (p) => {
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.id === uploadFile.id
+                    ? { ...f, progress: p.percent }
+                    : f
+                )
+              )
+            },
+          })
 
-          const data = await response.json()
+          const json = result.json as unknown
+          const data =
+            typeof json === 'object' && json !== null
+              ? (json as { success?: boolean; error?: string })
+              : {}
 
-          if (response.ok && data.success) {
+          if (result.ok && data.success) {
             setFiles((prev) =>
               prev.map((f) =>
                 f.id === uploadFile.id
@@ -257,9 +268,9 @@ export default function PhotoUploader({
             )
             successCount++
             return { success: true }
-          } else {
-            throw new Error(data.error || 'Upload failed')
           }
+
+          throw new Error(data.error || `Upload failed (${result.status})`)
         } catch (error) {
           console.error('Upload error:', error)
           setFiles((prev) =>
