@@ -107,22 +107,31 @@ function uploadWithProgress(
     signal?: AbortSignal;
   } = {}
 ): Promise<any> {
-  return axios.post(url, formData, {
-    signal: options.signal,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    onUploadProgress: (progressEvent) => {
-      if (options.onProgress && progressEvent.total) {
-        const progress: UploadProgress = {
-          loaded: progressEvent.loaded,
-          total: progressEvent.total,
-          percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total),
-        };
-        options.onProgress(progress);
-      }
-    },
-  }).then(response => response.data);
+  return axios
+    .post(url, formData, {
+      signal: options.signal,
+      // Important:
+      // - Do NOT set Content-Type manually in browser; axios/browser will set the correct multipart boundary.
+      // - Ensure cookies are sent for admin-authenticated endpoints.
+      withCredentials: true,
+      timeout: 120_000,
+      // Avoid axios rejecting large payloads in node env; harmless in browser.
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      onUploadProgress: (progressEvent) => {
+        if (options.onProgress && progressEvent.total) {
+          const progress: UploadProgress = {
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage: Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            ),
+          };
+          options.onProgress(progress);
+        }
+      },
+    })
+    .then((response) => response.data);
 }
 
 /**
