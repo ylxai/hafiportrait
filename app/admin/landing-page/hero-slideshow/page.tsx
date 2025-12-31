@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { xhrUpload } from '@/lib/upload/xhr-upload'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import ErrorAlert from '@/components/ui/ErrorAlert'
 import { 
@@ -77,11 +78,23 @@ function SortableItem({ image, onDelete, onToggleActive }: SortableItemProps) {
   )
 }
 
+type UploadQueueItemStatus = 'pending' | 'uploading' | 'success' | 'error'
+
+interface UploadQueueItem {
+  id: string
+  file: File
+  previewUrl: string
+  progress: number
+  status: UploadQueueItemStatus
+  error?: string
+}
+
 export default function HeroSlideshowPage() {
   const [images, setImages] = useState<HeroImage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
   const toast = useAdminToast()
 
   const fetchImages = useCallback(async () => {
@@ -112,31 +125,73 @@ export default function HeroSlideshowPage() {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    setUploading(true)
-    const loadingToastId = toast.showLoading(`Uploading ${files.length} gambar...`)
+    const list = Array.from(files)
 
-    // API supports single file with key "file". Upload sequentially so we can show progress.
+    // Initialize queue with previews
+    const newItems: UploadQueueItem[] = list.map((file) => ({
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      progress: 0,
+      status: 'pending',
+    }))
+
+    setUploadQueue((prev) => [...newItems, ...prev])
+
+    setUploading(true)
+    const loadingToastId = toast.showLoading(`Uploading ${list.length} gambar...`)
 
     try {
-      for (const file of Array.from(files)) {
+      for (const item of newItems) {
+        setUploadQueue((prev) =>
+          prev.map((q) => (q.id === item.id ? { ...q, status: 'uploading', progress: 0 } : q))
+        )
+
         const fd = new FormData()
-        fd.append('file', file)
-        // Optional metadata can be set later; keep empty
+        fd.append('file', item.file)
         fd.append('title', '')
         fd.append('subtitle', '')
 
-        const res = await fetch('/api/admin/hero-slideshow', {
-          method: 'POST',
-          credentials: 'include',
-          body: fd,
+        const res = await xhrUpload({
+          url: '/api/admin/hero-slideshow',
+          formData: fd,
+          withCredentials: true,
+          onProgress: (p) => {
+            setUploadQueue((prev) =>
+              prev.map((q) => (q.id === item.id ? { ...q, progress: p.percent } : q))
+            )
+          },
         })
 
-        if (!res.ok) throw new Error('Upload failed')
-        await res.json()
+        if (!res.ok) {
+          const msg =
+            typeof res.json === 'object' && res.json && 'error' in res.json
+              ? String((res.json as { error?: string }).error || 'Upload failed')
+              : `Upload failed (${res.status})`
+
+          setUploadQueue((prev) =>
+            prev.map((q) => (q.id === item.id ? { ...q, status: 'error', error: msg } : q))
+          )
+          continue
+        }
+
+        setUploadQueue((prev) =>
+          prev.map((q) => (q.id === item.id ? { ...q, status: 'success', progress: 100 } : q))
+        )
       }
 
-      toast.updateToast(loadingToastId, 'success', `${files.length} slide berhasil diupload!`)
+      toast.updateToast(loadingToastId, 'success', `${list.length} slide berhasil diupload!`)
       fetchImages()
+
+      // Cleanup preview URLs for completed uploads
+      setTimeout(() => {
+        setUploadQueue((prev) => {
+          prev.forEach((q) => {
+            if (q.status === 'success') URL.revokeObjectURL(q.previewUrl)
+          })
+          return prev.filter((q) => q.status !== 'success')
+        })
+      }, 2000)
     } catch (error) {
       console.error('Upload error:', error)
       toast.updateToast(loadingToastId, 'error', 'Gagal upload gambar')
@@ -253,6 +308,67 @@ export default function HeroSlideshowPage() {
             💡 <strong>Tip:</strong> Drag & drop untuk mengubah urutan slideshow. Hanya gambar yang Active yang akan ditampilkan di landing page.
           </p>
         </div>
+
+        {/* Upload Queue */}
+        {uploadQueue.length > 0 && (
+          <div className="rounded-lg bg-white shadow-sm p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">Upload Queue</h3>
+                <p className="text-xs text-gray-500">
+                  Menampilkan progress upload per file (akan otomatis hilang setelah sukses)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadQueue((prev) => {
+                    prev.forEach((q) => URL.revokeObjectURL(q.previewUrl))
+                    return []
+                  })
+                }}
+                className="text-xs font-medium text-gray-600 hover:text-gray-900"
+                disabled={uploading}
+              >
+                Clear
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {uploadQueue.map((q) => (
+                <div key={q.id} className="relative overflow-hidden rounded-lg bg-gray-100">
+                  <div className="relative aspect-[16/10]">
+                    <Image src={q.previewUrl} alt={q.file.name} fill className="object-cover" />
+                  </div>
+
+                  <div className="p-2">
+                    <p className="truncate text-xs font-medium text-gray-900" title={q.file.name}>
+                      {q.file.name}
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                      {q.status}{q.status === 'uploading' ? ` • ${q.progress}%` : ''}
+                    </p>
+
+                    {q.status === 'uploading' && (
+                      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                        <div
+                          className="h-full bg-brand-teal transition-all"
+                          style={{ width: `${q.progress}%` }}
+                        />
+                      </div>
+                    )}
+
+                    {q.status === 'error' && q.error && (
+                      <p className="mt-1 line-clamp-2 text-[11px] text-red-600" title={q.error}>
+                        {q.error}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Images List */}
         {loading ? (
