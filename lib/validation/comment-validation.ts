@@ -34,8 +34,8 @@ export function validateComment(input: CommentInput): CommentValidationResult {
     errors.name = 'Name is required';
   } else if (input.name.trim().length > 50) {
     errors.name = 'Name must be less than 50 characters';
-  } else if (!/^[a-zA-Z\s]+$/.test(input.name.trim())) {
-    errors.name = 'Name must contain only letters and spaces';
+  } else if (input.name.trim().length < 2) {
+    errors.name = 'Name must be at least 2 characters';
   }
 
   // Validate email (if provided)
