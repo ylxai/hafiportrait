@@ -10,6 +10,7 @@
 
 import axios from 'axios';
 import { calculateChecksum } from './checksumUtils';
+import { xhrUpload } from '@/lib/upload/xhr-upload';
 
 export interface UploadProgress {
   loaded: number;
@@ -107,15 +108,38 @@ function uploadWithProgress(
     signal?: AbortSignal;
   } = {}
 ): Promise<any> {
+  // In browsers, prefer XHR to avoid intermittent aborts and to get reliable upload progress.
+  if (typeof window !== 'undefined') {
+    return xhrUpload({
+      url,
+      formData,
+      withCredentials: true,
+      signal: options.signal,
+      onProgress: (p) => {
+        options.onProgress?.({
+          loaded: p.loaded,
+          total: p.total,
+          percentage: p.percent,
+        })
+      },
+    }).then((res) => {
+      if (!res.ok) {
+        const msg =
+          typeof res.json === 'object' && res.json && 'error' in res.json
+            ? String((res.json as { error?: string }).error || 'Upload failed')
+            : `Upload failed (${res.status})`
+        throw new Error(msg)
+      }
+      return res.json
+    })
+  }
+
+  // Fallback for non-browser env
   return axios
     .post(url, formData, {
       signal: options.signal,
-      // Important:
-      // - Do NOT set Content-Type manually in browser; axios/browser will set the correct multipart boundary.
-      // - Ensure cookies are sent for admin-authenticated endpoints.
       withCredentials: true,
       timeout: 120_000,
-      // Avoid axios rejecting large payloads in node env; harmless in browser.
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
       onUploadProgress: (progressEvent) => {
