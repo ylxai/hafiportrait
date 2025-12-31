@@ -58,9 +58,9 @@ export function validateComment(input: CommentInput): CommentValidationResult {
   }
 
   // Validate relationship (if provided)
-  if (input.relationship) {
-    const validRelationships = ['Tamu', 'Keluarga', 'Teman', 'Rekan kerja'];
-    if (!validRelationships.includes(input.relationship)) {
+  if (input.relationship && input.relationship.trim().length > 0) {
+    const validRelationships = ['Tamu', 'Keluarga', 'Teman', 'Rekan kerja', 'Kerabat', 'Lainnya'];
+    if (!validRelationships.includes(input.relationship.trim())) {
       errors.relationship = 'Invalid relationship type';
     }
   }
