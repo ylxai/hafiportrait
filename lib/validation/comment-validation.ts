@@ -34,8 +34,8 @@ export function validateComment(input: CommentInput): CommentValidationResult {
     errors.name = 'Name is required';
   } else if (input.name.trim().length > 50) {
     errors.name = 'Name must be less than 50 characters';
-  } else if (input.name.trim().length < 2) {
-    errors.name = 'Name must be at least 2 characters';
+  } else if (!/^[a-zA-Z\s]+$/.test(input.name.trim())) {
+    errors.name = 'Name must contain only letters and spaces';
   }
 
   // Validate email (if provided)
@@ -58,9 +58,9 @@ export function validateComment(input: CommentInput): CommentValidationResult {
   }
 
   // Validate relationship (if provided)
-  if (input.relationship && input.relationship.trim().length > 0) {
-    const validRelationships = ['Tamu', 'Keluarga', 'Teman', 'Rekan kerja', 'Kerabat', 'Lainnya'];
-    if (!validRelationships.includes(input.relationship.trim())) {
+  if (input.relationship) {
+    const validRelationships = ['Tamu', 'Keluarga', 'Teman', 'Rekan kerja'];
+    if (!validRelationships.includes(input.relationship)) {
       errors.relationship = 'Invalid relationship type';
     }
   }
