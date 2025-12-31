@@ -2,6 +2,8 @@
 
 import Image from 'next/image'
 import { useState, useCallback } from 'react'
+import { xhrUpload } from '@/lib/upload/xhr-upload'
+import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import {
   ArrowUpTrayIcon as Upload,
   XMarkIcon as X,
@@ -31,9 +33,11 @@ export default function PortfolioUploader({
 }: PortfolioUploaderProps) {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [uploadResults, setUploadResults] = useState<UploadResult[]>([])
   const [dragActive, setDragActive] = useState(false)
   const [description, setDescription] = useState('')
+  const toast = useAdminToast()
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -73,8 +77,10 @@ export default function PortfolioUploader({
     if (files.length === 0) return
 
     setUploading(true)
+    setUploadProgress(0)
     setUploadResults([])
 
+    const toastId = toast.showLoading(`Uploading ${files.length} foto portfolio...`)
     try {
       const formData = new FormData()
       files.forEach((file) => formData.append('files', file))
@@ -83,38 +89,39 @@ export default function PortfolioUploader({
 
       console.log('Sending FormData with files:', files.map(f => f.name))
       
-      const response = await fetch('/api/admin/portfolio/upload', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-        // Don't set Content-Type, let browser set it with boundary
+      const result = await xhrUpload({
+        url: '/api/admin/portfolio/upload',
+        formData,
+        withCredentials: true,
+        onProgress: (p) => setUploadProgress(p.percent),
       })
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Upload failed:', response.status, errorText)
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
+      if (!result.ok) {
+        console.error('Upload failed:', result.status, result.responseText)
+        throw new Error(`Upload failed: ${result.status}`)
       }
 
-      const responseText = await response.text()
-      console.log('Raw response:', responseText)
-      
-      let data
-      try {
-        data = JSON.parse(responseText)
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError)
-        console.error('Response text:', responseText)
-        throw new Error('Invalid server response format')
-      }
-      
+      const data = (result.json || {}) as any
       setUploadResults(data.results || [])
 
-      // Clear successful uploads
-      if (data.summary.success > 0) {
-        const failedFiles = files.filter(
-          (_, index) => !data.results[index]?.success
+      const successCount: number = data?.summary?.success ?? 0
+      const failedCount: number = data?.summary?.failed ?? 0
+
+      if (successCount > 0 && failedCount === 0) {
+        toast.updateToast(toastId, 'success', `${successCount} foto berhasil diupload!`)
+      } else if (successCount > 0 && failedCount > 0) {
+        toast.updateToast(
+          toastId,
+          'warning',
+          `Upload selesai: ${successCount} berhasil, ${failedCount} gagal`
         )
+      } else {
+        toast.updateToast(toastId, 'error', 'Semua upload gagal')
+      }
+
+      // Clear successful uploads
+      if (successCount > 0) {
+        const failedFiles = files.filter((_, index) => !data.results[index]?.success)
         setFiles(failedFiles)
         setDescription('')
 
@@ -124,7 +131,17 @@ export default function PortfolioUploader({
       }
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Upload failed. Please try again.')
+      const msg = error instanceof Error ? error.message : 'Upload failed'
+      // Best-effort: if toastId exists, update; otherwise show generic
+      try {
+        toast.updateToast(toastId, 'error', 'Gagal upload portfolio', {
+          description: msg,
+        })
+      } catch {
+        toast.updateToast('portfolio-upload-error', 'error', 'Gagal upload portfolio', {
+          description: msg,
+        })
+      }
     } finally {
       setUploading(false)
     }
@@ -182,6 +199,14 @@ export default function PortfolioUploader({
       {/* File List */}
       {files.length > 0 && (
         <div className="space-y-2">
+          {uploading && (
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+              <div
+                className="h-full bg-brand-teal transition-all"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-gray-900">
               Selected Files ({files.length})

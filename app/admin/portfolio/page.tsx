@@ -11,6 +11,7 @@ import {
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import ErrorAlert from '@/components/ui/ErrorAlert'
 import Image from 'next/image'
+import PortfolioUploader from '@/components/admin/PortfolioUploader'
 
 interface PortfolioPhoto {
   id: string
@@ -288,69 +289,9 @@ export default function PortfolioPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">
-                    Drag & drop atau click untuk upload portfolio photos
-                  </p>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const files = e.target.files
-                      if (!files || files.length === 0) return
-
-                      const loadingId = toast.showLoading(`Uploading ${files.length} photos...`)
-
-                      try {
-                        const formData = new FormData()
-                        Array.from(files).forEach((file) => {
-                          formData.append('files', file)
-                        })
-
-                        const response = await fetch('/api/admin/portfolio/upload', {
-                          method: 'POST',
-                          credentials: 'include',
-                          body: formData,
-                        })
-                        
-                        const responseText = await response.text()
-                        
-                        if (!response.ok) {
-                          throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
-                        }
-                        
-                        const data = JSON.parse(responseText)
-
-                        const successCount = data.summary?.success || 0
-                        const failedCount = data.summary?.failed || 0
-                        
-                        if (successCount > 0) {
-                          toast.updateToast(loadingId, 'success', `${successCount} foto portfolio berhasil diupload!`)
-                          if (failedCount > 0) {
-                            toast.generic.saveError()
-                          }
-                          handleUploadComplete()
-                        } else {
-                          throw new Error(`All uploads failed: ${failedCount} files`)
-                        }
-                      } catch (error) {
-                        console.error('Upload error:', error)
-                        toast.updateToast(loadingId, 'error', 'Gagal upload photos')
-                      }
-                    }}
-                    className="hidden"
-                    id="portfolio-upload"
-                  />
-                  <label
-                    htmlFor="portfolio-upload"
-                    className="btn btn-primary cursor-pointer inline-flex items-center space-x-2"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Select Files</span>
-                  </label>
-                </div>
+                {/* Use shared uploader with preview + progress */}
+                {/** import is declared at top */}
+                <PortfolioUploader onUploadComplete={handleUploadComplete} />
               </div>
             </div>
           </div>
