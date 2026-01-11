@@ -34,12 +34,11 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
     }
 
-    // When a new SW takes control, reload to ensure client bundle matches server build
-    let refreshing = false;
+    // When a new SW takes control, DO NOT auto-reload.
+    // Auto-reload can abort large uploads in progress (especially on mobile).
+    // If we want a refresh UX later, we should show a banner and let the user refresh when idle.
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (refreshing) return;
-      refreshing = true;
-      window.location.reload();
+      // no-op
     });
 
     // Check for updates

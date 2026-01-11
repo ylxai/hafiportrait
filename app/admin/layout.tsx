@@ -41,16 +41,15 @@ export default function AdminRootLayout({
             router.replace('/admin/login')
           }
         } else {
-          // Only redirect if not on login page
-          if (pathname !== '/admin/login') {
+          // Only redirect on explicit auth failures
+          if (pathname !== '/admin/login' && (response.status === 401 || response.status === 403)) {
             router.replace('/admin/login')
           }
         }
       } catch (error) {
+        // Network/temporary errors should not force navigation during active workflows (e.g., uploads).
         console.error('Auth check failed:', error)
-        if (pathname !== '/admin/login') {
-          router.replace('/admin/login')
-        }
+        // Keep current page; user state will remain until we can re-check.
       } finally {
         setIsLoading(false)
       }
