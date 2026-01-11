@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get max display order
-    const maxOrderPhoto = await withPrismaRetry(prisma, () =>
+    const maxOrderPhoto = await withPrismaRetry(() =>
       prisma.portfolio_photos.findFirst({
         orderBy: { display_order: 'desc' },
         select: { display_order: true },
@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Create portfolio photo record with responsive image URLs
-        const portfolioPhoto = await withPrismaRetry(prisma, () =>
+        const portfolioPhoto = await withPrismaRetry(() =>
           prisma.portfolio_photos.create({
             data: {
               id: crypto.randomUUID(),

@@ -1,5 +1,3 @@
-import type { PrismaClient } from '@prisma/client'
-
 export interface PrismaRetryOptions {
   retries?: number
   baseDelayMs?: number
@@ -29,7 +27,6 @@ function isConnectionClosedError(err: unknown): boolean {
  * Returns the operation result or throws the last error.
  */
 export async function withPrismaRetry<T>(
-  prisma: PrismaClient,
   operation: () => Promise<T>,
   opts: PrismaRetryOptions = {}
 ): Promise<T> {
@@ -47,13 +44,8 @@ export async function withPrismaRetry<T>(
       const canRetry = attempt <= retries && isConnectionClosedError(err)
       if (!canRetry) throw err
 
-      // Disconnect + reconnect attempt (best-effort)
-      try {
-        await prisma.$disconnect()
-      } catch {
-        // ignore
-      }
-
+      // Avoid calling prisma.$disconnect() here.
+      // In serverless/pooled environments, forcing disconnect can amplify connection churn.
       const delay = Math.min(maxDelayMs, baseDelayMs * Math.pow(2, attempt - 1))
       await sleep(delay)
     }
