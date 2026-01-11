@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { xhrUpload } from '@/lib/upload/xhr-upload'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import {
@@ -38,6 +38,44 @@ export default function PortfolioUploader({
   const [dragActive, setDragActive] = useState(false)
   const [description, setDescription] = useState('')
   const toast = useAdminToast()
+
+  // Stable preview URLs to avoid leaking memory by calling URL.createObjectURL in render.
+  const [previews, setPreviews] = useState<Record<string, string>>({})
+
+  const fileKeys = useMemo(() => files.map((f) => `${f.name}:${f.size}:${f.lastModified}`), [files])
+
+  useEffect(() => {
+    setPreviews((prev) => {
+      const next: Record<string, string> = { ...prev }
+
+      // Add new previews
+      files.forEach((file) => {
+        const key = `${file.name}:${file.size}:${file.lastModified}`
+        if (!next[key]) {
+          next[key] = URL.createObjectURL(file)
+        }
+      })
+
+      // Revoke removed previews
+      for (const [key, url] of Object.entries(next)) {
+        if (!fileKeys.includes(key)) {
+          URL.revokeObjectURL(url)
+          delete next[key]
+        }
+      }
+
+      return next
+    })
+
+    return () => {
+      // On unmount: revoke everything
+      setPreviews((prev) => {
+        Object.values(prev).forEach((url) => URL.revokeObjectURL(url))
+        return {}
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileKeys.join('|')])
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -235,7 +273,7 @@ export default function PortfolioUploader({
               <div key={index} className="group relative">
                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
                   <Image
-                    src={URL.createObjectURL(file)}
+                    src={previews[`${file.name}:${file.size}:${file.lastModified}`] || ''}
                     alt={`Upload preview: ${file.name}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
