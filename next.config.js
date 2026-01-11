@@ -2,11 +2,9 @@
 const nextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: '100mb', // For Server Actions
+      bodySizeLimit: '500mb', // For Server Actions
     },
   },
-  // Limit request body size for App Router requests that pass through middleware
-  middlewareClientMaxBodySize: '100mb',
   images: {
     remotePatterns: [
       {

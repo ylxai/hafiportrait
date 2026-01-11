@@ -84,8 +84,10 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except static files
+     * Match all request paths except static files.
+     * NOTE: Exclude large multipart upload endpoints to avoid Next.js buffering/cloning request bodies
+     * (default 10MB) when middleware is enabled.
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/admin/portfolio/upload|api/admin/events/[^/]+/photos/upload|api/admin/photos/upload|api/admin/hero-slideshow).*)',
   ],
 }
