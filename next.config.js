@@ -5,6 +5,18 @@ const nextConfig = {
       bodySizeLimit: '500mb', // For Server Actions
     },
   },
+
+  async headers() {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          // Never cache the service worker file; avoids stale SW after deploy.
+          { key: 'Cache-Control', value: 'no-store, max-age=0' },
+        ],
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {

@@ -7,7 +7,8 @@
  * - Message handlers for upload commands
  */
 
-const CACHE_NAME = 'hafiportrait-upload-v1';
+// Bump version on SW logic changes to ensure clean upgrades
+const CACHE_NAME = 'hafiportrait-upload-v2';
 const UPLOAD_SYNC_TAG = 'upload-sync';
 
 // Install event
@@ -16,15 +17,28 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+// Allow page to trigger immediate activation
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Activate event
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activating...');
   event.waitUntil(
-    clients.claim().then(() => {
-      console.log('[Service Worker] Claimed clients');
-      // Check for pending uploads
-      return checkPendingUploads();
-    })
+    Promise.all([
+      // Clean up old caches to avoid stale assets
+      caches.keys().then((keys) =>
+        Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : Promise.resolve())))
+      ),
+      clients.claim().then(() => {
+        console.log('[Service Worker] Claimed clients');
+        // Check for pending uploads
+        return checkPendingUploads();
+      }),
+    ])
   );
 });
 

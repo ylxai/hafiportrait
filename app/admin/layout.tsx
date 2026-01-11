@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import { AdminErrorBoundary } from '@/components/error-boundaries'
+import { registerServiceWorker } from '@/lib/upload/serviceWorkerRegistration'
 
 interface User {
   id: string
@@ -23,6 +24,9 @@ export default function AdminRootLayout({
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Register upload SW for admin pages (used for upload persistence). Safe no-op if unsupported.
+    registerServiceWorker()
+
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me', {

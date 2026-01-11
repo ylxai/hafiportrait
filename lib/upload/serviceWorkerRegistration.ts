@@ -25,16 +25,36 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
       scope: '/',
+      // Always bypass HTTP cache when checking SW updates
+      updateViaCache: 'none',
     });
+
+    // If a new SW is waiting, activate it immediately
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+
+    // When a new SW takes control, reload to ensure client bundle matches server build
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
     // Check for updates
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing;
-      if (newWorker) {
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+      if (!newWorker) return;
+
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed') {
+          // If there's an existing controller, this is an update
+          if (navigator.serviceWorker.controller) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
           }
-        });
-      }
+        }
+      });
     });
 
     swRegistration = registration;
