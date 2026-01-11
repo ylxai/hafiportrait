@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateAccessCode, validateEventAccess, setGalleryAccessCookie } from '@/lib/gallery/auth';
+import { getRequestOrigin } from '@/lib/utils/request-origin';
 import { checkRateLimit, RateLimitPresets, getClientIdentifier } from '@/lib/security/rate-limiter';
 
 export async function POST(
@@ -116,8 +117,8 @@ export async function GET(
       await setGalleryAccessCookie(result.event!.id, result.token, result.expiresAt);
     }
 
-    // Redirect to gallery
-    return NextResponse.redirect(new URL(`/${eventSlug}/gallery`, request.url));
+    // Redirect to gallery (use forwarded host/proto to avoid localhost redirects behind proxy)
+    return NextResponse.redirect(new URL(`/${eventSlug}/gallery`, getRequestOrigin(request)));
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to validate access code' },
