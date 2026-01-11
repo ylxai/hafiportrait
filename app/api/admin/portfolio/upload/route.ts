@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import prisma from '@/lib/prisma'
+import { withPrismaRetry } from '@/lib/database/prisma-retry'
 import {
   generateUniqueFilename,
   buildPhotoStorageKey,
@@ -88,10 +89,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Get max display order
-    const maxOrderPhoto = await prisma.portfolio_photos.findFirst({
-      orderBy: { display_order: 'desc' },
-      select: { display_order: true },
-    })
+    const maxOrderPhoto = await withPrismaRetry(prisma, () =>
+      prisma.portfolio_photos.findFirst({
+        orderBy: { display_order: 'desc' },
+        select: { display_order: true },
+      })
+    )
     let display_order = (maxOrderPhoto?.display_order ?? -1) + 1
 
     // 5. Process files
@@ -230,22 +233,24 @@ export async function POST(request: NextRequest) {
         }
 
         // Create portfolio photo record with responsive image URLs
-        const portfolioPhoto = await prisma.portfolio_photos.create({
-          data: {
-            id: crypto.randomUUID(),
-            filename: file.name,
-            original_url: uploadResult.url,
-            thumbnail_url: thumbnail_url, // Legacy field (medium size)
-            thumbnail_small_url: thumbnail_small_url,
-            thumbnail_medium_url: thumbnail_medium_url,
-            thumbnail_large_url: thumbnail_large_url,
-            display_order: display_order++,
-            is_featured: false,
-            category: category || null,
-            description: description || null,
-            updated_at: new Date(),
-          },
-        })
+        const portfolioPhoto = await withPrismaRetry(prisma, () =>
+          prisma.portfolio_photos.create({
+            data: {
+              id: crypto.randomUUID(),
+              filename: file.name,
+              original_url: uploadResult.url,
+              thumbnail_url: thumbnail_url, // Legacy field (medium size)
+              thumbnail_small_url: thumbnail_small_url,
+              thumbnail_medium_url: thumbnail_medium_url,
+              thumbnail_large_url: thumbnail_large_url,
+              display_order: display_order++,
+              is_featured: false,
+              category: category || null,
+              description: description || null,
+              updated_at: new Date(),
+            },
+          })
+        )
 
         uploadResults.push({
           filename: file.name,
@@ -280,8 +285,21 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+
+    // Graceful handling for transient DB connection drops
+    if (message.includes('kind: Closed') || message.includes('PostgreSQL connection')) {
+      return NextResponse.json(
+        {
+          error: 'Database temporarily unavailable. Please retry the upload.',
+          code: 'DB_CONNECTION_CLOSED',
+        },
+        { status: 503 }
+      )
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Upload failed' },
+      { error: message || 'Upload failed' },
       { status: 500 }
     )
   }
