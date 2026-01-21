@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import AdminLayout from '@/app/components/admin/AdminLayout'
 import { AdminErrorBoundary } from '@/components/error-boundaries'
 import { registerServiceWorker } from '@/lib/upload/serviceWorkerRegistration'
+import AdminSocketProvider from './AdminSocketProvider'
 
 interface User {
   id: string
@@ -85,6 +86,7 @@ export default function AdminRootLayout({
   if (user) {
     return (
       <AdminErrorBoundary errorContext="Admin Layout">
+        <AdminSocketProvider />
         <AdminLayout>{children}</AdminLayout>
       </AdminErrorBoundary>
     )

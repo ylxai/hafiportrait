@@ -39,7 +39,7 @@ import { extractExifData } from '@/lib/utils/exif-extractor';
 import { logger } from '@/lib/logger';
 // import { rateLimit } from '@/lib/security/rate-limiter'; // PRODUCTION: Disabled for wedding uploads
 import { memoryManager } from '@/lib/storage/memory-manager';
-import { broadcastPhotoUploadComplete } from '@/lib/socket-broadcast';
+import { broadcastPhotoUploadComplete, broadcastAdminNotification } from '@/lib/socket-broadcast';
 
 // Maximum files per request - PRODUCTION: Increased for bulk uploads
 const MAX_FILES_PER_REQUEST = 100;
@@ -426,6 +426,16 @@ export async function POST(
               await broadcastPhotoUploadComplete({
                 eventSlug: event.slug,
                 photo: resultPhoto,
+              });
+
+              // Minimal admin realtime notification
+              await broadcastAdminNotification({
+                type: 'upload_complete',
+                data: {
+                  eventSlug: event.slug,
+                  filename: uniqueFilename,
+                  photo_id: resultPhoto.id,
+                },
               });
 
               logger.debug('Photo uploaded successfully', {

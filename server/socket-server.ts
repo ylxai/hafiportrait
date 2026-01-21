@@ -340,6 +340,17 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} joined event:${eventSlug}`);
   });
 
+  // Admin: Join admin room (for realtime notifications)
+  socket.on('admin:join', () => {
+    if (socket.sessionType !== 'admin') {
+      socket.emit('error', { message: 'Admin access required' })
+      return
+    }
+
+    socket.join('admin')
+    console.log(`Socket ${socket.id} joined admin room`)
+  })
+
   // Event: Leave
   socket.on('event:leave', (eventSlug: string) => {
     if (!eventSlug) return;
@@ -395,6 +406,15 @@ io.on('connection', (socket) => {
       timestamp: new Date().toISOString(),
     });
   });
+
+  // Admin notification broadcast (admin only)
+  socket.on('admin:notification', async (payload: any) => {
+    if (socket.sessionType !== 'admin') return
+    io.to('admin').emit('admin:notification', {
+      ...payload,
+      timestamp: new Date().toISOString(),
+    })
+  })
 
   // Upload Events (Admin/Auth Only)
   // Standardized payload: use `photo_id` (snake_case) consistently.
