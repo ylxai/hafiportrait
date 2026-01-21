@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { toast } from 'sonner'
 import PhotoTile from './PhotoTile'
 import PhotoLightbox from './PhotoLightbox'
 import GalleryHeader from './GalleryHeader'
@@ -51,10 +50,9 @@ export default function PhotoGrid({
   )
   const [error, setError] = useState<string | null>(null)
 
-  // Phase 1 realtime UI state
+  // Real-time UI state
   const [hasNewImages, setHasNewImages] = useState(false)
   const [newImagesCount, setNewImagesCount] = useState(0)
-  const toastShownAtRef = useRef<number>(0)
 
   const observerTarget = useRef<HTMLDivElement>(null)
   const PHOTOS_PER_PAGE = 50
@@ -127,20 +125,12 @@ export default function PhotoGrid({
     trackEventView()
   }, [fetchPhotos, trackEventView])
 
-  // Phase 1 realtime: listen for new uploads and show "New Images Added"
+  // Real-time: listen for new uploads and update badge counter
   useEffect(() => {
     const unsubscribe = onPhotoUploadComplete(() => {
       setHasNewImages(true)
       setNewImagesCount((c) => c + 1)
-
-      // Debounce toast so we don't spam during burst uploads
-      const now = Date.now()
-      if (now - toastShownAtRef.current < 5000) return
-      toastShownAtRef.current = now
-
-      toast('New Images Added', {
-        duration: 8000, // auto-hide 5–10s
-      })
+      // Note: We only show the "New Images (X)" badge button, no toast notification
     })
 
     return unsubscribe
@@ -239,11 +229,8 @@ export default function PhotoGrid({
             ? { since: newPhotos[0].created_at, since_id: newPhotos[0].id }
             : cursor
 
-          const now = Date.now()
-          if (now - toastShownAtRef.current >= 5000) {
-            toastShownAtRef.current = now
-            toast('New Images Added', { duration: 8000 })
-          }
+          // Note: Toast notification is handled by real-time Socket.IO listener
+          // Polling only updates the badge counter silently
         }
       } catch {
         // Silent fail; polling is best-effort
