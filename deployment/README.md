@@ -46,7 +46,17 @@ bash deployment/scripts/health-check.sh
 npm run build
 ```
 
-### 3. Start Services with PM2
+### 3. Start/Restart Services with PM2
+
+Recommended (safe restart + health checks):
+
+```bash
+bash scripts/pm2-control.sh restart-safe+health
+pm2 save
+```
+
+Alternative (raw PM2):
+
 ```bash
 pm2 start ecosystem.config.js
 pm2 save
@@ -69,13 +79,14 @@ sudo bash deployment/scripts/ssl-setup.sh
 ## 🔐 Security Information
 
 ### Redis Password
-```
-Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=
-```
 
-**Test Redis:**
+⚠️ **Do not commit secrets** in this repository.
+
+- Store the Redis password in your server environment (e.g. `.env.production`) as `REDIS_PASSWORD`.
+- Test Redis:
+
 ```bash
-redis-cli -a "Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=" ping
+redis-cli -a "$REDIS_PASSWORD" ping
 ```
 
 ### Firewall Ports
@@ -118,13 +129,13 @@ sudo tail -f /var/log/nginx/socketio_error.log
 ### Redis Monitoring
 ```bash
 # Connect to Redis CLI
-redis-cli -a "Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M="
+redis-cli -a "$REDIS_PASSWORD"
 
 # Check memory usage
-redis-cli -a "Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=" INFO memory
+redis-cli -a "$REDIS_PASSWORD" INFO memory
 
 # Monitor commands in real-time
-redis-cli -a "Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=" MONITOR
+redis-cli -a "$REDIS_PASSWORD" MONITOR
 ```
 
 ## 🔧 Common Commands

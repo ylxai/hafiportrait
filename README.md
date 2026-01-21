@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-NeonDB-4169e1?style=flat-square&logo=postgresql)](https://neon.tech/)
-[![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
+[![Deployment](https://img.shields.io/badge/Deployed-VPS%20%2B%20PM2-blue?style=flat-square&logo=linux)](#deployment)
 
 [Live Demo](https://hafiportrait.photography) • [Report Bug](mailto:dev@hafiportrait.photography) • [Request Feature](https://wa.me/6289570050193)
 
@@ -77,8 +77,10 @@ Hafiportrait Photography is a modern photography business platform based in **Ke
 - **File Upload:** Native Next.js API with multipart support
 
 ### DevOps & Deployment
-- **Hosting:** Vercel
-- **Database:** NeonDB (Serverless PostgreSQL)
+- **Hosting:** VPS (Nginx + PM2)
+- **Realtime:** Socket.IO server (`npm run start:socket`)
+- **Database:** NeonDB (PostgreSQL)
+- **Cache/Queue:** Redis (optional, for Socket.IO adapter/caching)
 - **Version Control:** Git
 - **Package Manager:** npm
 
@@ -88,16 +90,16 @@ Hafiportrait Photography is a modern photography business platform based in **Ke
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- npm or yarn
-- PostgreSQL database (or NeonDB account)
+- Node.js 20+ (required by `package.json` engines)
+- npm
+- PostgreSQL database (Neon recommended)
 - Git
 
 ### Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/hafiportrait-platform.git
-cd hafiportrait-platform
+git clone <YOUR_REPO_URL>
+cd hafiportrait
 ```
 
 ### Install Dependencies
@@ -123,6 +125,7 @@ JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 ADMIN_PASSWORD_HASH="your-bcrypt-hashed-admin-password"
 
 # Application
+# Public site URL (used in links/metadata). In production, set to your domain.
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NODE_ENV="development"
 
@@ -157,13 +160,22 @@ npx prisma db seed
 
 ### Run Development Server
 
+Run the Next.js app only:
+
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Run Next.js + Socket server together (recommended for realtime features):
+
+```bash
+npm run start:dev:all
+```
+
+Open:
+- Web app: http://localhost:3000
+- Socket server: http://localhost:3001/health
+
 
 ### Build for Production
 
@@ -271,19 +283,19 @@ Delete event (admin only).
 
 ### Photo Upload Endpoints
 
-#### `POST /api/upload`
+#### `POST /api/admin/events/:eventId/photos/upload`
 Upload photos to an event (admin only).
 
 ```typescript
 // FormData with:
 // - files: File[] (max 200MB per file)
-// - eventId: string
 
 // Response
 {
   "success": true,
-  "uploaded": 5,
-  "photos": [ /* photo objects */ ]
+  "uploaded": number,
+  "failed": number,
+  "results": Array<{ success: boolean; error?: string }>
 }
 ```
 
@@ -307,84 +319,54 @@ Verify guest access code.
 
 ---
 
-## 🚢 Deployment Guide
+## 🚢 Deployment
 
-### Deploy to Vercel
+This project is deployed on a VPS using **Nginx + PM2** (and a separate Socket.IO server).
 
-1. **Push to GitHub:**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
+- Production runbook: `deployment/README.md`
+- PM2 helper script (recommended): `bash scripts/pm2-control.sh help`
 
-2. **Connect to Vercel:**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Configure environment variables (copy from `.env`)
+### Production processes
 
-3. **Database Setup:**
-   - Create NeonDB account at [neon.tech](https://neon.tech)
-   - Create new PostgreSQL database
-   - Copy connection string to `DATABASE_URL` in Vercel
+- **Main app (Next.js)**: `npm run build` then `npm run start` via PM2
+- **Realtime socket server**: `npm run start:socket` via PM2
 
-4. **Deploy:**
-   - Vercel will automatically deploy on push to main branch
-   - Run `npx prisma db push` in Vercel terminal to set up database
+### Quick deploy (VPS)
 
-### Custom Domain Setup
+```bash
+npm install
+npm run build
+bash scripts/pm2-control.sh restart-safe+health
+```
 
-1. Add domain in Vercel project settings
-2. Configure DNS records:
-   ```
-   A     @     76.76.21.21
-   CNAME www   cname.vercel-dns.com
-   ```
+> Health endpoints used by the script (override if needed):
+> - `BASE_URL=http://localhost:3000/api/health`
+> - `SOCKET_URL=http://localhost:3001/health`
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Structure (high level)
 
 ```
-hafiportrait-platform/
-├── app/                          # Next.js 15 App Router
-│   ├── (admin)/                  # Admin routes (protected)
-│   │   ├── dashboard/
-│   │   └── events/
-│   ├── (public)/                 # Public routes
-│   │   ├── page.tsx              # Homepage
-│   │   ├── services/
-│   │   ├── gallery/
-│   │   └── contact/
-│   ├── api/                      # API routes
-│   │   ├── auth/
-│   │   ├── events/
-│   │   ├── upload/
-│   │   └── gallery/
-│   ├── layout.tsx                # Root layout
-│   └── globals.css               # Global styles
-├── components/                   # React components
-│   ├── ui/                       # Reusable UI components
-│   ├── admin/                    # Admin-specific components
-│   ├── gallery/                  # Gallery components
-│   └── shared/                   # Shared components
-├── lib/                          # Utility functions
-│   ├── prisma.ts                 # Prisma client
-│   ├── auth.ts                   # Authentication utilities
-│   └── utils.ts                  # Helper functions
-├── prisma/                       # Database schema
-│   ├── schema.prisma
-│   └── migrations/
-├── public/                       # Static assets
-│   ├── uploads/                  # Uploaded photos
-│   └── images/                   # Static images
-├── types/                        # TypeScript type definitions
-├── .env                          # Environment variables
-├── next.config.js                # Next.js configuration
-├── tailwind.config.js            # Tailwind configuration
-├── tsconfig.json                 # TypeScript configuration
-└── package.json                  # Dependencies
+app/                       # Next.js App Router pages
+  admin/                   # Admin UI pages
+  api/                     # API route handlers
+  [eventSlug]/             # Public event pages
+components/                # Reusable components (admin/gallery/landing)
+hooks/                     # Client hooks (auth, socket, likes/comments, etc.)
+lib/                       # Core domain logic (auth, security, upload, storage, prisma, redis)
+prisma/                    # Prisma schema + migrations + seeds
+server/                    # Socket.IO server entry
+public/                    # Static assets (incl. sw.js)
+deployment/                # VPS deployment configs (nginx/redis/scripts)
+scripts/                   # Operational scripts (pm2-control, audits)
 ```
+
+Related docs:
+- Database models: `DATABASE_SCHEMA.md`
+- Production runbook: `deployment/README.md`
+- PM2 helper: `scripts/pm2-control.sh`
+
 
 ---
 

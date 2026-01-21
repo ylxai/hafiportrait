@@ -1,3 +1,25 @@
+# Database Schema (Source of Truth: Prisma)
+
+This project uses **Prisma + PostgreSQL (Neon)**.
+
+- ✅ **Source of truth:** `prisma/schema.prisma`
+- This file contains a *human-readable schema report* and may become outdated if migrations change.
+
+## Core tables (high level)
+
+- `users` – admin users (login)
+- `events` – photography events (slug, access code, display fields)
+- `photos` – event photos + metadata + thumbnails
+- `comments` – guest comments/guestbook
+- `photo_likes` – likes per guest/session
+- `guest_gallery_sessions` – guest access sessions (cookie-based)
+
+> Note: Prisma models are defined in `prisma/schema.prisma`. In this codebase, model names match table names (snake_case), so `model portfolio_photos {}` maps to table `portfolio_photos`.
+- `api_keys` – API keys for integrations/admin
+- `portfolio_photos` – landing/portfolio items
+
+---
+
 # Neon Database Schema Report
 
 **Project:** `hafiportrait`
