@@ -21,9 +21,20 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'pub-99b01fc471a343c6ba5c1eae285ddf9e.r2.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hafiportrait.photography',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.hafiportrait.photography',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   // Exclude bcrypt and other native modules from client bundle
   webpack: (config, { isServer }) => {
