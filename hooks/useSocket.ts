@@ -14,6 +14,11 @@ import { io, Socket } from 'socket.io-client';
 
 interface UseSocketOptions {
   eventSlug?: string;
+  /**
+   * When true, authenticate as admin and join the admin room.
+   * Requires /api/admin/socket-auth to return the JWT cookie token.
+   */
+  admin?: boolean;
   autoConnect?: boolean;
   reconnectionAttempts?: number;
 }
@@ -54,10 +59,11 @@ interface AdminNotification {
 }
 
 export function useSocket({ 
-  eventSlug, 
+  eventSlug,
+  admin = false,
   autoConnect = true,
   reconnectionAttempts = 5 
-}: UseSocketOptions = {}) {
+}: UseSocketOptions = {}) { 
   const [isConnected, setIsConnected] = useState(false);
   const [guestCount, setGuestCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -94,8 +100,23 @@ export function useSocket({
       socketRef.current = socket;
 
       const connectWithAuth = async () => {
-        // If we're in a gallery context (eventSlug provided), try to fetch guest socket auth.
-        // If this fails, we still attempt to connect without auth so errors are visible.
+        // Admin context: authenticate with JWT token from httpOnly cookie
+        if (admin) {
+          try {
+            const res = await fetch('/api/admin/socket-auth', {
+              method: 'GET',
+              credentials: 'include',
+            })
+            if (res.ok) {
+              const data: { token: string } = await res.json()
+              socket.auth = { token: data.token }
+            }
+          } catch {
+            // ignore; connect_error handler will surface problems
+          }
+        }
+
+        // Gallery context: authenticate via guest session
         if (eventSlug) {
           try {
             const res = await fetch(`/api/gallery/${eventSlug}/socket-auth`, {
@@ -104,10 +125,11 @@ export function useSocket({
             })
 
             if (res.ok) {
-              const data: { guestSessionId: string; eventId: string } = await res.json()
+              const data: { guestSessionId: string; eventId: string; eventSlug?: string } =
+                await res.json()
               socket.auth = {
                 guestSessionId: data.guestSessionId,
-                eventSlug: data.eventId,
+                eventSlug: data.eventSlug ?? data.eventId,
                 // backward compatible
                 eventId: data.eventId,
               }
@@ -129,6 +151,11 @@ export function useSocket({
           setError(null);
         }
         
+        // Auto-join admin room
+        if (admin) {
+          socket.emit('admin:join')
+        }
+
         // Auto-join event room if eventSlug provided
         if (eventSlug) {
           socket.emit('event:join', eventSlug);
