@@ -15,9 +15,20 @@ export async function GET(request: NextRequest) {
       orderBy: { display_order: 'asc' }
     })
 
+    // Map to match frontend interface (images with camelCase)
+    const images = slides.map(slide => ({
+      id: slide.id,
+      imageUrl: slide.image_url,
+      thumbnailUrl: slide.thumbnail_url,
+      title: slide.title,
+      subtitle: slide.subtitle,
+      display_order: slide.display_order,
+      is_active: slide.is_active,
+    }))
+
     const settings = await prisma.slideshow_settings.findFirst()
 
-    return NextResponse.json({ slides, settings })
+    return NextResponse.json({ images, settings })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch slideshow' }, { status: 500 })
   }
