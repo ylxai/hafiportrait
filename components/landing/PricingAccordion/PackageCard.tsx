@@ -51,23 +51,23 @@ export default function PackageCard({
       lowerFeature.includes('photographer') ||
       lowerFeature.includes('foto')
     ) {
-      return <Camera className="h-4 w-4 flex-shrink-0 text-brand-teal" />
+      return <Camera className="h-4 w-4 flex-shrink-0 text-detra-gold" />
     }
     if (lowerFeature.includes('jam') || lowerFeature.includes('hari')) {
-      return <Clock className="h-4 w-4 flex-shrink-0 text-brand-teal" />
+      return <Clock className="h-4 w-4 flex-shrink-0 text-detra-gold" />
     }
     if (lowerFeature.includes('album')) {
-      return <BookOpen className="h-4 w-4 flex-shrink-0 text-brand-teal" />
+      return <BookOpen className="h-4 w-4 flex-shrink-0 text-detra-gold" />
     }
     if (lowerFeature.includes('cetak') || lowerFeature.includes('edited')) {
       return (
         <Image
-          className="h-4 w-4 flex-shrink-0 text-brand-teal"
+          className="h-4 w-4 flex-shrink-0 text-detra-gold"
           aria-label="Print/edited feature"
         />
       )
     }
-    return <span className="flex-shrink-0 text-sm text-brand-teal">✓</span>
+    return <span className="flex-shrink-0 text-sm text-detra-gold">✓</span>
   }
 
   return (
@@ -80,30 +80,30 @@ export default function PackageCard({
       {/* Collapsed Header - Always Visible */}
       <button
         onClick={onToggle}
-        className="flex w-full cursor-pointer items-center justify-between p-5 transition-colors hover:bg-gray-50"
+        className="flex w-full cursor-pointer items-center justify-between p-5 transition-colors hover:bg-detra-dark"
       >
         <div className="flex-1 text-left">
           <div className="mb-2 flex items-center space-x-2">
             {categoryIcon && (
-              <div className="text-brand-teal">{categoryIcon}</div>
+              <div className="text-detra-gold">{categoryIcon}</div>
             )}
-            <h3 className="text-lg font-bold text-gray-900 md:text-xl">
+            <h3 className="text-lg font-bold text-white md:text-xl">
               {pkg.name}
             </h3>
             {pkg.isBestSeller && (
-              <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800">
+              <span className="inline-flex items-center rounded-full bg-detra-gold/20 px-2 py-1 text-xs font-semibold text-detra-gold">
                 <Star className="mr-1 h-3 w-3 fill-current" />
                 Best Seller
               </span>
             )}
           </div>
-          <div className="text-2xl font-bold text-brand-teal md:text-3xl">
+          <div className="text-2xl font-bold text-detra-gold md:text-3xl">
             {formatPrice(pkg.price)}
           </div>
         </div>
         <div className="ml-4">
           <ChevronDown
-            className={`h-6 w-6 text-gray-400 transition-transform duration-300 ${
+            className={`h-6 w-6 text-detra-light transition-transform duration-300 ${
               isExpanded ? 'rotate-180' : ''
             }`}
           />
@@ -120,7 +120,7 @@ export default function PackageCard({
         <div className="space-y-4 px-5 pb-5">
           {/* Description */}
           {pkg.description && (
-            <p className="border-t pt-4 text-sm italic text-gray-600 md:text-base">
+            <p className="border-t border-detra-gray pt-4 text-sm italic text-detra-light md:text-base">
               {pkg.description}
             </p>
           )}
@@ -140,15 +140,15 @@ export default function PackageCard({
           {/* Additional Features (Collapsible) */}
           {remainingFeatures.length > 0 && (
             <details className="group">
-              <summary className="flex cursor-pointer items-center space-x-1 text-sm font-medium text-brand-teal hover:text-brand-teal/80">
+              <summary className="flex cursor-pointer items-center space-x-1 text-sm font-medium text-detra-gold hover:text-detra-gold/80">
                 <span>Detail lengkap</span>
                 <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
               </summary>
               <div className="mt-3 space-y-2 border-l-2 border-gray-200 pl-4">
                 {remainingFeatures.map((feature, idx) => (
                   <div key={idx} className="flex items-start space-x-2">
-                    <span className="text-xs text-brand-teal">✓</span>
-                    <span className="text-sm text-gray-600">{feature}</span>
+                    <span className="text-xs text-detra-gold">✓</span>
+                    <span className="text-sm text-detra-light">{feature}</span>
                   </div>
                 ))}
               </div>

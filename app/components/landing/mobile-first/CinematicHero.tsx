@@ -140,7 +140,7 @@ export default function CinematicHero() {
   // Show loading state if no slides (AFTER all hooks!)
   if (displaySlides.length === 0) {
     return (
-      <section className="relative flex h-screen w-full items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600">
+      <section className="relative flex h-screen w-full items-center justify-center bg-gradient-to-br from-detra-black to-detra-dark">
         <div className="text-center text-white">
           <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
           <h1 className="text-3xl font-light tracking-tight md:text-4xl">
