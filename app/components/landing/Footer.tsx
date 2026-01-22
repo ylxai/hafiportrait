@@ -40,7 +40,7 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div>
-            <h3 className="text-3xl mb-4 text-white" style={{ fontFamily: "'Bonheur Royale', cursive" }}>Hafiportrait</h3>
+            <h3 className="text-5xl md:text-6xl mb-4 text-white" style={{ fontFamily: "'Bonheur Royale', cursive" }}>Hafiportrait</h3>
             <p className="text-detra-light leading-relaxed">
               Professional wedding & portrait photography.
             </p>
