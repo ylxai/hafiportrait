@@ -6,7 +6,6 @@ import ModernServices from './components/landing/mobile-first/ModernServices'
 import BentoGallery from './components/landing/mobile-first/BentoGallery'
 import AccordionPricing from './components/landing/mobile-first/AccordionPricing'
 import DigitalPosterEventList from './components/landing/mobile-first/DigitalPosterEventList'
-import ConversationalForm from './components/landing/mobile-first/ConversationalForm'
 import BottomNavigation from './components/landing/mobile-first/BottomNavigation'
 import FloatingCTA from './components/landing/mobile-first/FloatingCTA'
 import Footer from './components/landing/Footer'
@@ -27,7 +26,6 @@ export default function HomeClient() {
       <BentoGallery />
       <AccordionPricing />
       <DigitalPosterEventList />
-      <ConversationalForm />
       <Footer />
       <BottomNavigation />
       <FloatingCTA />

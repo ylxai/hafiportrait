@@ -2,9 +2,7 @@
 
 import { 
   EnvelopeIcon as Mail, 
-  ArrowUpIcon as ArrowUp, 
-  CameraIcon as Camera, 
-  HeartIcon as Heart 
+  ArrowUpIcon as ArrowUp 
 } from '@heroicons/react/24/outline'
 
 // Social Media Icons (SVG)
