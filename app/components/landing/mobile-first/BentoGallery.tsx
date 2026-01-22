@@ -164,7 +164,7 @@ export default function BentoGallery() {
               onClick={() => setSelectedCategory(category)}
               className={`rounded-full px-6 py-2 text-sm font-medium transition-all duration-300 ${
                 selectedCategory === category
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
+                  ? 'bg-detra-gold text-detra-black shadow-lg shadow-detra-gold/20'
                   : 'border border-detra-gray bg-detra-black text-detra-light hover:bg-detra-dark'
               }`}
             >

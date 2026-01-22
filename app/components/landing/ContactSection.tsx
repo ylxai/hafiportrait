@@ -300,7 +300,7 @@ export default function ContactSection() {
                 </a>
 
                 <a href="tel:+6289570050319" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-detra-dark transition-colors">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-detra-gold rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-detra-gold to-detra-gold/80 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -360,7 +360,7 @@ export default function ContactSection() {
                 Follow Our Journey
               </h3>
               <div className="flex gap-3">
-                <a href="https://instagram.com/hafiportrait" target="_blank" rel="noopener noreferrer" className="flex-1 p-4 bg-gradient-to-br from-purple-500 to-detra-gold rounded-xl text-white hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+                <a href="https://instagram.com/hafiportrait" target="_blank" rel="noopener noreferrer" className="flex-1 p-4 bg-gradient-to-br from-detra-gold to-detra-gold/80 rounded-xl text-white hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
                   <InstagramIcon />
                   <span className="font-medium">Instagram</span>
                 </a>

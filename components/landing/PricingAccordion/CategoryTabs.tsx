@@ -20,7 +20,7 @@ export default function CategoryTabs({
   onCategoryChange,
 }: CategoryTabsProps) {
   return (
-    <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm py-3 mb-6 -mx-4 px-4 shadow-sm">
+    <div className="sticky top-0 z-10 bg-detra-black/95 backdrop-blur-sm py-3 mb-6 -mx-4 px-4 shadow-sm">
       <div className="flex flex-wrap gap-1.5 justify-center max-w-4xl mx-auto">
         {categories.map((category) => (
           <button

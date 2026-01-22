@@ -30,7 +30,7 @@ export default function AdditionalServices({ services }: AdditionalServicesProps
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+    <div className="bg-detra-gray rounded-xl shadow-md overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full p-6 flex items-start justify-between cursor-pointer hover:bg-gray-50 transition-colors"

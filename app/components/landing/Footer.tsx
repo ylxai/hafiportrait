@@ -117,7 +117,7 @@ export default function Footer() {
                   href="https://instagram.com/hafiportrait"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-detra-black/10 hover:bg-gradient-to-br hover:from-purple-500 hover:to-detra-gold rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-detra-gold/10 hover:bg-detra-gold rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
                   aria-label="Instagram"
                 >
                   <InstagramIcon />

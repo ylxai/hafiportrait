@@ -53,7 +53,7 @@ export default function EditorialAbout() {
           </div>
 
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-detra-gold">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-detra-gold to-detra-gold/80">
               <HeartIcon className="h-8 w-8 text-white" />
             </div>
             <div className="mb-2 text-4xl font-bold text-white md:text-5xl">

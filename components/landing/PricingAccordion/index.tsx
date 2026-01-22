@@ -76,7 +76,7 @@ export default function PricingAccordion() {
 
   if (loading) {
     return (
-      <section className="py-16 px-4 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-16 px-4 bg-gradient-to-b from-detra-black to-detra-dark">
         <div className="max-w-4xl mx-auto text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal mx-auto"></div>
         </div>
@@ -85,7 +85,7 @@ export default function PricingAccordion() {
 
   }
   return (
-    <section id="pricing" className="py-16 px-4 bg-gradient-to-b from-white to-gray-50">
+    <section id="pricing" className="py-16 px-4 bg-gradient-to-b from-detra-black to-detra-dark">
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-8">
@@ -107,7 +107,7 @@ export default function PricingAccordion() {
         {/* Package Cards */}
         <div className="space-y-4 mb-8">
           {packages.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <div className="text-center py-12 bg-detra-gray rounded-lg shadow-sm">
               <p className="text-gray-500">Tidak ada paket tersedia untuk kategori ini</p>
             </div>
           ) : (

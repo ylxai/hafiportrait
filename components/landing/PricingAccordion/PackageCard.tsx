@@ -76,7 +76,7 @@ export default function PackageCard({
   return (
     <div
       className={`
-        overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300
+        overflow-hidden rounded-xl bg-detra-gray shadow-md transition-all duration-300
         ${isExpanded ? 'ring-2 ring-brand-teal' : 'hover:shadow-lg'}
       `}
     >
