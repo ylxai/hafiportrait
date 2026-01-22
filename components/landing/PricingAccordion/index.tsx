@@ -115,7 +115,6 @@ export default function PricingAccordion() {
               <PackageCard
                 key={pkg.id}
                 package={pkg}
-                categoryName={currentCategory?.name || ''}
                 categoryIcon={currentCategory?.icon || ''}
                 isExpanded={expandedPackage === pkg.id}
                 onToggle={() => handlePackageToggle(pkg.id)}

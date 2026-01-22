@@ -32,7 +32,7 @@ export default function CategoryTabs({
               ${
                 selectedCategory === category.slug
                   ? 'bg-brand-teal text-white shadow-md scale-105'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-detra-gray text-detra-light hover:bg-detra-gray/80'
               }
             `}
           >

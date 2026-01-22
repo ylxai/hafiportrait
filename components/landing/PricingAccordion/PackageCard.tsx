@@ -8,7 +8,6 @@ import {
   BookOpenIcon as BookOpen, 
   PhotoIcon as Image 
 } from '@heroicons/react/24/outline'
-import WhatsAppButton from './WhatsAppButton'
 
 interface Package {
   id: string
@@ -21,7 +20,6 @@ interface Package {
 
 interface PackageCardProps {
   package: Package
-  categoryName: string
   categoryIcon: string
   isExpanded: boolean
   onToggle: () => void
@@ -29,7 +27,6 @@ interface PackageCardProps {
 
 export default function PackageCard({
   package: pkg,
-  categoryName,
   categoryIcon,
   isExpanded,
   onToggle,
@@ -133,7 +130,7 @@ export default function PackageCard({
             {highlightFeatures.map((feature, idx) => (
               <div key={idx} className="flex items-start space-x-3">
                 {getFeatureIcon(feature)}
-                <span className="text-sm leading-relaxed text-gray-700 md:text-base">
+                <span className="text-sm leading-relaxed text-detra-light md:text-base">
                   {feature}
                 </span>
               </div>
@@ -158,15 +155,6 @@ export default function PackageCard({
             </details>
           )}
 
-          {/* Divider */}
-          <div className="border-t border-gray-200"></div>
-
-          {/* WhatsApp CTA Button */}
-          <WhatsAppButton
-            packageName={pkg.name}
-            categoryName={categoryName}
-            price={pkg.price}
-          />
         </div>
       </div>
     </div>
