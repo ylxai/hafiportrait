@@ -13,7 +13,7 @@ export default function EditorialAbout() {
   return (
     <section
       id="about"
-      className="section bg-gradient-to-b from-gray-50 to-white"
+      className="section bg-gradient-to-b from-detra-dark to-detra-black"
     >
       <div className="container-custom">
         {/* Center-aligned heading */}

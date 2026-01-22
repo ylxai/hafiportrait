@@ -137,7 +137,7 @@ export default function BentoGallery() {
   return (
     <section
       id="portfolio"
-      className="bg-gradient-to-b from-white to-gray-50 px-4 py-16 md:py-24"
+      className="bg-gradient-to-b from-detra-black to-detra-dark px-4 py-16 md:py-24"
     >
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}

@@ -362,8 +362,8 @@ export default function CinematicHero() {
             }}
             className={`pointer-events-auto h-3 w-3 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? 'scale-125 bg-white'
-                : 'bg-white/30 hover:bg-white/60'
+                ? 'scale-125 bg-detra-gold'
+                : 'bg-white/30 hover:bg-detra-gold/60'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

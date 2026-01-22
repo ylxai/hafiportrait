@@ -115,7 +115,7 @@ export default function FeaturedEventsCarousel() {
   return (
     <section
       id="events"
-      className="section bg-gradient-to-b from-white to-gray-50"
+      className="section bg-gradient-to-b from-detra-black to-detra-dark"
     >
       <div className="container-custom">
         {/* Section Header */}

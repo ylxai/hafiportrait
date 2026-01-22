@@ -49,7 +49,7 @@ export default function DigitalPosterEventList() {
 
   if (loading) {
     return (
-      <section id="events" className="section bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+      <section id="events" className="section bg-gradient-to-b from-detra-dark to-detra-black overflow-hidden">
         <div className="container-custom">
           <div className="text-center mb-12">
             <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse" />
@@ -70,7 +70,7 @@ export default function DigitalPosterEventList() {
   }
 
   return (
-    <section id="events" className="section bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+    <section id="events" className="section bg-gradient-to-b from-detra-dark to-detra-black overflow-hidden">
       <div className="container-custom">
         {/* Section Header */}
         <motion.div
