@@ -31,7 +31,7 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div>
-            <h3 className="text-2xl font-serif font-bold mb-4 text-white">Hafiportrait</h3>
+            <h3 className="text-3xl mb-4 text-white" style={{ fontFamily: "'Bonheur Royale', cursive" }}>Abiyyu Photography</h3>
             <p className="text-detra-light leading-relaxed">
               Professional wedding & portrait photography.
             </p>
