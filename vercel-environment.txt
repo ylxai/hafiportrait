@@ -1,0 +1,148 @@
+# =============================================================================
+# HAFIPORTRAIT - VERCEL ENVIRONMENT VARIABLES
+# =============================================================================
+# Copy paste setiap line (tanpa #) ke Vercel Dashboard
+# Settings > Environment Variables
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# DATABASE (NeonDB) - ✅ Ready
+# -----------------------------------------------------------------------------
+DATABASE_URL=postgresql://neondb_owner:npg_0NW1CGdAehbH@ep-restless-fire-a43pl1l2-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DIRECT_URL=postgresql://neondb_owner:npg_0NW1CGdAehbH@ep-restless-fire-a43pl1l2-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+# -----------------------------------------------------------------------------
+# REDIS - ⚠️ HARUS DIGANTI KE UPSTASH
+# -----------------------------------------------------------------------------
+# Current: redis://:Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=@localhost:6379
+# TODO: Get Upstash Redis URL from https://upstash.com
+# Format: redis://default:PASSWORD@HOST:6379
+REDIS_URL=redis://:Gtdd09BOfKm0+PZLtrHWjTMdojJLVS+WLVtAhDzq30M=@localhost:6379
+
+# -----------------------------------------------------------------------------
+# SECURITY - ✅ Ready
+# -----------------------------------------------------------------------------
+NEXTAUTH_SECRET=CPxA/NdKeYENJATX1UbLRXtGmIKzP4G8IpUG/+r+AIs=
+JWT_EXPIRATION=24h
+BCRYPT_ROUNDS=12
+ALLOWED_ORIGINS=https://hafiportrait.photography,https://www.hafiportrait.photography
+
+# -----------------------------------------------------------------------------
+# APPLICATION - ✅ Ready (update domain sesuai Vercel)
+# -----------------------------------------------------------------------------
+NODE_ENV=production
+NEXTAUTH_URL=https://hafiportrait.photography
+NEXT_PUBLIC_API_URL=https://hafiportrait.photography/api
+NEXT_PUBLIC_BASE_URL=https://hafiportrait.photography
+
+# -----------------------------------------------------------------------------
+# STORAGE - CLOUDFLARE R2 - ✅ Ready
+# -----------------------------------------------------------------------------
+# ⚠️ CRITICAL: Set USE_LOCAL_STORAGE=false untuk Vercel!
+USE_LOCAL_STORAGE=false
+R2_PUBLIC_URL=https://pub-99b01fc471a343c6ba5c1eae285ddf9e.r2.dev
+R2_ENDPOINT=https://0a21532cc7638a2a70023eadd7ca9165.r2.cloudflarestorage.com
+R2_ACCESS_KEY=c8919ca89140cf24f68bde8f76dffa48
+R2_SECRET_KEY=2592753bdea15840b6e7e9bc13449b0a7b5290490e264274cd52c8456d426f5a
+R2_BUCKET=photos
+R2_REGION=auto
+
+# Optional: CDN URL (if using custom domain for R2)
+# NEXT_PUBLIC_CDN_URL=https://cdn.hafiportrait.com
+
+# -----------------------------------------------------------------------------
+# REAL-TIME - ABLY (Vercel Compatible) - ✅ Ready
+# -----------------------------------------------------------------------------
+SOCKET_IO_ENABLED=false
+NEXT_PUBLIC_ENABLE_REALTIME=true
+ABLY_API_KEY=BONHzw.vH7U5w:SHH4v5WnOLTpJm6ZJEZowPAwJMFEfjATbXaEOCVBkZA
+ABLY_CLIENT_ID=hafiportrait
+NEXT_PUBLIC_ABLY_AUTH_URL=/api/realtime/auth
+
+# Socket.IO URLs (legacy - not used on Vercel)
+# NEXT_PUBLIC_SOCKET_URL=https://socketio.hafiportrait.photography
+# SOCKET_PORT=3001
+
+# -----------------------------------------------------------------------------
+# MEMORY MANAGEMENT - ✅ Ready
+# -----------------------------------------------------------------------------
+MAX_LARGE_FILE_CONCURRENT=2
+LARGE_FILE_THRESHOLD_MB=10
+MAX_BATCH_SIZE_MB=500
+
+# -----------------------------------------------------------------------------
+# CRON JOB SECURITY - ✅ Ready
+# -----------------------------------------------------------------------------
+CRON_SECRET=FZ4NVRul9JZtQiV0FSh08NG3mUxyskGAX+ksXw6aXI0=
+
+# -----------------------------------------------------------------------------
+# OPTIONAL - MONITORING & ANALYTICS
+# -----------------------------------------------------------------------------
+# SENTRY_DSN=
+# NEXT_PUBLIC_GA_ID=
+# WHATSAPP_API_URL=
+# WHATSAPP_API_KEY=
+# WHATSAPP_PHONE_NUMBER=
+
+# =============================================================================
+# ⚠️ CRITICAL CHANGES FOR VERCEL:
+# =============================================================================
+# 
+# 1. ✅ USE_LOCAL_STORAGE=false (MUST CHANGE!)
+#    Vercel tidak support local filesystem storage
+#    Semua files harus di R2
+#
+# 2. ⚠️ REDIS_URL - HARUS GANTI KE UPSTASH
+#    Steps:
+#    a. Sign up: https://upstash.com
+#    b. Create Redis database
+#    c. Copy connection string
+#    d. Format: redis://default:PASSWORD@HOST:6379
+#
+# 3. ✅ SOCKET_IO_ENABLED=false (already set)
+#    Socket.IO tidak compatible dengan Vercel serverless
+#    Gunakan Ably untuk real-time features
+#
+# 4. ✅ R2 Storage sudah configured
+#    Pastikan semua photos sudah di-upload ke R2
+#
+# 5. ⚠️ Update NEXTAUTH_URL & domains sesuai Vercel URL
+#    - Development: https://your-project.vercel.app
+#    - Production: https://hafiportrait.photography
+#
+# =============================================================================
+# CARA COPY KE VERCEL:
+# =============================================================================
+#
+# Option 1: Copy Manual (satu-satu)
+# 1. Buka Vercel Dashboard > Project > Settings > Environment Variables
+# 2. Klik "Add New"
+# 3. Copy paste Key dan Value dari file ini
+# 4. Pilih Environment: Production, Preview, Development (sesuai kebutuhan)
+# 5. Klik "Save"
+#
+# Option 2: Bulk Import (if available)
+# 1. Format file ini sebagai .env
+# 2. Use Vercel CLI: vercel env pull
+#
+# Option 3: Vercel CLI
+# vercel env add KEY
+# (paste value when prompted)
+#
+# =============================================================================
+# VERIFICATION CHECKLIST:
+# =============================================================================
+# 
+# Before deploying to Vercel:
+# [ ] ✅ DATABASE_URL configured
+# [ ] ⚠️ REDIS_URL updated to Upstash
+# [ ] ✅ USE_LOCAL_STORAGE=false
+# [ ] ✅ R2 credentials configured
+# [ ] ✅ NEXTAUTH_SECRET set
+# [ ] ✅ ABLY_API_KEY configured
+# [ ] ✅ CRON_SECRET set
+# [ ] ✅ All photos migrated to R2
+# [ ] ✅ Test deployment on Preview first
+# [ ] ✅ Monitor logs after deployment
+#
+# =============================================================================

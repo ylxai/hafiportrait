@@ -123,21 +123,21 @@ export default function ContactSection() {
     >
       {/* Decorative Background */}
       <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-brand-cyan/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-brand-blue/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-detra-gold/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-detra-gold/20 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         
         {/* Section Header */}
         <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-block px-4 py-2 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full text-brand-teal text-sm font-semibold mb-4">
+          <div className="inline-block px-4 py-2 bg-detra-gold/10 border border-brand-cyan/20 rounded-full text-detra-gold text-sm font-semibold mb-4">
             Get in Touch
           </div>
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
-            Let's Capture Your <span className="italic text-rose-500">Story</span>
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
+            Let's Capture Your <span className="italic text-detra-gold">Story</span>
           </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg text-detra-light max-w-2xl mx-auto">
             Ready to book? Have questions? We'd love to hear from you and discuss your vision.
           </p>
         </div>
@@ -146,8 +146,8 @@ export default function ContactSection() {
           
           {/* Contact Form */}
           <div className={`lg:col-span-3 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
-            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
-              <h3 className="text-2xl font-serif font-bold text-slate-900 mb-6">
+            <div className="bg-detra-black rounded-3xl shadow-2xl p-8 md:p-10">
+              <h3 className="text-2xl font-serif font-bold text-white mb-6">
                 Send us a message
               </h3>
 
@@ -170,7 +170,7 @@ export default function ContactSection() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-semibold text-detra-light mb-2">
                     Your Name *
                   </label>
                   <input
@@ -179,7 +179,7 @@ export default function ContactSection() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors ${errors.name ? 'border-red-500' : 'border-slate-300'}`}
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors ${errors.name ? 'border-red-500' : 'border-detra-gray'}`}
                     placeholder="John & Jane Doe"
                   />
                   {errors.name && (
@@ -190,7 +190,7 @@ export default function ContactSection() {
                 {/* Email & Phone Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-semibold text-detra-light mb-2">
                       Email Address *
                     </label>
                     <input
@@ -199,7 +199,7 @@ export default function ContactSection() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors ${errors.email ? 'border-red-500' : 'border-slate-300'}`}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors ${errors.email ? 'border-red-500' : 'border-detra-gray'}`}
                       placeholder="your@email.com"
                     />
                     {errors.email && (
@@ -208,7 +208,7 @@ export default function ContactSection() {
                   </div>
 
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">
+                    <label htmlFor="phone" className="block text-sm font-semibold text-detra-light mb-2">
                       Phone Number
                     </label>
                     <input
@@ -217,7 +217,7 @@ export default function ContactSection() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors"
+                      className="w-full px-4 py-3 border border-detra-gray rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors"
                       placeholder="+62895-7005-03193"
                     />
                   </div>
@@ -225,7 +225,7 @@ export default function ContactSection() {
 
                 {/* Event Date */}
                 <div>
-                  <label htmlFor="event_date" className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label htmlFor="event_date" className="block text-sm font-semibold text-detra-light mb-2">
                     Event Date (Optional)
                   </label>
                   <input
@@ -234,13 +234,13 @@ export default function ContactSection() {
                     name="event_date"
                     value={formData.event_date}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors"
+                    className="w-full px-4 py-3 border border-detra-gray rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors"
                   />
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label htmlFor="message" className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label htmlFor="message" className="block text-sm font-semibold text-detra-light mb-2">
                     Tell us about your event *
                   </label>
                   <textarea
@@ -249,7 +249,7 @@ export default function ContactSection() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={5}
-                    className={`w-full px-4 py-3 border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors ${errors.message ? 'border-red-500' : 'border-slate-300'}`}
+                    className={`w-full px-4 py-3 border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-colors ${errors.message ? 'border-red-500' : 'border-detra-gray'}`}
                     placeholder="Tell us about your event, location, guest count, and any specific requirements..."
                   />
                   {errors.message && (
@@ -283,39 +283,39 @@ export default function ContactSection() {
           <div className={`lg:col-span-2 space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`} style={{ transitionDelay: '200ms' }}>
             
             {/* Contact Cards */}
-            <div className="bg-white rounded-3xl shadow-xl p-8">
-              <h3 className="text-xl font-serif font-bold text-slate-900 mb-6">
+            <div className="bg-detra-black rounded-3xl shadow-xl p-8">
+              <h3 className="text-xl font-serif font-bold text-white mb-6">
                 Contact Information
               </h3>
 
               <div className="space-y-6">
-                <a href="mailto:dev@hafiportrait.photography" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+                <a href="mailto:dev@hafiportrait.photography" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-detra-dark transition-colors">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-brand-cyan to-brand-teal rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-1">Email</h4>
-                    <p className="text-brand-teal">dev@hafiportrait.photography</p>
+                    <h4 className="font-semibold text-white mb-1">Email</h4>
+                    <p className="text-detra-gold">dev@hafiportrait.photography</p>
                   </div>
                 </a>
 
-                <a href="tel:+6289570050319" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <a href="tel:+6289570050319" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-detra-dark transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-detra-gold rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-1">Phone</h4>
-                    <p className="text-slate-600">+62895-7005-03193</p>
+                    <h4 className="font-semibold text-white mb-1">Phone</h4>
+                    <p className="text-detra-light">+62895-7005-03193</p>
                   </div>
                 </a>
 
-                <a href="https://wa.me/6289570050319" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+                <a href="https://wa.me/6289570050319" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-4 p-4 rounded-xl hover:bg-detra-dark transition-colors">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <MessageCircle className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-1">WhatsApp</h4>
-                    <p className="text-slate-600">Chat with us instantly</p>
+                    <h4 className="font-semibold text-white mb-1">WhatsApp</h4>
+                    <p className="text-detra-light">Chat with us instantly</p>
                   </div>
                 </a>
 
@@ -324,8 +324,8 @@ export default function ContactSection() {
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-1">Location</h4>
-                    <p className="text-slate-600">Kelampaian Tengah, Banjar, Kalimantan Selatan</p>
+                    <h4 className="font-semibold text-white mb-1">Location</h4>
+                    <p className="text-detra-light">Kelampaian Tengah, Banjar, Kalimantan Selatan</p>
                     <p className="text-sm text-slate-500 mt-1">Available nationwide</p>
                   </div>
                 </div>
@@ -335,7 +335,7 @@ export default function ContactSection() {
             {/* Business Hours */}
             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-xl p-8 text-white">
               <div className="flex items-center gap-3 mb-6">
-                <Clock className="w-6 h-6 text-brand-cyan" />
+                <Clock className="w-6 h-6 text-detra-gold" />
                 <h3 className="text-xl font-serif font-bold">Business Hours</h3>
               </div>
               <div className="space-y-3">
@@ -355,12 +355,12 @@ export default function ContactSection() {
             </div>
 
             {/* Social Media */}
-            <div className="bg-white rounded-3xl shadow-xl p-8">
-              <h3 className="text-xl font-serif font-bold text-slate-900 mb-4">
+            <div className="bg-detra-black rounded-3xl shadow-xl p-8">
+              <h3 className="text-xl font-serif font-bold text-white mb-4">
                 Follow Our Journey
               </h3>
               <div className="flex gap-3">
-                <a href="https://instagram.com/hafiportrait" target="_blank" rel="noopener noreferrer" className="flex-1 p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl text-white hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+                <a href="https://instagram.com/hafiportrait" target="_blank" rel="noopener noreferrer" className="flex-1 p-4 bg-gradient-to-br from-purple-500 to-detra-gold rounded-xl text-white hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
                   <InstagramIcon />
                   <span className="font-medium">Instagram</span>
                 </a>

@@ -31,8 +31,8 @@ export default function Footer() {
     <footer className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
       {/* Decorative Background */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-cyan rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-blue rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-detra-gold rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-detra-gold rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 py-16 md:py-20 relative z-10">
@@ -52,7 +52,7 @@ export default function Footer() {
               Professional wedding & portrait photography dengan instant gallery platform. 
               Capturing life's most precious moments dengan artistic vision dan teknologi modern.
             </p>
-            <div className="flex items-center gap-2 text-brand-cyan">
+            <div className="flex items-center gap-2 text-detra-gold">
               <Heart className="w-5 h-5 fill-current" />
               <span className="text-sm">Crafted with love in Kelampaian Tengah, Banjar, Kalimantan Selatan</span>
             </div>
@@ -63,26 +63,26 @@ export default function Footer() {
             <h4 className="text-lg font-serif font-bold mb-4">Quick Links</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#services" className="text-white/70 hover:text-brand-cyan transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 bg-brand-cyan rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <a href="#services" className="text-white/70 hover:text-detra-gold transition-colors flex items-center gap-2 group">
+                  <span className="w-1 h-1 bg-detra-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   Services
                 </a>
               </li>
               <li>
-                <a href="#portfolio" className="text-white/70 hover:text-brand-cyan transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 bg-brand-cyan rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <a href="#portfolio" className="text-white/70 hover:text-detra-gold transition-colors flex items-center gap-2 group">
+                  <span className="w-1 h-1 bg-detra-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   Portfolio
                 </a>
               </li>
               <li>
-                <a href="#pricing" className="text-white/70 hover:text-brand-cyan transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 bg-brand-cyan rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <a href="#pricing" className="text-white/70 hover:text-detra-gold transition-colors flex items-center gap-2 group">
+                  <span className="w-1 h-1 bg-detra-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-white/70 hover:text-brand-cyan transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 bg-brand-cyan rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <a href="#contact" className="text-white/70 hover:text-detra-gold transition-colors flex items-center gap-2 group">
+                  <span className="w-1 h-1 bg-detra-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   Contact
                 </a>
               </li>
@@ -94,13 +94,13 @@ export default function Footer() {
             <h4 className="text-lg font-serif font-bold mb-4">Get in Touch</h4>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:dev@hafiportrait.photography" className="text-white/70 hover:text-brand-cyan transition-colors flex items-center gap-3 group">
+                <a href="mailto:dev@hafiportrait.photography" className="text-white/70 hover:text-detra-gold transition-colors flex items-center gap-3 group">
                   <Mail className="w-4 h-4 flex-shrink-0" />
                   <span className="text-sm">dev@hafiportrait.photography</span>
                 </a>
               </li>
               <li>
-                <a href="tel:+6289570050319" className="text-white/70 hover:text-brand-cyan transition-colors text-sm">
+                <a href="tel:+6289570050319" className="text-white/70 hover:text-detra-gold transition-colors text-sm">
                   +62895-7005-03193
                 </a>
               </li>
@@ -117,7 +117,7 @@ export default function Footer() {
                   href="https://instagram.com/hafiportrait"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-white/10 hover:bg-gradient-to-br hover:from-purple-500 hover:to-pink-500 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-detra-black/10 hover:bg-gradient-to-br hover:from-purple-500 hover:to-detra-gold rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
                   aria-label="Instagram"
                 >
                   <InstagramIcon />
@@ -126,7 +126,7 @@ export default function Footer() {
                   href="https://facebook.com/hafiportrait"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-white/10 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-detra-black/10 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
                   aria-label="Facebook"
                 >
                   <FacebookIcon />
@@ -135,7 +135,7 @@ export default function Footer() {
                   href="https://wa.me/6289570050319"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-white/10 hover:bg-green-600 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-detra-black/10 hover:bg-green-600 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
                   aria-label="WhatsApp"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -159,7 +159,7 @@ export default function Footer() {
             {/* Back to Top Button */}
             <button
               onClick={scrollToTop}
-              className="group flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 transform hover:scale-105"
+              className="group flex items-center gap-2 px-4 py-2 bg-detra-black/10 hover:bg-detra-black/20 rounded-full transition-all duration-300 transform hover:scale-105"
               aria-label="Back to top"
             >
               <span className="text-sm text-white/70 group-hover:text-white">Back to Top</span>

@@ -9,19 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          cyan: '#A7EBF2',
-          teal: '#54ACBF',
-          blue: '#26658C',
-          dark: '#023859',
-          navy: '#011C40',
-        },
-        rose: {
-          400: '#fb7185',
-          500: '#f43f5e',
-        },
-        pink: {
-          500: '#ec4899',
+        detra: {
+          black: '#121212',
+          dark: '#1E1E1E',
+          gray: '#2C2C2C',
+          light: '#E5E5E5',
+          gold: '#C5A059',
         },
       },
       fontFamily: {

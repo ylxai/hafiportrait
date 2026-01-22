@@ -50,7 +50,7 @@ export default function FloatingCTA() {
       >
         <button
           onClick={() => setShowOptions(!showOptions)}
-          className="group relative transform rounded-full bg-gradient-to-r from-rose-400 to-pink-500 p-4 text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:shadow-rose-500/50 active:scale-95"
+          className="group relative transform rounded-full bg-gradient-to-r from-detra-gold to-detra-gold p-4 text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:shadow-rose-500/50 active:scale-95"
         >
           <motion.div
             animate={{ rotate: showOptions ? 45 : 0 }}
@@ -78,7 +78,7 @@ export default function FloatingCTA() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
             onClick={handleWhatsApp}
-            className="group flex transform items-center gap-3 rounded-full bg-white p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
+            className="group flex transform items-center gap-3 rounded-full bg-detra-black p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
             <div className="rounded-full bg-green-500 p-2">
               <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
@@ -94,7 +94,7 @@ export default function FloatingCTA() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
             onClick={handleCall}
-            className="group flex transform items-center gap-3 rounded-full bg-white p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
+            className="group flex transform items-center gap-3 rounded-full bg-detra-black p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
             <div className="rounded-full bg-blue-500 p-2">
               <PhoneIcon className="h-5 w-5 text-white" />
@@ -110,7 +110,7 @@ export default function FloatingCTA() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
             onClick={handleBooking}
-            className="group flex transform items-center gap-3 rounded-full bg-white p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
+            className="group flex transform items-center gap-3 rounded-full bg-detra-black p-3 shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
             <div className="rounded-full bg-rose-500 p-2">
               <CalendarDaysIcon className="h-5 w-5 text-white" />

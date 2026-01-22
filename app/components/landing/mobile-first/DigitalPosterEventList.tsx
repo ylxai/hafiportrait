@@ -80,10 +80,10 @@ export default function DigitalPosterEventList() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
-            Recent <span className="italic text-rose-500">Celebrations</span>
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
+            Recent <span className="italic text-detra-gold">Celebrations</span>
           </h2>
-          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-detra-light max-w-2xl mx-auto">
             Lihat momen-momen indah dari acara yang telah kami dokumentasikan
           </p>
         </motion.div>
@@ -126,7 +126,7 @@ export default function DigitalPosterEventList() {
                         <motion.div
                           animate={{ opacity: [1, 0.3, 1] }}
                           transition={{ repeat: Infinity, duration: 1.5 }}
-                          className="w-2 h-2 bg-white rounded-full"
+                          className="w-2 h-2 bg-detra-black rounded-full"
                         />
                         LIVE NOW
                       </motion.div>
@@ -139,7 +139,7 @@ export default function DigitalPosterEventList() {
 
                   {/* Photo Count Badge */}
                   <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10">
-                    <div className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="bg-detra-black/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
                       {event.photoCount} Photos
                     </div>
                   </div>

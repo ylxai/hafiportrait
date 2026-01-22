@@ -21,7 +21,7 @@ export default function HomeClient() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-detra-black">
       <CinematicHero />
       <ModernServices />
       <BentoGallery />

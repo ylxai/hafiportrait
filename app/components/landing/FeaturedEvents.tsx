@@ -49,24 +49,24 @@ export default function FeaturedEvents() {
   }
 
   return (
-    <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-detra-black relative overflow-hidden">
       {/* Decorative Background */}
       <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-brand-cyan/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-brand-blue/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-detra-gold/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-detra-gold/20 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
 
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full text-brand-teal text-sm font-semibold mb-4">
+          <div className="inline-block px-4 py-2 bg-detra-gold/10 border border-brand-cyan/20 rounded-full text-detra-gold text-sm font-semibold mb-4">
             Recent Work
           </div>
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
             Featured Events
           </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg text-detra-light max-w-2xl mx-auto">
             Browse galleries dari recent events yang kami cover
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function FeaturedEvents() {
             <Link
               key={event.id}
               href={`/${event.slug}`}
-              className="group relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2"
+              className="group relative bg-detra-black rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2"
             >
               {/* Event Cover Image */}
               <div className="relative h-64 bg-gradient-to-br from-slate-200 to-slate-300 overflow-hidden">
@@ -98,21 +98,21 @@ export default function FeaturedEvents() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
                 {/* Photo Count Badge */}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold text-slate-900 z-10">
+                <div className="absolute top-4 right-4 bg-detra-black/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold text-white z-10">
                   {event.totalPhotos} photos
                 </div>
               </div>
 
               {/* Event Info */}
               <div className="p-6">
-                <h3 className="text-xl font-serif font-bold text-slate-900 mb-3 group-hover:text-brand-teal transition-colors">
+                <h3 className="text-xl font-serif font-bold text-white mb-3 group-hover:text-detra-gold transition-colors">
                   {event.name}
                 </h3>
 
-                <div className="space-y-2 text-sm text-slate-600 mb-4">
+                <div className="space-y-2 text-sm text-detra-light mb-4">
                   {event.event_date && (
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-brand-teal" />
+                      <Calendar className="w-4 h-4 text-detra-gold" />
                       {new Date(event.event_date).toLocaleDateString('id-ID', {
                         year: 'numeric',
                         month: 'long',
@@ -122,20 +122,20 @@ export default function FeaturedEvents() {
                   )}
                   {event.location && (
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-brand-teal" />
+                      <MapPin className="w-4 h-4 text-detra-gold" />
                       {event.location}
                     </div>
                   )}
                   {event.clientName && (
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-brand-teal" />
+                      <Users className="w-4 h-4 text-detra-gold" />
                       {event.clientName}
                     </div>
                   )}
                 </div>
 
                 {/* View Gallery Link */}
-                <div className="flex items-center gap-2 text-brand-teal font-semibold group-hover:gap-3 transition-all">
+                <div className="flex items-center gap-2 text-detra-gold font-semibold group-hover:gap-3 transition-all">
                   View Gallery
                   <ExternalLink className="w-4 h-4" />
                 </div>

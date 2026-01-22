@@ -257,7 +257,7 @@ export default function ConversationalForm() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl bg-white p-8 shadow-2xl md:p-12"
+            className="rounded-3xl bg-detra-black p-8 shadow-2xl md:p-12"
           >
             {/* Success Icon */}
             <motion.div
@@ -274,7 +274,7 @@ export default function ConversationalForm() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mb-4 text-center text-3xl font-bold text-gray-900 md:text-4xl"
+              className="mb-4 text-center text-3xl font-bold text-white md:text-4xl"
             >
               Terima Kasih, {formData.name?.split(' ')[0] || 'Kak'}! 🎉
             </motion.h3>
@@ -283,7 +283,7 @@ export default function ConversationalForm() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="mb-3 text-center text-lg text-gray-600"
+              className="mb-3 text-center text-lg text-detra-light"
             >
               ✅ Informasi Anda sudah kami terima dengan baik
             </motion.p>
@@ -294,11 +294,11 @@ export default function ConversationalForm() {
               transition={{ delay: 0.5 }}
               className="mb-8 rounded-2xl bg-purple-50 p-6"
             >
-              <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
+              <h4 className="mb-3 flex items-center gap-2 font-semibold text-white">
                 <CameraIcon className="h-5 w-5 text-purple-600" />
                 Langkah Selanjutnya:
               </h4>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-detra-light">
                 <li className="flex items-start gap-2">
                   <span className="mt-1 text-purple-600">🔹</span>
                   <span>
@@ -349,7 +349,7 @@ export default function ConversationalForm() {
                 </button>
                 <button
                   onClick={handleBackToHome}
-                  className="flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 px-4 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50"
+                  className="flex items-center justify-center gap-2 rounded-xl border-2 border-detra-gray px-4 py-3 font-medium text-detra-light transition-all hover:bg-detra-dark"
                 >
                   <HomeIcon className="h-5 w-5" />
                   Kembali ke Beranda
@@ -389,10 +389,10 @@ export default function ConversationalForm() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <h2 className="mb-3 text-3xl font-bold text-gray-900 md:text-4xl">
+          <h2 className="mb-3 text-3xl font-bold text-white md:text-4xl">
             Konsultasi Gratis 💬
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-detra-light">
             Ceritakan momen spesial Anda, kami siap membantu!
           </p>
         </motion.div>
@@ -400,7 +400,7 @@ export default function ConversationalForm() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-detra-light">
               Langkah {currentStep + 1} dari {formSteps.length}
             </span>
             <span className="text-sm font-semibold text-purple-600">
@@ -410,7 +410,7 @@ export default function ConversationalForm() {
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-gray-200 shadow-inner">
             <motion.div
-              className="h-full bg-gradient-to-r from-purple-500 via-purple-600 to-pink-500"
+              className="h-full bg-gradient-to-r from-purple-500 via-purple-600 to-detra-gold"
               initial={{ width: 0 }}
               animate={{
                 width: `${((currentStep + 1) / formSteps.length) * 100}%`,
@@ -428,7 +428,7 @@ export default function ConversationalForm() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.98 }}
             transition={{ duration: 0.3 }}
-            className="rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl md:p-10"
+            className="rounded-3xl border border-gray-100 bg-detra-black p-6 shadow-2xl md:p-10"
           >
             {/* Icon */}
             {currentStepData?.icon && (
@@ -443,11 +443,11 @@ export default function ConversationalForm() {
             )}
 
             {/* Question */}
-            <h3 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
+            <h3 className="mb-2 text-2xl font-bold text-white md:text-3xl">
               {currentStepData?.question}
             </h3>
             {currentStepData?.subtitle && (
-              <p className="mb-6 text-gray-600">{currentStepData.subtitle}</p>
+              <p className="mb-6 text-detra-light">{currentStepData.subtitle}</p>
             )}
 
             {/* Input Field */}
@@ -467,7 +467,7 @@ export default function ConversationalForm() {
                     className={`w-full rounded-xl border-2 p-4 text-left font-medium transition-all ${
                       formData[currentStepData.field] === option
                         ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 shadow-md'
-                        : 'border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-gray-50'
+                        : 'border-detra-gray text-detra-light hover:border-purple-300 hover:bg-detra-dark'
                     }`}
                   >
                     <span className="flex items-center gap-3">
@@ -484,7 +484,7 @@ export default function ConversationalForm() {
                 value={formData[currentStepData.field] || ''}
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder={currentStepData.placeholder}
-                className="w-full resize-none rounded-xl border-2 border-gray-200 px-6 py-4 text-lg transition-all focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100"
+                className="w-full resize-none rounded-xl border-2 border-detra-gray px-6 py-4 text-lg transition-all focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100"
                 rows={6}
                 autoFocus
               />
@@ -495,7 +495,7 @@ export default function ConversationalForm() {
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={currentStepData.placeholder}
-                className="w-full rounded-xl border-2 border-gray-200 px-6 py-4 text-lg transition-all focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100"
+                className="w-full rounded-xl border-2 border-detra-gray px-6 py-4 text-lg transition-all focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100"
                 autoFocus
               />
             )}
@@ -522,7 +522,7 @@ export default function ConversationalForm() {
                 {currentStep > 0 && (
                   <button
                     onClick={handleBack}
-                    className="flex items-center gap-2 rounded-xl border-2 border-gray-200 px-5 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50"
+                    className="flex items-center gap-2 rounded-xl border-2 border-detra-gray px-5 py-3 font-medium text-detra-light transition-all hover:bg-detra-dark"
                   >
                     <ArrowLeftIcon className="h-5 w-5" />
                     Kembali
@@ -532,7 +532,7 @@ export default function ConversationalForm() {
                 {currentStepData.optional && (
                   <button
                     onClick={handleSkip}
-                    className="px-5 py-3 font-medium text-gray-500 transition-colors hover:text-gray-700"
+                    className="px-5 py-3 font-medium text-gray-500 transition-colors hover:text-detra-light"
                   >
                     Lewati
                   </button>
@@ -541,7 +541,7 @@ export default function ConversationalForm() {
                 <button
                   onClick={handleNext}
                   disabled={isSubmitting}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 text-lg font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-detra-gold px-6 py-3 text-lg font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
@@ -569,10 +569,10 @@ export default function ConversationalForm() {
           transition={{ delay: 0.3 }}
           className="mt-6 text-center"
         >
-          <p className="mb-3 text-gray-600">Ingin konsultasi langsung? 🤝</p>
+          <p className="mb-3 text-detra-light">Ingin konsultasi langsung? 🤝</p>
           <button
             onClick={handleWhatsAppDirect}
-            className="inline-flex items-center gap-2 rounded-xl border-2 border-green-500 bg-white px-6 py-3 font-semibold text-green-700 shadow-md transition-all hover:bg-green-50 hover:shadow-lg"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-green-500 bg-detra-black px-6 py-3 font-semibold text-green-700 shadow-md transition-all hover:bg-green-50 hover:shadow-lg"
           >
             <ChatBubbleLeftRightIcon className="h-5 w-5" />
             Hubungi Langsung via WhatsApp

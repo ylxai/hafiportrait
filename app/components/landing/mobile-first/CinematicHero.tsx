@@ -278,7 +278,7 @@ export default function CinematicHero() {
           className="absolute inset-0"
         >
           {/* Fallback gradient BEHIND image */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+          <div className="absolute inset-0 bg-gradient-to-br from-detra-black via-detra-dark to-detra-black" />
 
           {/* Background Image ABOVE fallback */}
           <OptimizedImage
@@ -319,16 +319,16 @@ export default function CinematicHero() {
           >
             {/* Main Title */}
             <h1 className="text-2xl font-light tracking-tight md:text-3xl lg:text-4xl">
-              <span className="block text-white/90">
+              <span className="block text-white">
                 {displaySlides[currentSlide]?.title || 'Capture Your'}
               </span>
-              <span className="mt-1 block font-serif text-xl italic text-white md:text-2xl lg:text-3xl">
+              <span className="mt-1 block font-serif text-xl italic text-detra-gold md:text-2xl lg:text-3xl">
                 {displaySlides[currentSlide]?.subtitle || 'Love Story'}
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="mx-auto max-w-2xl text-sm font-light text-white/80 md:text-base">
+            <p className="mx-auto max-w-2xl text-sm font-light text-detra-light md:text-base">
               Professional Wedding & Portrait Photography
             </p>
 
@@ -336,14 +336,13 @@ export default function CinematicHero() {
             <div className="pointer-events-auto mt-6 flex flex-wrap items-center justify-center gap-3">
               <a
                 href="#pricing"
-                className="group relative overflow-hidden rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 md:text-base"
+                className="group relative overflow-hidden rounded-full bg-detra-gold px-6 py-3 text-sm font-semibold text-detra-black transition-all duration-300 hover:scale-105 hover:bg-detra-gold/90 hover:shadow-xl active:scale-95 md:text-base"
               >
                 <span className="relative z-10">Price List</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-rose-400 to-pink-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </a>
               <button
                 onClick={scrollToPortfolio}
-                className="rounded-full border-2 border-white/30 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10 active:scale-95 md:text-base"
+                className="rounded-full border-2 border-detra-gold/50 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-detra-gold hover:bg-detra-gold/10 active:scale-95 md:text-base"
               >
                 Our Gallery
               </button>
@@ -395,8 +394,8 @@ export default function CinematicHero() {
 
       {/* Decorative Elements */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-10 top-1/4 h-32 w-32 rounded-full bg-purple-500/10 blur-3xl" />
-        <div className="absolute bottom-1/4 right-10 h-40 w-40 rounded-full bg-pink-500/10 blur-3xl" />
+        <div className="absolute left-10 top-1/4 h-32 w-32 rounded-full bg-detra-gold/10 blur-3xl" />
+        <div className="absolute bottom-1/4 right-10 h-40 w-40 rounded-full bg-detra-gold/10 blur-3xl" />
       </div>
     </section>
   )

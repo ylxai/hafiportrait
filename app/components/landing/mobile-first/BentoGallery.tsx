@@ -147,10 +147,10 @@ export default function BentoGallery() {
           viewport={{ once: true }}
           className="mb-12 text-center"
         >
-          <h2 className="mb-4 text-2xl md:text-3xl font-serif font-bold text-gray-900">
-            Our <span className="italic text-rose-500">Portfolio</span>
+          <h2 className="mb-4 text-2xl md:text-3xl font-serif font-bold text-white">
+            Our <span className="italic text-detra-gold">Portfolio</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-sm md:text-base text-gray-600">
+          <p className="mx-auto max-w-2xl text-sm md:text-base text-detra-light">
             A curated collection of our finest work, capturing life's most
             precious moments
           </p>
@@ -165,7 +165,7 @@ export default function BentoGallery() {
               className={`rounded-full px-6 py-2 text-sm font-medium transition-all duration-300 ${
                 selectedCategory === category
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
-                  : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                  : 'border border-detra-gray bg-detra-black text-detra-light hover:bg-detra-dark'
               }`}
             >
               {category}
@@ -271,8 +271,8 @@ export default function BentoGallery() {
                     key={index}
                     className={`h-1 rounded-full transition-all ${
                       index === currentPhotoIndex
-                        ? 'w-8 bg-white'
-                        : 'w-1 bg-white/40'
+                        ? 'w-8 bg-detra-black'
+                        : 'w-1 bg-detra-black/40'
                     }`}
                   />
                 ))}

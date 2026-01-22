@@ -21,7 +21,7 @@ function NavItem({ icon, label, onClick, is_active }: NavItemProps) {
     <button
       onClick={onClick}
       className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 transition-all duration-300 ${
-        is_active ? 'text-rose-500' : 'text-gray-600'
+        is_active ? 'text-detra-gold' : 'text-detra-light'
       }`}
     >
       <motion.div
@@ -99,7 +99,7 @@ export default function BottomNavigation() {
       initial={{ y: 0 }}
       animate={{ y: isVisible ? 0 : 100 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-gray-200 shadow-2xl md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-detra-black/95 backdrop-blur-lg border-t border-detra-gray shadow-2xl md:hidden"
     >
       <div className="flex justify-around items-center px-2 safe-bottom">
         <NavItem

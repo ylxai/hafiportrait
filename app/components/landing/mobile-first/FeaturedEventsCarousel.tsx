@@ -126,10 +126,10 @@ export default function FeaturedEventsCarousel() {
           transition={{ duration: 0.6 }}
           className="mb-16 text-center"
         >
-          <h2 className="mb-4 font-serif text-2xl font-bold text-gray-900 md:text-3xl">
-            Recent <span className="italic text-rose-500">Celebrations</span>
+          <h2 className="mb-4 font-serif text-2xl font-bold text-white md:text-3xl">
+            Recent <span className="italic text-detra-gold">Celebrations</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
+          <p className="mx-auto max-w-2xl text-lg text-detra-light">
             Real weddings, real love stories. Explore our latest work.
           </p>
         </motion.div>
@@ -192,7 +192,7 @@ export default function FeaturedEventsCarousel() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
-                      className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm"
+                      className="mb-4 inline-block rounded-full bg-detra-black/20 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm"
                     >
                       {currentEvent.title}
                     </motion.div>
@@ -245,7 +245,7 @@ export default function FeaturedEventsCarousel() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 }}
-                      className="inline-flex transform items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-gray-900 transition-all duration-300 hover:scale-105 hover:bg-rose-500 hover:text-white"
+                      className="inline-flex transform items-center gap-2 rounded-full bg-detra-black px-6 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-rose-500 hover:text-white"
                     >
                       View Full Gallery
                       <ArrowTopRightOnSquareIcon className="h-4 w-4" />
@@ -258,14 +258,14 @@ export default function FeaturedEventsCarousel() {
             {/* Navigation Arrows */}
             <button
               onClick={() => paginate(-1)}
-              className="absolute left-4 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-white/20 p-3 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30"
+              className="absolute left-4 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-detra-black/20 p-3 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-detra-black/30"
               aria-label="Previous event"
             >
               <ChevronLeftIcon className="h-6 w-6" />
             </button>
             <button
               onClick={() => paginate(1)}
-              className="absolute right-4 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-white/20 p-3 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30"
+              className="absolute right-4 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-detra-black/20 p-3 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-detra-black/30"
               aria-label="Next event"
             >
               <ChevronRightIcon className="h-6 w-6" />
@@ -282,8 +282,8 @@ export default function FeaturedEventsCarousel() {
                   }}
                   className={`h-2 w-2 rounded-full transition-all duration-300 ${
                     index === currentIndex
-                      ? 'w-8 bg-white'
-                      : 'bg-white/50 hover:bg-white/70'
+                      ? 'w-8 bg-detra-black'
+                      : 'bg-detra-black/50 hover:bg-detra-black/70'
                   }`}
                   aria-label={`Go to event ${index + 1}`}
                 />

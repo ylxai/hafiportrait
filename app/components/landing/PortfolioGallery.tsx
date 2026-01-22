@@ -153,25 +153,25 @@ export default function PortfolioGallery() {
       <section 
         id="portfolio" 
         ref={sectionRef}
-        className="py-20 md:py-32 bg-gradient-to-b from-white to-slate-50 relative overflow-hidden"
+        className="py-20 md:py-32 bg-detra-black relative overflow-hidden"
       >
         {/* Decorative Background */}
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-brand-cyan/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-72 h-72 bg-brand-blue/20 rounded-full blur-3xl" />
+          <div className="absolute top-20 right-10 w-72 h-72 bg-detra-gold/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 left-10 w-72 h-72 bg-detra-gold/20 rounded-full blur-3xl" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
           
           {/* Section Header */}
           <div className={`text-center mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="inline-block px-4 py-2 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full text-brand-teal text-sm font-semibold mb-4">
-              Our <span className="italic text-rose-500">Portfolio</span>
+            <div className="inline-block px-4 py-2 bg-detra-gold/10 border border-detra-gold/20 rounded-full text-detra-gold text-sm font-semibold mb-4">
+              Our <span className="italic text-detra-gold">Portfolio</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
-              Stories We've <span className="italic text-rose-500">Captured</span>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
+              Stories We've <span className="italic text-detra-gold">Captured</span>
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-detra-light max-w-2xl mx-auto">
               Explore our collection of wedding, portrait, and event photography
             </p>
           </div>

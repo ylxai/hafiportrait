@@ -24,10 +24,10 @@ export default function EditorialAbout() {
           transition={{ duration: 0.6 }}
           className="mb-12 text-center"
         >
-          <h2 className="mb-4 font-serif text-2xl font-bold text-gray-900 md:text-3xl">
-            About <span className="italic text-rose-500">Hafiportrait</span>
+          <h2 className="mb-4 font-serif text-2xl font-bold text-white md:text-3xl">
+            About <span className="italic text-detra-gold">Hafiportrait</span>
           </h2>
-          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
+          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-detra-light">
             We capture life's most precious moments with an editorial eye and
             cinematic approach. Every frame tells a story of love, joy, and
             celebration.
@@ -43,33 +43,33 @@ export default function EditorialAbout() {
           className="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3"
         >
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-400 to-pink-500">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-detra-gold to-detra-gold">
               <UsersIcon className="h-8 w-8 text-white" />
             </div>
-            <div className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
+            <div className="mb-2 text-4xl font-bold text-white md:text-5xl">
               500+
             </div>
-            <div className="font-medium text-gray-600">Weddings Captured</div>
+            <div className="font-medium text-detra-light">Weddings Captured</div>
           </div>
 
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-detra-gold">
               <HeartIcon className="h-8 w-8 text-white" />
             </div>
-            <div className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
+            <div className="mb-2 text-4xl font-bold text-white md:text-5xl">
               1000+
             </div>
-            <div className="font-medium text-gray-600">Happy Couples</div>
+            <div className="font-medium text-detra-light">Happy Couples</div>
           </div>
 
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500">
               <TrophyIcon className="h-8 w-8 text-white" />
             </div>
-            <div className="mb-2 text-4xl font-bold text-gray-900 md:text-5xl">
+            <div className="mb-2 text-4xl font-bold text-white md:text-5xl">
               5+
             </div>
-            <div className="font-medium text-gray-600">Years Experience</div>
+            <div className="font-medium text-detra-light">Years Experience</div>
           </div>
         </motion.div>
 
@@ -101,17 +101,17 @@ export default function EditorialAbout() {
                 Our Story
               </div>
 
-              <h3 className="font-serif text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
+              <h3 className="font-serif text-3xl font-bold leading-tight text-white md:text-4xl">
                 Turning Moments Into
-                <span className="mt-2 block italic text-rose-500">
+                <span className="mt-2 block italic text-detra-gold">
                   Timeless Memories
                 </span>
               </h3>
 
-              <div className="space-y-4 leading-relaxed text-gray-600">
+              <div className="space-y-4 leading-relaxed text-detra-light">
                 <p>
                   Hi, we're{' '}
-                  <strong className="text-gray-900">Hafiportrait</strong> — a
+                  <strong className="text-white">Hafiportrait</strong> — a
                   team of passionate photographers dedicated to capturing the
                   authentic emotions and beautiful details of your special day.
                 </p>
@@ -133,7 +133,7 @@ export default function EditorialAbout() {
                     const element = document.getElementById('contact')
                     if (element) element.scrollIntoView({ behavior: 'smooth' })
                   }}
-                  className="transform rounded-full bg-gradient-to-r from-rose-400 to-pink-500 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                  className="transform rounded-full bg-gradient-to-r from-detra-gold to-detra-gold px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
                   Let's Work Together
                 </button>
