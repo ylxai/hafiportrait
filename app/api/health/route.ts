@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { redis } from '@/lib/redis'
+import redis from '@/lib/redis'
 
 export async function GET() {
   try {
     const timestamp = new Date().toISOString()
-    
+
     // Check database connection
     let dbStatus = 'unknown'
     try {
@@ -19,8 +19,8 @@ export async function GET() {
     // Check Redis connection
     let redisStatus = 'unknown'
     try {
-      await redis.ping()
-      redisStatus = 'connected'
+      const isHealthy = await redis.isHealthy()
+      redisStatus = isHealthy ? 'connected' : 'disconnected'
     } catch (error) {
       redisStatus = 'disconnected'
       console.error('Redis health check failed:', error)

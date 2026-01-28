@@ -1,4 +1,4 @@
-import { redis } from '@/lib/redis'
+import redis from '@/lib/redis'
 import { RateLimitError } from '@/lib/errors/types'
 import prisma from '@/lib/prisma'
 
@@ -85,7 +85,8 @@ export function getClientIdentifier(request: Request): string {
   const realIp = request.headers.get('x-real-ip')
   const cfConnectingIp = request.headers.get('cf-connecting-ip')
 
-  const ip = cfConnectingIp || realIp || forwardedFor?.split(',')[0] || 'unknown'
+  const ip =
+    cfConnectingIp || realIp || forwardedFor?.split(',')[0] || 'unknown'
 
   // Add user agent untuk better uniqueness
   const userAgent = request.headers.get('user-agent') || 'unknown'
@@ -195,11 +196,11 @@ export async function rateLimit(
  * Used by gallery download endpoints
  */
 export async function checkDownloadRateLimit(guestId: string): Promise<{
-  allowed: boolean;
-  remaining: number;
-  resetTime: number;
+  allowed: boolean
+  remaining: number
+  resetTime: number
 }> {
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
 
   const download_count = await prisma.photo_downloads.count({
     where: {
@@ -208,16 +209,16 @@ export async function checkDownloadRateLimit(guestId: string): Promise<{
         gte: oneHourAgo,
       },
     },
-  });
+  })
 
-  const maxDownloads = RateLimitPresets.GALLERY_DOWNLOAD.maxRequests;
-  const allowed = download_count < maxDownloads;
+  const maxDownloads = RateLimitPresets.GALLERY_DOWNLOAD.maxRequests
+  const allowed = download_count < maxDownloads
 
   return {
     allowed,
     remaining: Math.max(0, maxDownloads - download_count),
     resetTime: Date.now() + 60 * 60 * 1000,
-  };
+  }
 }
 
 /**
