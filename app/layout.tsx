@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { Analytics } from '@vercel/analytics/react'
 import { ToastProvider } from '@/components/providers/ToastProvider'
 import { RootErrorBoundary } from '@/components/error-boundaries'
 import Script from 'next/script'
@@ -61,9 +62,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <RootErrorBoundary userType="guest">
-          {children}
-        </RootErrorBoundary>
+        <RootErrorBoundary userType="guest">{children}</RootErrorBoundary>
 
         {/* Google Analytics Script */}
         <Script
@@ -80,11 +79,12 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'G-BESTMV5CN2');
-            `
+            `,
           }}
         />
 
         <ToastProvider />
+        <Analytics />
       </body>
     </html>
   )
