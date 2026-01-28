@@ -42,7 +42,10 @@ export default function PortfolioUploader({
   // Stable preview URLs to avoid leaking memory by calling URL.createObjectURL in render.
   const [previews, setPreviews] = useState<Record<string, string>>({})
 
-  const fileKeys = useMemo(() => files.map((f) => `${f.name}:${f.size}:${f.lastModified}`), [files])
+  const fileKeys = useMemo(
+    () => files.map((f) => `${f.name}:${f.size}:${f.lastModified}`),
+    [files]
+  )
 
   useEffect(() => {
     setPreviews((prev) => {
@@ -118,15 +121,20 @@ export default function PortfolioUploader({
     setUploadProgress(0)
     setUploadResults([])
 
-    const toastId = toast.showLoading(`Uploading ${files.length} foto portfolio...`)
+    const toastId = toast.showLoading(
+      `Uploading ${files.length} foto portfolio...`
+    )
     try {
       const formData = new FormData()
       files.forEach((file) => formData.append('files', file))
       if (category) formData.append('category', category)
       if (description) formData.append('description', description)
 
-      console.log('Sending FormData with files:', files.map(f => f.name))
-      
+      console.log(
+        'Sending FormData with files:',
+        files.map((f) => f.name)
+      )
+
       const result = await xhrUpload({
         url: '/api/admin/portfolio/upload',
         formData,
@@ -146,7 +154,11 @@ export default function PortfolioUploader({
       const failedCount: number = data?.summary?.failed ?? 0
 
       if (successCount > 0 && failedCount === 0) {
-        toast.updateToast(toastId, 'success', `${successCount} foto berhasil diupload!`)
+        toast.updateToast(
+          toastId,
+          'success',
+          `${successCount} foto berhasil diupload!`
+        )
       } else if (successCount > 0 && failedCount > 0) {
         toast.updateToast(
           toastId,
@@ -159,7 +171,9 @@ export default function PortfolioUploader({
 
       // Clear successful uploads
       if (successCount > 0) {
-        const failedFiles = files.filter((_, index) => !data.results[index]?.success)
+        const failedFiles = files.filter(
+          (_, index) => !data.results[index]?.success
+        )
         setFiles(failedFiles)
         setDescription('')
 
@@ -176,9 +190,14 @@ export default function PortfolioUploader({
           description: msg,
         })
       } catch {
-        toast.updateToast('portfolio-upload-error', 'error', 'Gagal upload portfolio', {
-          description: msg,
-        })
+        toast.updateToast(
+          'portfolio-upload-error',
+          'error',
+          'Gagal upload portfolio',
+          {
+            description: msg,
+          }
+        )
       }
     } finally {
       setUploading(false)
@@ -191,8 +210,8 @@ export default function PortfolioUploader({
       <div
         className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
           dragActive
-            ? 'border-brand-teal bg-brand-teal/5'
-            : 'border-gray-300 hover:border-brand-teal'
+            ? 'border-detra-gold bg-detra-gold/5'
+            : 'border-gray-300 hover:border-detra-gold'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -228,7 +247,7 @@ export default function PortfolioUploader({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add a description for these photos..."
             rows={3}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-brand-teal"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
             disabled={uploading}
           />
         </div>
@@ -240,7 +259,7 @@ export default function PortfolioUploader({
           {uploading && (
             <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
               <div
-                className="h-full bg-brand-teal transition-all"
+                className="h-full bg-detra-gold transition-all"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -252,7 +271,7 @@ export default function PortfolioUploader({
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="flex items-center space-x-2 rounded-lg bg-brand-teal px-4 py-2 text-white hover:bg-brand-teal/90 disabled:cursor-not-allowed disabled:bg-gray-400"
+              className="flex items-center space-x-2 rounded-lg bg-detra-gold px-4 py-2 text-white hover:bg-detra-gold/90 disabled:cursor-not-allowed disabled:bg-gray-400"
             >
               {uploading ? (
                 <>
@@ -273,7 +292,11 @@ export default function PortfolioUploader({
               <div key={index} className="group relative">
                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
                   <Image
-                    src={previews[`${file.name}:${file.size}:${file.lastModified}`] || ''}
+                    src={
+                      previews[
+                        `${file.name}:${file.size}:${file.lastModified}`
+                      ] || ''
+                    }
                     alt={`Upload preview: ${file.name}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"

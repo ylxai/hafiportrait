@@ -40,7 +40,11 @@ interface UploadFile {
 interface PhotoUploaderProps {
   event_id: string
   eventName: string
-  onUploadComplete?: (results: { total: number; success: number; failed: number }) => void
+  onUploadComplete?: (results: {
+    total: number
+    success: number
+    failed: number
+  }) => void
   maxFiles?: number
   maxFileSize?: number // in bytes
 }
@@ -244,9 +248,7 @@ export default function PhotoUploader({
             onProgress: (p) => {
               setFiles((prev) =>
                 prev.map((f) =>
-                  f.id === uploadFile.id
-                    ? { ...f, progress: p.percent }
-                    : f
+                  f.id === uploadFile.id ? { ...f, progress: p.percent } : f
                 )
               )
             },
@@ -365,8 +367,8 @@ export default function PhotoUploader({
           transition-all duration-200
           ${
             isDragging
-              ? 'scale-[1.02] border-brand-teal bg-brand-teal/5'
-              : 'border-gray-300 hover:border-brand-teal hover:bg-gray-50'
+              ? 'scale-[1.02] border-detra-gold bg-detra-gold/5'
+              : 'border-gray-300 hover:border-detra-gold hover:bg-gray-50'
           }
           ${isUploading ? 'pointer-events-none opacity-50' : ''}
         `}
@@ -385,7 +387,7 @@ export default function PhotoUploader({
           <div
             className={`
             rounded-full p-4 transition-colors
-            ${isDragging ? 'bg-brand-teal text-white' : 'bg-gray-100 text-gray-400'}
+            ${isDragging ? 'bg-detra-gold text-white' : 'bg-gray-100 text-gray-400'}
           `}
           >
             <Upload className="h-8 w-8" />
@@ -504,7 +506,7 @@ export default function PhotoUploader({
                 )}
                 {file.status === 'uploading' && (
                   <div className="rounded-full bg-white p-1 shadow-lg">
-                    <Loader2 className="h-4 w-4 animate-spin text-brand-teal" />
+                    <Loader2 className="h-4 w-4 animate-spin text-detra-gold" />
                   </div>
                 )}
                 {file.status === 'success' && (
@@ -526,7 +528,7 @@ export default function PhotoUploader({
               {file.status === 'uploading' && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
                   <div
-                    className="h-full bg-brand-teal transition-all duration-300"
+                    className="h-full bg-detra-gold transition-all duration-300"
                     style={{ width: `${file.progress}%` }}
                   />
                 </div>

@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { 
-  StarIcon as Star, 
-  TrashIcon as Trash2, 
-  PencilIcon as Edit2, 
-  Bars3Icon as GripVertical, 
-  CheckIcon as Check 
+import {
+  StarIcon as Star,
+  TrashIcon as Trash2,
+  PencilIcon as Edit2,
+  Bars3Icon as GripVertical,
+  CheckIcon as Check,
 } from '@heroicons/react/24/outline'
 
 interface PortfolioPhoto {
@@ -129,7 +129,7 @@ export default function PortfolioGrid({
     <div className="space-y-4">
       {/* Bulk Actions */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between rounded-lg bg-brand-teal/10 p-4">
+        <div className="flex items-center justify-between rounded-lg bg-detra-gold/10 p-4">
           <div className="flex items-center space-x-4">
             <span className="font-medium text-gray-900">
               {selectedIds.size} selected
@@ -159,7 +159,7 @@ export default function PortfolioGrid({
               type="checkbox"
               checked={selectedIds.size === photos.length && photos.length > 0}
               onChange={selectAll}
-              className="rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
+              className="rounded border-gray-300 text-detra-gold focus:ring-detra-gold"
             />
             {selectedIds.size === photos.length && photos.length > 0 && (
               <Check className="pointer-events-none absolute inset-0 m-auto h-4 w-4 text-white" />
@@ -180,7 +180,7 @@ export default function PortfolioGrid({
             key={photo.id}
             className={`group relative overflow-hidden rounded-lg border-2 bg-white transition-all ${
               selectedIds.has(photo.id)
-                ? 'border-brand-teal ring-2 ring-brand-teal'
+                ? 'border-detra-gold ring-2 ring-detra-gold'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
@@ -190,7 +190,7 @@ export default function PortfolioGrid({
                 type="checkbox"
                 checked={selectedIds.has(photo.id)}
                 onChange={() => toggleSelect(photo.id)}
-                className="h-5 w-5 rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
+                className="h-5 w-5 rounded border-gray-300 text-detra-gold focus:ring-detra-gold"
               />
             </div>
 
@@ -276,7 +276,7 @@ export default function PortfolioGrid({
                   onChange={(e) =>
                     setEditData({ ...editData, category: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-brand-teal"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
                   placeholder="e.g., Wedding, Portrait, Event"
                 />
               </div>
@@ -289,7 +289,7 @@ export default function PortfolioGrid({
                   onChange={(e) =>
                     setEditData({ ...editData, description: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-brand-teal"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
                   rows={3}
                   placeholder="Photo description..."
                 />
@@ -304,7 +304,7 @@ export default function PortfolioGrid({
               </button>
               <button
                 onClick={saveEdit}
-                className="rounded-lg bg-brand-teal px-4 py-2 text-white hover:bg-brand-teal/90"
+                className="rounded-lg bg-detra-gold px-4 py-2 text-white hover:bg-detra-gold/90"
               >
                 Save
               </button>
