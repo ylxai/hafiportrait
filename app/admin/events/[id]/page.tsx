@@ -113,7 +113,8 @@ export default function EventDetailPage() {
       console.error('Failed to update event:', error)
       setNotification({
         type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to update event',
+        message:
+          error instanceof Error ? error.message : 'Failed to update event',
       })
     }
   }
@@ -126,7 +127,8 @@ export default function EventDetailPage() {
         {
           method: 'POST',
           credentials: 'include', // 🔑 FIXED: Use cookies instead of localStorage
-        })
+        }
+      )
       const result = await response.json()
 
       if (!response.ok) {
@@ -211,34 +213,39 @@ export default function EventDetailPage() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal mx-auto mb-4"></div>
+            <div className="border-brand-teal mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"></div>
             <p className="text-gray-600">Loading event...</p>
           </div>
         </div>
       </AdminLayout>
-      )
+    )
   }
 
   if (!event) {
     return (
       <AdminLayout>
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">Event not found</p>
+        <div className="py-12 text-center">
+          <p className="mb-4 text-red-600">Event not found</p>
           <button
             onClick={() => router.push('/admin/events')}
-            className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90"
+            className="bg-brand-teal hover:bg-brand-teal/90 rounded-lg px-4 py-2 text-white"
           >
             Back to Events
           </button>
         </div>
       </AdminLayout>
-      )
+    )
   }
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : process.env.NEXTAUTH_URL ||
+        (typeof window !== 'undefined'
+          ? window.location.origin
+          : 'http://localhost:3000')
   const galleryUrl = `${baseUrl}/${event.slug}`
   const galleryUrlWithCode = `${galleryUrl}?code=${event.access_code}`
 
@@ -246,14 +253,14 @@ export default function EventDetailPage() {
     <AdminLayout>
       <div className="max-w-5xl space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center space-x-3 mb-2">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            <div className="mb-2 flex items-center space-x-3">
+              <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
                 {event.name}
               </h1>
               <span
-                className={`text-sm px-3 py-1 rounded-full font-medium ${getStatusBadgeColor(
+                className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadgeColor(
                   event.status
                 )}`}
               >
@@ -290,23 +297,33 @@ export default function EventDetailPage() {
               href={galleryUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors space-x-2"
+              className="inline-flex items-center space-x-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200"
             >
-              <Eye className="w-5 h-5" />
+              <Eye className="h-5 w-5" />
               <span>View Gallery</span>
             </a>
             <a
               href={`/admin/events/${event_id}/photos`}
-              className="inline-flex items-center px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors space-x-2"
+              className="bg-brand-teal hover:bg-brand-teal/90 inline-flex items-center space-x-2 rounded-lg px-4 py-2 text-white transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
               <span>Manage Photos</span>
             </a>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors"
+              className="bg-brand-teal hover:bg-brand-teal/90 rounded-lg px-4 py-2 text-white transition-colors"
             >
               {isEditing ? 'Cancel Edit' : 'Edit Event'}
             </button>
@@ -316,19 +333,19 @@ export default function EventDetailPage() {
         {/* Notification */}
         {notification && (
           <div
-            className={`p-4 rounded-lg flex items-start space-x-3 ${
+            className={`flex items-start space-x-3 rounded-lg p-4 ${
               notification.type === 'success'
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-red-50 border border-red-200'
+                ? 'border border-green-200 bg-green-50'
+                : 'border border-red-200 bg-red-50'
             }`}
           >
             {notification.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
             )}
             <p
-              className={`text-sm font-medium flex-1 ${
+              className={`flex-1 text-sm font-medium ${
                 notification.type === 'success'
                   ? 'text-green-800'
                   : 'text-red-800'
@@ -347,8 +364,8 @@ export default function EventDetailPage() {
 
         {/* Edit Form or Event Details */}
         {isEditing ? (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold mb-4">Edit Event</h2>
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-xl font-semibold">Edit Event</h2>
             <EventForm
               onSubmit={handleUpdate}
               initialData={{
@@ -367,21 +384,21 @@ export default function EventDetailPage() {
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Main Info */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="space-y-6 lg:col-span-2">
               {/* Event Statistics */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">Statistics</h3>
+              <div className="rounded-lg bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold">Statistics</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Total Photos</p>
+                  <div className="rounded-lg bg-blue-50 p-4">
+                    <p className="mb-1 text-sm text-gray-600">Total Photos</p>
                     <p className="text-2xl font-bold text-blue-600">
                       {event._count.photos}
                     </p>
                   </div>
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Comments</p>
+                  <div className="rounded-lg bg-purple-50 p-4">
+                    <p className="mb-1 text-sm text-gray-600">Comments</p>
                     <p className="text-2xl font-bold text-purple-600">
                       {event._count.comments}
                     </p>
@@ -390,19 +407,22 @@ export default function EventDetailPage() {
               </div>
 
               {/* Event Details */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">Event Details</h3>
+              <div className="rounded-lg bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold">Event Details</h3>
                 <div className="space-y-3">
                   {event.event_date && (
                     <div>
                       <p className="text-sm text-gray-600">Event Date</p>
                       <p className="text-gray-900">
-                        {new Date(event.event_date).toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
+                        {new Date(event.event_date).toLocaleDateString(
+                          'en-US',
+                          {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          }
+                        )}
                       </p>
                     </div>
                   )}
@@ -448,50 +468,50 @@ export default function EventDetailPage() {
             {/* Sidebar - Access & QR */}
             <div className="space-y-6">
               {/* Access Information */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">Access Info</h3>
+              <div className="rounded-lg bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold">Access Info</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">Gallery URL</p>
+                    <p className="mb-2 text-sm text-gray-600">Gallery URL</p>
                     <div className="flex items-center space-x-2">
                       <input
                         type="text"
                         value={galleryUrl}
                         readOnly
-                        className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm font-mono"
+                        className="flex-1 rounded border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-sm"
                       />
                       <button
                         onClick={() => copyToClipboard(galleryUrl)}
-                        className="p-2 text-gray-600 hover:text-brand-teal transition-colors"
+                        className="hover:text-brand-teal p-2 text-gray-600 transition-colors"
                         title="Copy URL"
                       >
-                        <Copy className="w-5 h-5" />
+                        <Copy className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">Access Code</p>
+                    <p className="mb-2 text-sm text-gray-600">Access Code</p>
                     <div className="flex items-center space-x-2">
                       <input
                         type="text"
                         value={event.access_code}
                         readOnly
-                        className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded text-lg font-bold tracking-wider text-center"
+                        className="flex-1 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-center text-lg font-bold tracking-wider"
                       />
                       <button
                         onClick={() => copyToClipboard(event.access_code)}
-                        className="p-2 text-gray-600 hover:text-brand-teal transition-colors"
+                        className="hover:text-brand-teal p-2 text-gray-600 transition-colors"
                         title="Copy Code"
                       >
-                        <Copy className="w-5 h-5" />
+                        <Copy className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">
+                    <p className="mb-2 text-sm text-gray-600">
                       Direct Access URL
                     </p>
                     <div className="flex items-center space-x-2">
@@ -499,14 +519,14 @@ export default function EventDetailPage() {
                         type="text"
                         value={galleryUrlWithCode}
                         readOnly
-                        className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded text-xs font-mono"
+                        className="flex-1 rounded border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-xs"
                       />
                       <button
                         onClick={() => copyToClipboard(galleryUrlWithCode)}
-                        className="p-2 text-gray-600 hover:text-brand-teal transition-colors"
+                        className="hover:text-brand-teal p-2 text-gray-600 transition-colors"
                         title="Copy URL"
                       >
-                        <Copy className="w-5 h-5" />
+                        <Copy className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
@@ -514,13 +534,13 @@ export default function EventDetailPage() {
               </div>
 
               {/* QR Code */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">QR Code</h3>
+              <div className="rounded-lg bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold">QR Code</h3>
 
                 {event.qr_code_url ? (
                   <div className="space-y-4">
-                    <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
-                      <div className="relative w-full aspect-square">
+                    <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
+                      <div className="relative aspect-square w-full">
                         <Image
                           src={event.qr_code_url}
                           alt={`QR Code for ${event.name} event`}
@@ -533,40 +553,40 @@ export default function EventDetailPage() {
                     <div className="flex space-x-2">
                       <button
                         onClick={downloadQRCode}
-                        className="flex-1 px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors flex items-center justify-center space-x-2"
+                        className="bg-brand-teal hover:bg-brand-teal/90 flex flex-1 items-center justify-center space-x-2 rounded-lg px-4 py-2 text-white transition-colors"
                       >
-                        <Download className="w-5 h-5" />
+                        <Download className="h-5 w-5" />
                         <span>Download</span>
                       </button>
                       <button
                         onClick={handleGenerateQR}
                         disabled={generatingQR}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
                         title="Regenerate QR Code"
                       >
-                        <QrCode className="w-5 h-5" />
+                        <QrCode className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <QrCode className="w-16 h-16 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-4 text-sm">
+                  <div className="py-8 text-center">
+                    <QrCode className="mx-auto mb-3 h-16 w-16 text-gray-400" />
+                    <p className="mb-4 text-sm text-gray-600">
                       No QR code generated yet
                     </p>
                     <button
                       onClick={handleGenerateQR}
                       disabled={generatingQR}
-                      className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2 mx-auto"
+                      className="bg-brand-teal hover:bg-brand-teal/90 mx-auto flex items-center justify-center space-x-2 rounded-lg px-4 py-2 text-white transition-colors disabled:opacity-50"
                     >
                       {generatingQR ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                           <span>Generating...</span>
                         </>
                       ) : (
                         <>
-                          <QrCode className="w-5 h-5" />
+                          <QrCode className="h-5 w-5" />
                           <span>Generate QR Code</span>
                         </>
                       )}
@@ -576,8 +596,8 @@ export default function EventDetailPage() {
               </div>
 
               {/* Danger Zone */}
-              <div className="bg-white rounded-lg shadow-sm p-6 border-2 border-red-200">
-                <h3 className="text-lg font-semibold text-red-600 mb-4">
+              <div className="rounded-lg border-2 border-red-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold text-red-600">
                   Danger Zone
                 </h3>
                 {showDeleteConfirm ? (
@@ -589,13 +609,13 @@ export default function EventDetailPage() {
                     <div className="flex space-x-2">
                       <button
                         onClick={handleDelete}
-                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
                       >
                         Yes, Delete
                       </button>
                       <button
                         onClick={() => setShowDeleteConfirm(false)}
-                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                       >
                         Cancel
                       </button>
@@ -604,9 +624,9 @@ export default function EventDetailPage() {
                 ) : (
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="w-full px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center space-x-2"
+                    className="flex w-full items-center justify-center space-x-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-red-600 transition-colors hover:bg-red-100"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="h-5 w-5" />
                     <span>Delete Event</span>
                   </button>
                 )}
