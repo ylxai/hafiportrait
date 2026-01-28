@@ -573,3 +573,8 @@ foto/
 
 # Standalone photographer python workflow (kept outside git)
 python-workflow/
+
+# Local scripts (maintenance/migration)
+scripts/migrate-to-r2.ts
+scripts/r2-cleanup.ts
+scripts/test-r2-upload.ts
