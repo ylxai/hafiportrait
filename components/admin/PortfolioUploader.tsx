@@ -135,10 +135,21 @@ export default function PortfolioUploader({
         files.map((f) => f.name)
       )
 
+      const uploadBaseUrl =
+        process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
+        process.env.NEXT_PUBLIC_BASE_URL ||
+        ''
+      const uploadUrl = uploadBaseUrl
+        ? `${uploadBaseUrl}/upload/portfolio/batch`
+        : '/api/admin/portfolio/upload'
+
       const result = await xhrUpload({
-        url: '/api/admin/portfolio/upload',
+        url: uploadUrl,
         formData,
-        withCredentials: true,
+        withCredentials: false,
+        headers: {
+          'X-API-Key': process.env.NEXT_PUBLIC_UPLOAD_API_KEY || '',
+        },
         onProgress: (p) => setUploadProgress(p.percent),
       })
 

@@ -1,6 +1,6 @@
 /**
  * Upload Service
- * 
+ *
  * Handles actual file upload to API with:
  * - Chunked upload support
  * - Progress tracking
@@ -8,22 +8,34 @@
  * - Retry logic
  */
 
-import axios from 'axios';
-import { calculateChecksum } from './checksumUtils';
-import { xhrUpload } from '@/lib/upload/xhr-upload';
+import axios from 'axios'
+import { calculateChecksum } from './checksumUtils'
+import { xhrUpload } from '@/lib/upload/xhr-upload'
 
 export interface UploadProgress {
-  loaded: number;
-  total: number;
-  percentage: number;
+  loaded: number
+  total: number
+  percentage: number
 }
 
 export interface UploadResult {
-  success: boolean;
-  photo_id?: string;
-  url?: string;
-  error?: string;
-  checksum?: string;
+  success: boolean
+  photo_id?: string
+  url?: string
+  error?: string
+  checksum?: string
+}
+
+function getUploadApiBaseUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    ''
+  )
+}
+
+function getUploadApiKey(): string {
+  return process.env.NEXT_PUBLIC_UPLOAD_API_KEY || ''
 }
 
 /**
@@ -33,67 +45,67 @@ export async function uploadFile(
   file: File,
   event_id: string,
   options: {
-    onProgress?: (progress: UploadProgress) => void;
-    signal?: AbortSignal;
-    calculateFileChecksum?: boolean;
+    onProgress?: (progress: UploadProgress) => void
+    signal?: AbortSignal
+    calculateFileChecksum?: boolean
   } = {}
 ): Promise<UploadResult> {
-  const { onProgress, signal, calculateFileChecksum = false } = options;
+  const { onProgress, signal, calculateFileChecksum = false } = options
 
   try {
     // Calculate checksum if requested
-    let checksum: string | undefined;
+    let checksum: string | undefined
     if (calculateFileChecksum) {
-      checksum = await calculateChecksum(file);
+      checksum = await calculateChecksum(file)
     }
 
     // Create FormData
-    const formData = new FormData();
-    formData.append('files', file);
+    const formData = new FormData()
+    formData.append('files', file)
     if (checksum) {
-      formData.append('checksum', checksum);
+      formData.append('checksum', checksum)
     }
 
     // Upload with progress tracking
     const result = await uploadWithProgress(
-      `/api/admin/events/${event_id}/photos/upload`,
+      `${getUploadApiBaseUrl()}/upload/event/${event_id}`,
       formData,
       {
         onProgress,
         signal,
       }
-    );
+    )
 
     return {
       success: true,
       ...result,
       checksum,
-    };
+    }
   } catch (error: unknown) {
-    console.error('Upload failed:', error);
-    
+    console.error('Upload failed:', error)
+
     // Check if aborted (handle both standard AbortError and Axios cancellation)
     if (
-      (error instanceof Error && error.name === 'AbortError') || 
+      (error instanceof Error && error.name === 'AbortError') ||
       axios.isCancel(error)
     ) {
       // Re-throw as AbortError to maintain compatibility with callers
-      const abortError = new Error('Upload aborted');
-      abortError.name = 'AbortError';
-      throw abortError;
+      const abortError = new Error('Upload aborted')
+      abortError.name = 'AbortError'
+      throw abortError
     }
 
-    let errorMessage = 'Upload failed';
+    let errorMessage = 'Upload failed'
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.error || error.message;
+      errorMessage = error.response?.data?.error || error.message
     } else if (error instanceof Error) {
-      errorMessage = error.message;
+      errorMessage = error.message
     }
 
     return {
       success: false,
       error: errorMessage,
-    };
+    }
   }
 }
 
@@ -104,8 +116,8 @@ function uploadWithProgress(
   url: string,
   formData: FormData,
   options: {
-    onProgress?: (progress: UploadProgress) => void;
-    signal?: AbortSignal;
+    onProgress?: (progress: UploadProgress) => void
+    signal?: AbortSignal
   } = {}
 ): Promise<any> {
   // In browsers, prefer XHR to avoid intermittent aborts and to get reliable upload progress.
@@ -113,7 +125,10 @@ function uploadWithProgress(
     return xhrUpload({
       url,
       formData,
-      withCredentials: true,
+      withCredentials: false,
+      headers: {
+        'X-API-Key': getUploadApiKey(),
+      },
       signal: options.signal,
       onProgress: (p) => {
         options.onProgress?.({
@@ -138,7 +153,10 @@ function uploadWithProgress(
   return axios
     .post(url, formData, {
       signal: options.signal,
-      withCredentials: true,
+      withCredentials: false,
+      headers: {
+        'X-API-Key': getUploadApiKey(),
+      },
       timeout: 120_000,
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
@@ -150,12 +168,12 @@ function uploadWithProgress(
             percentage: Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             ),
-          };
-          options.onProgress(progress);
+          }
+          options.onProgress(progress)
         }
       },
     })
-    .then((response) => response.data);
+    .then((response) => response.data)
 }
 
 /**
@@ -165,52 +183,56 @@ export async function uploadBatch(
   files: File[],
   event_id: string,
   options: {
-    onProgress?: (fileIndex: number, progress: UploadProgress) => void;
-    onFileComplete?: (fileIndex: number, result: UploadResult) => void;
-    signal?: AbortSignal;
+    onProgress?: (fileIndex: number, progress: UploadProgress) => void
+    onFileComplete?: (fileIndex: number, result: UploadResult) => void
+    signal?: AbortSignal
   } = {}
 ): Promise<UploadResult[]> {
-  const results: UploadResult[] = [];
+  const results: UploadResult[] = []
 
   for (let i = 0; i < files.length; i++) {
     // Fix: Check if files[i] exists before using
-    const file = files[i];
-    if (!file) continue;
+    const file = files[i]
+    if (!file) continue
 
     try {
       const result = await uploadFile(file, event_id, {
         onProgress: (progress) => {
           if (options.onProgress) {
-            options.onProgress(i, progress);
+            options.onProgress(i, progress)
           }
         },
         signal: options.signal,
-      });
+      })
 
-      results.push(result);
+      results.push(result)
 
       if (options.onFileComplete) {
-        options.onFileComplete(i, result);
+        options.onFileComplete(i, result)
       }
     } catch (error: unknown) {
-      if ((error instanceof Error && error.name === 'AbortError') || axios.isCancel(error)) {
-        throw error;
+      if (
+        (error instanceof Error && error.name === 'AbortError') ||
+        axios.isCancel(error)
+      ) {
+        throw error
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Upload failed'
 
       const errorResult: UploadResult = {
         success: false,
         error: errorMessage,
-      };
+      }
 
-      results.push(errorResult);
+      results.push(errorResult)
 
       if (options.onFileComplete) {
-        options.onFileComplete(i, errorResult);
+        options.onFileComplete(i, errorResult)
       }
     }
   }
 
-  return results;
+  return results
 }
