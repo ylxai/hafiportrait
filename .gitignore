@@ -578,3 +578,8 @@ python-workflow/
 scripts/migrate-to-r2.ts
 scripts/r2-cleanup.ts
 scripts/test-r2-upload.ts
+
+# Upload API (VPS only)
+upload-api/node_modules
+upload-api/dist
+upload-api/.env
