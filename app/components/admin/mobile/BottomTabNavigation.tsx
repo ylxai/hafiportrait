@@ -46,14 +46,16 @@ interface BottomTabNavigationProps {
   newMessagesCount?: number
 }
 
-export default function BottomTabNavigation({ newMessagesCount }: BottomTabNavigationProps) {
+export default function BottomTabNavigation({
+  newMessagesCount,
+}: BottomTabNavigationProps) {
   const pathname = usePathname()
   const [showMoreMenu, setShowMoreMenu] = useState(false)
 
   // Update badge count for clients tab
-  const tabsWithBadges = primaryTabs.map(tab => ({
+  const tabsWithBadges = primaryTabs.map((tab) => ({
     ...tab,
-    badge: tab.href === '/admin/messages' ? newMessagesCount : undefined
+    badge: tab.href === '/admin/messages' ? newMessagesCount : undefined,
   }))
 
   const isTabActive = (href: string) => {
@@ -66,8 +68,8 @@ export default function BottomTabNavigation({ newMessagesCount }: BottomTabNavig
   return (
     <>
       {/* Bottom Navigation Bar - Mobile Only */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-pb">
-        <div className="grid grid-cols-5 h-16">
+      <div className="safe-area-pb fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white md:hidden">
+        <div className="grid h-16 grid-cols-5">
           {tabsWithBadges.map((tab) => {
             const Icon = tab.icon
             const active = isTabActive(tab.href)
@@ -78,19 +80,23 @@ export default function BottomTabNavigation({ newMessagesCount }: BottomTabNavig
                 href={tab.href}
                 className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
                   active
-                    ? 'text-brand-teal'
-                    : 'text-gray-500 active:text-brand-teal'
+                    ? 'text-detra-gold'
+                    : 'text-gray-500 active:text-detra-gold'
                 }`}
               >
                 <div className="relative">
-                  <Icon className={`w-6 h-6 ${active ? 'text-brand-teal' : 'text-gray-500'}`} />
+                  <Icon
+                    className={`h-6 w-6 ${active ? 'text-detra-gold' : 'text-gray-500'}`}
+                  />
                   {tab.badge && tab.badge > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                       {tab.badge > 9 ? '9+' : tab.badge}
                     </span>
                   )}
                 </div>
-                <span className={`text-xs font-medium ${active ? 'text-brand-teal' : 'text-gray-500'}`}>
+                <span
+                  className={`text-xs font-medium ${active ? 'text-detra-gold' : 'text-gray-500'}`}
+                >
                   {tab.name}
                 </span>
               </Link>
@@ -100,9 +106,9 @@ export default function BottomTabNavigation({ newMessagesCount }: BottomTabNavig
           {/* More Menu Button */}
           <button
             onClick={() => setShowMoreMenu(true)}
-            className="flex flex-col items-center justify-center space-y-1 text-gray-500 active:text-brand-teal transition-colors"
+            className="flex flex-col items-center justify-center space-y-1 text-gray-500 transition-colors active:text-detra-gold"
           >
-            <MenuIcon className="w-6 h-6" />
+            <MenuIcon className="h-6 w-6" />
             <span className="text-xs font-medium">More</span>
           </button>
         </div>
@@ -115,7 +121,7 @@ export default function BottomTabNavigation({ newMessagesCount }: BottomTabNavig
       />
 
       {/* Bottom padding untuk konten agar tidak tertutup bottom nav */}
-      <div className="md:hidden h-16" />
+      <div className="h-16 md:hidden" />
     </>
   )
 }

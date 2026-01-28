@@ -22,7 +22,8 @@ interface MobileHeaderProps {
 }
 
 const getPageTitle = (pathname: string): string => {
-  if (pathname === '/admin' || pathname === '/admin/dashboard') return 'Dashboard'
+  if (pathname === '/admin' || pathname === '/admin/dashboard')
+    return 'Dashboard'
   if (pathname.startsWith('/admin/events')) {
     if (pathname.includes('/create')) return 'Create Event'
     if (pathname.includes('/photos')) return 'Event Photos'
@@ -55,7 +56,7 @@ export default function MobileHeader({
   showMenu = false,
   onMenuClick,
   rightAction,
-  notifications = 0
+  notifications = 0,
 }: MobileHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -63,7 +64,8 @@ export default function MobileHeader({
   const [searchQuery, setSearchQuery] = useState('')
 
   const pageTitle = title || getPageTitle(pathname)
-  const canGoBack = showBack || (pathname !== '/admin' && pathname !== '/admin/dashboard')
+  const canGoBack =
+    showBack || (pathname !== '/admin' && pathname !== '/admin/dashboard')
 
   const handleBack = () => {
     if (pathname.includes('/admin/events/') && !pathname.includes('/create')) {
@@ -86,21 +88,24 @@ export default function MobileHeader({
 
   if (searchOpen) {
     return (
-      <header className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-200">
-        <form onSubmit={handleSearch} className="flex items-center p-4 space-x-3">
+      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white md:hidden">
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center space-x-3 p-4"
+        >
           <button
             type="button"
             onClick={() => setSearchOpen(false)}
-            className="p-2 -ml-2 text-gray-500 hover:text-gray-700 active:text-gray-900"
+            className="-ml-2 p-2 text-gray-500 hover:text-gray-700 active:text-gray-900"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </button>
           <input
             type="text"
             placeholder="Search events, photos, clients..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:bg-white"
+            className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm placeholder-gray-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-detra-gold"
             autoFocus
           />
         </form>
@@ -109,28 +114,28 @@ export default function MobileHeader({
   }
 
   return (
-    <header className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white md:hidden">
       <div className="flex items-center justify-between p-4">
         {/* Left Section */}
-        <div className="flex items-center space-x-3 flex-1 min-w-0">
+        <div className="flex min-w-0 flex-1 items-center space-x-3">
           {canGoBack && (
             <button
               onClick={handleBack}
-              className="p-2 -ml-2 text-gray-500 hover:text-gray-700 active:text-gray-900 transition-colors"
+              className="-ml-2 p-2 text-gray-500 transition-colors hover:text-gray-700 active:text-gray-900"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </button>
           )}
           {showMenu && (
             <button
               onClick={onMenuClick}
-              className="p-2 -ml-2 text-gray-500 hover:text-gray-700 active:text-gray-900 transition-colors"
+              className="-ml-2 p-2 text-gray-500 transition-colors hover:text-gray-700 active:text-gray-900"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="h-5 w-5" />
             </button>
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-semibold text-gray-900 truncate">
+            <h1 className="truncate text-lg font-semibold text-gray-900">
               {pageTitle}
             </h1>
           </div>
@@ -143,20 +148,20 @@ export default function MobileHeader({
           {showSearch && (
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 text-gray-500 hover:text-gray-700 active:text-gray-900 transition-colors"
+              className="p-2 text-gray-500 transition-colors hover:text-gray-700 active:text-gray-900"
             >
-              <Search className="w-5 h-5" />
+              <Search className="h-5 w-5" />
             </button>
           )}
 
           {showNotifications && (
             <Link
               href="/admin/messages"
-              className="relative p-2 text-gray-500 hover:text-gray-700 active:text-gray-900 transition-colors"
+              className="relative p-2 text-gray-500 transition-colors hover:text-gray-700 active:text-gray-900"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="h-5 w-5" />
               {notifications > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                   {notifications > 9 ? '9+' : notifications}
                 </span>
               )}

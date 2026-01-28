@@ -30,7 +30,7 @@ export default function QuickActionsFAB() {
         label: 'Create Event',
         icon: CalendarDaysIcon,
         href: '/admin/events/create',
-        color: 'bg-brand-teal',
+        color: 'bg-detra-gold',
       },
       {
         label: 'Upload Photos',
@@ -149,7 +149,7 @@ export default function QuickActionsFAB() {
       {/* Main FAB */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex h-14 w-14 transform items-center justify-center rounded-full bg-brand-teal text-white shadow-lg transition-all duration-200 hover:shadow-xl ${
+        className={`flex h-14 w-14 transform items-center justify-center rounded-full bg-detra-gold text-white shadow-lg transition-all duration-200 hover:shadow-xl ${
           isOpen ? 'rotate-45 bg-gray-600' : 'hover:scale-105'
         }`}
       >

@@ -6,13 +6,13 @@ import BottomTabNavigation from './mobile/BottomTabNavigation'
 import MobileHeader from './mobile/MobileHeader'
 import QuickActionsFAB from './mobile/QuickActionsFAB'
 
-
-
 interface AdminLayoutMobileProps {
   children: React.ReactNode
 }
 
-export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) {
+export default function AdminLayoutMobile({
+  children,
+}: AdminLayoutMobileProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [loading, setLoading] = useState(true)
@@ -27,7 +27,6 @@ export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) 
         router.push('/admin/login')
         return
       }
-
     } catch (error) {
       console.error('Auth check failed:', error)
       router.push('/admin/login')
@@ -48,7 +47,9 @@ export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) 
       })
       if (response.ok) {
         const data = await response.json()
-        const unreadCount = data.messages?.filter((msg: { read?: boolean }) => !msg.read)?.length || 0
+        const unreadCount =
+          data.messages?.filter((msg: { read?: boolean }) => !msg.read)
+            ?.length || 0
         setNewMessagesCount(unreadCount)
       }
     } catch (error) {
@@ -58,9 +59,9 @@ export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-detra-gold"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -68,9 +69,10 @@ export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) 
   }
 
   // Determine if we should show the FAB
-  const showFAB = !pathname.includes('/login') &&
-                  !pathname.includes('/upload') &&
-                  !pathname.includes('/create')
+  const showFAB =
+    !pathname.includes('/login') &&
+    !pathname.includes('/upload') &&
+    !pathname.includes('/create')
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,9 +83,7 @@ export default function AdminLayoutMobile({ children }: AdminLayoutMobileProps) 
       />
 
       {/* Main Content */}
-      <main className="pb-4">
-        {children}
-      </main>
+      <main className="pb-4">{children}</main>
 
       {/* Quick Actions FAB */}
       {showFAB && <QuickActionsFAB />}

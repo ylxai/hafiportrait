@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { generateSlug } from '@/lib/utils/slug'
-import { 
-  CalendarIcon as Calendar, 
-  ArrowPathIcon as Loader2 
+import {
+  CalendarIcon as Calendar,
+  ArrowPathIcon as Loader2,
 } from '@heroicons/react/24/outline'
 
 interface EventFormData {
@@ -61,7 +61,7 @@ export default function EventForm({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target
-    
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'number' ? parseInt(value) || 0 : value,
@@ -101,7 +101,8 @@ export default function EventForm({
     if (!formData.slug.trim()) {
       newErrors.slug = 'Slug is required'
     } else if (!/^[a-z0-9-]+$/.test(formData.slug)) {
-      newErrors.slug = 'Slug must contain only lowercase letters, numbers, and hyphens'
+      newErrors.slug =
+        'Slug must contain only lowercase letters, numbers, and hyphens'
     }
 
     if (!formData.client_email.trim()) {
@@ -114,8 +115,12 @@ export default function EventForm({
       newErrors.description = 'Description must be less than 500 characters'
     }
 
-    if (formData.storage_duration_days < 30 || formData.storage_duration_days > 365) {
-      newErrors.storage_duration_days = 'Storage duration must be between 30 and 365 days'
+    if (
+      formData.storage_duration_days < 30 ||
+      formData.storage_duration_days > 365
+    ) {
+      newErrors.storage_duration_days =
+        'Storage duration must be between 30 and 365 days'
     }
 
     setErrors(newErrors)
@@ -143,7 +148,10 @@ export default function EventForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Event Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="name"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Event Name <span className="text-red-500">*</span>
         </label>
         <input
@@ -153,7 +161,7 @@ export default function EventForm({
           value={formData.name}
           onChange={handleChange}
           placeholder="e.g., Sarah & John Wedding"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold ${
             errors.name ? 'border-red-500' : 'border-gray-300'
           }`}
           maxLength={100}
@@ -168,7 +176,10 @@ export default function EventForm({
 
       {/* Event Slug */}
       <div>
-        <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="slug"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Event Slug <span className="text-red-500">*</span>
         </label>
         <input
@@ -178,7 +189,7 @@ export default function EventForm({
           value={formData.slug}
           onChange={handleSlugChange}
           placeholder="sarah-john-wedding"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent font-mono text-sm ${
+          className={`w-full rounded-lg border px-4 py-2 font-mono text-sm focus:border-transparent focus:ring-2 focus:ring-detra-gold ${
             errors.slug ? 'border-red-500' : 'border-gray-300'
           }`}
           disabled={isEdit}
@@ -195,7 +206,10 @@ export default function EventForm({
 
       {/* Client Email */}
       <div>
-        <label htmlFor="client_email" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="client_email"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Client Email <span className="text-red-500">*</span>
         </label>
         <input
@@ -205,7 +219,7 @@ export default function EventForm({
           value={formData.client_email}
           onChange={handleChange}
           placeholder="client@example.com"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold ${
             errors.client_email ? 'border-red-500' : 'border-gray-300'
           }`}
         />
@@ -216,7 +230,10 @@ export default function EventForm({
 
       {/* Client Phone */}
       <div>
-        <label htmlFor="client_phone" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="client_phone"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Client Phone
         </label>
         <input
@@ -226,13 +243,16 @@ export default function EventForm({
           value={formData.client_phone}
           onChange={handleChange}
           placeholder="+62895-7005-03193"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
         />
       </div>
 
       {/* Couple Name */}
       <div>
-        <label htmlFor="couple_name" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="couple_name"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Couple Name
         </label>
         <input
@@ -242,7 +262,7 @@ export default function EventForm({
           value={formData.couple_name}
           onChange={handleChange}
           placeholder="Sarah & John"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
           maxLength={200}
         />
         <p className="mt-1 text-xs text-gray-500">
@@ -252,7 +272,10 @@ export default function EventForm({
 
       {/* Event Date */}
       <div>
-        <label htmlFor="event_date" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="event_date"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Event Date
         </label>
         <div className="relative">
@@ -262,15 +285,18 @@ export default function EventForm({
             name="event_date"
             value={formData.event_date}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
           />
-          <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
+          <Calendar className="pointer-events-none absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
       </div>
 
       {/* Location */}
       <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="location"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Location
         </label>
         <input
@@ -280,13 +306,16 @@ export default function EventForm({
           value={formData.location}
           onChange={handleChange}
           placeholder="e.g., Ballroom Hotel, Banjarmasin"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold"
         />
       </div>
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="description"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Description
         </label>
         <textarea
@@ -296,7 +325,7 @@ export default function EventForm({
           onChange={handleChange}
           rows={4}
           placeholder="Brief description of the event..."
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold ${
             errors.description ? 'border-red-500' : 'border-gray-300'
           }`}
           maxLength={500}
@@ -311,7 +340,10 @@ export default function EventForm({
 
       {/* Storage Duration */}
       <div>
-        <label htmlFor="storage_duration_days" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="storage_duration_days"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
           Storage Duration (days)
         </label>
         <input
@@ -322,15 +354,18 @@ export default function EventForm({
           onChange={handleChange}
           min={30}
           max={365}
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-teal focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-detra-gold ${
             errors.storage_duration_days ? 'border-red-500' : 'border-gray-300'
           }`}
         />
         {errors.storage_duration_days && (
-          <p className="mt-1 text-sm text-red-500">{errors.storage_duration_days}</p>
+          <p className="mt-1 text-sm text-red-500">
+            {errors.storage_duration_days}
+          </p>
         )}
         <p className="mt-1 text-xs text-gray-500">
-          Photos will be stored for {formData.storage_duration_days} days after event date
+          Photos will be stored for {formData.storage_duration_days} days after
+          event date
         </p>
       </div>
 
@@ -342,9 +377,12 @@ export default function EventForm({
           name="autoGenerateAccessCode"
           checked={formData.autoGenerateAccessCode}
           onChange={handleCheckboxChange}
-          className="h-4 w-4 text-brand-teal focus:ring-brand-teal border-gray-300 rounded"
+          className="h-4 w-4 rounded border-gray-300 text-detra-gold focus:ring-detra-gold"
         />
-        <label htmlFor="autoGenerateAccessCode" className="ml-2 text-sm text-gray-700">
+        <label
+          htmlFor="autoGenerateAccessCode"
+          className="ml-2 text-sm text-gray-700"
+        >
           Auto-generate access code (6-digit alphanumeric)
         </label>
       </div>
@@ -354,15 +392,15 @@ export default function EventForm({
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          className="flex items-center space-x-2 rounded-lg bg-detra-gold px-6 py-2 text-white transition-colors hover:bg-detra-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           <span>{isEdit ? 'Update Event' : 'Create Event'}</span>
         </button>
         <button
           type="button"
           onClick={() => window.history.back()}
-          className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 transition-colors hover:bg-gray-50"
         >
           Cancel
         </button>

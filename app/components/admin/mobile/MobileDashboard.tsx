@@ -8,7 +8,7 @@ import {
   EyeIcon as Eye,
   ChatBubbleLeftEllipsisIcon as MessageSquare,
   CameraIcon as Camera,
-  ArrowUpTrayIcon as Upload
+  ArrowUpTrayIcon as Upload,
 } from '@heroicons/react/24/outline'
 
 interface DashboardStats {
@@ -45,29 +45,29 @@ const quickActions: QuickAction[] = [
     label: 'Create Event',
     href: '/admin/events/create',
     icon: Calendar,
-    color: 'bg-brand-teal',
-    description: 'New photography event'
+    color: 'bg-detra-gold',
+    description: 'New photography event',
   },
   {
     label: 'Upload Photos',
     href: '/admin/photos',
     icon: Upload,
     color: 'bg-blue-500',
-    description: 'Add photos to gallery'
+    description: 'Add photos to gallery',
   },
   {
     label: 'View Messages',
     href: '/admin/messages',
     icon: MessageSquare,
     color: 'bg-green-500',
-    description: 'Client communications'
+    description: 'Client communications',
   },
   {
     label: 'Manage Portfolio',
     href: '/admin/portfolio',
     icon: Camera,
     color: 'bg-purple-500',
-    description: 'Update portfolio'
+    description: 'Update portfolio',
   },
 ]
 
@@ -117,8 +117,8 @@ export default function MobileDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-teal"></div>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-detra-gold"></div>
       </div>
     )
   }
@@ -126,26 +126,30 @@ export default function MobileDashboard() {
   if (error) {
     return (
       <div className="p-4">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-          {typeof error === 'string' ? error : 'An error occurred while loading dashboard data'}
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {typeof error === 'string'
+            ? error
+            : 'An error occurred while loading dashboard data'}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="space-y-6 p-4">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-brand-teal to-brand-navy rounded-xl p-6 text-white">
-        <h1 className="text-xl font-bold mb-2">Welcome back!</h1>
-        <p className="text-brand-teal-100 text-sm">
+      <div className="rounded-xl bg-gradient-to-r from-detra-gold to-detra-dark p-6 text-white">
+        <h1 className="mb-2 text-xl font-bold">Welcome back!</h1>
+        <p className="text-detra-gold-100 text-sm">
           Here's what's happening with your photography business today.
         </p>
       </div>
 
       {/* Quick Actions Grid */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h2>
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          Quick Actions
+        </h2>
         <div className="grid grid-cols-2 gap-3">
           {quickActions.map((action) => {
             const Icon = action.icon
@@ -153,15 +157,21 @@ export default function MobileDashboard() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="mobile-card bg-white p-4 touch-feedback"
+                className="mobile-card touch-feedback bg-white p-4"
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 ${action.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                    <Icon className="w-5 h-5 text-white" />
+                  <div
+                    className={`h-10 w-10 ${action.color} flex flex-shrink-0 items-center justify-center rounded-lg`}
+                  >
+                    <Icon className="h-5 w-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-gray-900 text-sm">{action.label}</p>
-                    <p className="text-xs text-gray-500 truncate">{action.description}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {action.label}
+                    </p>
+                    <p className="truncate text-xs text-gray-500">
+                      {action.description}
+                    </p>
                   </div>
                 </div>
               </Link>
@@ -172,52 +182,60 @@ export default function MobileDashboard() {
 
       {/* Statistics Cards */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Overview</h2>
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">Overview</h2>
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="rounded-xl bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Events</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.totalEvents || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats?.totalEvents || 0}
+                </p>
               </div>
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                <Calendar className="h-5 w-5 text-blue-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="rounded-xl bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Active Events</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.activeEvents || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats?.activeEvents || 0}
+                </p>
               </div>
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                <Eye className="h-5 w-5 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="rounded-xl bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Photos</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.totalPhotos || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats?.totalPhotos || 0}
+                </p>
               </div>
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <ImageIcon className="w-5 h-5 text-purple-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                <ImageIcon className="h-5 w-5 text-purple-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="rounded-xl bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">New Messages</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.newMessages || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats?.newMessages || 0}
+                </p>
               </div>
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-orange-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
+                <MessageSquare className="h-5 w-5 text-orange-600" />
               </div>
             </div>
           </div>
@@ -226,10 +244,12 @@ export default function MobileDashboard() {
 
       {/* Recent Events */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Recent Events</h2>
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          Recent Events
+        </h2>
         <div className="space-y-3">
           {recentEvents.length === 0 ? (
-            <div className="bg-white p-4 rounded-xl text-center text-gray-500">
+            <div className="rounded-xl bg-white p-4 text-center text-gray-500">
               No recent events
             </div>
           ) : (
@@ -237,17 +257,23 @@ export default function MobileDashboard() {
               <Link
                 key={event.id}
                 href={`/admin/events/${event.id}`}
-                className="block bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                className="block rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">{event.name}</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate font-semibold text-gray-900">
+                      {event.name}
+                    </h3>
                     <p className="text-sm text-gray-500">
-                      {event.event_date ? new Date(event.event_date).toLocaleDateString() : 'No date'}
+                      {event.event_date
+                        ? new Date(event.event_date).toLocaleDateString()
+                        : 'No date'}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeColor(event.status)}`}>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(event.status)}`}
+                    >
                       {event.status}
                     </span>
                     <span className="text-sm text-gray-500">
