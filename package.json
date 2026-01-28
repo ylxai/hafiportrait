@@ -37,7 +37,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
-    "prepare": "husky install",
+    "prepare": "husky",
     "start:socket": "tsx server/socket-server.ts",
     "start:production": "pm2 start ecosystem.config.js --env production",
     "start:dev:all": "concurrently \"npm run dev\" \"npm run start:socket\"",
@@ -59,6 +59,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/sanitize-html": "^2.16.0",
     "@vercel/blob": "^2.0.0",
+    "ably": "^2.17.0",
     "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "csrf": "^3.1.0",
@@ -86,7 +87,10 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.57.0",
+    "@supabase/supabase-js": "^2.93.2",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.10.6",
     "@types/react": "^19.2.7",
@@ -96,10 +100,10 @@
     "@vitest/coverage-v8": "^4.0.15",
     "artillery": "^2.0.27",
     "autoprefixer": "^10.4.16",
-    "dotenv": "^16.3.1",
-    "eslint": "^8.56.0",
-    "eslint-config-next": "^15.5.9",
-    "husky": "^8.0.3",
+    "dotenv": "^16.6.1",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^15.5.10",
+    "husky": "^9.1.7",
     "lint-staged": "^15.2.0",
     "postcss": "^8.4.32",
     "prettier": "^3.1.1",
@@ -112,10 +116,12 @@
     "vitest": "^4.0.15"
   },
   "overrides": {
-    "@opentelemetry/api": "^1.9.0"
+    "@opentelemetry/api": "^1.9.0",
+    "glob": "^10.0.0",
+    "rimraf": "^5.0.0",
+    "inflight": "npm:@pnpm/npm-lifecycle@1.0.0"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=22.0.0"
   }
 }
