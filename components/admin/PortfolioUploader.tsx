@@ -126,7 +126,15 @@ export default function PortfolioUploader({
     )
     try {
       const formData = new FormData()
-      files.forEach((file) => formData.append('files', file))
+      const isBatch = files.length > 1
+      if (isBatch) {
+        files.forEach((file) => formData.append('files', file))
+      } else {
+        const singleFile = files[0]
+        if (singleFile) {
+          formData.append('file', singleFile)
+        }
+      }
       if (category) formData.append('category', category)
       if (description) formData.append('description', description)
 
@@ -139,7 +147,6 @@ export default function PortfolioUploader({
         process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
         process.env.NEXT_PUBLIC_BASE_URL ||
         ''
-      const isBatch = files.length > 1
       const uploadUrl = uploadBaseUrl
         ? `${uploadBaseUrl}/upload/portfolio${isBatch ? '/batch' : ''}`
         : '/api/admin/portfolio/upload'
