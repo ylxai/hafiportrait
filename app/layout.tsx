@@ -61,7 +61,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className="scroll-smooth">
-      <body className={`${bonheurRoyale.className} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <RootErrorBoundary userType="guest">{children}</RootErrorBoundary>
 
         {/* Google Analytics Script */}
