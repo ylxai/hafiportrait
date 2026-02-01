@@ -5,7 +5,7 @@ import PhotoTile from './PhotoTile'
 import PhotoLightbox from './PhotoLightbox'
 import GalleryHeader from './GalleryHeader'
 import { PhotoTileErrorBoundary } from '@/components/error-boundaries'
-import { useSocket } from '@/hooks/useSocket'
+import { useAblyChannel } from '@/hooks/useAblyChannel'
 import GuestbookSheet from '@/components/gallery/comments/GuestbookSheet'
 
 interface Photo {
@@ -57,7 +57,7 @@ export default function PhotoGrid({
   const observerTarget = useRef<HTMLDivElement>(null)
   const PHOTOS_PER_PAGE = 50
 
-  const { onPhotoUploadComplete } = useSocket({ eventSlug })
+  const { subscribe } = useAblyChannel(eventSlug)
   const [isGuestbookOpen, setIsGuestbookOpen] = useState(false)
 
   // Track event view analytics
@@ -127,14 +127,16 @@ export default function PhotoGrid({
 
   // Real-time: listen for new uploads and update badge counter
   useEffect(() => {
-    const unsubscribe = onPhotoUploadComplete(() => {
+    return subscribe(({ name, data }) => {
+      if (name !== 'photo:upload:complete') return
+      const payload = data as { photo?: any }
+      if (!payload?.photo) return
+
       setHasNewImages(true)
       setNewImagesCount((c) => c + 1)
       // Note: We only show the "New Images (X)" badge button, no toast notification
     })
-
-    return unsubscribe
-  }, [onPhotoUploadComplete])
+  }, [subscribe])
 
   const fetchDeltaPhotos = useCallback(
     async (cursor: { since: string; since_id?: string }) => {

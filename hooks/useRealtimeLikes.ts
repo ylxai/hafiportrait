@@ -8,8 +8,8 @@
  * - Stable callback references
  */
 
-import { useEffect, useState, useRef } from 'react';
-import { useSocket } from './useSocket';
+import { useEffect, useState, useRef } from 'react'
+import { useAblyChannel } from './useAblyChannel'
 
 interface UseRealtimeLikesOptions {
   eventSlug: string;
@@ -22,7 +22,8 @@ export function useRealtimeLikes({
   onLikeAdded,
   onLikeRemoved,
 }: UseRealtimeLikesOptions) {
-  const { socket, isConnected } = useSocket({ eventSlug });
+  const { subscribe } = useAblyChannel(eventSlug)
+  const isConnected = true
   const [likesUpdates, setLikesUpdates] = useState<Record<string, number>>({});
   const mountedRef = useRef(true);
   
@@ -38,34 +39,35 @@ export function useRealtimeLikes({
   useEffect(() => {
     mountedRef.current = true;
     
-    if (!socket || !isConnected) return;
-
-    // Listen for like added
+    // Listen for like events via Ably
     const handleLikeAdded = ({ photo_id, likes_count }: { photo_id: string; likes_count: number }) => {
-      if (!mountedRef.current) return;
-      
-      setLikesUpdates((prev) => ({ ...prev, [photo_id]: likes_count }));
-      onLikeAddedRef.current?.(photo_id, likes_count);
-    };
+      if (!mountedRef.current) return
 
-    // Listen for like removed
+      setLikesUpdates((prev) => ({ ...prev, [photo_id]: likes_count }))
+      onLikeAddedRef.current?.(photo_id, likes_count)
+    }
+
     const handleLikeRemoved = ({ photo_id, likes_count }: { photo_id: string; likes_count: number }) => {
-      if (!mountedRef.current) return;
-      
-      setLikesUpdates((prev) => ({ ...prev, [photo_id]: likes_count }));
-      onLikeRemovedRef.current?.(photo_id, likes_count);
-    };
+      if (!mountedRef.current) return
 
-    socket.on('like:added', handleLikeAdded);
-    socket.on('like:removed', handleLikeRemoved);
+      setLikesUpdates((prev) => ({ ...prev, [photo_id]: likes_count }))
+      onLikeRemovedRef.current?.(photo_id, likes_count)
+    }
 
-    // Cleanup function - CRITICAL
+    const unsubscribe = subscribe(({ name, data }) => {
+      if (name === 'like:added') {
+        handleLikeAdded(data as { photo_id: string; likes_count: number })
+      }
+      if (name === 'like:removed') {
+        handleLikeRemoved(data as { photo_id: string; likes_count: number })
+      }
+    })
+
     return () => {
-      mountedRef.current = false;
-      socket.off('like:added', handleLikeAdded);
-      socket.off('like:removed', handleLikeRemoved);
-    };
-  }, [socket, isConnected]);
+      mountedRef.current = false
+      unsubscribe?.()
+    }
+  }, [subscribe])
 
   return {
     likesUpdates,

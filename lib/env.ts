@@ -37,13 +37,8 @@ const envSchema = z.object({
   R2_BUCKET: z.string().min(1, 'R2_BUCKET is required'),
   R2_REGION: z.string().default('auto'),
   
-  // Socket.IO (Optional)
-  SOCKET_IO_ENABLED: z.string().transform(val => val === 'true').default('false'),
-  SOCKET_PORT: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(1024).max(65535)).optional(),
-  
   // Public Environment Variables (for client-side)
   NEXT_PUBLIC_API_URL: z.string().url('NEXT_PUBLIC_API_URL must be a valid URL').optional(),
-  NEXT_PUBLIC_SOCKET_URL: z.string().url('NEXT_PUBLIC_SOCKET_URL must be a valid URL').optional(),
   NEXT_PUBLIC_ENABLE_REALTIME: z.string().transform(val => val === 'true').default('false'),
   NEXT_PUBLIC_GA_ID: z.string().optional(),
   
@@ -145,10 +140,6 @@ export function getRedisUrl(): string {
 /**
  * Helper: Check if Socket.IO is enabled
  */
-export function isSocketIOEnabled(): boolean {
-  return env.SOCKET_IO_ENABLED;
-}
-
 /**
  * Type-safe environment variable access
  */

@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { useSocket } from './useSocket'
+import { useAblyChannel } from './useAblyChannel'
 
 interface Comment {
   id: string
@@ -28,7 +28,8 @@ export function useRealtimeComments({
   eventSlug,
   onCommentAdded,
 }: UseRealtimeCommentsOptions) {
-  const { socket, isConnected } = useSocket({ eventSlug })
+  const { subscribe } = useAblyChannel(eventSlug)
+  const isConnected = true
   const [newComments, setNewComments] = useState<Comment[]>([])
   const mountedRef = useRef(true)
 
@@ -42,27 +43,26 @@ export function useRealtimeComments({
   useEffect(() => {
     mountedRef.current = true
 
-    if (!socket || !isConnected) return
+    // Listen for new comments via Ably
+    const handleCommentAdded = ({ comment }: { comment: Comment }) => {
+      if (!mountedRef.current) return
 
-    // Listen for new comments
-    const handleCommentAdded = useCallback(
-      ({ comment }: { comment: Comment }) => {
-        if (!mountedRef.current) return
+      setNewComments((prev) => [...prev, comment])
+      onCommentAddedRef.current?.(comment)
+    }
 
-        setNewComments((prev) => [...prev, comment])
-        onCommentAddedRef.current?.(comment)
-      },
-      []
-    )
+    const unsubscribe = subscribe(({ name, data }) => {
+      if (name === 'comment:added') {
+        handleCommentAdded(data as { comment: Comment })
+      }
+    })
 
-    socket.on('comment:added', handleCommentAdded)
-
-    // Cleanup function - CRITICAL
+    // Cleanup function
     return () => {
       mountedRef.current = false
-      socket.off('comment:added', handleCommentAdded)
+      unsubscribe?.()
     }
-  }, [socket, isConnected])
+  }, [subscribe])
 
   return {
     newComments,

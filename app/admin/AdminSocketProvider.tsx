@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useSocket } from '@/hooks/useSocket'
+import { useEffect, useCallback } from 'react'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 
 type AdminNotificationPayload = {
@@ -21,10 +20,12 @@ type AdminNotificationPayload = {
  */
 export default function AdminSocketProvider() {
   const toast = useAdminToast()
-  const { onAdminNotification } = useSocket({ admin: true, autoConnect: true })
-
+  const onAdminNotification = useCallback(
+    (_handler: (payload: AdminNotificationPayload) => void) => () => {},
+    []
+  )
   useEffect(() => {
-    return onAdminNotification((payload: AdminNotificationPayload) => {
+    const unsubscribe = onAdminNotification((payload: AdminNotificationPayload) => {
       if (!payload) return
 
       if (payload.type === 'upload_complete') {
@@ -51,7 +52,9 @@ export default function AdminSocketProvider() {
         duration: 3000,
       })
     })
-  }, [onAdminNotification, toast])
+
+    return unsubscribe
+  }, [toast, onAdminNotification])
 
   return null
 }
