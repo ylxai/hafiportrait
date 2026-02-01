@@ -583,3 +583,4 @@ scripts/test-r2-upload.ts
 upload-api/node_modules
 upload-api/dist
 upload-api/.env
+upload-api/
