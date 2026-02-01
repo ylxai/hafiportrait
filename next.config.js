@@ -31,6 +31,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.hafiportrait.photography',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.hafiportrait.photography',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -53,13 +57,13 @@ const nextConfig = {
       // Exclude bcrypt from client bundle
       config.externals = [...(config.externals || []), 'bcrypt']
     }
-    
+
     // Ignore specific problematic files
     config.module = {
       ...config.module,
       exprContextCritical: false,
     }
-    
+
     return config
   },
   // Move serverComponentsExternalPackages to new location
