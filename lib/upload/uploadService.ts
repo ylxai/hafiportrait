@@ -18,6 +18,42 @@ export interface UploadProgress {
   percentage: number
 }
 
+export interface UploadApiPhoto {
+  id?: string
+  event_id?: string
+  filename?: string
+  original_url?: string
+  thumbnail_url?: string
+  thumbnail_small_url?: string
+  thumbnail_medium_url?: string
+  thumbnail_large_url?: string
+  width?: number
+  height?: number
+  size?: number
+}
+
+export interface UploadBatchItem {
+  success: boolean
+  filename?: string
+  error?: string
+  thumbnail_url?: string
+  photo?: UploadApiPhoto
+}
+
+export interface UploadBatchSummary {
+  total?: number
+  success?: number
+  failed?: number
+}
+
+export interface UploadApiResponse {
+  success: boolean
+  photo?: UploadApiPhoto
+  results?: UploadBatchItem[]
+  summary?: UploadBatchSummary
+  error?: string
+}
+
 export interface UploadResult {
   success: boolean
   photo_id?: string
@@ -36,6 +72,54 @@ function getUploadApiBaseUrl(): string {
 
 function getUploadApiKey(): string {
   return process.env.NEXT_PUBLIC_UPLOAD_API_KEY || ''
+}
+
+export function resolveUploadUrl(
+  remotePath: string,
+  fallbackPath: string
+): string {
+  const base = getUploadApiBaseUrl()
+  if (base) {
+    return `${base}${remotePath}`
+  }
+  return fallbackPath
+}
+
+export function getUploadHeaders(): Record<string, string> {
+  const key = getUploadApiKey()
+  return key ? { 'X-API-Key': key } : {}
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+export function parseUploadResponse(payload: unknown): UploadApiResponse {
+  if (!isRecord(payload)) {
+    return { success: false, error: 'Invalid response' }
+  }
+  const success = typeof payload.success === 'boolean' ? payload.success : false
+  const error = typeof payload.error === 'string' ? payload.error : undefined
+  return {
+    success,
+    error,
+    photo: isRecord(payload.photo)
+      ? (payload.photo as UploadApiPhoto)
+      : undefined,
+    results: Array.isArray(payload.results)
+      ? (payload.results as UploadBatchItem[])
+      : undefined,
+    summary: isRecord(payload.summary)
+      ? (payload.summary as UploadBatchSummary)
+      : undefined,
+  }
+}
+
+export function getUploadErrorMessage(
+  status: number,
+  response: UploadApiResponse
+): string {
+  return response.error || `Upload failed (${status})`
 }
 
 /**
@@ -68,7 +152,10 @@ export async function uploadFile(
 
     // Upload with progress tracking
     const result = await uploadWithProgress(
-      `${getUploadApiBaseUrl()}/upload/event/${event_id}`,
+      resolveUploadUrl(
+        `/upload/event/${event_id}`,
+        `/api/admin/events/${event_id}/photos/upload`
+      ),
       formData,
       {
         onProgress,
@@ -77,7 +164,6 @@ export async function uploadFile(
     )
 
     return {
-      success: true,
       ...result,
       checksum,
     }
@@ -119,16 +205,14 @@ function uploadWithProgress(
     onProgress?: (progress: UploadProgress) => void
     signal?: AbortSignal
   } = {}
-): Promise<any> {
+): Promise<UploadApiResponse> {
   // In browsers, prefer XHR to avoid intermittent aborts and to get reliable upload progress.
   if (typeof window !== 'undefined') {
     return xhrUpload({
       url,
       formData,
       withCredentials: false,
-      headers: {
-        'X-API-Key': getUploadApiKey(),
-      },
+      headers: getUploadHeaders(),
       signal: options.signal,
       onProgress: (p) => {
         options.onProgress?.({
@@ -138,14 +222,12 @@ function uploadWithProgress(
         })
       },
     }).then((res) => {
-      if (!res.ok) {
-        const msg =
-          typeof res.json === 'object' && res.json && 'error' in res.json
-            ? String((res.json as { error?: string }).error || 'Upload failed')
-            : `Upload failed (${res.status})`
+      const parsed = parseUploadResponse(res.json)
+      if (!res.ok || !parsed.success) {
+        const msg = parsed.error || `Upload failed (${res.status})`
         throw new Error(msg)
       }
-      return res.json
+      return parsed
     })
   }
 
@@ -154,9 +236,7 @@ function uploadWithProgress(
     .post(url, formData, {
       signal: options.signal,
       withCredentials: false,
-      headers: {
-        'X-API-Key': getUploadApiKey(),
-      },
+      headers: getUploadHeaders(),
       timeout: 120_000,
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
@@ -173,7 +253,7 @@ function uploadWithProgress(
         }
       },
     })
-    .then((response) => response.data)
+    .then((response) => parseUploadResponse(response.data))
 }
 
 /**

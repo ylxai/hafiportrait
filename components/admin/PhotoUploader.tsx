@@ -15,6 +15,12 @@ import { useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { xhrUpload } from '@/lib/upload/xhr-upload'
 import {
+  getUploadErrorMessage,
+  getUploadHeaders,
+  parseUploadResponse,
+  resolveUploadUrl,
+} from '@/lib/upload/uploadService'
+import {
   ArrowUpTrayIcon as Upload,
   XMarkIcon as X,
   CheckCircleIcon as CheckCircle,
@@ -47,6 +53,26 @@ interface PhotoUploaderProps {
   }) => void
   maxFiles?: number
   maxFileSize?: number // in bytes
+}
+
+const runWithConcurrency = async <T,>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<void>
+) => {
+  const executing = new Set<Promise<void>>()
+
+  for (const item of items) {
+    const p = worker(item)
+    executing.add(p)
+    const cleanup = () => executing.delete(p)
+    p.then(cleanup).catch(cleanup)
+    if (executing.size >= limit) {
+      await Promise.race(executing)
+    }
+  }
+
+  await Promise.all(executing)
 }
 
 export default function PhotoUploader({
@@ -219,6 +245,7 @@ export default function PhotoUploader({
 
     // Upload in batches of 5
     const batchSize = 5
+    const concurrencyLimit = 2
     let completed = 0
     let successCount = 0
     let errorCount = 0
@@ -235,27 +262,22 @@ export default function PhotoUploader({
         )
       )
 
-      // Upload batch
-      const uploadPromises = batch.map(async (uploadFile) => {
+      // Upload batch with concurrency control
+      await runWithConcurrency(batch, concurrencyLimit, async (uploadFile) => {
         try {
           const formData = new FormData()
           formData.append('file', uploadFile.file)
 
-          const uploadBaseUrl =
-            process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
-            process.env.NEXT_PUBLIC_BASE_URL ||
-            ''
-          const uploadUrl = uploadBaseUrl
-            ? `${uploadBaseUrl}/upload/event/${event_id}`
-            : `/api/admin/events/${event_id}/photos/upload`
+          const uploadUrl = resolveUploadUrl(
+            `/upload/event/${event_id}`,
+            `/api/admin/events/${event_id}/photos/upload`
+          )
 
           const result = await xhrUpload({
             url: uploadUrl,
             formData,
             withCredentials: false,
-            headers: {
-              'X-API-Key': process.env.NEXT_PUBLIC_UPLOAD_API_KEY || '',
-            },
+            headers: getUploadHeaders(),
             onProgress: (p) => {
               setFiles((prev) =>
                 prev.map((f) =>
@@ -265,11 +287,7 @@ export default function PhotoUploader({
             },
           })
 
-          const json = result.json as unknown
-          const data =
-            typeof json === 'object' && json !== null
-              ? (json as { success?: boolean; error?: string })
-              : {}
+          const data = parseUploadResponse(result.json)
 
           if (result.ok && data.success) {
             setFiles((prev) =>
@@ -280,10 +298,10 @@ export default function PhotoUploader({
               )
             )
             successCount++
-            return { success: true }
+            return
           }
 
-          throw new Error(data.error || `Upload failed (${result.status})`)
+          throw new Error(getUploadErrorMessage(result.status, data))
         } catch (error) {
           console.error('Upload error:', error)
           setFiles((prev) =>
@@ -299,15 +317,9 @@ export default function PhotoUploader({
             )
           )
           errorCount++
-
-          // Show individual error toast
           toast.photo.uploadError(uploadFile.file.name)
-
-          return { success: false }
         }
       })
-
-      await Promise.all(uploadPromises)
       completed += batch.length
 
       // Update progress toast

@@ -3,6 +3,12 @@
 import Image from 'next/image'
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { xhrUpload } from '@/lib/upload/xhr-upload'
+import {
+  getUploadErrorMessage,
+  getUploadHeaders,
+  parseUploadResponse,
+  resolveUploadUrl,
+} from '@/lib/upload/uploadService'
 import { useAdminToast } from '@/hooks/toast/useAdminToast'
 import {
   ArrowUpTrayIcon as Upload,
@@ -14,7 +20,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 interface UploadResult {
-  filename: string
+  filename?: string
   success: boolean
   photo_id?: string
   url?: string
@@ -143,34 +149,43 @@ export default function PortfolioUploader({
         files.map((f) => f.name)
       )
 
-      const uploadBaseUrl =
-        process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
-        process.env.NEXT_PUBLIC_BASE_URL ||
-        ''
-      const uploadUrl = uploadBaseUrl
-        ? `${uploadBaseUrl}/upload/portfolio${isBatch ? '/batch' : ''}`
-        : '/api/admin/portfolio/upload'
+      const uploadUrl = resolveUploadUrl(
+        `/upload/portfolio${isBatch ? '/batch' : ''}`,
+        '/api/admin/portfolio/upload'
+      )
 
       const result = await xhrUpload({
         url: uploadUrl,
         formData,
         withCredentials: false,
-        headers: {
-          'X-API-Key': process.env.NEXT_PUBLIC_UPLOAD_API_KEY || '',
-        },
+        headers: getUploadHeaders(),
         onProgress: (p) => setUploadProgress(p.percent),
       })
 
-      if (!result.ok) {
+      const data = parseUploadResponse(result.json)
+
+      if (!result.ok || !data.success) {
+        const errorMessage = getUploadErrorMessage(result.status, data)
         console.error('Upload failed:', result.status, result.responseText)
-        throw new Error(`Upload failed: ${result.status}`)
+        throw new Error(errorMessage)
       }
 
-      const data = (result.json || {}) as any
-      setUploadResults(data.results || [])
+      const results =
+        data.results ??
+        (data.photo
+          ? [
+              {
+                success: true,
+                filename: data.photo.filename,
+                thumbnail_url: data.photo.thumbnail_url,
+              },
+            ]
+          : [])
 
-      const successCount: number = data?.summary?.success ?? 0
-      const failedCount: number = data?.summary?.failed ?? 0
+      setUploadResults(results)
+
+      const successCount: number = data.summary?.success ?? results.length
+      const failedCount: number = data.summary?.failed ?? 0
 
       if (successCount > 0 && failedCount === 0) {
         toast.updateToast(
@@ -190,9 +205,7 @@ export default function PortfolioUploader({
 
       // Clear successful uploads
       if (successCount > 0) {
-        const failedFiles = files.filter(
-          (_, index) => !data.results[index]?.success
-        )
+        const failedFiles = files.filter((_, index) => !results[index]?.success)
         setFiles(failedFiles)
         setDescription('')
 
