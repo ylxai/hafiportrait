@@ -239,7 +239,7 @@ export default function PhotoUploader({
       const uploadPromises = batch.map(async (uploadFile) => {
         try {
           const formData = new FormData()
-          formData.append('files', uploadFile.file)
+          formData.append('file', uploadFile.file)
 
           const uploadBaseUrl =
             process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
