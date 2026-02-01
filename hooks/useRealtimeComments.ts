@@ -8,7 +8,7 @@
  * - Stable callback references
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAblyChannel } from './useAblyChannel'
 
 interface Comment {

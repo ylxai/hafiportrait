@@ -22,7 +22,7 @@ export async function broadcastPhotoUploadProgress(data: {
  */
 export async function broadcastPhotoUploadComplete(data: {
   eventSlug: string
-  photo: any
+  photo: Record<string, unknown>
 }) {
   await publishToEventChannel(data.eventSlug, 'photo:upload:complete', data)
 }
@@ -44,7 +44,7 @@ export async function broadcastPhotoLike(data: {
 export async function broadcastPhotoComment(data: {
   eventSlug: string
   photo_id: string
-  comment: any
+  comment: Record<string, unknown>
 }) {
   await publishToEventChannel(data.eventSlug, 'comment:added', data)
 }
@@ -54,7 +54,7 @@ export async function broadcastPhotoComment(data: {
  */
 export async function broadcastEventUpdate(data: {
   eventSlug: string
-  updates: any
+  updates: Record<string, unknown>
 }) {
   await publishToEventChannel(data.eventSlug, 'event:update', data)
 }
@@ -64,7 +64,7 @@ export async function broadcastEventUpdate(data: {
  */
 export async function broadcastAdminNotification(_data: {
   type: 'inquiry' | 'booking' | 'upload_complete' | 'system'
-  data: any
+  data: Record<string, unknown>
 }) {
   // TODO: implement admin channel if needed
 }

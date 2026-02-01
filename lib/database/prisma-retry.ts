@@ -17,8 +17,9 @@ function isConnectionClosedError(err: unknown): boolean {
   return (
     msg.includes('kind: Closed') ||
     msg.includes('PostgreSQL connection') ||
-    msg.includes('Connection') && msg.includes('closed') ||
-    name.toLowerCase().includes('prisma') && msg.toLowerCase().includes('closed')
+    (msg.includes('Connection') && msg.includes('closed')) ||
+    (name.toLowerCase().includes('prisma') &&
+      msg.toLowerCase().includes('closed'))
   )
 }
 
@@ -35,7 +36,6 @@ export async function withPrismaRetry<T>(
   const maxDelayMs = opts.maxDelayMs ?? 2000
 
   let attempt = 0
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       return await operation()
