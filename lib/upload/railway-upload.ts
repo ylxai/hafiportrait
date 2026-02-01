@@ -6,7 +6,7 @@
  * which handles Sharp image processing and R2 storage.
  */
 
-import { xhrUpload } from './xhr-upload'
+import { xhrUpload, XhrUploadResponse } from './xhr-upload'
 
 // =============================================================================
 // Types
@@ -100,6 +100,20 @@ function buildHeaders(): Record<string, string> {
   }
 }
 
+/**
+ * Parse XHR response to typed object
+ */
+function parseResponse<T>(response: XhrUploadResponse): T {
+  if (response.json) {
+    return response.json as T
+  }
+  try {
+    return JSON.parse(response.responseText) as T
+  } catch {
+    throw new Error('Invalid response format')
+  }
+}
+
 // =============================================================================
 // Upload Functions
 // =============================================================================
@@ -113,24 +127,42 @@ export async function uploadEventPhoto(
   options: UploadOptions = {}
 ): Promise<UploadResult> {
   const formData = new FormData()
-  formData.append('photo', file)
+  formData.append('file', file)
 
   const url = `${getUploadApiUrl()}/upload/event/${eventId}`
 
   try {
-    const response = await xhrUpload<{
-      success: boolean
-      photo: PhotoMetadata
-    }>(url, formData, {
+    const response = await xhrUpload({
+      url,
+      formData,
       headers: buildHeaders(),
-      onProgress: options.onProgress,
-      abortSignal: options.abortSignal,
+      onProgress: options.onProgress
+        ? (p) =>
+            options.onProgress!({
+              loaded: p.loaded,
+              total: p.total,
+              percentage: p.percent,
+            })
+        : undefined,
+      signal: options.abortSignal,
     })
 
-    if (response.success && response.photo) {
+    if (!response.ok) {
+      const errorData = parseResponse<{ error?: string }>(response)
+      return {
+        success: false,
+        error: errorData.error || `Upload failed (${response.status})`,
+      }
+    }
+
+    const data = parseResponse<{ success: boolean; photo: PhotoMetadata }>(
+      response
+    )
+
+    if (data.success && data.photo) {
       return {
         success: true,
-        photo: response.photo,
+        photo: data.photo,
       }
     }
 
@@ -159,19 +191,38 @@ export async function uploadEventPhotosBatch(
 ): Promise<BatchUploadResult> {
   const formData = new FormData()
   files.forEach((file) => {
-    formData.append('photos', file)
+    formData.append('files', file)
   })
 
   const url = `${getUploadApiUrl()}/upload/event/${eventId}/batch`
 
   try {
-    const response = await xhrUpload<BatchUploadResult>(url, formData, {
+    const response = await xhrUpload({
+      url,
+      formData,
       headers: buildHeaders(),
-      onProgress: options.onProgress,
-      abortSignal: options.abortSignal,
+      onProgress: options.onProgress
+        ? (p) =>
+            options.onProgress!({
+              loaded: p.loaded,
+              total: p.total,
+              percentage: p.percent,
+            })
+        : undefined,
+      signal: options.abortSignal,
     })
 
-    return response
+    if (!response.ok) {
+      const errorData = parseResponse<{ error?: string }>(response)
+      return {
+        success: false,
+        message: errorData.error || 'Batch upload failed',
+        results: [],
+        summary: { total: files.length, success: 0, failed: files.length },
+      }
+    }
+
+    return parseResponse<BatchUploadResult>(response)
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw error
@@ -193,24 +244,42 @@ export async function uploadPortfolioPhoto(
   options: UploadOptions = {}
 ): Promise<UploadResult> {
   const formData = new FormData()
-  formData.append('photo', file)
+  formData.append('file', file)
 
   const url = `${getUploadApiUrl()}/upload/portfolio`
 
   try {
-    const response = await xhrUpload<{
-      success: boolean
-      photo: PhotoMetadata
-    }>(url, formData, {
+    const response = await xhrUpload({
+      url,
+      formData,
       headers: buildHeaders(),
-      onProgress: options.onProgress,
-      abortSignal: options.abortSignal,
+      onProgress: options.onProgress
+        ? (p) =>
+            options.onProgress!({
+              loaded: p.loaded,
+              total: p.total,
+              percentage: p.percent,
+            })
+        : undefined,
+      signal: options.abortSignal,
     })
 
-    if (response.success && response.photo) {
+    if (!response.ok) {
+      const errorData = parseResponse<{ error?: string }>(response)
+      return {
+        success: false,
+        error: errorData.error || `Upload failed (${response.status})`,
+      }
+    }
+
+    const data = parseResponse<{ success: boolean; photo: PhotoMetadata }>(
+      response
+    )
+
+    if (data.success && data.photo) {
       return {
         success: true,
-        photo: response.photo,
+        photo: data.photo,
       }
     }
 
@@ -238,19 +307,38 @@ export async function uploadPortfolioPhotosBatch(
 ): Promise<BatchUploadResult> {
   const formData = new FormData()
   files.forEach((file) => {
-    formData.append('photos', file)
+    formData.append('files', file)
   })
 
   const url = `${getUploadApiUrl()}/upload/portfolio/batch`
 
   try {
-    const response = await xhrUpload<BatchUploadResult>(url, formData, {
+    const response = await xhrUpload({
+      url,
+      formData,
       headers: buildHeaders(),
-      onProgress: options.onProgress,
-      abortSignal: options.abortSignal,
+      onProgress: options.onProgress
+        ? (p) =>
+            options.onProgress!({
+              loaded: p.loaded,
+              total: p.total,
+              percentage: p.percent,
+            })
+        : undefined,
+      signal: options.abortSignal,
     })
 
-    return response
+    if (!response.ok) {
+      const errorData = parseResponse<{ error?: string }>(response)
+      return {
+        success: false,
+        message: errorData.error || 'Batch upload failed',
+        results: [],
+        summary: { total: files.length, success: 0, failed: files.length },
+      }
+    }
+
+    return parseResponse<BatchUploadResult>(response)
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw error
@@ -272,24 +360,42 @@ export async function uploadSlideshowPhoto(
   options: UploadOptions = {}
 ): Promise<UploadResult> {
   const formData = new FormData()
-  formData.append('photo', file)
+  formData.append('file', file)
 
   const url = `${getUploadApiUrl()}/upload/slideshow`
 
   try {
-    const response = await xhrUpload<{
-      success: boolean
-      photo: PhotoMetadata
-    }>(url, formData, {
+    const response = await xhrUpload({
+      url,
+      formData,
       headers: buildHeaders(),
-      onProgress: options.onProgress,
-      abortSignal: options.abortSignal,
+      onProgress: options.onProgress
+        ? (p) =>
+            options.onProgress!({
+              loaded: p.loaded,
+              total: p.total,
+              percentage: p.percent,
+            })
+        : undefined,
+      signal: options.abortSignal,
     })
 
-    if (response.success && response.photo) {
+    if (!response.ok) {
+      const errorData = parseResponse<{ error?: string }>(response)
+      return {
+        success: false,
+        error: errorData.error || `Upload failed (${response.status})`,
+      }
+    }
+
+    const data = parseResponse<{ success: boolean; photo: PhotoMetadata }>(
+      response
+    )
+
+    if (data.success && data.photo) {
       return {
         success: true,
-        photo: response.photo,
+        photo: data.photo,
       }
     }
 
@@ -372,7 +478,8 @@ export async function checkUploadApiHealth(): Promise<boolean> {
   }
 }
 
-export default {
+// Named exports for Railway Upload API
+export const railwayUpload = {
   uploadEventPhoto,
   uploadEventPhotosBatch,
   uploadPortfolioPhoto,
