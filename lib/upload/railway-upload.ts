@@ -425,9 +425,7 @@ export async function uploadFilesSequentially(
 ): Promise<UploadResult[]> {
   const results: UploadResult[] = []
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-
+  for (const [i, file] of files.entries()) {
     // Check if aborted
     if (options.abortSignal?.aborted) {
       const abortError = new Error('Upload aborted')
