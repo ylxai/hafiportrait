@@ -239,13 +239,13 @@ export default function EventDetailPage() {
     )
   }
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_VERCEL_URL
+  const baseUrl: string =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : process.env.NEXTAUTH_URL ||
-        (typeof window !== 'undefined'
-          ? window.location.origin
-          : 'http://localhost:3000')
+      : typeof window !== 'undefined'
+        ? window.location.origin
+        : 'https://hafiportrait.photography')
   const galleryUrl = `${baseUrl}/${event.slug}`
   const galleryUrlWithCode = `${galleryUrl}?code=${event.access_code}`
 
@@ -292,7 +292,7 @@ export default function EventDetailPage() {
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <a
               href={galleryUrl}
               target="_blank"
