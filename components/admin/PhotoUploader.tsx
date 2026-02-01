@@ -241,10 +241,21 @@ export default function PhotoUploader({
           const formData = new FormData()
           formData.append('files', uploadFile.file)
 
+          const uploadBaseUrl =
+            process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
+            process.env.NEXT_PUBLIC_BASE_URL ||
+            ''
+          const uploadUrl = uploadBaseUrl
+            ? `${uploadBaseUrl}/upload/event/${event_id}`
+            : `/api/admin/events/${event_id}/photos/upload`
+
           const result = await xhrUpload({
-            url: `/api/admin/events/${event_id}/photos/upload`,
+            url: uploadUrl,
             formData,
-            withCredentials: true,
+            withCredentials: false,
+            headers: {
+              'X-API-Key': process.env.NEXT_PUBLIC_UPLOAD_API_KEY || '',
+            },
             onProgress: (p) => {
               setFiles((prev) =>
                 prev.map((f) =>
