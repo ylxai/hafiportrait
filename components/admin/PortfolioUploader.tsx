@@ -139,8 +139,9 @@ export default function PortfolioUploader({
         process.env.NEXT_PUBLIC_UPLOAD_API_URL ||
         process.env.NEXT_PUBLIC_BASE_URL ||
         ''
+      const isBatch = files.length > 1
       const uploadUrl = uploadBaseUrl
-        ? `${uploadBaseUrl}/upload/portfolio/batch`
+        ? `${uploadBaseUrl}/upload/portfolio${isBatch ? '/batch' : ''}`
         : '/api/admin/portfolio/upload'
 
       const result = await xhrUpload({
