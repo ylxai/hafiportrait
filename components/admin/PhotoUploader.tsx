@@ -245,7 +245,10 @@ export default function PhotoUploader({
 
     // Upload in batches of 5
     const batchSize = 5
-    const concurrencyLimit = 2
+    const concurrencyLimit = Math.max(
+      1,
+      Math.min(10, Number(process.env.NEXT_PUBLIC_UPLOAD_CONCURRENCY ?? 2))
+    )
     let completed = 0
     let successCount = 0
     let errorCount = 0
