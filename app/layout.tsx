@@ -4,13 +4,6 @@ import { Analytics } from '@vercel/analytics/react'
 import { ToastProvider } from '@/components/providers/ToastProvider'
 import { RootErrorBoundary } from '@/components/error-boundaries'
 import Script from 'next/script'
-import { Bonheur_Royale } from 'next/font/google'
-
-const bonheurRoyale = Bonheur_Royale({
-  subsets: ['latin'],
-  weight: '400',
-})
-
 export const metadata: Metadata = {
   metadataBase: new URL('https://hafiportrait.photography'),
   title: 'Hafiportrait - Editorial Wedding Photography for Modern Couples',
