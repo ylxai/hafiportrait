@@ -24,59 +24,64 @@ interface Event {
   testimonial?: string
 }
 
-const sampleEvents: Event[] = [
-  {
-    id: '1',
-    title: 'Garden Wedding',
-    couple: 'Sarah & Michael',
-    date: 'June 2024',
-    location: 'Bali',
-    guests: 150,
-    coverImage:
-      'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop',
-    slug: 'sarah-michael-wedding',
-    testimonial:
-      'Absolutely stunning work! They captured every moment perfectly.',
-  },
-  {
-    id: '2',
-    title: 'Beach Romance',
-    couple: 'Lisa & David',
-    date: 'May 2024',
-    location: 'Lombok',
-    guests: 80,
-    coverImage:
-      'https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2070&auto=format&fit=crop',
-    slug: 'lisa-david-wedding',
-    testimonial: 'Professional, creative, and so much fun to work with!',
-  },
-  {
-    id: '3',
-    title: 'Urban Elegance',
-    couple: 'Amanda & James',
-    date: 'April 2024',
-    location: 'Banjar',
-    guests: 200,
-    coverImage:
-      'https://images.unsplash.com/photo-1591604466107-ec97de577aff?q=80&w=2071&auto=format&fit=crop',
-    slug: 'amanda-james-wedding',
-    testimonial: 'The photos exceeded all our expectations. Thank you!',
-  },
-]
+interface PublicEvent {
+  id: string
+  slug: string
+  name: string
+  coupleName?: string
+  event_date: string
+  coverPhotoUrl: string
+  photoCount: number
+}
 
 export default function FeaturedEventsCarousel() {
+  const [events, setEvents] = useState<Event[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(0)
   const [imageError, setImageError] = useState<{ [key: string]: boolean }>({})
 
   useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const res = await fetch('/api/public/events')
+        if (!res.ok) return
+        const data = await res.json()
+        if (Array.isArray(data?.events)) {
+          const mapped = data.events
+            .filter((event: PublicEvent) => Boolean(event.coverPhotoUrl))
+            .map((event: PublicEvent) => ({
+              id: event.id,
+              title: event.name,
+              couple: event.coupleName || event.name,
+              date: new Date(event.event_date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+              }),
+              location: 'Indonesia',
+              guests: event.photoCount || 0,
+              coverImage: event.coverPhotoUrl,
+              slug: event.slug,
+              testimonial: undefined,
+            }))
+          setEvents(mapped)
+        }
+      } catch (_) {
+        return
+      }
+    }
+
+    loadEvents()
+  }, [])
+
+  useEffect(() => {
+    if (events.length === 0) return
     const timer = setInterval(() => {
       setDirection(1)
-      setCurrentIndex((prev) => (prev + 1) % sampleEvents.length)
+      setCurrentIndex((prev) => (prev + 1) % events.length)
     }, 5000)
 
     return () => clearInterval(timer)
-  }, [])
+  }, [events])
 
   const slideVariants = {
     enter: (direction: number) => ({
@@ -99,13 +104,13 @@ export default function FeaturedEventsCarousel() {
     setDirection(newDirection)
     setCurrentIndex((prevIndex) => {
       let newIndex = prevIndex + newDirection
-      if (newIndex < 0) newIndex = sampleEvents.length - 1
-      if (newIndex >= sampleEvents.length) newIndex = 0
+      if (newIndex < 0) newIndex = events.length - 1
+      if (newIndex >= events.length) newIndex = 0
       return newIndex
     })
   }
 
-  const currentEvent = sampleEvents[currentIndex]
+  const currentEvent = events[currentIndex]
 
   // Guard against invalid event data
   if (!currentEvent) {
@@ -273,7 +278,7 @@ export default function FeaturedEventsCarousel() {
 
             {/* Dot Indicators */}
             <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 gap-2">
-              {sampleEvents.map((_, index) => (
+              {events.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => {
