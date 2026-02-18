@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import { Analytics } from '@vercel/analytics/react'
+import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/providers/ToastProvider'
 import { RootErrorBoundary } from '@/components/error-boundaries'
 import Script from 'next/script'
